@@ -64,12 +64,12 @@
                             <bundleFileName>gafs-base-servidor.jar</bundleFileName>
                         </ejbModule>
                         <ejbModule>
-                            <groupId>br.gafs.calvinista</groupId>
+                            <groupId>br.gafs.getit.calvinista</groupId>
                             <artifactId>calvinista-servidor</artifactId>
                             <bundleFileName>calvinista-servidor.jar</bundleFileName>
                         </ejbModule>
                         <webModule>
-                            <groupId>br.gafs.calvinista</groupId>
+                            <groupId>br.gafs.getit.calvinista</groupId>
                             <artifactId>calvinista-api</artifactId>
                             <contextRoot>/app</contextRoot>
                         </webModule>
