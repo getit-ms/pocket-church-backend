@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="resultado_votacao_questoes" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" resourceBundle="report-bundle" uuid="28a42571-78a6-4289-9641-84d870c4d038">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="questao" class="java.lang.String"/>
+	<field name="totais" class="java.util.Collection"/>
+	<field name="validos" class="java.util.Collection"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="340" splitType="Stretch">
+			<textField>
+				<reportElement uuid="6c03436b-beff-4f8b-ba07-d5c9751c3be8" x="0" y="0" width="555" height="20"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="true"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.questao} + " " + $V{REPORT_COUNT} + ": " + $F{questao}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="0f235680-fcaa-4479-86db-c90a23527b75" positionType="Float" x="0" y="339" width="555" height="1"/>
+			</line>
+			<subreport>
+				<reportElement uuid="375754aa-f093-4114-9aea-e1050d030af4" x="0" y="20" width="200" height="60"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{totais})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["jasper/resultado_votacao_opcoes_tabela.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement uuid="722231a2-0309-4f21-9b80-6083aac979cc" x="200" y="40" width="355" height="130"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{totais})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["jasper/resultado_votacao_opcao_grafico.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement uuid="0fb1cb49-1fb0-4e66-8c1a-d82a57396262" x="200" y="190" width="355" height="130"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["jasper/resultado_votacao_opcao_grafico.jasper"]]></subreportExpression>
+			</subreport>
+			<textField>
+				<reportElement uuid="a71cfdb1-a0d5-4bef-9fa4-5321ecabe53d" x="200" y="20" width="355" height="20"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="true" isItalic="true"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.votos.totais}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="67690b96-584a-4f73-8e72-59627a0f518e" x="200" y="170" width="355" height="20"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="true" isItalic="true"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.votos.validos}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

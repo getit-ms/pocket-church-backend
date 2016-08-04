@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="resultado_votacao_opcoes_tabela" pageWidth="200" pageHeight="802" whenNoDataType="AllSectionsNoDetail" columnWidth="200" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" resourceBundle="report-bundle" uuid="65144c59-5120-4dd6-9a20-288a76552050">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<field name="opcao" class="java.lang.String"/>
+	<field name="resultado" class="java.lang.Integer"/>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement uuid="26c5132b-13e8-4322-837f-3f74461e4e49" x="0" y="0" width="140" height="20"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<paragraph spacingBefore="0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.opcao}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="ce1df427-9bbd-4b6d-b2f2-010ce6dcadc4" x="140" y="0" width="60" height="20"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<paragraph spacingBefore="0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.votos}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement uuid="f95c49fa-4103-4fea-aa6f-099724f6b889" x="0" y="0" width="140" height="20">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font isBold="false"/>
+					<paragraph leftIndent="2" spacingBefore="0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{opcao}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="1e6db508-5bfa-4c50-ad02-124450bb685e" x="140" y="0" width="60" height="20"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="false"/>
+					<paragraph leftIndent="2" spacingBefore="0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{resultado}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="resultado_votacao" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" resourceBundle="report-bundle" uuid="bc1b72c6-5b82-44c2-b007-03b3518fa930">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\Users\\Gabriel\\Documents\\Desenvolvimento\\ProjetosThiago\\calvinista\\integracao-servidor\\src\\main\\resources\\jasper\\"]]></defaultValueExpression>
+	</parameter>
+	<field name="nome" class="java.lang.String"/>
+	<field name="questoes" class="java.util.Collection"/>
+	<field name="descricao" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<detail>
+		<band height="219" splitType="Stretch">
+			<textField>
+				<reportElement uuid="d07f712b-65d7-44cf-9efd-44469dc2e1be" stretchType="RelativeToBandHeight" x="100" y="30" width="455" height="30" isPrintWhenDetailOverflows="true"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descricao}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="d26b54fb-1c82-4b12-83e2-4d7982b915f6" x="0" y="30" width="100" height="30"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="true"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.descricao} + ":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f1d6709e-d1f3-42b8-999c-2076d3f7c4dc" x="0" y="0" width="100" height="30"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="true"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{votacao.nome} + ":"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c18c5251-ab88-4f5d-8960-85798eaa2e9e" x="100" y="0" width="455" height="30"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false"/>
+					<paragraph leftIndent="5" spacingBefore="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nome}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement uuid="4ba3e310-ae1b-4458-853d-846cea1a7ae3" x="0" y="60" width="555" height="159"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{questoes})]]></dataSourceExpression>
+				<subreportExpression><![CDATA["jasper/resultado_votacao_questoes.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

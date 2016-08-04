@@ -1,0 +1,10 @@
+**/target/**
+**/bin/**
+**/build/**
+**/node_modules/**
+**/www/lib/**
+**/vendor/**
+**.class
+**.jar
+**.war
+**.ear
