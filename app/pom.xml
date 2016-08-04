@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>br.gafs.calvinista</groupId>
+        <groupId>br.gafs.getit.calvinista</groupId>
         <artifactId>calvinista</artifactId>
         <version>0.26-SNAPSHOT</version>
     </parent>
@@ -32,27 +32,17 @@
         </dependency>
         
         <dependency>
-            <groupId>br.gafs.calvinista</groupId>
+            <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-dominio</artifactId>
         </dependency>
         <dependency>
-            <groupId>br.gafs.calvinista</groupId>
+            <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-servidor</artifactId>
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>br.gafs.calvinista</groupId>
-            <artifactId>calvinista-gerador</artifactId>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>br.gafs.calvinista</groupId>
+            <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-api</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>br.gafs.calvinista</groupId>
-            <artifactId>calvinista-web-infra</artifactId>
             <type>war</type>
         </dependency>
     </dependencies>
@@ -78,20 +68,10 @@
                             <artifactId>calvinista-servidor</artifactId>
                             <bundleFileName>calvinista-servidor.jar</bundleFileName>
                         </ejbModule>
-                        <ejbModule>
-                            <groupId>br.gafs.calvinista</groupId>
-                            <artifactId>calvinista-gerador</artifactId>
-                            <bundleFileName>calvinista-gerador.jar</bundleFileName>
-                        </ejbModule>
                         <webModule>
                             <groupId>br.gafs.calvinista</groupId>
                             <artifactId>calvinista-api</artifactId>
                             <contextRoot>/app</contextRoot>
-                        </webModule>
-                        <webModule>
-                            <groupId>br.gafs.calvinista</groupId>
-                            <artifactId>calvinista-web-infra</artifactId>
-                            <contextRoot>/admin</contextRoot>
                         </webModule>
                     </modules>
                 </configuration>

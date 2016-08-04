@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>br.gafs.calvinista</groupId>
+    <groupId>br.gafs.getit.calvinista</groupId>
     <artifactId>calvinista</artifactId>
     <version>0.26-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -11,13 +11,12 @@
         <module>fachada</module>
         <module>servidor</module>
         <module>api</module>
-        <module>web-infra</module>
         <module>app</module>
     </modules>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gafs.base.version>2.20-SNAPSHOT</gafs.base.version>
+        <gafs.base.version>2.20</gafs.base.version>
         <version.jersey>2.22.1</version.jersey>
     </properties>
     
@@ -38,12 +37,6 @@
                 <artifactId>calvinista-servidor</artifactId>
                 <version>${project.version}</version>
                 <type>ejb</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>calvinista-web-infra</artifactId>
-                <version>${project.version}</version>
-                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
