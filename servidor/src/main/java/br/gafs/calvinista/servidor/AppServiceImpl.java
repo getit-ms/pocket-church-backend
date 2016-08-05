@@ -86,6 +86,7 @@ import br.gafs.exceptions.ServiceException;
 import br.gafs.file.EntityFileManager;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.image.ImageUtil;
 import br.gafs.util.senha.SenhaUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -428,6 +429,7 @@ public class AppServiceImpl implements AppService {
             if (boletim.getId() != null){
                 Boletim old = buscaBoletim(boletim.getId());
                 arquivoService.registraDesuso(old.getBoletim().getId());
+                arquivoService.registraDesuso(old.getThumbnail().getId());
 
                 boletim.getPaginas().clear();
                 List<Arquivo> pages = new ArrayList<Arquivo>(boletim.getPaginas());
@@ -442,9 +444,16 @@ public class AppServiceImpl implements AppService {
                     get(boletim.getBoletim(), "dados")).forEachPage(new PDFToImageConverterUtil.PageHandler() {
                         @Override
                         public void handle(int page, byte[] dados) throws IOException {
+                            if (page == 1){
+                                boletim.setThumbnail(arquivoService.upload(boletim.getBoletim().getNome().
+                                    replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, 500, 500)));
+                                arquivoService.registraUso(boletim.getThumbnail().getId());
+                                boletim.getThumbnail().clearDados();
+                            }
+                            
                             Arquivo pagina = arquivoService.upload(boletim.getBoletim().getNome().
                                     replaceFirst(".[pP][dD][fF]$", "") + "_page"
-                                    + new DecimalFormat("00000").format(page + 1) + ".png", dados);
+                                    + new DecimalFormat("00000").format(page) + ".png", dados);
                             boletim.getPaginas().add(pagina);
                             arquivoService.registraUso(pagina.getId());
                             pagina.clearDados();

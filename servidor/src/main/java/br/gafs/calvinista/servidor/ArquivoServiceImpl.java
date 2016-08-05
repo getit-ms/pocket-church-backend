@@ -52,7 +52,7 @@ public class ArquivoServiceImpl implements ArquivoService {
     public void removeArquivosEmDesuso() {
         List<Arquivo> arquivos = daoService.findWith(QueryAdmin.ARQUIVOS_VENCIDOS.create());
         for (Arquivo arquivo : arquivos) {
-            daoService.delete(Arquivo.class, arquivo.getId());
+            daoService.delete(Arquivo.class, new RegistroIgrejaId(acessoService.getIgreja().getChave(), arquivo.getId()));
         }
     }
 

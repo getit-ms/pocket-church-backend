@@ -89,6 +89,15 @@ public class Boletim implements IEntity {
     })
     private Arquivo boletim;
     
+    @Setter
+    @NotNull
+    @OneToOne
+    @JoinColumns({
+        @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo", nullable = false),
+        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private Arquivo thumbnail;
+    
     @ManyToMany
     @JoinTable(name = "rl_boletim_paginas", joinColumns = {
         @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
