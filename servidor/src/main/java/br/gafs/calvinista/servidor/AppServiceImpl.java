@@ -444,7 +444,7 @@ public class AppServiceImpl implements AppService {
                     get(boletim.getBoletim(), "dados")).forEachPage(new PDFToImageConverterUtil.PageHandler() {
                         @Override
                         public void handle(int page, byte[] dados) throws IOException {
-                            if (page == 1){
+                            if (page == 0){
                                 boletim.setThumbnail(arquivoService.upload(boletim.getBoletim().getNome().
                                     replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, 500, 500)));
                                 arquivoService.registraUso(boletim.getThumbnail().getId());
@@ -453,7 +453,7 @@ public class AppServiceImpl implements AppService {
                             
                             Arquivo pagina = arquivoService.upload(boletim.getBoletim().getNome().
                                     replaceFirst(".[pP][dD][fF]$", "") + "_page"
-                                    + new DecimalFormat("00000").format(page) + ".png", dados);
+                                    + new DecimalFormat("00000").format(page + 1) + ".png", dados);
                             boletim.getPaginas().add(pagina);
                             arquivoService.registraUso(pagina.getId());
                             pagina.clearDados();

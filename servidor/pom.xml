@@ -70,8 +70,8 @@
         </dependency>
         
         <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>pdf-renderer</artifactId>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
         </dependency>
 
         <dependency>
