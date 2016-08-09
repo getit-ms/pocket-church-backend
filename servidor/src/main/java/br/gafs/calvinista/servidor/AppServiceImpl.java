@@ -276,24 +276,23 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public Acesso darAcessoAdmin(Long membro, List<Perfil> perfis, List<Ministerio> ministerios) {
-        Acesso acesso = buscaAcessoAdmin(membro);
-        if (acesso == null) {
-            acesso = new Acesso(darAcessoMembro(membro));
-        }
-
-        if (acesso.getMembro().equals(acessoService.getMembro())) {
+        Membro entidade = buscaMembro(membro);
+        
+        if (entidade.equals(acessoService.getMembro())) {
             throw new ServiceException("mensagens.MSG-015");
         }
-
-        acesso.getPerfis().clear();
-        for (Perfil p : perfis) {
-            acesso.getPerfis().add(buscaPerfil(p.getId()));
+        
+        Acesso acesso = buscaAcessoAdmin(membro);
+        if (acesso == null) {
+            if (!entidade.isMembro()){
+                entidade = darAcessoMembro(membro);
+            }
+            
+            acesso = daoService.create(new Acesso(entidade));
         }
 
-        acesso.getMinisterios().clear();
-        for (Ministerio m : ministerios) {
-            acesso.getMinisterios().add(buscaMinisterio(m.getId()));
-        }
+        acesso.setPerfis(perfis);
+        acesso.setMinisterios(ministerios);
 
         return daoService.update(acesso);
     }

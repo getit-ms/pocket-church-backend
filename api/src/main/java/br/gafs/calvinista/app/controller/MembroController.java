@@ -9,8 +9,11 @@ import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroMembroDTO;
 import br.gafs.calvinista.entity.Acesso;
 import br.gafs.calvinista.entity.Membro;
+import br.gafs.calvinista.entity.Ministerio;
+import br.gafs.calvinista.entity.Perfil;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -77,7 +80,18 @@ public class MembroController {
     @Path("{membro}/acesso")
     @Produces(MediaType.APPLICATION_JSON)
     public Response darAcessoAdmin(@PathParam("membro") final Long membro, Acesso acesso){
-        return Response.status(Response.Status.OK).entity(appService.darAcessoAdmin(membro, acesso.getPerfis(), acesso.getMinisterios())).build();
+        List<Perfil> perfis = new ArrayList<Perfil>();
+        for (Perfil perfil : acesso.getPerfis()){
+            perfis.add(appService.buscaPerfil(perfil.getId()));
+        }
+        
+        List<Ministerio> ministerios = new ArrayList<Ministerio>();
+        for (Ministerio ministerio : acesso.getMinisterios()){
+            ministerios.add(appService.buscaMinisterio(ministerio.getId()));
+        }
+        
+        
+        return Response.status(Response.Status.OK).entity(appService.darAcessoAdmin(membro, perfis, ministerios)).build();
     }
     
     @DELETE
