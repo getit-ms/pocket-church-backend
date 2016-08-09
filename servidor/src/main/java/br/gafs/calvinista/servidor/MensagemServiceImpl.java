@@ -34,7 +34,7 @@ import javax.ejb.Singleton;
  *
  * @author Gabriel
  */
-@Singleton
+    @Singleton
 public class MensagemServiceImpl implements MensagemService {
     
     @EJB
@@ -51,7 +51,7 @@ public class MensagemServiceImpl implements MensagemService {
     
     private ObjectMapper om = new ObjectMapper();
     
-    @Schedule(minute = "*", hour = "*")
+    @Schedule(minute = "*/5", hour = "*")
     public void enviaPushAgendados(){
         List<NotificationSchedule> notificacoes = daoService.
                 findWith(QueryNotificacao.NOTIFICACOES_A_EXECUTAR.create(NotificationType.PUSH));

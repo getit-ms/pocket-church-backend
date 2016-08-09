@@ -1143,7 +1143,7 @@ public class AppServiceImpl implements AppService {
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
                     if (hev.getHoraInt().equals(hora)){
-                        agendaPushs(igreja, new FiltroDispositivoDTO(igreja, hev), cal.getTime(), 
+                        enviaPush(igreja, new FiltroDispositivoDTO(igreja, hev),  
                                 MensagemUtil.getMensagem("push.versiculo_diario.title", igreja.getLocale()),
                                 atual.getVersiculo());
                         break;
@@ -1155,28 +1155,19 @@ public class AppServiceImpl implements AppService {
 
     private void enviaPush(FiltroDispositivoDTO filtro, 
             String titulo, String mensagem) {
-        BuscaPaginadaDTO<String> dispositivos;
-        
-        do{
-            dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
-            
-            notificacaoService.sendNow(acessoService.getIgreja(), 
-                    new MensagemPushDTO(titulo, mensagem, null, null, null), 
-                    dispositivos.getResultados());
-        }while(dispositivos.isHasProxima());
+        enviaPush(acessoService.getIgreja(), filtro, titulo, mensagem);
     }
     
-    private void agendaPushs(Igreja igreja, FiltroDispositivoDTO filtro, Date data, String titulo, String mensagem) {
+    private void enviaPush(Igreja igreja, FiltroDispositivoDTO filtro, 
+            String titulo, String mensagem) {
         BuscaPaginadaDTO<String> dispositivos;
         
         do{
             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
-           
-            if (dispositivos.isEmpty()) return;
             
-            notificacaoService.sendLater(igreja, 
+            notificacaoService.sendNow(igreja, 
                     new MensagemPushDTO(titulo, mensagem, null, null, null), 
-                    dispositivos.getResultados(), data);
+                    dispositivos.getResultados());
         }while(dispositivos.isHasProxima());
     }
 

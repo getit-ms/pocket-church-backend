@@ -212,7 +212,7 @@ public class AcessoServiceImpl implements AcessoService {
                 codDispositivo + "@" + igreja.getChave());
         
         if (dispositivo == null){
-            dispositivo = daoService.create(new Dispositivo(codDispositivo, igreja));
+            dispositivo = daoService.update(new Dispositivo(codDispositivo, igreja));
             salva(preparaPreferencias(new Preferencias(dispositivo)));
         }
         

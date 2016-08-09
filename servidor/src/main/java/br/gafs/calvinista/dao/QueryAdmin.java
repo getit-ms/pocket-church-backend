@@ -175,7 +175,7 @@ public enum QueryAdmin {
         }
         
     }, 
-    DELETE_INSCRICOES("InscricaoEvento.deleteByEvento", "evento");
+    DELETE_INSCRICOES("InscricaoEvento.deleteByEvento", "idEvento");
     
     private final String query;
     private final String[] parameters;
