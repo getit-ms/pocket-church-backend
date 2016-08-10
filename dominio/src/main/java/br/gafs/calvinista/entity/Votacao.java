@@ -8,8 +8,11 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusVotacao;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -51,6 +54,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @IdClass(RegistroIgrejaId.class)
 public class Votacao implements IEntity {
     @Id
+    @JsonView(Resumido.class)
     @Column(name = "id_votacao")
     @SequenceGenerator(name = "seq_votacao", sequenceName = "seq_votacao")
     @GeneratedValue(generator = "seq_votacao", strategy = GenerationType.SEQUENCE)
@@ -58,27 +62,32 @@ public class Votacao implements IEntity {
     
     @NotEmpty
     @Length(max = 150)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "nome", length = 150, nullable = false)
     private String nome;
     
     @NotEmpty
     @Length(max = 500)
+    @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "descricao", length = 500, nullable = false)
     private String descricao;
     
     @NotNull
+    @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "data_inicio", nullable = false)
     private Date dataInicio;
     
+    @JsonView(Resumido.class)
     @Column(name = "data_termino")
     @Temporal(TemporalType.TIMESTAMP)
     @View.MergeViews(View.Edicao.class)
     private Date dataTermino;
     
+    @JsonView(Detalhado.class)
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)
     private StatusVotacao status = StatusVotacao.EM_EDICAO;
@@ -89,6 +98,7 @@ public class Votacao implements IEntity {
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
     
+    @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @OneToMany(mappedBy = "votacao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Questao> questoes = new ArrayList<Questao>();
@@ -102,6 +112,7 @@ public class Votacao implements IEntity {
         return questoes;
     }
     
+    @JsonView(Detalhado.class)
     public StatusVotacao getStatusEfetivo(){
         if (StatusVotacao.PUBLICADO.equals(status)){
             if (DateUtil.getDataAtual().before(dataInicio)){
@@ -114,18 +125,22 @@ public class Votacao implements IEntity {
         return status;
     }
     
+    @JsonView(Detalhado.class)
     public boolean isEmEdicao(){
         return StatusVotacao.EM_EDICAO.equals(getStatusEfetivo());
     }
     
+    @JsonView(Detalhado.class)
     public boolean isAgendado(){
         return StatusVotacao.AGENDADO.equals(getStatusEfetivo());
     }
     
+    @JsonView(Detalhado.class)
     public boolean isPublicado(){
         return StatusVotacao.PUBLICADO.equals(getStatusEfetivo());
     }
     
+    @JsonView(Detalhado.class)
     public boolean isEncerrado(){
         return StatusVotacao.ENCERRADO.equals(getStatusEfetivo());
     }

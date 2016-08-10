@@ -8,9 +8,12 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -57,31 +60,37 @@ import lombok.ToString;
 @IdClass(RegistroIgrejaId.class)
 public class Boletim implements IEntity {
     @Id
+    @JsonView(Resumido.class)
     @Column(name = "id_boletim")
     @SequenceGenerator(name = "seq_boletim", sequenceName = "seq_boletim")
     @GeneratedValue(generator = "seq_boletim", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "titulo")
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     private String titulo;
     
     @Column(name = "data")
+    @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @View.MergeViews(View.Edicao.class)
     private Date data;
     
+    @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_publicacao")
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
 
+    @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusBoletim status = StatusBoletim.PUBLICADO;
     
     @NotNull
     @OneToOne
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @JoinColumns({
         @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
@@ -92,6 +101,7 @@ public class Boletim implements IEntity {
     @Setter
     @NotNull
     @OneToOne
+    @JsonView(Resumido.class)
     @JoinColumns({
         @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo", nullable = false),
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
@@ -99,6 +109,7 @@ public class Boletim implements IEntity {
     private Arquivo thumbnail;
     
     @ManyToMany
+    @JsonView(Resumido.class)
     @JoinTable(name = "rl_boletim_paginas", joinColumns = {
         @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")

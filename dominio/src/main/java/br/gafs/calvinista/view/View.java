@@ -18,6 +18,9 @@ public class View {
     public static class AlterarSenha {}
     public static class Edicao {}
     
+    public static interface Resumido {}
+    public static interface Detalhado extends Resumido {}
+    
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     public static @interface MergeViews {

@@ -11,6 +11,9 @@ import br.gafs.calvinista.dto.FiltroBoletimPublicadoDTO;
 import br.gafs.calvinista.entity.Boletim;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.IOException;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -40,6 +43,7 @@ public class BoletimController {
     private AppService appService;
 
     @GET
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaTodos(
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
@@ -50,6 +54,7 @@ public class BoletimController {
     
     @GET
     @Path("publicados")
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaPublicados(
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
@@ -60,6 +65,7 @@ public class BoletimController {
     
     @GET
     @Path("{boletim}")
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("boletim") final Long boletim){
         return Response.status(Status.OK).entity(appService.buscaBoletim(boletim)).build();

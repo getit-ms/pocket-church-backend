@@ -11,6 +11,8 @@ import br.gafs.calvinista.dto.FiltroEstudoPublicadoDTO;
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import com.fasterxml.jackson.annotation.JsonView;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -39,6 +41,7 @@ public class EstudoController {
     private AppService appService;
 
     @GET
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
@@ -48,6 +51,7 @@ public class EstudoController {
 
     @GET
     @Path("publicados")
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaPublicados(
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
@@ -57,6 +61,7 @@ public class EstudoController {
     
     @GET
     @Path("{estudo}")
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("estudo") final Long estudo){
         return Response.status(Response.Status.OK).entity(appService.buscaEstudo(estudo)).build();

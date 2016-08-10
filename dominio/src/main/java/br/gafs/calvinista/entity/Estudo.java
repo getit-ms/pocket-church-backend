@@ -8,9 +8,12 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusEstudo;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,6 +54,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @IdClass(RegistroIgrejaId.class)
 public class Estudo implements IEntity {
     @Id
+    @JsonView(Resumido.class)
     @Column(name = "id_estudo")
     @SequenceGenerator(sequenceName = "seq_estudo", name = "seq_estudo")
     @GeneratedValue(generator = "seq_estudo", strategy = GenerationType.SEQUENCE)
@@ -59,30 +63,36 @@ public class Estudo implements IEntity {
     @Setter
     @NotEmpty
     @Length(max = 250)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "titulo", length = 250, nullable = false)
     private String titulo;
     
     @Setter
     @NotEmpty
+    @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "texto", nullable = false, columnDefinition = "TEXT")
     private String texto;
     
+    @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data", nullable = false)
     private Date data = new Date();
     
     @Setter
+    @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_publicacao")
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
     
+    @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusEstudo status = StatusEstudo.EM_EDICAO;
     
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "autor", nullable = false)
     private String autor;
@@ -108,10 +118,12 @@ public class Estudo implements IEntity {
         this.igreja = membro.getIgreja();
     }
     
+    @JsonView(Detalhado.class)
     public boolean isEmEdicao(){
         return StatusEstudo.EM_EDICAO.equals(status);
     }
     
+    @JsonView(Detalhado.class)
     public boolean isPublicado(){
         return StatusEstudo.PUBLICADO.equals(status);
     }

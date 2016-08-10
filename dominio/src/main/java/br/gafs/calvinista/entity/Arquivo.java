@@ -6,10 +6,13 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.file.Attachment;
 import br.gafs.file.EntityFileManager;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -50,11 +53,13 @@ import lombok.ToString;
 })
 public class Arquivo implements IEntity, Comparable<Arquivo> {
     @Id
+    @JsonView(Resumido.class)
     @Column(name = "id_arquivo")
     @SequenceGenerator(name = "seq_arquivo", sequenceName = "seq_arquivo")
     @GeneratedValue(generator = "seq_arquivo", strategy = GenerationType.SEQUENCE)
     private Long id;
     
+    @JsonView(Detalhado.class)
     @Column(name = "nome", length = 150, nullable = false, updatable = false)
     private String nome;
     
@@ -92,6 +97,7 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
         return nome;
     }
 
+    @JsonIgnore
     public boolean isUsed() {
         return timeout == null;
     }

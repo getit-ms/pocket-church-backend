@@ -7,7 +7,10 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusCalendario;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,17 +58,20 @@ import lombok.ToString;
 })
 public class CalendarioAtendimento implements IEntity {
     @Id
+    @JsonView(Resumido.class)
     @Column(name = "id_calendario_atendimento")
     @GeneratedValue(generator = "seq_calendario_atendimento", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "seq_calendario_atendimento", sequenceName = "seq_calendario_atendimento")
     private Long id;
     
     @JsonIgnore
+    @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusCalendario status = StatusCalendario.ATIVO;
     
     @OneToOne
+    @JsonView(Resumido.class)
     @JoinColumns({
         @JoinColumn(name = "id_pastor", referencedColumnName = "id_membro", nullable = false),
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", nullable = false, insertable = false, updatable = false)
@@ -91,10 +97,12 @@ public class CalendarioAtendimento implements IEntity {
         status = StatusCalendario.ATIVO;
     }
     
+    @JsonView(Detalhado.class)
     public boolean isAtivo(){
         return StatusCalendario.ATIVO.equals(status);
     }
     
+    @JsonView(Detalhado.class)
     public boolean isInativo(){
         return StatusCalendario.INATIVO.equals(status);
     }

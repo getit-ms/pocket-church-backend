@@ -13,6 +13,9 @@ import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Perfil;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -43,6 +46,7 @@ public class MembroController {
     private AppService appService;
 
     @GET
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
             @QueryParam("nome") @DefaultValue("") final String nome, 
@@ -56,6 +60,7 @@ public class MembroController {
     
     @GET
     @Path("{membro}")
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("membro") final Long membro){
         return Response.status(Response.Status.OK).entity(appService.buscaMembro(membro)).build();

@@ -8,10 +8,13 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusMembro;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,6 +72,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 })
 public class Membro implements IEntity {
     @Id
+    @JsonView(Resumido.class)
     @Column(name = "id_membro")
     @SequenceGenerator(sequenceName = "seq_membro", name = "seq_membro")
     @GeneratedValue(generator = "seq_membro", strategy = GenerationType.SEQUENCE)
@@ -76,6 +80,7 @@ public class Membro implements IEntity {
     
     @NotEmpty
     @Length(max = 150)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "nome", length = 150, nullable = false)
     private String nome;
@@ -89,20 +94,24 @@ public class Membro implements IEntity {
     @Email
     @NotEmpty
     @Length(max = 150)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "email", length = 150, nullable = false)
     private String email;
     
+    @JsonView(Detalhado.class)
     @Setter(AccessLevel.NONE)
     @Column(name = "deve_alterar_senha", length = 150, nullable = false)
     private boolean deveAlterarSenha;
     
+    @JsonView(Detalhado.class)
     @Temporal(TemporalType.TIMESTAMP)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "data_nascimento")
     private Date dataNascimento;
     
     @ElementCollection
+    @JsonView(Detalhado.class)
     @Column(name = "telefone")
     @View.MergeViews(View.Edicao.class)
     @CollectionTable(name = "rl_telefone_membro",
@@ -117,18 +126,22 @@ public class Membro implements IEntity {
     @Column(name = "status", nullable = false)
     private StatusMembro status = StatusMembro.CONTATO;
     
+    @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "pastor", nullable = false)
     private boolean pastor;
     
+    @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "visitante", nullable = false)
     private boolean visitante;
     
+    @JsonView(Detalhado.class)
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_endereco", nullable = false)
     private Endereco endereco = new Endereco();
     
+    @JsonView(Detalhado.class)
     @Column(name = "data_exclusao")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataExclusao;
@@ -155,6 +168,7 @@ public class Membro implements IEntity {
         this.igreja = igreja;
     }
     
+    @JsonIgnore
     public boolean isSenhaUndefined(){
         return "undefined".equals(senha);
     }

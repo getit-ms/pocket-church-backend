@@ -15,8 +15,11 @@ import br.gafs.calvinista.entity.CalendarioAtendimento;
 import br.gafs.calvinista.entity.HorarioAtendimento;
 import br.gafs.calvinista.entity.domain.DiaSemana;
 import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Arrays;
 import java.util.Date;
 import javax.ejb.EJB;
@@ -47,6 +50,7 @@ public class AgendaAtendimentoController {
     private AppService appService;
 
     @GET
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(){
         return Response.status(Status.OK).entity(appService.buscaCalendarios()).build();
@@ -54,6 +58,7 @@ public class AgendaAtendimentoController {
 
     @GET
     @Path("pastores")
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaPastores(){
         return Response.status(Status.OK).entity(appService.buscaPastores()).build();
@@ -61,6 +66,7 @@ public class AgendaAtendimentoController {
 
     @GET
     @Path("diasSemana")
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaDiasSemana(){
         return Response.status(Status.OK).entity(Arrays.asList(DiaSemana.values())).build();
@@ -76,12 +82,14 @@ public class AgendaAtendimentoController {
     
     @GET
     @Path("{agenda}")
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(@PathParam("agenda") Long agenda){
         return Response.status(Status.OK).entity(appService.buscaCalendario(agenda)).build();
     }
     
     @POST
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response cadastra(CalendarioAtendimento agenda){

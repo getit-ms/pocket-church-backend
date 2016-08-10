@@ -19,6 +19,9 @@ import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.Detalhado;
+import br.gafs.calvinista.view.View.Resumido;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -54,6 +57,7 @@ public class VotacaoController {
     private ParametroService paramService;
 
     @GET
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaTodas(
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
@@ -63,6 +67,7 @@ public class VotacaoController {
 
     @GET
     @Path("ativas")
+    @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaAtivas(
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
@@ -72,6 +77,7 @@ public class VotacaoController {
     
     @GET
     @Path("{votacao}")
+    @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("votacao") Long votacao){
         return Response.status(Response.Status.OK).entity(appService.buscaVotacao(votacao)).build();
