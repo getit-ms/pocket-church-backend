@@ -34,6 +34,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -93,8 +95,11 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        getDispositivo().registerToken(tipoDispositivo, pushKey, version);
-        daoService.update(getDispositivo());
+        Dispositivo dispositivo = daoService.find(Dispositivo.class, getDispositivo().getId());
+        Logger.getLogger(AcessoServiceImpl.class.getName()).log(Level.WARNING, 
+                "Atualizando pushkey para " + dispositivo.getId() + ": " + tipoDispositivo + " - " + pushKey + " - " + version);
+        dispositivo.registerToken(tipoDispositivo, pushKey, version);
+        request.setAttribute("dispositivo", daoService.update(dispositivo));
     }
 
     @Override
