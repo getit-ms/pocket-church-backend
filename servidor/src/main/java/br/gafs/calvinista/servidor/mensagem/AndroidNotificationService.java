@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Stateless
 public class AndroidNotificationService implements Serializable {
+    private static final Logger LOGGER = Logger.getLogger(AndroidNotificationService.class.getName());
     
     @EJB
     private ParametroService paramService;
@@ -65,10 +66,12 @@ public class AndroidNotificationService implements Serializable {
         
         urlConnection.connect();
         
+        LOGGER.log(Level.WARNING, "Push Android: '" + notification.getData().getMessage() + "' para " + notification.getTo());
+        
         om.writeValue(urlConnection.getOutputStream(), notification);
         
         System.out.println(">> " + urlConnection.getResponseCode());
-        System.out.println(">> " + om.readValue(urlConnection.getInputStream(), Map.class));
+        LOGGER.log(Level.WARNING, "Response Push Android: '" + om.readValue(urlConnection.getInputStream(), Map.class));
         
         urlConnection.disconnect();
     }

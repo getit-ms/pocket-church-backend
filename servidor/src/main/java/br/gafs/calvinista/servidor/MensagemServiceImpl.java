@@ -34,7 +34,7 @@ import javax.ejb.Singleton;
  *
  * @author Gabriel
  */
-    @Singleton
+@Singleton
 public class MensagemServiceImpl implements MensagemService {
     
     @EJB
@@ -62,25 +62,33 @@ public class MensagemServiceImpl implements MensagemService {
     }
     
     private void sendPushNow(NotificationSchedule notificacao){
-            try{
-                sendNow(notificacao, MensagemPushDTO.class, new Sender<MensagemPushDTO>() {
-
-                    @Override
-                    public void send(Igreja igreja, MensagemPushDTO t, List to) throws IOException {
+        try{
+            sendNow(notificacao, MensagemPushDTO.class, new Sender<MensagemPushDTO>() {
+                
+                @Override
+                public void send(Igreja igreja, MensagemPushDTO t, List to) throws IOException {
+                    try{
                         List<String> android = separa(igreja, to, TipoDispositivo.ANDROID);
                         if (!android.isEmpty()){
                             androidNotificationService.pushNotifications(igreja, t, android);
                         }
-
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    
+                    try{
                         List<String> ios = separa(igreja, to, TipoDispositivo.IPHONE);
                         if (!ios.isEmpty()){
                             iOSNotificationService.pushNotifications(igreja, t, ios);
                         }
+                    }catch(Exception e){
+                        e.printStackTrace();
                     }
-                });
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+                }
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
     
     @Schedule(minute = "*/5", hour = "*")
@@ -94,26 +102,29 @@ public class MensagemServiceImpl implements MensagemService {
     }
     
     private void sendEmailNow(NotificationSchedule notificacao){
-            try{
-                sendNow(notificacao, MensagemEmailDTO.class, new Sender<MensagemEmailDTO>() {
-
-                    @Override
-                    public void send(Igreja igreja, MensagemEmailDTO t, List to) throws IOException {
-                        emailService.sendEmails(igreja, t, to);
-                    }
-                });
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+        try{
+            sendNow(notificacao, MensagemEmailDTO.class, new Sender<MensagemEmailDTO>() {
+                
+                @Override
+                public void send(Igreja igreja, MensagemEmailDTO t, List to) throws IOException {
+                    emailService.sendEmails(igreja, t, to);
+                }
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
     
     private <T> void sendNow(NotificationSchedule notificacao, Class<T> type, Sender<T> sender) throws IOException {
         T t = om.readValue(notificacao.getNotificacao(), type);
         List<String> tos = om.readValue(notificacao.getTo(), List.class);
         
+        if (tos.isEmpty()) return;
+        
         sender.send(notificacao.getIgreja(), t, tos);
-            
+        
         notificacao.enviado();
+        
         daoService.update(notificacao);
     }
     
@@ -136,7 +147,7 @@ public class MensagemServiceImpl implements MensagemService {
         
         sendEmailNow(sendWhenPossible(igreja, notificacao, tos));
     }
-
+    
     @Override
     public NotificationSchedule sendWhenPossible(Igreja igreja, MensagemPushDTO notificacao, List<String> to) {
         return sendLater(igreja, notificacao, to, DateUtil.getDataAtual());
@@ -150,7 +161,7 @@ public class MensagemServiceImpl implements MensagemService {
     private List<String> separa(Igreja igreja, List<String> devices, TipoDispositivo tipo){
         List<String> filtrados = new ArrayList<String>();
         for (int i=0;i<devices.size();i+=500){
-            filtrados.addAll(daoService.findWith(QueryNotificacao.DEVICES_POR_TIPO.create(igreja.getChave(), 
+            filtrados.addAll(daoService.findWith(QueryNotificacao.DEVICES_POR_TIPO.create(igreja.getChave(),
                     tipo, devices.subList(i, Math.min(devices.size(), i + 500)))));
         }
         return filtrados;
@@ -158,12 +169,15 @@ public class MensagemServiceImpl implements MensagemService {
     
     @Override
     public NotificationSchedule sendLater(Igreja igreja, MensagemPushDTO notificacao, List<String> to, Date dataHora) {
+        
         try {
             NotificationSchedule registro = new NotificationSchedule(
                     NotificationType.PUSH,
                     dataHora, igreja,
                     om.writeValueAsString(notificacao),
                     om.writeValueAsString(to));
+            
+            if (to.isEmpty()) return registro;
             
             return daoService.create(registro);
         } catch (IOException ex) {
@@ -180,6 +194,8 @@ public class MensagemServiceImpl implements MensagemService {
                     dataHora, igreja,
                     om.writeValueAsString(notificacao),
                     om.writeValueAsString(to));
+            
+            if (to.isEmpty()) return registro;
             
             return daoService.create(registro);
         } catch (IOException ex) {

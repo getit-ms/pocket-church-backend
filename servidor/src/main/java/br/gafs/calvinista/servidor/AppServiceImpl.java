@@ -1167,6 +1167,8 @@ public class AppServiceImpl implements AppService {
             notificacaoService.sendNow(igreja, 
                     new MensagemPushDTO(titulo, mensagem, null, null, null), 
                     dispositivos.getResultados());
+            
+            filtro.proxima();
         }while(dispositivos.isHasProxima());
     }
 

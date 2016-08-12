@@ -32,6 +32,8 @@ import javax.ejb.Stateless;
  */
 @Stateless
 public class IOSNotificationService implements Serializable {
+    private static final Logger LOGGER = Logger.getLogger(IOSNotificationService.class.getName());
+    
     @EJB
     private ParametroService paramService;
     
@@ -48,6 +50,7 @@ public class IOSNotificationService implements Serializable {
         for (String to : tos) {
             doSendNotification(notification, to, service);
         }
+        
         service.stop();
     }
     
@@ -71,6 +74,8 @@ public class IOSNotificationService implements Serializable {
         if (!StringUtil.isEmpty(notification.getSound())){
             builder.sound(notification.getSound());
         }
+        
+        LOGGER.log(Level.WARNING, "Push iOS: '" + notification.getMessage() + "' para " + to);
         
         service.push(to, builder.
                 alertBody(notification.getMessage()).
