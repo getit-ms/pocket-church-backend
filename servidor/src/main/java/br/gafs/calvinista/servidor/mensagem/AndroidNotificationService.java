@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -40,23 +41,27 @@ public class AndroidNotificationService implements Serializable {
     
     private ObjectMapper om = new ObjectMapper();
     
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, String... tos) {
-        pushNotifications(igreja, notification, Arrays.asList(tos));
+    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, String... tos) {
+        return pushNotifications(igreja, notification, Arrays.asList(tos));
     }
     
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<String> tos) {
+    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, List<String> tos) {
+        List<String> failures = new ArrayList<String>();
         try {
             String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
             PushAndroidDTO push = new PushAndroidDTO(notification);
             for (String to : tos) {
-                doSendNotification(push.cloneTo(to), chave);
+                if (!doSendNotification(push.cloneTo(to), chave)){
+                    failures.add(to);
+                }
             }
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+        return failures;
     }
     
-    private void doSendNotification(PushAndroidDTO notification, String chave) throws IOException {
+    private boolean doSendNotification(PushAndroidDTO notification, String chave) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://gcm-http.googleapis.com/gcm/send").openConnection();
         
         urlConnection.setRequestMethod("POST");
@@ -71,9 +76,13 @@ public class AndroidNotificationService implements Serializable {
         om.writeValue(urlConnection.getOutputStream(), notification);
         
         System.out.println(">> " + urlConnection.getResponseCode());
-        LOGGER.log(Level.WARNING, "Response Push Android: '" + om.readValue(urlConnection.getInputStream(), Map.class));
+        
+        Map<String, Object> response = om.readValue(urlConnection.getInputStream(), Map.class);
+        LOGGER.log(Level.WARNING, "Response Push Android: '" + response);
         
         urlConnection.disconnect();
+
+        return "0".equals(response.get("failure").toString());
     }
     
     @Data

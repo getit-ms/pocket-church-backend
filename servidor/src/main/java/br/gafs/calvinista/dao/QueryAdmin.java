@@ -175,7 +175,8 @@ public enum QueryAdmin {
         }
         
     }, 
-    DELETE_INSCRICOES("InscricaoEvento.deleteByEvento", "idEvento");
+    DELETE_INSCRICOES("InscricaoEvento.deleteByEvento", "idEvento"), 
+    DESABILITA_DISPOSITIVO_BY_PUSHKEY("Dispositivo.desabilitaByPushkey", "pushkey");
     
     private final String query;
     private final String[] parameters;

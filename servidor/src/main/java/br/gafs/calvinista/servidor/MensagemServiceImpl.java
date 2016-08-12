@@ -5,6 +5,7 @@
 */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
@@ -70,7 +71,10 @@ public class MensagemServiceImpl implements MensagemService {
                     try{
                         List<String> android = separa(igreja, to, TipoDispositivo.ANDROID);
                         if (!android.isEmpty()){
-                            androidNotificationService.pushNotifications(igreja, t, android);
+                            List<String> failures = androidNotificationService.pushNotifications(igreja, t, android);
+                            for (String fail : failures){
+                                daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
+                            }
                         }
                     }catch(Exception e){
                         e.printStackTrace();
