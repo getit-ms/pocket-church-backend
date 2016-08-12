@@ -43,7 +43,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @EqualsAndHashCode(of = "chave")
 @NamedQueries({
     @NamedQuery(name = "Dispositivo.findPorTipoAndIgreja", query = "select d.pushkey from Dispositivo d where d.igreja.chave = :igreja and d.tipo = :tipo and d.pushkey in :dispositivos"),
-    @NamedQuery(name = "Dispositivo.desabilitaByPushkey", query = "update Dispositivo d set d.pushkey = 'unknown' where p.pushkey = :pushkey")
+    @NamedQuery(name = "Dispositivo.desabilitaByPushkey", query = "update Dispositivo d set d.pushkey = 'unknown' where d.pushkey = :pushkey")
 })
 public class Dispositivo implements IEntity {
     @Id
