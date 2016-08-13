@@ -35,9 +35,9 @@ public class FiltroEmail extends AbstractPaginatedFiltro<FiltroEmailDTO>{
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select m.email ").append(from).append(where).append(" group by d.email").toString());
+        setQuery(new StringBuilder("select m.email ").append(from).append(where).append(" group by m.email").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
-                new StringBuilder("select count(d.email) ").append(from).append(where).toString(), args));
+                new StringBuilder("select count(m.email) ").append(from).append(where).toString(), args));
         setResultLimit(500);
     }
     
