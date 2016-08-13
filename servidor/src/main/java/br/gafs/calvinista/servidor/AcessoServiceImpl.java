@@ -221,6 +221,11 @@ public class AcessoServiceImpl implements AcessoService {
             dispositivo = daoService.update(new Dispositivo(codDispositivo, igreja));
             salva(preparaPreferencias(new Preferencias(dispositivo)));
         }
+                
+        if (dispositivo.getMembro() == null && getMembro() != null){
+            dispositivo.setMembro(getMembro());
+            dispositivo = daoService.update(dispositivo);
+        }
         
         request.setAttribute("dispositivo", dispositivo);
     }

@@ -77,26 +77,54 @@ public class MensagemServiceImpl implements MensagemService {
                 @Override
                 public void send(FiltroDispositivoDTO filtro, MensagemPushDTO t) throws IOException {
                     BuscaPaginadaDTO<String> dispositivos;
-                    do{
-                        filtro.setTipo(TipoDispositivo.ANDROID);
-                        dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
+                    try{
+                        do{
+                            filtro.setTipo(TipoDispositivo.ANDROID);
+                            dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
-                        List<String> failures = androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
-                        for (String fail : failures){
-                            daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
-                        }
+                            try{
+                                if (!dispositivos.isEmpty()){
+                                    List<String> failures = androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+                                    for (String fail : failures){
+                                        daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
+                                    }
+                                }else{
+                                    Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
+                                }
+                            }catch(Exception e){
+                                Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Execção durante o envio de notificações para dispositivo Android " + e.getMessage());
+                                e.printStackTrace();
+                            }
 
-                        filtro.proxima();
-                    }while(dispositivos.isHasProxima());
+                            filtro.proxima();
+                        }while(dispositivos.isHasProxima());
+                    }catch(Exception e){
+                        Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Execção durante o envio de notificações para dispositivo Android " + e.getMessage());
+                        e.printStackTrace();
+                    }
                     
-                    do{
-                        filtro.setTipo(TipoDispositivo.IPHONE);
-                        dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
+                    try{
+                        do{
+                            filtro.setTipo(TipoDispositivo.IPHONE);
+                            dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
-                        iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+                            try{
+                                if (!dispositivos.isEmpty()){
+                                    iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+                                }else{
+                                    Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
+                                }
+                            }catch(Exception e){
+                                Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Execção durante o envio de notificações para dispositivo iOS " + e.getMessage());
+                                e.printStackTrace();
+                            }
 
-                        filtro.proxima();
-                    }while(dispositivos.isHasProxima());
+                            filtro.proxima();
+                        }while(dispositivos.isHasProxima());
+                    }catch(Exception e){
+                        Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Execção durante o envio de notificações para dispositivo iOS " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
             });
         }catch(Exception e){
