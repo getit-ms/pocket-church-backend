@@ -79,6 +79,7 @@ public class MensagemServiceImpl implements MensagemService {
                     BuscaPaginadaDTO<String> dispositivos;
                     try{
                         do{
+                            filtro.setPagina(1);
                             filtro.setTipo(TipoDispositivo.ANDROID);
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
@@ -105,6 +106,7 @@ public class MensagemServiceImpl implements MensagemService {
                     
                     try{
                         do{
+                            filtro.setPagina(1);
                             filtro.setTipo(TipoDispositivo.IPHONE);
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
