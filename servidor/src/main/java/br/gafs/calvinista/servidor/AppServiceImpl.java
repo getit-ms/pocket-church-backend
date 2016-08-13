@@ -22,6 +22,7 @@ import br.gafs.calvinista.dto.EventoAgendaDTO;
 import br.gafs.calvinista.dto.FiltroBoletimDTO;
 import br.gafs.calvinista.dto.FiltroBoletimPublicadoDTO;
 import br.gafs.calvinista.dto.FiltroDispositivoDTO;
+import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.FiltroEstudoDTO;
 import br.gafs.calvinista.dto.FiltroEstudoPublicadoDTO;
 import br.gafs.calvinista.dto.FiltroEventoDTO;
@@ -193,10 +194,9 @@ public class AppServiceImpl implements AppService {
                     acessoService.getIgreja().getNome());
             
             notificacaoService.sendNow(
-                    acessoService.getIgreja(), 
                     MensagemUtil.email(recuperaInstitucional(), subject,
                             new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "", senha), Collections.EMPTY_LIST)), 
-                                Arrays.asList(entidade.getEmail()));
+                    new FiltroEmailDTO(entidade.getIgreja(), entidade.getId()));
         }
         
         return entidade;
@@ -1142,7 +1142,7 @@ public class AppServiceImpl implements AppService {
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
                     if (hev.getHoraInt().equals(hora)){
-                        enviaPush(igreja, new FiltroDispositivoDTO(igreja, hev),  
+                        enviaPush(new FiltroDispositivoDTO(igreja, hev),  
                                 MensagemUtil.getMensagem("push.versiculo_diario.title", igreja.getLocale()),
                                 atual.getVersiculo());
                         break;
@@ -1152,24 +1152,8 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    private void enviaPush(FiltroDispositivoDTO filtro, 
-            String titulo, String mensagem) {
-        enviaPush(acessoService.getIgreja(), filtro, titulo, mensagem);
-    }
-    
-    private void enviaPush(Igreja igreja, FiltroDispositivoDTO filtro, 
-            String titulo, String mensagem) {
-        BuscaPaginadaDTO<String> dispositivos;
-        
-        do{
-            dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
-            
-            notificacaoService.sendNow(igreja, 
-                    new MensagemPushDTO(titulo, mensagem, null, null, null), 
-                    dispositivos.getResultados());
-            
-            filtro.proxima();
-        }while(dispositivos.isHasProxima());
+    private void enviaPush(FiltroDispositivoDTO filtro, String titulo, String mensagem) {
+        notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null), filtro);
     }
 
 }

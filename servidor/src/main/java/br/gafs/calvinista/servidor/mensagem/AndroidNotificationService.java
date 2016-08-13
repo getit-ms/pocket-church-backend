@@ -7,7 +7,6 @@ package br.gafs.calvinista.servidor.mensagem;
 
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.dto.DTO;

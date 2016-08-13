@@ -56,10 +56,6 @@ public class NotificationSchedule implements IEntity {
     @Column(name = "enviado", nullable = false)
     private boolean enviado = false;
     
-    @ManyToOne
-    @JoinColumn(name = "chave_igreja", nullable = false, updatable = false)
-    private Igreja igreja;
-    
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type", nullable = false)
     private NotificationType type;
@@ -70,10 +66,9 @@ public class NotificationSchedule implements IEntity {
     @Column(name = "to_json", columnDefinition = "TEXT", nullable = false, updatable = false)
     private String to;
 
-    public NotificationSchedule(NotificationType type, Date data, Igreja igreja, String notificacao, String to) {
+    public NotificationSchedule(NotificationType type, Date data, String notificacao, String to) {
         this.type = type;
         this.data = data;
-        this.igreja = igreja;
         this.notificacao = notificacao;
         this.to = to;
     }

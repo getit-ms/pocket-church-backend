@@ -8,6 +8,7 @@ package br.gafs.calvinista.servidor;
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dto.CalvinEmailDTO;
+import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.entity.Dispositivo;
 import br.gafs.calvinista.entity.Igreja;
@@ -279,10 +280,10 @@ public class AcessoServiceImpl implements AcessoService {
             String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", getIgreja().getLocale(), jwt, getIgreja().getChave());
             String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", getIgreja().getLocale());
             
-        mensagemService.sendNow(getIgreja(), 
+        mensagemService.sendNow(
                 MensagemUtil.email(daoService.find(Institucional.class, getIgreja().getChave()), subject,
                         new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, linkUrl, linkText), Collections.EMPTY_LIST)), 
-                            Arrays.asList(membro.getEmail()));
+                new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
     }
 
     @Override
@@ -305,10 +306,10 @@ public class AcessoServiceImpl implements AcessoService {
             String text = MensagemUtil.getMensagem("email.nova_senha.message.text", 
                     membro.getIgreja().getLocale(), membro.getIgreja().getNome());
             
-            mensagemService.sendNow(membro.getIgreja(), 
+            mensagemService.sendNow(
                     MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
                             new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "", novaSenha), Collections.EMPTY_LIST)), 
-                                Arrays.asList(membro.getEmail()));
+                    new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
         }
         
         return membro;

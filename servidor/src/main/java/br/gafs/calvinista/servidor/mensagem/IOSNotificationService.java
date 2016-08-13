@@ -10,15 +10,12 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.util.string.StringUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.ApnsServiceBuilder;
 import com.notnoop.apns.PayloadBuilder;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -36,8 +33,6 @@ public class IOSNotificationService implements Serializable {
     
     @EJB
     private ParametroService paramService;
-    
-    private ObjectMapper om = new ObjectMapper();
     
     public void pushNotifications(Igreja igreja, MensagemPushDTO notification, String... to) {
         pushNotifications(igreja, notification, Arrays.asList(to));

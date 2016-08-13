@@ -5,6 +5,8 @@
  */
 package br.gafs.calvinista.service;
 
+import br.gafs.calvinista.dto.FiltroDispositivoDTO;
+import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.Igreja;
@@ -18,11 +20,11 @@ import java.util.List;
  * @author Gabriel
  */
 public interface MensagemService extends Serializable {
-    void sendNow(Igreja igreja, MensagemPushDTO notificacao, List<String> to);
-    NotificationSchedule sendWhenPossible(Igreja igreja, MensagemPushDTO notificacao, List<String> to);
-    NotificationSchedule sendLater(Igreja igreja, MensagemPushDTO notificacao, List<String> to, Date dataHora);
+    void sendNow(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro);
+    NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro);
+    NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro, Date dataHora);
     
-    void sendNow(Igreja igreja, MensagemEmailDTO notificacao, List<String> to);
-    NotificationSchedule sendWhenPossible(Igreja igreja, MensagemEmailDTO notificacao, List<String> to);
-    NotificationSchedule sendLater(Igreja igreja, MensagemEmailDTO notificacao, List<String> to, Date dataHora);
+    void sendNow(MensagemEmailDTO notificacao, FiltroEmailDTO filtro);
+    NotificationSchedule sendWhenPossible(MensagemEmailDTO notificacao, FiltroEmailDTO filtro);
+    NotificationSchedule sendLater(MensagemEmailDTO notificacao, FiltroEmailDTO filtro, Date dataHora);
 }

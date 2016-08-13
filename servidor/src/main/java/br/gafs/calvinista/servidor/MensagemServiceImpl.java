@@ -5,8 +5,12 @@
 */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.FiltroDispositivo;
+import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dao.QueryNotificacao;
+import br.gafs.calvinista.dto.FiltroDispositivoDTO;
+import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.Igreja;
@@ -17,10 +21,14 @@ import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.servidor.mensagem.AndroidNotificationService;
 import br.gafs.calvinista.servidor.mensagem.EmailService;
 import br.gafs.calvinista.servidor.mensagem.IOSNotificationService;
+import br.gafs.calvinista.view.View.Resumido;
+import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
+import static java.lang.ProcessBuilder.Redirect.to;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,30 +72,29 @@ public class MensagemServiceImpl implements MensagemService {
     
     private void sendPushNow(NotificationSchedule notificacao){
         try{
-            sendNow(notificacao, MensagemPushDTO.class, new Sender<MensagemPushDTO>() {
+            sendNow(notificacao, FiltroDispositivoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoDTO, MensagemPushDTO>() {
                 
                 @Override
-                public void send(Igreja igreja, MensagemPushDTO t, List to) throws IOException {
-                    try{
-                        List<String> android = separa(igreja, to, TipoDispositivo.ANDROID);
-                        if (!android.isEmpty()){
-                            List<String> failures = androidNotificationService.pushNotifications(igreja, t, android);
-                            for (String fail : failures){
-                                daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
-                            }
+                public void send(FiltroDispositivoDTO filtro, MensagemPushDTO t) throws IOException {
+                    BuscaPaginadaDTO<String> dispositivos;
+                    do{
+                        dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
+
+                        List<String> failures = androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+                        for (String fail : failures){
+                            daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
                         }
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
+
+                        filtro.proxima();
+                    }while(dispositivos.isHasProxima());
                     
-                    try{
-                        List<String> ios = separa(igreja, to, TipoDispositivo.IPHONE);
-                        if (!ios.isEmpty()){
-                            iOSNotificationService.pushNotifications(igreja, t, ios);
-                        }
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
+                    do{
+                        dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
+
+                        iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+
+                        filtro.proxima();
+                    }while(dispositivos.isHasProxima());
                 }
             });
         }catch(Exception e){
@@ -107,11 +114,18 @@ public class MensagemServiceImpl implements MensagemService {
     
     private void sendEmailNow(NotificationSchedule notificacao){
         try{
-            sendNow(notificacao, MensagemEmailDTO.class, new Sender<MensagemEmailDTO>() {
+            sendNow(notificacao, FiltroEmailDTO.class, MensagemEmailDTO.class, new Sender<FiltroEmailDTO, MensagemEmailDTO>() {
                 
                 @Override
-                public void send(Igreja igreja, MensagemEmailDTO t, List to) throws IOException {
-                    emailService.sendEmails(igreja, t, to);
+                public void send(FiltroEmailDTO filtro, MensagemEmailDTO t) throws IOException {
+                    BuscaPaginadaDTO<String> emails;
+                    do{
+                        emails = daoService.findWith(new FiltroEmail(filtro));
+
+                        emailService.sendEmails(filtro.getIgreja(), t, emails.getResultados());
+
+                        filtro.proxima();
+                    }while(emails.isHasProxima());
                 }
             });
         }catch(Exception e){
@@ -119,69 +133,52 @@ public class MensagemServiceImpl implements MensagemService {
         }
     }
     
-    private <T> void sendNow(NotificationSchedule notificacao, Class<T> type, Sender<T> sender) throws IOException {
-        T t = om.readValue(notificacao.getNotificacao(), type);
-        List<String> tos = om.readValue(notificacao.getTo(), List.class);
+    private <F,M> void sendNow(NotificationSchedule notificacao, Class<F> ftype, Class<M> mtype, Sender<F, M> sender) throws IOException {
+        M t = om.readValue(notificacao.getNotificacao(), mtype);
+        F filtro = om.readValue(notificacao.getTo(), ftype);
         
-        if (tos.isEmpty()) return;
-        
-        sender.send(notificacao.getIgreja(), t, tos);
+        sender.send(filtro, t);
         
         notificacao.enviado();
         
         daoService.update(notificacao);
     }
     
-    interface Sender<T> {
-        void send(Igreja igreja, T t, List<String> to) throws IOException;
+    interface Sender<F,M> {
+        void send(F filtro, M t) throws IOException;
     }
     
     @Override
     @Asynchronous
-    public void sendNow(Igreja igreja, MensagemPushDTO notificacao, List<String> tos) {
-        if (tos.isEmpty()) return;
-        
-        sendPushNow(sendWhenPossible(igreja, notificacao, tos));
+    public void sendNow(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro) {
+        sendPushNow(sendWhenPossible(notificacao, filtro));
     }
     
     @Override
     @Asynchronous
-    public void sendNow(Igreja igreja, MensagemEmailDTO notificacao, List<String> tos) {
-        if (tos.isEmpty()) return;
-        
-        sendEmailNow(sendWhenPossible(igreja, notificacao, tos));
+    public void sendNow(MensagemEmailDTO notificacao, FiltroEmailDTO filtro) {
+        sendEmailNow(sendWhenPossible(notificacao, filtro));
     }
     
     @Override
-    public NotificationSchedule sendWhenPossible(Igreja igreja, MensagemPushDTO notificacao, List<String> to) {
-        return sendLater(igreja, notificacao, to, DateUtil.getDataAtual());
+    public NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro) {
+        return sendLater(notificacao, filtro, DateUtil.getDataAtual());
     }
     
     @Override
-    public NotificationSchedule sendWhenPossible(Igreja igreja, MensagemEmailDTO notificacao, List<String> to) {
-        return sendLater(igreja, notificacao, to, DateUtil.getDataAtual());
-    }
-    
-    private List<String> separa(Igreja igreja, List<String> devices, TipoDispositivo tipo){
-        List<String> filtrados = new ArrayList<String>();
-        for (int i=0;i<devices.size();i+=500){
-            filtrados.addAll(daoService.findWith(QueryNotificacao.DEVICES_POR_TIPO.create(igreja.getChave(),
-                    tipo, devices.subList(i, Math.min(devices.size(), i + 500)))));
-        }
-        return filtrados;
+    public NotificationSchedule sendWhenPossible(MensagemEmailDTO notificacao, FiltroEmailDTO filtro) {
+        return sendLater(notificacao, filtro, DateUtil.getDataAtual());
     }
     
     @Override
-    public NotificationSchedule sendLater(Igreja igreja, MensagemPushDTO notificacao, List<String> to, Date dataHora) {
-        
+    public NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro, Date dataHora) {
         try {
-            NotificationSchedule registro = new NotificationSchedule(
-                    NotificationType.PUSH,
-                    dataHora, igreja,
-                    om.writeValueAsString(notificacao),
-                    om.writeValueAsString(to));
+            ObjectWriter writer = om.writerWithView(Resumido.class);
             
-            if (to.isEmpty()) return registro;
+            NotificationSchedule registro = new NotificationSchedule(
+                    NotificationType.PUSH, dataHora, 
+                    writer.writeValueAsString(notificacao),
+                    writer.writeValueAsString(filtro));
             
             return daoService.create(registro);
         } catch (IOException ex) {
@@ -191,15 +188,14 @@ public class MensagemServiceImpl implements MensagemService {
     }
     
     @Override
-    public NotificationSchedule sendLater(Igreja igreja, MensagemEmailDTO notificacao, List<String> to, Date dataHora) {
+    public NotificationSchedule sendLater(MensagemEmailDTO notificacao, FiltroEmailDTO filtro, Date dataHora) {
         try {
-            NotificationSchedule registro = new NotificationSchedule(
-                    NotificationType.EMAIL,
-                    dataHora, igreja,
-                    om.writeValueAsString(notificacao),
-                    om.writeValueAsString(to));
+            ObjectWriter writer = om.writerWithView(Resumido.class);
             
-            if (to.isEmpty()) return registro;
+            NotificationSchedule registro = new NotificationSchedule(
+                    NotificationType.EMAIL, dataHora, 
+                    writer.writeValueAsString(notificacao),
+                    writer.writeValueAsString(filtro));
             
             return daoService.create(registro);
         } catch (IOException ex) {
