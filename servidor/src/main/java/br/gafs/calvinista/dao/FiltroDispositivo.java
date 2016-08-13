@@ -33,6 +33,11 @@ public class FiltroDispositivo extends AbstractPaginatedFiltro<FiltroDispositivo
             args.put("ministerios", filtro.getMinisterios());
         }
         
+        if (filtro.getTipo() != null){
+            where.append(" and d.tipo = :tipo");
+            args.put("tipo", filtro.getTipo());
+        }
+        
         if (filtro.getHora() != null){
             where.append(" and p.desejaReceberVersiculosDiarios = true and p.horaVersiculoDiario = :hora");
             args.put("hora", filtro.getHora());

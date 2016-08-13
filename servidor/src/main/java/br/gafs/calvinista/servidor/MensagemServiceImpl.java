@@ -78,6 +78,7 @@ public class MensagemServiceImpl implements MensagemService {
                 public void send(FiltroDispositivoDTO filtro, MensagemPushDTO t) throws IOException {
                     BuscaPaginadaDTO<String> dispositivos;
                     do{
+                        filtro.setTipo(TipoDispositivo.ANDROID);
                         dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                         List<String> failures = androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
@@ -89,6 +90,7 @@ public class MensagemServiceImpl implements MensagemService {
                     }while(dispositivos.isHasProxima());
                     
                     do{
+                        filtro.setTipo(TipoDispositivo.IPHONE);
                         dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                         iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
