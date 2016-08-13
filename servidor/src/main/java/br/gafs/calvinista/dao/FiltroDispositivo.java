@@ -23,7 +23,7 @@ public class FiltroDispositivo extends AbstractPaginatedFiltro<FiltroDispositivo
     public FiltroDispositivo(FiltroDispositivoDTO filtro) {
         super(filtro);
         
-        StringBuilder from = new StringBuilder(" from Dispositivo d left join d.preferencias p");
+        StringBuilder from = new StringBuilder(" from Dispositivo d inner join d.preferencias p");
         StringBuilder where = new StringBuilder(" where d.igreja.chave = :chaveIgreja and d.pushkey <> 'unknown'");
         Map<String, Object> args = new QueryParameters("chaveIgreja", filtro.getIgreja().getChave());
         
