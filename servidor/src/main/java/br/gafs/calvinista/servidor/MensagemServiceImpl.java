@@ -78,9 +78,9 @@ public class MensagemServiceImpl implements MensagemService {
                 public void send(FiltroDispositivoDTO filtro, MensagemPushDTO t) throws IOException {
                     BuscaPaginadaDTO<String> dispositivos;
                     try{
+                        filtro.setPagina(1);
+                        filtro.setTipo(TipoDispositivo.ANDROID);
                         do{
-                            filtro.setPagina(1);
-                            filtro.setTipo(TipoDispositivo.ANDROID);
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             try{
@@ -105,9 +105,9 @@ public class MensagemServiceImpl implements MensagemService {
                     }
                     
                     try{
+                        filtro.setPagina(1);
+                        filtro.setTipo(TipoDispositivo.IPHONE);
                         do{
-                            filtro.setPagina(1);
-                            filtro.setTipo(TipoDispositivo.IPHONE);
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             try{
