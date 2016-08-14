@@ -80,15 +80,13 @@ public class MensagemServiceImpl implements MensagemService {
                     try{
                         filtro.setPagina(1);
                         filtro.setTipo(TipoDispositivo.ANDROID);
+                        List<String> failures = new ArrayList<String>();
                         do{
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             try{
                                 if (!dispositivos.isEmpty()){
-                                    List<String> failures = androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
-                                    for (String fail : failures){
-                                        daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
-                                    }
+                                    failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
                                 }else{
                                     Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
                                 }
@@ -96,9 +94,14 @@ public class MensagemServiceImpl implements MensagemService {
                                 Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo Android " + e.getMessage());
                                 e.printStackTrace();
                             }
+                            
 
                             filtro.proxima();
                         }while(dispositivos.isHasProxima());
+                        
+                        for (String fail : failures){
+                            daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
+                        }
                     }catch(Exception e){
                         Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo Android " + e.getMessage());
                         e.printStackTrace();

@@ -53,32 +53,9 @@ public class GeneralTest {
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
-//    @Test
+    @Test
     public void hello() throws InterruptedException, FileNotFoundException {
-        Igreja igreja = new Igreja();
-        igreja.setNome("Igreja Teste");
-        Institucional institucional = new Institucional(igreja);
-        institucional.setSite("www.siteexemplo.com.br");
-        MensagemEmailDTO email = 
-                MensagemUtil.email(institucional, "César Zé Mané",
-                new CalvinEmailDTO(
-                        new CalvinEmailDTO.Manchete("Título Manchete", "Texto texto texto",
-                        "http://www.ipb.org.br", "Acesse o site"), 
-                    Arrays.asList(
-                            new Materia("Título Matéria 1", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tincidunt sodales rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus."),
-                            new CalvinEmailDTO.MateriaIlustrada("Título Matéria 2", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tincidunt sodales rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus.",
-                                    new File("C:\\Users\\Gabriel\\Downloads\\images\\igreja.png"), "http://www.link.com", "Acesse o link"),
-                            new CalvinEmailDTO.MateriaDupla("Título Matéria 3", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tincidunt sodales rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus.", "Título Matéria 3", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tincidunt sodales rhoncus. Interdum et malesuada fames ac ante ipsum primis in faucibus.")
-                    )));
-
-        PrintWriter writer = new PrintWriter(new File("email.html"));
-        
-        writer.write(email.getMessage());
-        writer.flush();
-        
-        writer.close();
-        
-        EmailUtil.sendMail(email.getMessage(), email.getSubject(), Arrays.asList("gafsel@gmail.com"), email.getDataSources(), email.getAttachmentsNames());
+        EmailUtil.sendMail("E-mail teste", "Assunto teste", Arrays.asList("gafsel@gmail.com"));
         
         Thread.sleep(60000);
     }
