@@ -95,7 +95,6 @@ public class MensagemServiceImpl implements MensagemService {
                                 e.printStackTrace();
                             }
                             
-
                             filtro.proxima();
                         }while(dispositivos.isHasProxima());
                         

@@ -53,7 +53,7 @@ public class GeneralTest {
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
-    @Test
+//    @Test
     public void hello() throws InterruptedException, FileNotFoundException {
         EmailUtil.sendMail("E-mail teste", "Assunto teste", Arrays.asList("gafsel@gmail.com"));
         
