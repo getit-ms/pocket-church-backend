@@ -5,36 +5,33 @@
  */
 package br.gafs.calvinista.dao;
 
-import br.gafs.calvinista.dto.FiltroHinoDTO;
+import br.gafs.calvinista.dto.FiltroCifraDTO;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.string.StringUtil;
+
 import java.util.Map;
 
-/**
- *
- * @author Gabriel
- */
-public class FiltroHino extends AbstractPaginatedFiltro<FiltroHinoDTO> {
+public class FiltroCifra extends AbstractPaginatedFiltro<FiltroCifraDTO> {
 
-    public FiltroHino(Igreja igreja, FiltroHinoDTO filtro) {
+    public FiltroCifra(Igreja igreja, FiltroCifraDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Hino h where h.locale = :locale");
-        Map<String, Object> args = new QueryParameters("locale", igreja.getLocale());
+        StringBuilder query = new StringBuilder("from Cifra c where c.igreja.chave = :chaveIgreja");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getChave());
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
-            query.append(" and (lower(h.nome) like :filtro or lower(h.numero) like :filtro or lower(h.assunto) like :filtro or lower(h.autor) like :filtro or lower(h.texto) like :filtro)");
+            query.append(" and lower(c.titulo) like :filtro");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select h ").append(query).append(" order by h.numero, h.nome").toString());
+        setQuery(new StringBuilder("select c ").append(query).append(" order by c.titulo").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
-                new StringBuilder("select count(h) ").append(query).toString(), args));
+                new StringBuilder("select count(c) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
     }
 

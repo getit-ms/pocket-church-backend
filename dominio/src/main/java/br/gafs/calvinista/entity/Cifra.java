@@ -1,0 +1,80 @@
+package br.gafs.calvinista.entity;
+
+import br.gafs.bean.IEntity;
+import br.gafs.calvinista.view.View;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.*;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+@Entity
+@Table(name = "tb_cifra")
+@IdClass(RegistroIgrejaId.class)
+@ToString(of = {"id", "igreja"})
+@EqualsAndHashCode(of = {"id", "igreja"})
+public class Cifra implements ArquivoPDF {
+    @Id
+    @JsonView(View.Resumido.class)
+    @Column(name = "id_cifra")
+    @SequenceGenerator(name = "seq_cifra", sequenceName = "seq_cifra")
+    @GeneratedValue(generator = "seq_cifra", strategy = GenerationType.SEQUENCE)
+    private Long id;
+
+    @Column(name = "numero")
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    private String numero;
+
+    @Column(name = "titulo")
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    private String titulo;
+
+    @NotNull
+    @OneToOne
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private Arquivo cifra;
+
+    @Setter
+    @NotNull
+    @OneToOne
+    @JsonView(View.Resumido.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private Arquivo thumbnail;
+
+    @ManyToMany
+    @JsonView(View.Resumido.class)
+    @JoinTable(name = "rl_cifra_paginas", joinColumns = {
+            @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
+    }, inverseJoinColumns = {
+            @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private List<Arquivo> paginas = new ArrayList<Arquivo>();
+
+    @Id
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "chave_igreja", nullable = false)
+    private Igreja igreja;
+
+    @Override
+    @JsonIgnore
+    public Arquivo getPDF() {
+        return cifra;
+    }
+}

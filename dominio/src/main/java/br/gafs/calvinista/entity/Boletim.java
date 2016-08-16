@@ -5,47 +5,21 @@
  */
 package br.gafs.calvinista.entity;
 
-import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.*;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  *
@@ -58,7 +32,7 @@ import lombok.ToString;
 @Table(name = "tb_boletim")
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
-public class Boletim implements IEntity {
+public class Boletim implements ArquivoPDF {
     @Id
     @JsonView(Resumido.class)
     @Column(name = "id_boletim")
@@ -147,5 +121,11 @@ public class Boletim implements IEntity {
     public List<Arquivo> getPaginas(){
         Collections.sort(paginas);
         return paginas;
+    }
+
+    @Override
+    @JsonIgnore
+    public Arquivo getPDF() {
+        return boletim;
     }
 }

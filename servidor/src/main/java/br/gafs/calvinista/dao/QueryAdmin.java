@@ -5,20 +5,14 @@
  */
 package br.gafs.calvinista.dao;
 
-import br.gafs.calvinista.entity.domain.StatusAgendamentoAtendimento;
-import br.gafs.calvinista.entity.domain.StatusCalendario;
-import br.gafs.calvinista.entity.domain.StatusMinisterio;
-import br.gafs.calvinista.entity.domain.StatusIgreja;
-import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
-import br.gafs.calvinista.entity.domain.StatusMembro;
-import br.gafs.calvinista.entity.domain.StatusVersiculoDiario;
+import br.gafs.calvinista.entity.domain.*;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -176,8 +170,13 @@ public enum QueryAdmin {
         
     }, 
     DELETE_INSCRICOES("InscricaoEvento.deleteByEvento", "idEvento"), 
-    DESABILITA_DISPOSITIVO_BY_PUSHKEY("Dispositivo.desabilitaByPushkey", "pushkey");
-    
+    DESABILITA_DISPOSITIVO_BY_PUSHKEY("Dispositivo.desabilitaByPushkey", "pushkey"),
+    RELEASE_NOTES("ReleaseNotes.findByTipo", "tipo"){
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return 10;
+        }
+    };
     private final String query;
     private final String[] parameters;
     private final QueryAdmin countQuery;

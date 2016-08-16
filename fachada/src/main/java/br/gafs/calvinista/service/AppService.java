@@ -5,48 +5,12 @@
  */
 package br.gafs.calvinista.service;
 
-import br.gafs.calvinista.dto.EventoAgendaDTO;
-import br.gafs.calvinista.dto.FiltroBoletimDTO;
-import br.gafs.calvinista.dto.FiltroBoletimPublicadoDTO;
-import br.gafs.calvinista.dto.FiltroEstudoDTO;
-import br.gafs.calvinista.dto.FiltroEstudoPublicadoDTO;
-import br.gafs.calvinista.dto.FiltroEventoDTO;
-import br.gafs.calvinista.dto.FiltroEventoFuturoDTO;
-import br.gafs.calvinista.dto.FiltroHinoDTO;
-import br.gafs.calvinista.dto.FiltroInscricaoDTO;
-import br.gafs.calvinista.dto.FiltroMembroDTO;
-import br.gafs.calvinista.dto.FiltroMeusAgendamentoDTO;
-import br.gafs.calvinista.dto.FiltroMeusPedidoOracaoDTO;
-import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
-import br.gafs.calvinista.dto.FiltroPedidoOracaoDTO;
-import br.gafs.calvinista.dto.FiltroVersiculoDiarioDTO;
-import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
-import br.gafs.calvinista.dto.FiltroVotacaoDTO;
-import br.gafs.calvinista.dto.ResultadoVotacaoDTO;
-import br.gafs.calvinista.dto.StatusAdminDTO;
-import br.gafs.calvinista.entity.Acesso;
-import br.gafs.calvinista.entity.AgendamentoAtendimento;
-import br.gafs.calvinista.entity.Boletim;
-import br.gafs.calvinista.entity.CalendarioAtendimento;
-import br.gafs.calvinista.entity.Estudo;
-import br.gafs.calvinista.entity.Evento;
-import br.gafs.calvinista.entity.Hino;
-import br.gafs.calvinista.entity.HorarioAtendimento;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.InscricaoEvento;
-import br.gafs.calvinista.entity.Institucional;
-import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.Ministerio;
-import br.gafs.calvinista.entity.Notificacao;
-import br.gafs.calvinista.entity.Opcao;
-import br.gafs.calvinista.entity.PedidoOracao;
-import br.gafs.calvinista.entity.Perfil;
-import br.gafs.calvinista.entity.Questao;
-import br.gafs.calvinista.entity.RespostaVotacao;
-import br.gafs.calvinista.entity.VersiculoDiario;
-import br.gafs.calvinista.entity.Votacao;
+import br.gafs.calvinista.dto.*;
+import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.entity.domain.TipoVersao;
 import br.gafs.dao.BuscaPaginadaDTO;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
@@ -71,6 +35,12 @@ public interface AppService extends Serializable {
     void removePerfil(Long perfil);
     List<Perfil> buscaPerfis();
     Perfil buscaPerfil(Long perfil);
+
+    Cifra cadastra(Cifra cifra);
+    Cifra atualiza(Cifra cifra);
+    void removeCifra(Long cifra);
+    BuscaPaginadaDTO<Cifra> buscaCifras(FiltroCifraDTO filtro);
+    Cifra buscaCifra(Long cifra);
     
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);
@@ -171,5 +141,6 @@ public interface AppService extends Serializable {
 
     List<Funcionalidade> getFuncionalidadesAplicativo();
 
+    List<ReleaseNotes> buscaReleaseNotes(TipoVersao tipo);
     
 }

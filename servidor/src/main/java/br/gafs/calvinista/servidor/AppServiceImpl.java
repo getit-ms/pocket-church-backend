@@ -5,75 +5,13 @@
  */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.dao.FiltroBoletim;
-import br.gafs.calvinista.dao.FiltroDispositivo;
-import br.gafs.calvinista.dao.FiltroEstudo;
-import br.gafs.calvinista.dao.FiltroEvento;
-import br.gafs.calvinista.dao.FiltroHino;
-import br.gafs.calvinista.dao.FiltroInscricao;
-import br.gafs.calvinista.dao.FiltroMembro;
-import br.gafs.calvinista.dao.FiltroMeusAgendamentos;
-import br.gafs.calvinista.dao.FiltroPedidoOracao;
-import br.gafs.calvinista.dao.FiltroVersiculoDiario;
-import br.gafs.calvinista.dao.FiltroVotacao;
-import br.gafs.calvinista.dao.QueryAdmin;
-import br.gafs.calvinista.dto.CalvinEmailDTO;
-import br.gafs.calvinista.dto.EventoAgendaDTO;
-import br.gafs.calvinista.dto.FiltroBoletimDTO;
-import br.gafs.calvinista.dto.FiltroBoletimPublicadoDTO;
-import br.gafs.calvinista.dto.FiltroDispositivoDTO;
-import br.gafs.calvinista.dto.FiltroEmailDTO;
-import br.gafs.calvinista.dto.FiltroEstudoDTO;
-import br.gafs.calvinista.dto.FiltroEstudoPublicadoDTO;
-import br.gafs.calvinista.dto.FiltroEventoDTO;
-import br.gafs.calvinista.dto.FiltroEventoFuturoDTO;
-import br.gafs.calvinista.dto.FiltroHinoDTO;
-import br.gafs.calvinista.dto.FiltroInscricaoDTO;
-import br.gafs.calvinista.dto.FiltroMembroDTO;
-import br.gafs.calvinista.dto.FiltroMeusAgendamentoDTO;
-import br.gafs.calvinista.dto.FiltroMeusPedidoOracaoDTO;
-import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
-import br.gafs.calvinista.dto.FiltroPedidoOracaoDTO;
-import br.gafs.calvinista.dto.FiltroVersiculoDiarioDTO;
-import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
-import br.gafs.calvinista.dto.FiltroVotacaoDTO;
-import br.gafs.calvinista.dto.MensagemPushDTO;
-import br.gafs.calvinista.dto.ResultadoVotacaoDTO;
-import br.gafs.calvinista.dto.StatusAdminDTO;
-import br.gafs.calvinista.entity.Acesso;
-import br.gafs.calvinista.entity.AcessoId;
-import br.gafs.calvinista.entity.AgendamentoAtendimento;
-import br.gafs.calvinista.entity.Arquivo;
-import br.gafs.calvinista.entity.Boletim;
-import br.gafs.calvinista.entity.CalendarioAtendimento;
-import br.gafs.calvinista.entity.Estudo;
-import br.gafs.calvinista.entity.Evento;
-import br.gafs.calvinista.entity.Hino;
-import br.gafs.calvinista.entity.HorarioAtendimento;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.InscricaoEvento;
-import br.gafs.calvinista.entity.InscricaoEventoId;
-import br.gafs.calvinista.entity.Institucional;
-import br.gafs.calvinista.entity.Ministerio;
-import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.Notificacao;
-import br.gafs.calvinista.entity.Opcao;
-import br.gafs.calvinista.entity.PedidoOracao;
-import br.gafs.calvinista.entity.Perfil;
-import br.gafs.calvinista.entity.Questao;
-import br.gafs.calvinista.entity.RegistroIgrejaId;
-import br.gafs.calvinista.entity.RespostaVotacao;
-import br.gafs.calvinista.entity.VersiculoDiario;
-import br.gafs.calvinista.entity.Votacao;
-import br.gafs.calvinista.entity.Voto;
-import br.gafs.calvinista.entity.domain.DiaSemana;
-import br.gafs.calvinista.entity.domain.Funcionalidade;
-import br.gafs.calvinista.entity.domain.HorasEnvioVersiculo;
-import br.gafs.calvinista.entity.domain.StatusPedidoOracao;
-import br.gafs.calvinista.entity.domain.StatusVersiculoDiario;
-import br.gafs.calvinista.security.SecurityInterceptor;
+import br.gafs.calvinista.dao.*;
+import br.gafs.calvinista.dto.*;
+import br.gafs.calvinista.entity.*;
+import br.gafs.calvinista.entity.domain.*;
 import br.gafs.calvinista.security.AllowAdmin;
 import br.gafs.calvinista.security.AllowMembro;
+import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
@@ -89,21 +27,16 @@ import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.image.ImageUtil;
 import br.gafs.util.senha.SenhaUtil;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  *
@@ -146,12 +79,19 @@ public class AppServiceImpl implements AppService {
         
         return status;
     }
-    
+
+    @Override
+    @AllowAdmin
+    @AllowMembro
+    public List<ReleaseNotes> buscaReleaseNotes(TipoVersao tipo) {
+        return daoService.findWith(QueryAdmin.RELEASE_NOTES.create(tipo));
+    }
+
     private VersiculoDiario buscaVersiculoDiario(){
         return daoService.findWith(QueryAdmin.VERSICULOS_POR_STATUS.
                 createSingle(acessoService.getIgreja().getChave(), StatusVersiculoDiario.ATIVO));
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public List<Membro> buscaPastores() {
@@ -174,7 +114,7 @@ public class AppServiceImpl implements AppService {
         if (entidade.equals(acessoService.getMembro())) {
             throw new ServiceException("mensagens.MSG-015");
         }
-        
+
         boolean gerarSenha = entidade.isSenhaUndefined();
         
         entidade.membro();
@@ -278,10 +218,6 @@ public class AppServiceImpl implements AppService {
     public Acesso darAcessoAdmin(Long membro, List<Perfil> perfis, List<Ministerio> ministerios) {
         Membro entidade = buscaMembro(membro);
         
-        if (entidade.equals(acessoService.getMembro())) {
-            throw new ServiceException("mensagens.MSG-015");
-        }
-        
         Acesso acesso = buscaAcessoAdmin(membro);
         if (acesso == null) {
             if (!entidade.isMembro()){
@@ -293,6 +229,12 @@ public class AppServiceImpl implements AppService {
 
         acesso.setPerfis(perfis);
         acesso.setMinisterios(ministerios);
+
+        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)){
+            if (entidade.equals(acessoService.getMembro())) {
+                throw new ServiceException("mensagens.MSG-015");
+            }
+        }
 
         return daoService.update(acesso);
     }
@@ -419,41 +361,50 @@ public class AppServiceImpl implements AppService {
     public Boletim cadastra(Boletim boletim) throws IOException {
         boletim.setIgreja(acessoService.getIgreja());
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
-        trataBoletim(boletim);
+        trataPDF(boletim);
         return daoService.create(boletim);
     }
 
-    private void trataBoletim(final Boletim boletim) throws IOException {
-        if (!boletim.getBoletim().isUsed()) {
-            if (boletim.getId() != null){
-                Boletim old = buscaBoletim(boletim.getId());
-                arquivoService.registraDesuso(old.getBoletim().getId());
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
+    public Cifra cadastra(Cifra cifra) throws IOException {
+        cifra.setIgreja(acessoService.getIgreja());
+        cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
+        trataPDF(cifra);
+        return daoService.create(cifra);
+    }
+
+    private void trataPDF(final ArquivoPDF pdf) throws IOException {
+        if (!pdf.getPDF().isUsed()) {
+            if (pdf.getId() != null){
+                ArquivoPDF old = daoService.find(pdf.getClass(), new RegistroIgrejaId(acessoService.getIgreja().getChave(), pdf.getId()));
+                arquivoService.registraDesuso(old.getPDF().getId());
                 arquivoService.registraDesuso(old.getThumbnail().getId());
 
-                boletim.getPaginas().clear();
-                List<Arquivo> pages = new ArrayList<Arquivo>(boletim.getPaginas());
+                pdf.getPaginas().clear();
+                List<Arquivo> pages = new ArrayList<Arquivo>(pdf.getPaginas());
                 for (Arquivo arq : pages) {
                     arquivoService.registraDesuso(arq.getId());
                 }
             }
             
-            arquivoService.registraUso(boletim.getBoletim().getId());
+            arquivoService.registraUso(pdf.getPDF().getId());
 
             PDFToImageConverterUtil.convert(EntityFileManager.
-                    get(boletim.getBoletim(), "dados")).forEachPage(new PDFToImageConverterUtil.PageHandler() {
+                    get(pdf.getPDF(), "dados")).forEachPage(new PDFToImageConverterUtil.PageHandler() {
                         @Override
                         public void handle(int page, byte[] dados) throws IOException {
                             if (page == 0){
-                                boletim.setThumbnail(arquivoService.upload(boletim.getBoletim().getNome().
+                                pdf.setThumbnail(arquivoService.upload(pdf.getPDF().getNome().
                                     replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, 500, 500)));
-                                arquivoService.registraUso(boletim.getThumbnail().getId());
-                                boletim.getThumbnail().clearDados();
+                                arquivoService.registraUso(pdf.getThumbnail().getId());
+                                pdf.getThumbnail().clearDados();
                             }
                             
-                            Arquivo pagina = arquivoService.upload(boletim.getBoletim().getNome().
+                            Arquivo pagina = arquivoService.upload(pdf.getPDF().getNome().
                                     replaceFirst(".[pP][dD][fF]$", "") + "_page"
                                     + new DecimalFormat("00000").format(page + 1) + ".png", dados);
-                            boletim.getPaginas().add(pagina);
+                            pdf.getPaginas().add(pagina);
                             arquivoService.registraUso(pagina.getId());
                             pagina.clearDados();
                         }
@@ -465,13 +416,26 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
     public Boletim atualiza(Boletim boletim) throws IOException {
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
-        trataBoletim(boletim);
+        trataPDF(boletim);
         return daoService.update(boletim);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
+    public Cifra atualiza(Cifra cifra) throws IOException {
+        cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
+        trataPDF(cifra);
+        return daoService.update(cifra);
     }
 
     @Override
     public Boletim buscaBoletim(Long boletim) {
         return daoService.find(Boletim.class, new RegistroIgrejaId(acessoService.getIgreja().getChave(), boletim));
+    }
+
+    @Override
+    public Cifra buscaCifra(Long cifra) {
+        return daoService.find(Cifra.class, new RegistroIgrejaId(acessoService.getIgreja().getChave(), cifra));
     }
 
     @Override
@@ -484,13 +448,33 @@ public class AppServiceImpl implements AppService {
         }
         
         arquivoService.registraDesuso(entidade.getBoletim().getId());
+        arquivoService.registraDesuso(entidade.getThumbnail().getId());
         daoService.delete(Boletim.class, new RegistroIgrejaId(acessoService.getIgreja().getChave(), entidade.getId()));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
+    public void removeCifra(Long cifra) {
+        Cifra entidade = buscaCifra(cifra);
+
+        for (Arquivo page : entidade.getPaginas()) {
+            arquivoService.registraDesuso(page.getId());
+        }
+
+        arquivoService.registraDesuso(entidade.getCifra().getId());
+        arquivoService.registraDesuso(entidade.getThumbnail().getId());
+        daoService.delete(Cifra.class, new RegistroIgrejaId(acessoService.getIgreja().getChave(), entidade.getId()));
     }
 
     @Override
     @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
     public BuscaPaginadaDTO<Boletim> buscaTodos(FiltroBoletimDTO filtro) {
         return daoService.findWith(new FiltroBoletim(acessoService.getDispositivo(), filtro));
+    }
+
+    @Override
+    public BuscaPaginadaDTO<Cifra> buscaCifras(FiltroCifraDTO filtro) {
+        return daoService.findWith(new FiltroCifra(acessoService.getIgreja(), filtro));
     }
 
     @Override
@@ -1148,6 +1132,21 @@ public class AppServiceImpl implements AppService {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    @Schedule(hour = "*")
+    public void enviaParabensAniversario() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer hora = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (hora.equals(12)){
+                enviaPush(new FiltroDispositivoDTO(igreja, cal.getTime()),
+                        MensagemUtil.getMensagem("push.aniversario.title", igreja.getLocale()),
+                        MensagemUtil.getMensagem("push.aniversario.message", igreja.getLocale(), igreja.getNome()));
             }
         }
     }

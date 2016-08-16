@@ -10,7 +10,7 @@ import br.gafs.calvinista.entity.domain.StatusMembro;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
-import br.gafs.util.date.DateUtil;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -32,6 +32,10 @@ public class FiltroDispositivo extends AbstractPaginatedFiltro<FiltroDispositivo
             where.append(" and mi.id in :ministerios");
             args.put("ministerios", filtro.getMinisterios());
         }
+
+        if (filtro.isApenasMembros()){
+            where.append(" and d.membro.id is not null");
+        }
         
         if (filtro.getTipo() != null){
             where.append(" and d.tipo = :tipo");
@@ -47,6 +51,11 @@ public class FiltroDispositivo extends AbstractPaginatedFiltro<FiltroDispositivo
             where.append(" and d.membro.id = :membro and d.membro.status in :statusMembro");
             args.put("membro", filtro.getMembro());
             args.put("statusMembro", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
+        }
+
+        if (filtro.getAniversario() != null){
+            where.append(" and function('to_char', d.membro.dataNascimento, 'DDMM') = function('to_char', :aniversario, 'DDMM')");
+            args.put("aniversario", filtro.getAniversario());
         }
         
         setArguments(args);

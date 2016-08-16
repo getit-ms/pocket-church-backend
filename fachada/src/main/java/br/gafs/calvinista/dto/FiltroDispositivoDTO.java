@@ -12,11 +12,12 @@ import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dto.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -37,9 +38,18 @@ public class FiltroDispositivoDTO implements DTO {
     private Long membro;
     @JsonView(Resumido.class)
     private Igreja igreja;
+    @JsonView(Resumido.class)
+    private boolean apenasMembros;
+    @JsonView(Resumido.class)
+    private Date aniversario;
 
     public FiltroDispositivoDTO(Igreja igreja) {
         this.igreja = igreja;
+    }
+
+    public FiltroDispositivoDTO(Igreja igreja, Date aniversario) {
+        this.igreja = igreja;
+        this.aniversario = aniversario;
     }
 
     public FiltroDispositivoDTO(Igreja igreja, Long membro) {

@@ -4,7 +4,9 @@
 **/node_modules/**
 **/www/lib/**
 **/vendor/**
+**/.idea/**
 **.class
 **.jar
 **.war
 **.ear
+**.iml
