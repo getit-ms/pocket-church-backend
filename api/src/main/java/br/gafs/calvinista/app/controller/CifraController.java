@@ -41,7 +41,7 @@ public class CifraController {
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                buscaCifras(new FiltroCifraDTO(filtro, pagina, total))).build();
+                busca(new FiltroCifraDTO(filtro, pagina, total))).build();
     }
     
     @GET

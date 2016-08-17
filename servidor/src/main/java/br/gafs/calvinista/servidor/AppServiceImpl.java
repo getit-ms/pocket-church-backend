@@ -100,6 +100,17 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    public Chamado solicita(Chamado chamado) {
+        chamado.setDispositivoSolicitante(acessoService.getDispositivo());
+        return daoService.create(chamado);
+    }
+
+    @Override
+    public BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro) {
+        return daoService.findWith(new FiltroChamado(acessoService.getDispositivo(), filtro));
+    }
+
+    @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro cadastra(Membro membro) {
         membro.setIgreja(acessoService.getIgreja());
@@ -473,7 +484,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public BuscaPaginadaDTO<Cifra> buscaCifras(FiltroCifraDTO filtro) {
+    public BuscaPaginadaDTO<Cifra> busca(FiltroCifraDTO filtro) {
         return daoService.findWith(new FiltroCifra(acessoService.getIgreja(), filtro));
     }
 

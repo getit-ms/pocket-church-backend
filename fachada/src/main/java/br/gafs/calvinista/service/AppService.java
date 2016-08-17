@@ -36,11 +36,14 @@ public interface AppService extends Serializable {
     List<Perfil> buscaPerfis();
     Perfil buscaPerfil(Long perfil);
 
-    Cifra cadastra(Cifra cifra);
-    Cifra atualiza(Cifra cifra);
+    Cifra cadastra(Cifra cifra) throws IOException;
+    Cifra atualiza(Cifra cifra) throws IOException;
     void removeCifra(Long cifra);
-    BuscaPaginadaDTO<Cifra> buscaCifras(FiltroCifraDTO filtro);
+    BuscaPaginadaDTO<Cifra> busca(FiltroCifraDTO filtro);
     Cifra buscaCifra(Long cifra);
+
+    Chamado solicita(Chamado chamado);
+    BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
     
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);
