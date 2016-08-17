@@ -83,6 +83,10 @@ public class Chamado implements IEntity {
         dataConclusao = new Date();
     }
 
+    public boolean isConcluido(){
+        return dataConclusao != null;
+    }
+
     public void setDispositivoSolicitante(Dispositivo dispositivoSolicitante) {
         this.dispositivoSolicitante = dispositivoSolicitante;
         this.igrejaSolicitante = dispositivoSolicitante.getIgreja();
