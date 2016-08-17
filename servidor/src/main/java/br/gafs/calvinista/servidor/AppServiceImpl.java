@@ -16,6 +16,7 @@ import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
+import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.util.PDFToImageConverterUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -58,6 +59,9 @@ public class AppServiceImpl implements AppService {
     
     @EJB
     private MensagemService notificacaoService;
+
+    @EJB
+    private PagSeguroService pagSeguroService;
     
     @Override
     @AllowAdmin
@@ -1083,7 +1087,7 @@ public class AppServiceImpl implements AppService {
 
     @Override
     @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
-    public String realizaInscricao(List<InscricaoEvento> inscricoes) {
+    public ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> inscricoes) {
         if (!inscricoes.isEmpty()) {
             Evento evento = inscricoes.get(0).getEvento();
 
@@ -1099,18 +1103,95 @@ public class AppServiceImpl implements AppService {
                     valorTotal = valorTotal.add(inscricao.getValor());
                 }
 
-                String checkout = "";// TODO realiza o checkout no PagSeguro
+                ConfiguracaoPagamentos configuracao = buscaConfiguracao();
+                if (configuracao != null && configuracao.isHabilitadoPagSeguro()){
+                    String referencia = acessoService.getIgreja().getChave().toUpperCase() +
+                            Long.toString(System.currentTimeMillis(), 36);
 
-                for (InscricaoEvento inscricao : cadastradas) {
-                    inscricao.setChaveCheckout(checkout);
-                    daoService.update(inscricao);
+                    PagSeguroService.Pedido pedido = new PagSeguroService.Pedido(referencia,
+                            new PagSeguroService.Solicitante(
+                                    acessoService.getMembro().getNome(),
+                                    acessoService.getMembro().getEmail()));
+
+                    for (InscricaoEvento inscricao : inscricoes){
+                        pedido.add(new PagSeguroService.ItemPedido(
+                            Long.toString(inscricao.getId(), 36),
+                            MensagemUtil.getMensagem("pagseguro.inscricao.item", acessoService.getIgreja().getLocale(),
+                                    inscricao.getEvento().getNome(), inscricao.getNomeInscrito()),
+                            1,
+                            inscricao.getValor()
+                        ));
+                    }
+
+                    String checkout = pagSeguroService.realizaCheckout(pedido, configuracao);
+
+                    for (InscricaoEvento inscricao : cadastradas) {
+                        inscricao.setChaveCheckout(checkout);
+                        inscricao.setReferenciaCheckout(referencia);
+                        daoService.update(inscricao);
+                    }
+
+                    return new ResultadoInscricaoDTO(checkout);
                 }
-
-                return checkout;
             }
         }
 
-        return null;
+        return new ResultadoInscricaoDTO();
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_PAGAMENTOS)
+    public ConfiguracaoPagamentos atualiza(ConfiguracaoPagamentos configuracao) {
+        configuracao.setIgreja(acessoService.getIgreja());
+        return daoService.update(configuracao);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_PAGAMENTOS)
+    public ConfiguracaoPagamentos buscaConfiguracao() {
+        return buscaConfiguracao(acessoService.getIgreja());
+    }
+
+    private ConfiguracaoPagamentos buscaConfiguracao(Igreja igreja) {
+        return daoService.find(ConfiguracaoPagamentos.class, igreja.getChave());
+    }
+
+    @Schedule(hour = "*")
+    public void verificaPagSeguro() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            ConfiguracaoPagamentos configuracao = buscaConfiguracao(igreja);
+            if (configuracao != null && configuracao.isPagSeguroConfigurado()){
+                List<String> referencias = daoService.findWith(QueryAdmin.BUSCA_REFERENCIAS_INSCRICOES_PENDENTES.create(igreja.getChave()));
+
+                for (String referencia : referencias){
+                    atualizaSituacaoPagSeguro(referencia, configuracao);
+                }
+            }
+        }
+    }
+
+    public void atualizaSituacaoPagSeguro(String referencia, ConfiguracaoPagamentos configuracao){
+        switch (pagSeguroService.getStatusPagamento(referencia, configuracao)){
+            case PAGO:
+                {
+                    List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
+                    for (InscricaoEvento inscricao : inscricoes){
+                        inscricao.confirmada();
+                        daoService.update(inscricao);
+                    }
+                }
+                break;
+            case CANCELADO:
+                {
+                    List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
+                    for (InscricaoEvento inscricao : inscricoes){
+                        inscricao.confirmada();
+                        daoService.update(inscricao);
+                    }
+                    break;
+                }
+        }
     }
 
     @Schedule(hour = "*")

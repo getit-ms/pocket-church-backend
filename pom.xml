@@ -167,6 +167,12 @@
                 <version>4.10</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>pagseguro-api</groupId>
+                <artifactId>pagseguro-api</artifactId>
+                <version>0.0.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     

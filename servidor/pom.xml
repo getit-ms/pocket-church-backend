@@ -85,6 +85,11 @@
         </dependency>
 
         <dependency>
+            <groupId>pagseguro-api</groupId>
+            <artifactId>pagseguro-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

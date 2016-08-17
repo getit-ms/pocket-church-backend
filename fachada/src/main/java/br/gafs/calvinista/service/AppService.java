@@ -44,6 +44,9 @@ public interface AppService extends Serializable {
 
     Chamado solicita(Chamado chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
+
+    ConfiguracaoPagamentos buscaConfiguracao();
+    ConfiguracaoPagamentos atualiza(ConfiguracaoPagamentos configuracao);
     
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);
@@ -112,7 +115,7 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<InscricaoEvento> buscaTodas(Long evento, FiltroInscricaoDTO filtro);
     BuscaPaginadaDTO<InscricaoEvento> buscaMinhas(Long evento, FiltroMinhasInscricoesDTO filtro);
     Evento buscaEvento(Long evento);
-    String realizaInscricao(List<InscricaoEvento> merged);
+    ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> merged);
     void confirmaInscricao(Long evento, Long inscricao);
     
     VersiculoDiario cadastra(VersiculoDiario versiculoDiario);

@@ -51,7 +51,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 @EqualsAndHashCode(of = {"membro", "evento"})
 @NamedQueries({
     @NamedQuery(name = "InscricaoEvento.quantidadeInscricoesEvento", query = "select count(ie.id) from InscricaoEvento ie where ie.evento.id = :idEvento and ie.status in :status"),
-    @NamedQuery(name = "InscricaoEvento.deleteByEvento", query = "delete from InscricaoEvento ie where ie.evento.id = :idEvento")
+    @NamedQuery(name = "InscricaoEvento.deleteByEvento", query = "delete from InscricaoEvento ie where ie.evento.id = :idEvento"),
+    @NamedQuery(name = "InscricaoEvento.findByReferencia", query = "select ie from InscricaoEvento ie where ie.referenciaCheckout = :referencia"),
+    @NamedQuery(name = "InscricaoEvento.findReferenciasByStatusAndIgreja", query = "select ie.referenciaCheckout from InscricaoEvento ie where ie.membro.igreja.chave = :igreja and ie.status = :status group by ie.referenciaCheckout")
 })
 public class InscricaoEvento implements IEntity {
     @Id
@@ -97,6 +99,10 @@ public class InscricaoEvento implements IEntity {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "telefone_inscrito", length = 50, nullable = false)
     private String telefoneInscrito;
+
+    @Setter
+    @Column(name = "referencia_checkout")
+    private String referenciaCheckout;
     
     @Setter
     @Column(name = "chave_checkout")

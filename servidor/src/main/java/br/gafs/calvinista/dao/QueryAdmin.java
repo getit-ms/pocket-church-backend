@@ -20,6 +20,13 @@ import java.util.Random;
  * @author Gabriel
  */
 public enum QueryAdmin {
+    BUSCA_REFERENCIAS_INSCRICOES_PENDENTES("InscricaoEvento.findReferenciasByStatusAndIgreja", "igreja"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusInscricaoEvento.PENDENTE);
+        }
+    },
+    INSCRICOES_POR_REFERENCIA("InscricaoEvento.findByReferencia", "referencia"),
     VERSICULOS_POR_STATUS("VersiculoDiario.findByIgrejaAndStatus", "chaveIgreja", "status"),
     REMOVER_VOTOS("Voto.removerPorVotacao", "chaveIgreja", "idVotacao"),
     REMOVER_RESPOSTAS_OPCAO("RespostaOpcao.removerPorVotacao", "chaveIgreja", "idVotacao"),
