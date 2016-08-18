@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Funcionalidade {
     // Administrador
+// Administrador
     MANTER_DADOS_INSTITUCIONAIS(Tipo.ADMIN),
     MANTER_MINISTERIOS(Tipo.ADMIN),
     MANTER_PERFIS(Tipo.ADMIN),
@@ -31,7 +32,7 @@ public enum Funcionalidade {
     ENVIAR_NOTIFICACOES(Tipo.ADMIN, true),
     MANTER_VERSICULOS_DIARIOS(Tipo.ADMIN),
     MANTER_CIFRAS(Tipo.ADMIN),
-    CONFIGURAR_PAGAMENTOS(Tipo.ADMIN),
+    CONFIGURAR(Tipo.ADMIN),
 
     // Membro
     CONSULTAR_CONTATOS_IGREJA(Tipo.MEMBRO),

@@ -10,15 +10,22 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor
 @ToString(of = "id")
+@RequiredArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Table(name = "tb_configuracao_pagamentos")
 public class ConfiguracaoPagamentos implements IEntity {
     @Id
     @Setter
+    @NonNull
     @OneToOne
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;

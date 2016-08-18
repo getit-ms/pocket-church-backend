@@ -1140,16 +1140,20 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR_PAGAMENTOS)
+    @AllowAdmin(Funcionalidade.CONFIGURAR)
     public ConfiguracaoPagamentos atualiza(ConfiguracaoPagamentos configuracao) {
         configuracao.setIgreja(acessoService.getIgreja());
         return daoService.update(configuracao);
     }
 
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR_PAGAMENTOS)
+    @AllowAdmin(Funcionalidade.CONFIGURAR)
     public ConfiguracaoPagamentos buscaConfiguracao() {
-        return buscaConfiguracao(acessoService.getIgreja());
+        ConfiguracaoPagamentos configuracao = buscaConfiguracao(acessoService.getIgreja());
+        if (configuracao == null){
+            configuracao = new ConfiguracaoPagamentos(acessoService.getIgreja());
+        }
+        return configuracao;
     }
 
     private ConfiguracaoPagamentos buscaConfiguracao(Igreja igreja) {
