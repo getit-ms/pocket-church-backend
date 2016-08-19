@@ -7,6 +7,7 @@ package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroChamadoDTO;
 import br.gafs.calvinista.entity.Dispositivo;
+import br.gafs.calvinista.entity.domain.TipoChamado;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
@@ -25,12 +26,18 @@ public class FiltroChamado extends AbstractPaginatedFiltro<FiltroChamadoDTO> {
         StringBuilder query = new StringBuilder("from Chamado c where c.igrejaSolicitante.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("chaveIgreja", dispositivo.getIgreja().getChave());
 
-        if (dispositivo.getMembro() != null){
-            query.append(" and c.membroSolicitante.id = :idMembro");
-            args.put("idMembro", dispositivo.getMembro().getId());
+        if (dispositivo.isAdministrativo()){
+            query.append(" and c.tipo = :tipo");
+            args.put("tipo", TipoChamado.SUPORTE);
         }else{
-            query.append(" and c.dispositivoSolicitante.chave = :chaveDispositivo");
-            args.put("chaveDispositivo", dispositivo.getChave());
+            if (dispositivo.getMembro() != null){
+                query.append(" and (c.membroSolicitante.id = :idMembro or (c.membroSolicitante.id is null and c.dispositivoSolicitante.chave = :chaveDispositivo))");
+                args.put("idMembro", dispositivo.getMembro().getId());
+                args.put("chaveDispositivo", dispositivo.getChave());
+            }else{
+                query.append(" and c.dispositivoSolicitante.chave = :chaveDispositivo");
+                args.put("chaveDispositivo", dispositivo.getChave());
+            }
         }
         
         setArguments(args);

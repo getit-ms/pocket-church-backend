@@ -25,10 +25,17 @@ public class FiltroMeusAgendamentos extends AbstractPaginatedFiltro<FiltroMeusAg
     public FiltroMeusAgendamentos(Membro membro, FiltroMeusAgendamentoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from AgendamentoAtendimento aa where aa.igreja.chave = :chaveIgreja and aa.membro.id = :idMembro and aa.membro.status in :statusMembro");
+        StringBuilder query = new StringBuilder("from AgendamentoAtendimento aa where aa.igreja.chave = :chaveIgreja and aa.membro.status in :statusMembro");
         Map<String, Object> args = new QueryParameters("chaveIgreja", membro.getIgreja().getChave()).
-                set("idMembro", membro.getId()).
                 set("statusMembro", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
+        
+        if (membro.isPastor()){
+            query.append(" and aa.calendario.pastor.id = :idMembro");
+            args.put("idMembro", membro.getId());
+        }else{
+            query.append(" and aa.membro.id = :idMembro");
+            args.put("idMembro", membro.getId());
+        }
         
         query.append(" and aa.dataHoraInicio >= :dataAtual");
         args.put("dataAtual", DateUtil.getDataAtual());

@@ -45,8 +45,8 @@ public interface AppService extends Serializable {
     Chamado solicita(Chamado chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
 
-    ConfiguracaoPagamentos buscaConfiguracao();
-    ConfiguracaoPagamentos atualiza(ConfiguracaoPagamentos configuracao);
+    ConfiguracaoIgrejaDTO buscaConfiguracao();
+    ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao);
     
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);

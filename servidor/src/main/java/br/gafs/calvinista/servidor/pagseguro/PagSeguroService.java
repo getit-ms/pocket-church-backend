@@ -6,7 +6,7 @@ import br.com.uol.pagseguro.enums.Currency;
 import br.com.uol.pagseguro.exception.PagSeguroServiceException;
 import br.com.uol.pagseguro.service.NotificationService;
 import br.com.uol.pagseguro.service.TransactionSearchService;
-import br.gafs.calvinista.entity.ConfiguracaoPagamentos;
+import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
 import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
 import lombok.*;
@@ -30,7 +30,7 @@ public class PagSeguroService {
         CANCELADO
     }
 
-    public StatusPagamento getStatusPagamento(String referencia, ConfiguracaoPagamentos configuracao) {
+    public StatusPagamento getStatusPagamento(String referencia, ConfiguracaoIgrejaDTO configuracao) {
         try {
             TransactionSearchResult searchByReference = TransactionSearchService.
                     searchByReference(getCredentialsPagSeguro(configuracao), referencia);
@@ -81,7 +81,7 @@ public class PagSeguroService {
         return StatusPagamento.NENHUM;
     }
 
-    public String buscaReferenciaPorCodigo(String codigo, ConfiguracaoPagamentos credenciais) {
+    public String buscaReferenciaPorCodigo(String codigo, ConfiguracaoIgrejaDTO credenciais) {
         try {
             Transaction transaction = NotificationService.
                     checkTransaction(getCredentialsPagSeguro(credenciais), codigo);
@@ -92,7 +92,7 @@ public class PagSeguroService {
         }
     }
 
-    public String buscaReferenciaIdTransacao(String idTransacao, ConfiguracaoPagamentos credenciais) {
+    public String buscaReferenciaIdTransacao(String idTransacao, ConfiguracaoIgrejaDTO credenciais) {
         try {
             Transaction transaction = TransactionSearchService.
                     searchByCode(getCredentialsPagSeguro(credenciais), idTransacao);
@@ -149,7 +149,7 @@ public class PagSeguroService {
         private BigDecimal valor;
     }
 
-    public String realizaCheckout(Pedido pedido, ConfiguracaoPagamentos credenciais){
+    public String realizaCheckout(Pedido pedido, ConfiguracaoIgrejaDTO credenciais){
         Checkout checkout = new Checkout();
         for (ItemPedido item : pedido.getItens()){
             checkout.addItem(
@@ -181,7 +181,7 @@ public class PagSeguroService {
         }
     }
 
-    private Credentials getCredentialsPagSeguro(ConfiguracaoPagamentos configuracao) throws PagSeguroServiceException {
+    private Credentials getCredentialsPagSeguro(ConfiguracaoIgrejaDTO configuracao) throws PagSeguroServiceException {
         return new AccountCredentials(configuracao.getUserPagSeguro(),
                 configuracao.getTokenPagSeguro(), configuracao.getTokenPagSeguro());
     }

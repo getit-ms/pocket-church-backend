@@ -84,15 +84,10 @@ public class MensagemServiceImpl implements MensagemService {
                         do{
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
-                            try{
-                                if (!dispositivos.isEmpty()){
-                                    failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
-                                }else{
-                                    Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
-                                }
-                            }catch(Exception e){
-                                Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo Android " + e.getMessage());
-                                e.printStackTrace();
+                            if (!dispositivos.isEmpty()){
+                                failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
+                            }else{
+                                Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
                             }
                             
                             filtro.proxima();
@@ -112,15 +107,10 @@ public class MensagemServiceImpl implements MensagemService {
                         do{
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
-                            try{
-                                if (!dispositivos.isEmpty()){
-                                    iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
-                                }else{
-                                    Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
-                                }
-                            }catch(Exception e){
-                                Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo iOS " + e.getMessage());
-                                e.printStackTrace();
+                            if (!dispositivos.isEmpty()){
+                                iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+                            }else{
+                                Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
                             }
 
                             filtro.proxima();

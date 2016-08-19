@@ -6,7 +6,7 @@
 package br.gafs.calvinista.app.controller;
 
 import br.gafs.calvinista.app.util.MergeUtil;
-import br.gafs.calvinista.entity.ConfiguracaoPagamentos;
+import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
 import javax.ejb.EJB;
@@ -31,18 +31,16 @@ public class ConfiguracaoController {
     private AppService appService;
     
     @GET
-    @Path("pagamento")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaPagamento(){
+    public Response busca(){
         return Response.status(Response.Status.OK).entity(appService.buscaConfiguracao()).build();
     }
 
     @PUT
-    @Path("pagamento")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response atualiza(ConfiguracaoPagamentos configuracao){
-        ConfiguracaoPagamentos entidade = appService.buscaConfiguracao();
+    public Response atualiza(ConfiguracaoIgrejaDTO configuracao){
+        ConfiguracaoIgrejaDTO entidade = appService.buscaConfiguracao();
         MergeUtil.merge(configuracao, View.Edicao.class).into(entidade);
         return Response.status(Response.Status.OK).entity(appService.atualiza(entidade)).build();
     }

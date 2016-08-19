@@ -45,17 +45,18 @@ public class AndroidNotificationService implements Serializable {
     }
     
     public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, List<String> tos) {
-        List<String> failures = new ArrayList<String>();
+        List<String> failures = new ArrayList<String>(tos);
         try {
             String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
             PushAndroidDTO push = new PushAndroidDTO(notification);
             for (String to : tos) {
-                if (!doSendNotification(push.cloneTo(to), chave)){
-                    failures.add(to);
+                if (doSendNotification(push.cloneTo(to), chave)){
+                    failures.remove(to);
                 }
             }
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            t.printStackTrace();
+            
         }
         return failures;
     }

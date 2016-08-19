@@ -5,14 +5,18 @@
  */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
 import br.gafs.calvinista.dto.ParametrosGlobaisDTO;
 import br.gafs.calvinista.dto.ParametrosIgrejaDTO;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.ParametroId;
+import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.entity.domain.TipoParametro.ParametroHandler;
 import br.gafs.calvinista.entity.domain.TipoParametro.ParametroSupplier;
+import br.gafs.calvinista.security.AllowAdmin;
+import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.AllowUsuario;
 import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.ParametroService;
@@ -46,6 +50,11 @@ public class ParametroServiceImpl implements ParametroService {
     }
 
     @Override
+    public ConfiguracaoIgrejaDTO buscaConfiguracao(Igreja igreja) {
+        return build(ConfiguracaoIgrejaDTO.class, igreja.getChave());
+    }
+
+    @Override
     @AllowUsuario
     public void salvaParametrosGlobais(ParametrosGlobaisDTO params) {
         extract(params, Parametro.GLOBAL);
@@ -54,6 +63,12 @@ public class ParametroServiceImpl implements ParametroService {
     @Override
     @AllowUsuario
     public void salvaParametros(ParametrosIgrejaDTO params, Igreja igreja) {
+        extract(params, igreja.getChave());
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR)
+    public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, Igreja igreja) {
         extract(params, igreja.getChave());
     }
     

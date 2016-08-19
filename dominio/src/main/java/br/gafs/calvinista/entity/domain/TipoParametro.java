@@ -28,6 +28,13 @@ import lombok.RequiredArgsConstructor;
 public enum TipoParametro {
     REPOSITORY_URL(TipoValor.VALOR, String.class, null),
     GERACAO_POOL_SIZE(TipoValor.VALOR, Integer.class, "5"),
+
+    USER_PAGSEGURO(TipoValor.VALOR, String.class, ""),
+    TOKEN_PAGSEGURO(TipoValor.VALOR, String.class, ""),
+    HABILITADO_PAGSEGURO(TipoValor.VALOR, boolean.class, "false"),
+    TITULO_VERSICULO_DIARIO(TipoValor.VALOR, String.class, null),
+    TITULO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
+    TEXTO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
     
     BANNER_IGREJA(TipoValor.ANEXO, byte[].class, null),
     ICON_IGREJA(TipoValor.ANEXO, byte[].class, null),
@@ -60,6 +67,32 @@ public enum TipoParametro {
             
             @Override
             public String targetToSource(Integer target) {
+                return target.toString();
+            }
+            
+        });
+        converters.get(String.class).put(boolean.class, new Converter<String, Boolean>(){
+            
+            @Override
+            public Boolean sourceToTarget(String source) {
+                return Boolean.parseBoolean(source);
+            }
+            
+            @Override
+            public String targetToSource(Boolean target) {
+                return target.toString();
+            }
+            
+        });
+        converters.get(String.class).put(Boolean.class, new Converter<String, Boolean>(){
+            
+            @Override
+            public Boolean sourceToTarget(String source) {
+                return Boolean.parseBoolean(source);
+            }
+            
+            @Override
+            public String targetToSource(Boolean target) {
                 return target.toString();
             }
             

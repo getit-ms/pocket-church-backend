@@ -7,13 +7,10 @@ package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
 import br.gafs.calvinista.dto.FiltroVotacaoDTO;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.domain.StatusMembro;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -22,16 +19,15 @@ import java.util.Map;
  */
 public class FiltroVotacao extends AbstractPaginatedFiltro<FiltroVotacaoDTO> {
 
-    public FiltroVotacao(Membro membro, Igreja igreja, FiltroVotacaoDTO filtro) {
+    public FiltroVotacao(Membro membro, FiltroVotacaoDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from Votacao v where v.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", membro.getIgreja().getChave());
         
         if (filtro instanceof FiltroVotacaoAtivaDTO){
-            query.append(" and not exists (select vv from Voto vv where vv.igreja.chave = :chaveIgreja and vv.votacao.id = v.id and vv.membro.id = :membro and vv.membro.status = :statusMembro)");
+            query.append(" and not exists (select vv from Voto vv where vv.igreja.chave = :chaveIgreja and vv.votacao.id = v.id and vv.membro.id = :membro)");
             args.put("membro", membro.getId());
-            args.put("statusMembro", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
         }
         
         if (filtro.getData() != null){

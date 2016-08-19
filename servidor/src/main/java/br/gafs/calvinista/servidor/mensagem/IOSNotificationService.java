@@ -39,14 +39,18 @@ public class IOSNotificationService implements Serializable {
     }
     
     public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<String> tos) {
-        ApnsService service = createApnsService(igreja);
-        service.start();
-        
-        for (String to : tos) {
-            doSendNotification(notification, to, service);
+        try{
+            ApnsService service = createApnsService(igreja);
+            service.start();
+
+            for (String to : tos) {
+                doSendNotification(notification, to, service);
+            }
+
+            service.stop();
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        
-        service.stop();
     }
     
     private ApnsService createApnsService(Igreja igreja) {

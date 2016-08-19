@@ -3,6 +3,7 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusChamado;
 import br.gafs.calvinista.entity.domain.TipoChamado;
+import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,7 +39,6 @@ public class Chamado implements IEntity {
     private Dispositivo dispositivoSolicitante;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumns({
         @JoinColumn(name = "id_membro_solicitante", referencedColumnName = "id_membro"),
         @JoinColumn(name = "chave_igreja_solicitante", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
@@ -81,6 +81,11 @@ public class Chamado implements IEntity {
         status = StatusChamado.REJEITADO;
         dataResposta = new Date();
         dataConclusao = new Date();
+    }
+    
+    public String getCodigo(){
+        return Long.toString(id, 36).toUpperCase() + 
+                DateUtil.formataData(dataSolicitacao, "/MMYY");
     }
 
     public boolean isConcluido(){

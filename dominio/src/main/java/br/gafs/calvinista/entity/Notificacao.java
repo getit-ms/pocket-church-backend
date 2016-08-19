@@ -53,6 +53,9 @@ public class Notificacao implements IEntity {
     @Column(name = "mensagem", length = 150, nullable = false, updatable = false)
     private String mensagem;
     
+    @Column(name = "apenas_membros", nullable = false, updatable = false)
+    private boolean apenasMembros;
+    
     @ManyToMany
     @JoinTable(name = "rl_notificacao_ministerio_alvo",
             joinColumns = {
