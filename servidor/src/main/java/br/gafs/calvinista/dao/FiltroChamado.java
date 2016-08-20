@@ -20,23 +20,26 @@ import java.util.Map;
  */
 public class FiltroChamado extends AbstractPaginatedFiltro<FiltroChamadoDTO> {
 
-    public FiltroChamado(Dispositivo dispositivo, FiltroChamadoDTO filtro) {
+    public FiltroChamado(String igreja, String dispositivo, Long membro, boolean admin, FiltroChamadoDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from Chamado c where c.igrejaSolicitante.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", dispositivo.getIgreja().getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
 
-        if (dispositivo.isAdministrativo()){
+        if (admin){
             query.append(" and c.tipo = :tipo");
             args.put("tipo", TipoChamado.SUPORTE);
         }else{
-            if (dispositivo.getMembro() != null){
+            query.append(" and c.tipo <> :tipo");
+            args.put("tipo", TipoChamado.SUPORTE);
+            
+            if (membro != null){
                 query.append(" and (c.membroSolicitante.id = :idMembro or (c.membroSolicitante.id is null and c.dispositivoSolicitante.chave = :chaveDispositivo))");
-                args.put("idMembro", dispositivo.getMembro().getId());
-                args.put("chaveDispositivo", dispositivo.getChave());
+                args.put("idMembro", membro);
+                args.put("chaveDispositivo", dispositivo);
             }else{
                 query.append(" and c.dispositivoSolicitante.chave = :chaveDispositivo");
-                args.put("chaveDispositivo", dispositivo.getChave());
+                args.put("chaveDispositivo", dispositivo);
             }
         }
         

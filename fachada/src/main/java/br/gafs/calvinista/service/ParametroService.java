@@ -18,12 +18,12 @@ import java.io.Serializable;
  */
 public interface ParametroService extends Serializable {
     public ParametrosGlobaisDTO buscaParametrosGlobais();
-    public ParametrosIgrejaDTO buscaParametros(Igreja igreja);
-    public ConfiguracaoIgrejaDTO buscaConfiguracao(Igreja igreja);
+    public ParametrosIgrejaDTO buscaParametros(String igreja);
+    public ConfiguracaoIgrejaDTO buscaConfiguracao(String igreja);
     
     public void salvaParametrosGlobais(ParametrosGlobaisDTO params);
-    public void salvaParametros(ParametrosIgrejaDTO params, Igreja igreja);
-    public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, Igreja igreja);
+    public void salvaParametros(ParametrosIgrejaDTO params, String igreja);
+    public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja);
     
     <T> T get(String grupo, TipoParametro param);
     <T> void set(String grupo, TipoParametro param, T value);

@@ -21,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -50,6 +52,15 @@ public class CifraController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("cifra") final Long cifra){
         return Response.status(Status.OK).entity(appService.buscaCifra(cifra)).build();
+    }
+    
+    @GET
+    @Path("letra/{arquivo}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLetra(@PathParam("arquivo") final Long arquivo){
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("letra", appService.extraiTexto(arquivo));
+        return Response.status(Status.OK).entity(map).build();
     }
     
     @DELETE

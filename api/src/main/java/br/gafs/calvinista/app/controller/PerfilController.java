@@ -48,7 +48,7 @@ public class PerfilController {
     @Path("funcionalidades")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFuncionalidades(){
-        return Response.status(Response.Status.OK).entity(acessoService.getIgreja().getPlano().getFuncionalidadesAdmin()).build();
+        return Response.status(Response.Status.OK).entity(acessoService.getTodasFuncionalidadesAdmin()).build();
     }
     
     @GET

@@ -92,8 +92,7 @@ public class IgrejaController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response atualiza(@PathParam("igreja") String id, final ParametrosIgrejaDTO parametros){
-        Igreja igreja = adminService.buscaIgreja(id);
-        paramService.salvaParametros(parametros, igreja);
+        paramService.salvaParametros(parametros, id);
         return Response.status(Response.Status.OK).build();
     }
     
@@ -101,8 +100,7 @@ public class IgrejaController {
     @Path("{igreja}/parametros")
     @Produces(MediaType.APPLICATION_JSON)
     public Response atualiza(@PathParam("igreja") String id){
-        Igreja igreja = adminService.buscaIgreja(id);
-        return Response.status(Response.Status.OK).entity(paramService.buscaParametros(igreja)).build();
+        return Response.status(Response.Status.OK).entity(paramService.buscaParametros(id)).build();
     }
     
     @DELETE

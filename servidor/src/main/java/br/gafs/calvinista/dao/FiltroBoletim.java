@@ -19,13 +19,13 @@ import java.util.Map;
  */
 public class FiltroBoletim extends AbstractPaginatedFiltro<FiltroBoletimDTO> {
 
-    public FiltroBoletim(Dispositivo dispositivo, FiltroBoletimDTO filtro) {
+    public FiltroBoletim(String igreja, boolean admin, FiltroBoletimDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from Boletim b where b.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", dispositivo.getIgreja().getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
-        if (!dispositivo.isAdministrativo()){
+        if (!admin){
             query.append(" and b.dataPublicacao <= :dataCorte");
             args.put("dataCorte", DateUtil.getDataAtual());
         }

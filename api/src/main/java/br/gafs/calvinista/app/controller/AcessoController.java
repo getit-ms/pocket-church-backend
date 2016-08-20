@@ -45,9 +45,9 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizaLogin(final RequisicaoLoginDTO req){
-        String auth = acessoService.login(req.getUsername(), SenhaUtil.encryptSHA256(req.getPassword()));
+        Membro membro = acessoService.login(req.getUsername(), SenhaUtil.encryptSHA256(req.getPassword()));
         acessoService.registerPush(req.getTipoDispositivo(), null, req.getVersion());
-        return Response.status(Response.Status.OK).entity(acesso(auth)).build();
+        return Response.status(Response.Status.OK).entity(acesso(membro)).build();
     }
     
     @PUT
@@ -108,9 +108,7 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response atualizaSenha(Membro membro){
-        Membro entidade = acessoService.getMembro();
-        MergeUtil.merge(membro, View.AlterarSenha.class).into(entidade);
-        acessoService.alteraSenha(entidade);
+        acessoService.alteraSenha(membro);
         return Response.ok().build();
     }
     
@@ -149,14 +147,11 @@ public class AcessoController {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaAcesso(){
-        return Response.status(Response.Status.OK).entity(acesso(null)).build();
+    public Response renovaAcesso(){
+        return Response.status(Response.Status.OK).entity(acesso(acessoService.refreshLogin())).build();
     }
     
-    private AcessoDTO acesso(String auth){
-        return new AcessoDTO(
-                acessoService.getMembro(),
-                acessoService.getFuncionalidades(),
-                auth);
+    private AcessoDTO acesso(Membro membro){
+        return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro());
     }
 }

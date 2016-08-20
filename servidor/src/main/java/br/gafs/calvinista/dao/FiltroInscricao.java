@@ -22,15 +22,15 @@ import java.util.Map;
  */
 public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO> {
 
-    public FiltroInscricao(Long evento, Igreja igreja, Membro membro, FiltroInscricaoDTO filtro) {
+    public FiltroInscricao(Long evento, String igreja, Long membro, FiltroInscricaoDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from InscricaoEvento ie where ie.evento.id = :evento and ie.evento.igreja.chave = :chaveIgreja and ie.status in :status");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getId()).set("evento", evento);
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).set("evento", evento);
         
         if (filtro instanceof FiltroMinhasInscricoesDTO){
             query.append(" and ie.membro.id = :membro");
-            args.put("membro", membro.getId());
+            args.put("membro", membro);
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE, StatusInscricaoEvento.CANCELADA));
         }else{
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE));

@@ -16,8 +16,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -75,7 +78,12 @@ public class GeneralTest {
     }
     
     @Test
-    public void testaVersiculoDiario(){
+    public void testaExtairTextoPDF() throws Exception{
+        PDDocument pdffile = PDDocument.load(GeneralTest.class.getResourceAsStream("/p02.pdf"));
         
+        StringWriter writer = new StringWriter();
+        PDFTextStripper textStripper = new PDFTextStripper();
+        textStripper.writeText(pdffile, writer);
+        System.out.println(writer.toString());
     }
 }

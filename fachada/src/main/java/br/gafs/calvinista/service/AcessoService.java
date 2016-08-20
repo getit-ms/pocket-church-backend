@@ -5,8 +5,6 @@
  */
 package br.gafs.calvinista.service;
 
-import br.gafs.calvinista.entity.Dispositivo;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Preferencias;
@@ -21,20 +19,17 @@ import java.util.List;
  * @author Gabriel
  */
 public interface AcessoService extends Serializable {
-    String login(String username, String password);
+    Membro login(String username, String password);
+    Usuario admin(String username, String password);
+    Membro refreshLogin();
+    Usuario refreshAdmin();
     void logout();
-    String admin(String username, String password);
-    void acesso(String codIgreja, String codDispositivo, String autenticacao);
 
-    Igreja getIgreja();
-    Dispositivo getDispositivo();
-    Usuario getUsuario();
-    Membro getMembro();
-    
     List<Ministerio> buscaMinisterios();
     Preferencias buscaPreferencis();
     Preferencias salva(Preferencias preferencias);
-    List<Funcionalidade> getFuncionalidades();
+    List<Funcionalidade> getFuncionalidadesMembro();
+    List<Funcionalidade> getTodasFuncionalidadesAdmin();
 
     void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version);
 
@@ -43,4 +38,5 @@ public interface AcessoService extends Serializable {
     void solicitaRedefinicaoSenha(String email);
     
     Membro redefineSenha(String jwt);
+    
 }

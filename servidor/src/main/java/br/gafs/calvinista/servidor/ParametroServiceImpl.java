@@ -45,13 +45,13 @@ public class ParametroServiceImpl implements ParametroService {
     }
 
     @Override
-    public ParametrosIgrejaDTO buscaParametros(Igreja igreja) {
-        return build(ParametrosIgrejaDTO.class, igreja.getChave());
+    public ParametrosIgrejaDTO buscaParametros(String igreja) {
+        return build(ParametrosIgrejaDTO.class, igreja);
     }
 
     @Override
-    public ConfiguracaoIgrejaDTO buscaConfiguracao(Igreja igreja) {
-        return build(ConfiguracaoIgrejaDTO.class, igreja.getChave());
+    public ConfiguracaoIgrejaDTO buscaConfiguracao(String igreja) {
+        return build(ConfiguracaoIgrejaDTO.class, igreja);
     }
 
     @Override
@@ -62,14 +62,14 @@ public class ParametroServiceImpl implements ParametroService {
 
     @Override
     @AllowUsuario
-    public void salvaParametros(ParametrosIgrejaDTO params, Igreja igreja) {
-        extract(params, igreja.getChave());
+    public void salvaParametros(ParametrosIgrejaDTO params, String igreja) {
+        extract(params, igreja);
     }
 
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR)
-    public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, Igreja igreja) {
-        extract(params, igreja.getChave());
+    public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja) {
+        extract(params, igreja);
     }
     
     private void extract(Object obj, final String grupo){

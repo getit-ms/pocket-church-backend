@@ -87,10 +87,9 @@ public class VotacaoController {
     @Path("{votacao}/resultado")
     @Produces({"application/pdf", MediaType.APPLICATION_JSON})
     public Response getResultado(@PathParam("votacao") Long votacao) throws Exception {
-        Igreja igreja = acessoService.getIgreja();
+        Votacao entidade = appService.buscaVotacao(votacao);
         return Response.ok(
-                
-                ReportBuilder.init(igreja, paramService.buscaParametros(igreja)).
+                ReportBuilder.init(entidade.getIgreja(), paramService.buscaParametros(entidade.getIgreja().getChave())).
                         template("jasper/resultado_votacao.jasper").
                         value(appService.buscaResultado(votacao)).build()
                 

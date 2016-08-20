@@ -19,12 +19,12 @@ import java.util.Map;
  */
 public class FiltroVersiculoDiario extends AbstractPaginatedFiltro<FiltroVersiculoDiarioDTO>{
 
-    public FiltroVersiculoDiario(Igreja igreja, FiltroVersiculoDiarioDTO filtro) {
+    public FiltroVersiculoDiario(String igreja, FiltroVersiculoDiarioDTO filtro) {
         super(filtro);
 
         StringBuilder from = new StringBuilder("from VersiculoDiario vd");
         StringBuilder where = new StringBuilder(" where vd.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){

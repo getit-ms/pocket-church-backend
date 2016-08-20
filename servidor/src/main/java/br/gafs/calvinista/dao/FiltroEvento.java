@@ -20,13 +20,13 @@ import java.util.Map;
  */
 public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
 
-    public FiltroEvento(Dispositivo dispositivo, FiltroEventoDTO filtro) {
+    public FiltroEvento(String igreja, boolean admin, FiltroEventoDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from Evento e where e.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", dispositivo.getIgreja().getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
-        if (dispositivo.isAdministrativo()){
+        if (admin){
             if (filtro.getDataInicio() != null){
                 query.append(" and e.dataHoraInicio >= :dataHoraInicio");
                 args.put("dataHoraInicio", filtro.getDataInicio());

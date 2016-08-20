@@ -22,20 +22,15 @@ import java.util.Map;
  */
 public class FiltroMeusAgendamentos extends AbstractPaginatedFiltro<FiltroMeusAgendamentoDTO> {
 
-    public FiltroMeusAgendamentos(Membro membro, FiltroMeusAgendamentoDTO filtro) {
+    public FiltroMeusAgendamentos(String igreja, Long membro, FiltroMeusAgendamentoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from AgendamentoAtendimento aa where aa.igreja.chave = :chaveIgreja and aa.membro.status in :statusMembro");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", membro.getIgreja().getChave()).
+        StringBuilder query = new StringBuilder("from AgendamentoAtendimento aa, Membro m where aa.igreja.chave = :chaveIgreja and aa.membro.status in :statusMembro");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).
                 set("statusMembro", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
         
-        if (membro.isPastor()){
-            query.append(" and aa.calendario.pastor.id = :idMembro");
-            args.put("idMembro", membro.getId());
-        }else{
-            query.append(" and aa.membro.id = :idMembro");
-            args.put("idMembro", membro.getId());
-        }
+        query.append(" and (m.pastor = true and aa.calendario.pastor = m) or (m.pastor = false and aa.membro = m) and m.id = :idMembro");
+        args.put("idMembro", membro);
         
         query.append(" and aa.dataHoraInicio >= :dataAtual");
         args.put("dataAtual", DateUtil.getDataAtual());

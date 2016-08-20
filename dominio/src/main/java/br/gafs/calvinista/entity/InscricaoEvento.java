@@ -62,6 +62,7 @@ public class InscricaoEvento implements IEntity {
     @GeneratedValue(generator = "seq_inscricao", strategy = GenerationType.SEQUENCE)
     private Long id;
     
+    @Setter
     @ManyToOne
     @JoinColumns({
         @JoinColumn(name = "id_membro", referencedColumnName = "id_membro"),
@@ -119,8 +120,7 @@ public class InscricaoEvento implements IEntity {
     @Column(name = "status", nullable = false)
     private StatusInscricaoEvento status = StatusInscricaoEvento.PENDENTE;
 
-    public InscricaoEvento(Membro membro, Evento evento) {
-        this.membro = membro;
+    public InscricaoEvento(Evento evento) {
         this.evento = evento;
         this.valor = evento.getValor();
         if (!evento.isComPagamento()){

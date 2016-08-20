@@ -36,13 +36,13 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizaLogin(final RequisicaoLoginDTO req){
-        String auth = acessoService.admin(req.getUsername(), SenhaUtil.encryptSHA256(req.getPassword()));
-        return Response.status(Response.Status.OK).entity(new AcessoDTO(acessoService.getUsuario(), auth)).build();
+        Usuario usuario = acessoService.admin(req.getUsername(), SenhaUtil.encryptSHA256(req.getPassword()));
+        return Response.status(Response.Status.OK).entity(new AcessoDTO(usuario)).build();
     }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaAcesso(){
-        return Response.status(Response.Status.OK).entity(new AcessoDTO(acessoService.getUsuario(), null)).build();
+    public Response renovaAcesso(){
+        return Response.status(Response.Status.OK).entity(new AcessoDTO(acessoService.refreshAdmin())).build();
     }
 }

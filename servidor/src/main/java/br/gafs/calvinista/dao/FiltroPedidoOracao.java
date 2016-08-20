@@ -22,12 +22,12 @@ import java.util.Map;
  */
 public class FiltroPedidoOracao extends AbstractPaginatedFiltro<FiltroPedidoOracaoDTO>{
 
-    public FiltroPedidoOracao(Membro membro, Igreja igreja, FiltroPedidoOracaoDTO filtro) {
+    public FiltroPedidoOracao(Long membro, String igreja, FiltroPedidoOracaoDTO filtro) {
         super(filtro);
         
         StringBuilder from = new StringBuilder("from PedidoOracao po ");
         StringBuilder where = new StringBuilder(" where po.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
         if (filtro.getDataInicio() != null){
             where.append(" and po.dataSolicitacao >= :dataInicio");
@@ -50,7 +50,7 @@ public class FiltroPedidoOracao extends AbstractPaginatedFiltro<FiltroPedidoOrac
             }
             
             where.append(" and po.solicitante.id = :idSolicitante");
-            args.put("idSolicitante", membro.getId());
+            args.put("idSolicitante", membro);
         }
         
         StringBuilder query = from.append(where);

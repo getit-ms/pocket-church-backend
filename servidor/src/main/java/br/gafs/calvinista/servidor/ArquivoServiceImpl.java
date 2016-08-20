@@ -7,6 +7,7 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.Arquivo;
+import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.security.AllowAdmin;
@@ -20,6 +21,7 @@ import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
 /**
@@ -34,18 +36,18 @@ public class ArquivoServiceImpl implements ArquivoService {
     @EJB
     private DAOService daoService;
     
-    @EJB
-    private AcessoService acessoService;
+    @Inject
+    private SessaoBean sessaoBean;
     
     @Override
     public Arquivo buscaArquivo(Long arquivo) {
-        return daoService.find(Arquivo.class, new RegistroIgrejaId(acessoService.getIgreja().getChave(), arquivo));
+        return daoService.find(Arquivo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), arquivo));
     }
 
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Arquivo upload(String fileName, byte[] fileData) {
-        return daoService.update(new Arquivo(acessoService.getIgreja(), fileName, fileData));
+        return daoService.update(new Arquivo(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), fileName, fileData));
     }
 
     @Schedule(hour = "0", minute = "0", second = "0")
@@ -58,12 +60,12 @@ public class ArquivoServiceImpl implements ArquivoService {
 
     @Override
     public void registraDesuso(Long idArquivo) {
-        daoService.execute(QueryAdmin.REGISTRA_DESUSO_ARQUIVO.create(idArquivo, acessoService.getIgreja().getId()));
+        daoService.execute(QueryAdmin.REGISTRA_DESUSO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
 
     @Override
     public void registraUso(Long idArquivo) {
-        daoService.execute(QueryAdmin.REGISTRA_USO_ARQUIVO.create(idArquivo, acessoService.getIgreja().getId()));
+        daoService.execute(QueryAdmin.REGISTRA_USO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
     
     

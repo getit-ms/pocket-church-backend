@@ -46,7 +46,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name = "tb_igreja")
 @EqualsAndHashCode(of = "chave")
 @NamedQueries({
-    @NamedQuery(name = "Igreja.findAtivas", query = "select i from Igreja i where i.status in :status")
+    @NamedQuery(name = "Igreja.findAtivas", query = "select i from Igreja i where i.status in :status"),
+    @NamedQuery(name = "Igreja.findFuncionalidadesInList", query = "select f from Igreja i inner join i.plano p inner join p.funcionalidades f where i.chave = :igreja and f in :list group by f")
 })
 public class Igreja implements IEntity {
     @Id

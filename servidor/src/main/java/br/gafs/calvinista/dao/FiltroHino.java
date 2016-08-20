@@ -19,14 +19,14 @@ import java.util.Map;
  */
 public class FiltroHino extends AbstractPaginatedFiltro<FiltroHinoDTO> {
 
-    public FiltroHino(Igreja igreja, FiltroHinoDTO filtro) {
+    public FiltroHino(String igreja, FiltroHinoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Hino h where h.locale = :locale");
-        Map<String, Object> args = new QueryParameters("locale", igreja.getLocale());
+        StringBuilder query = new StringBuilder("from Hino h, Igreja i where h.locale = i.locale and i.chave = :igreja");
+        Map<String, Object> args = new QueryParameters("igreja", igreja);
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
-            query.append(" and (lower(h.nome) like :filtro or lower(h.numero) like :filtro or lower(h.assunto) like :filtro or lower(h.autor) like :filtro or lower(h.texto) like :filtro)");
+            query.append(" and (lower(concat(h.nome, h.numero, h.assunto, h.autor, h.texto) like :filtro)");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         

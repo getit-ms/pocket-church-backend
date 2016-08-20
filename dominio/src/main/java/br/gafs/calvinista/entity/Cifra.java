@@ -25,15 +25,20 @@ public class Cifra implements ArquivoPDF {
     @GeneratedValue(generator = "seq_cifra", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "numero")
+    @Column(name = "autor")
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
-    private String numero;
+    private String autor;
 
     @Column(name = "titulo")
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
     private String titulo;
+
+    @Column(name = "letra")
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    private String letra;
 
     @NotNull
     @OneToOne
@@ -58,7 +63,7 @@ public class Cifra implements ArquivoPDF {
     @ManyToMany
     @JsonView(View.Resumido.class)
     @JoinTable(name = "rl_cifra_paginas", joinColumns = {
-            @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
+            @JoinColumn(name = "id_cifra", referencedColumnName = "id_cifra", nullable = false),
             @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
     }, inverseJoinColumns = {
             @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),

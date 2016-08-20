@@ -16,14 +16,14 @@ import java.util.Map;
 
 public class FiltroCifra extends AbstractPaginatedFiltro<FiltroCifraDTO> {
 
-    public FiltroCifra(Igreja igreja, FiltroCifraDTO filtro) {
+    public FiltroCifra(String igreja, FiltroCifraDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from Cifra c where c.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getChave());
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
-            query.append(" and lower(c.titulo) like :filtro");
+            query.append(" and (lower(concat(c.titulo, c.autor, c.letra)) like :filtro)");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         

@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.dao;
 
+import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.StatusAgendamentoAtendimento;
 import br.gafs.calvinista.entity.domain.StatusMinisterio;
 import br.gafs.calvinista.entity.domain.StatusIgreja;
@@ -26,8 +27,8 @@ public enum QueryAcesso {
     AUTENTICA_MEMBRO("Membro.autentica", "igreja", "email", "senha"){
 
         @Override
-        protected Map<String, Object> extractArguments(Object... args) {
-            Map<String, Object> arguments = super.extractArguments(args);
+        protected QueryParameters extractArguments(Object... args) {
+            QueryParameters arguments = super.extractArguments(args);
             arguments.put("status", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
             return arguments;
         }
@@ -36,15 +37,33 @@ public enum QueryAcesso {
     MINISTERIOS_ATIVOS("Ministerio.findByIgrejaAndStatus", "chaveIgreja"){
 
         @Override
-        protected Map<String, Object> extractArguments(Object... args) {
-            Map<String, Object> params = super.extractArguments(args);
+        protected QueryParameters extractArguments(Object... args) {
+            QueryParameters params = super.extractArguments(args);
             params.put("status", StatusMinisterio.ATIVO);
             return params;
         }
         
     }, 
     AUTENTICA_USUARIO("Usuario.autentica", "login", "senha"), 
-    USUARIO_POR_AUTENTICACAO("Usuario.findByAutenticacao", "autenticacao");
+    USUARIO_POR_AUTENTICACAO("Usuario.findByAutenticacao", "autenticacao"), 
+    FUNCIONALIDADES_MEMBRO("Membro.findFuncionalidadesAcesso", "membro", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("aplicativo", Funcionalidade.FUNCIONALIDADES_APLICATIVO); 
+        }
+        
+    }, 
+    TODAS_FUNCIONALIDADES_ADMIN("Igreja.findFuncionalidadesInList", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("list", Funcionalidade.FUNCIONALIDADES_ADMINISTRATIVO); 
+        }
+        
+    };
     
     private final String query;
     private final String[] parameters;
@@ -80,8 +99,8 @@ public enum QueryAcesso {
        return -1;
    }
    
-   protected Map<String, Object> extractArguments(Object... args){
-       Map<String, Object> arguments = new HashMap<String, Object>();
+   protected QueryParameters extractArguments(Object... args){
+       QueryParameters arguments = new QueryParameters();
        for (int i=0;i<parameters.length && i<args.length;i++){
            arguments.put(parameters[i], args[i]);
        }

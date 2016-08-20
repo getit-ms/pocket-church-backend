@@ -5,10 +5,9 @@
  */
 package br.gafs.calvinista.security;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
-import br.gafs.calvinista.service.AcessoService;
-import br.gafs.exceptions.ServiceException;
+import br.gafs.calvinista.servidor.SessaoBean;
 import java.lang.reflect.Method;
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
@@ -18,8 +17,8 @@ import javax.interceptor.InvocationContext;
  */
 public class SecurityInterceptor {
     
-    @EJB
-    private AcessoService acessoService;
+    @Inject
+    private SessaoBean sessaoBean;
     
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception{
@@ -33,10 +32,6 @@ public class SecurityInterceptor {
         }
     }
     
-    private boolean isMembroAutenticado(){
-        return acessoService.getMembro() != null;
-    }
-
     private boolean hasSeguranca(Method method){
         return method.isAnnotationPresent(AllowMembro.class) ||
                 method.isAnnotationPresent(AllowAdmin.class) ||
@@ -45,7 +40,7 @@ public class SecurityInterceptor {
     
     private boolean isUsuarioAutorizado(Method method) {
         if (method.isAnnotationPresent(AllowUsuario.class)){
-            return acessoService.getUsuario() != null;
+            return sessaoBean.getIdUsuario() != null;
         }
         
         return false;
@@ -53,11 +48,10 @@ public class SecurityInterceptor {
     
     private boolean isMembroAutorizado(Method method) {
         if (method.isAnnotationPresent(AllowMembro.class)){
-            if (isMembroAutenticado() && acessoService.getMembro().isMembro() &&
-                    !acessoService.getDispositivo().isAdministrativo()){
+            if (sessaoBean.getIdMembro() != null){
                 if (method.getAnnotation(AllowMembro.class).value().length == 0) return true;
                 for (Funcionalidade func : method.getAnnotation(AllowMembro.class).value()){
-                    if (acessoService.getIgreja().possuiPermissao(func)){
+                    if (sessaoBean.temPermissao(func)){
                         return true;
                     }
                 }
@@ -69,11 +63,10 @@ public class SecurityInterceptor {
 
     private boolean isAdminAutorizado(Method method) {
         if (method.isAnnotationPresent(AllowAdmin.class)){
-            if (isMembroAutenticado() && acessoService.getMembro().isAdmin() &&
-                    acessoService.getDispositivo().isAdministrativo()){
+            if (sessaoBean.isAdmin()){
                 if (method.getAnnotation(AllowAdmin.class).value().length == 0) return true;
                 for (Funcionalidade func : method.getAnnotation(AllowAdmin.class).value()){
-                    if (acessoService.getMembro().getAcesso().possuiPermissao(func)){
+                    if (sessaoBean.temPermissao(func)){
                         return true;
                     }
                 }

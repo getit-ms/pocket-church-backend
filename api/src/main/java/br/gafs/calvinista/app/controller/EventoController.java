@@ -112,7 +112,7 @@ public class EventoController {
         Evento entidade = appService.buscaEvento(evento);
         List<InscricaoEvento> merged = new ArrayList<InscricaoEvento>();
         for (InscricaoEvento inscricao : inscricoes){
-            InscricaoEvento insc = new InscricaoEvento(acessoService.getMembro(), entidade);
+            InscricaoEvento insc = new InscricaoEvento(entidade);
             MergeUtil.merge(inscricao, View.Edicao.class).into(insc);
             merged.add(insc);
         }

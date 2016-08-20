@@ -15,7 +15,6 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Institucional;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Ministerio;
-import br.gafs.calvinista.entity.Perfil;
 import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.Usuario;
@@ -28,21 +27,13 @@ import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.senha.SenhaUtil;
-import br.gafs.util.string.StringUtil;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -60,35 +51,15 @@ public class AcessoServiceImpl implements AcessoService {
     private MensagemService mensagemService;
     
     @Inject
-    private HttpServletRequest request;
+    private SessaoBean sessaoBean;
 
     @Override
-    public Igreja getIgreja() {
-        return (Igreja) request.getAttribute("igreja");
-    }
-
-    @Override
-    public Membro getMembro() {
-        return (Membro) request.getAttribute("membro");
-    }
-
-    @Override
-    public Dispositivo getDispositivo() {
-        return (Dispositivo) request.getAttribute("dispositivo");
-    }
-
-    @Override
-    public Usuario getUsuario() {
-        return (Usuario) request.getAttribute("usuario");
-    }
-
-    @Override
-    public String admin(String username, String password) {
+    public Usuario admin(String username, String password) {
         Usuario usuario = daoService.findWith(QueryAcesso.AUTENTICA_USUARIO.createSingle(username, password));
         
         if (usuario != null){
-            request.setAttribute("usuario", usuario);
-            return JWTManager.writer().map("usuario", usuario.getId()).build();
+            sessaoBean.admin(usuario.getId());
+            return usuario;
         }
         
         throw new ServiceException("mensagens.MSG-600");
@@ -96,53 +67,28 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, getDispositivo().getId());
-        Logger.getLogger(AcessoServiceImpl.class.getName()).log(Level.WARNING, 
-                "Atualizando pushkey para " + dispositivo.getId() + ": " + tipoDispositivo + " - " + pushKey + " - " + version);
+        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
         dispositivo.registerToken(tipoDispositivo, pushKey, version);
-        request.setAttribute("dispositivo", daoService.update(dispositivo));
+        daoService.update(dispositivo);
+        sessaoBean.dispositivo(sessaoBean.getChaveIgreja(), dispositivo.getUuid());
     }
 
     @Override
     public Preferencias buscaPreferencis() {
-        Preferencias preferencias = daoService.find(Preferencias.class, getDispositivo().getChave());
-        
-        if (preferencias == null){
-            preferencias = criaPreferenciasDispositivo();
-            
-            if (getMembro() != null){
-                List<Preferencias> prefs = daoService.findWith(QueryAdmin.PREFERENCIAS_POR_MEMBRO.
-                        create(getMembro().getId(), getMembro().getIgreja().getId()));
-
-                if (!prefs.isEmpty()){
-                    prefs.get(0).copia(preferencias);
-                }
-            }
-        }
-        
-        return preferencias;
-    }
-    
-    private Preferencias criaPreferenciasDispositivo(){
-        return preparaPreferencias(new Preferencias(getDispositivo()));
-    }
-    
-    private Preferencias preparaPreferencias(Preferencias preferencias){
-        preferencias.setMinisteriosInteresse(buscaMinisterios());
-        return preferencias;
+        return daoService.find(Preferencias.class, sessaoBean.getChaveDispositivo());
     }
     
     @Override
     public List<Ministerio> buscaMinisterios(){
-        return daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(getIgreja().getChave()));
+        return daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja()));
     }
 
     
     @Override
     public Preferencias salva(Preferencias preferencias) {
-        if (getMembro() != null){
+        if (sessaoBean.getIdMembro() != null){
             List<Preferencias> prefs = daoService.findWith(QueryAdmin.PREFERENCIAS_POR_MEMBRO.
-                    create(getMembro().getId(), getMembro().getIgreja().getId()));
+                    create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
             
             for (Preferencias pref : prefs){
                 preferencias.copia(pref);
@@ -157,136 +103,93 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public void logout() {
-        Dispositivo dispositivo = getDispositivo();
+        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
         dispositivo.setMembro(null);
         daoService.update(dispositivo);
+        sessaoBean.logout();
+    }
+
+    @Override
+    public Membro refreshLogin() {
+        Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        if (membro != null && membro.isMembro()){
+            sessaoBean.login(membro.getId());
+            return membro;
+        }
+        
+        throw new ServiceException("mensagens.MSG-403");
+    }
+
+    @Override
+    public Usuario refreshAdmin() {
+        Usuario usuario = daoService.find(Usuario.class, sessaoBean.getIdUsuario());
+        if (usuario != null){
+            sessaoBean.admin(usuario.getId());
+            return usuario;
+        }
+        
+        throw new ServiceException("mensagens.MSG-403");
     }
     
     @Override
-    public String login(String username, String password){
-        Dispositivo dispositivo = getDispositivo();
-        Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(dispositivo.getIgreja().getChave(), username, password));
+    public Membro login(String username, String password){
+        Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
         
         if (membro != null && membro.isMembro()){
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
             dispositivo.setMembro(membro);
             daoService.update(dispositivo);
             
-            request.setAttribute("membro", membro);
-            return JWTManager.writer().map("membro", membro.getId()).build();
+            sessaoBean.login(membro.getId());
+            return membro;
         }
         
         throw new ServiceException("mensagens.MSG-606");
     }
 
     @Override
-    public void acesso(String codIgreja, String codDispositivo, String autenticacao) {
-        try{
-            if (!StringUtil.isEmpty(codIgreja) && !StringUtil.isEmpty(codDispositivo)){
-                if (!StringUtil.isEmpty(autenticacao)){
-                    JWTManager.JWTReader reader = JWTManager.reader(autenticacao);
-                    String idMembro = String.valueOf(reader.get("membro"));
-                    String idUsuario = String.valueOf(reader.get("usuario"));
-
-                    if (idMembro.matches("[0-9]+")){
-                        loadMembro(codIgreja, Long.parseLong(idMembro));
-                    }else if (idUsuario.matches("[0-9]+")){
-                        loadUsuario(Long.parseLong(idUsuario));
-                    }
-                }
-
-                loadDispositivo(codIgreja, codDispositivo);
-                return;
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        
-        throw new ServiceException("mensagens-MSG-603");
-    }
-    
-    private void loadUsuario(Long idUsuario){
-        Usuario usuario = daoService.find(Usuario.class, idUsuario);
-        request.setAttribute("usuario", usuario);
-    }
-    
-    private void loadDispositivo(String codIgreja, String codDispositivo) {
-        Igreja igreja = daoService.find(Igreja.class, codIgreja);
-
-        request.setAttribute("igreja", igreja);
-        
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, 
-                codDispositivo + "@" + igreja.getChave());
-        
-        if (dispositivo == null){
-            dispositivo = daoService.update(new Dispositivo(codDispositivo, igreja));
-            salva(preparaPreferencias(new Preferencias(dispositivo)));
-        }
-                
-        if (dispositivo.getMembro() == null && getMembro() != null){
-            dispositivo.setMembro(getMembro());
-            dispositivo = daoService.update(dispositivo);
-        }
-        
-        request.setAttribute("dispositivo", dispositivo);
+    public List<Funcionalidade> getFuncionalidadesMembro() {
+        return daoService.findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO.
+                create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
     }
 
-    private void loadMembro(String chaveIgreja, Long idMembro) {
-        Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(chaveIgreja, idMembro));
-        
-        request.setAttribute("membro", membro);
-    }
-    
     @Override
-    public List<Funcionalidade> getFuncionalidades() {
-        if (getUsuario() != null){
-            return Arrays.asList(Funcionalidade.values());
-        }
-        
-        if (getMembro() != null){
-            Set<Funcionalidade> set = new HashSet<>(getIgreja().getFuncionalidadesAplicativo());
-            if (getMembro().isAdmin()){
-                List<Funcionalidade> funcsAdmin = getIgreja().getPlano().getFuncionalidadesAdmin();
-                for (Perfil perfil : getMembro().getAcesso().getPerfis()){
-                    for (Funcionalidade func : perfil.getFuncionalidades()){
-                        if (funcsAdmin.contains(func)){
-                            set.add(func);
-                        }
-                    }
-                }
-            }
-            List<Funcionalidade> list = new ArrayList<>(set);
-            Collections.sort(list);
-            return list;
-        }
-        
-        return Collections.emptyList();
+    public List<Funcionalidade> getTodasFuncionalidadesAdmin() {
+        return daoService.findWith(QueryAcesso.TODAS_FUNCIONALIDADES_ADMIN.
+                create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
     }
 
     @Override
     public void alteraSenha(Membro entidade) {
-        entidade.alteraSenha();
-        daoService.update(entidade);
+        Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        
+        membro.setNovaSenha(entidade.getNovaSenha());
+        membro.setConfirmacaoSenha(entidade.getConfirmacaoSenha());
+        
+        membro.alteraSenha();
+        
+        daoService.update(membro);
     }
 
     @Override
     public void solicitaRedefinicaoSenha(String email) {
-        Membro membro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.createSingle(email, getIgreja().getChave()));
+        Membro membro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.createSingle(email, sessaoBean.getChaveIgreja()));
         
         if (membro == null || !membro.isMembro()){
             throw new ServiceException("mensagens.MSG-037");
         }
         
-        String jwt = JWTManager.writer().map("igreja", getIgreja().getId()).map("membro", membro.getId()).build();
+        String jwt = JWTManager.writer().map("igreja", membro.getIgreja().getId()).map("membro", membro.getId()).build();
         
-        String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", getIgreja().getLocale());
-            String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", getIgreja().getLocale(), 
+        String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", membro.getIgreja().getLocale());
+            String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", membro.getIgreja().getLocale(), 
                     membro.getNome());
-            String text = MensagemUtil.getMensagem("email.redefinir_senha.message.text", getIgreja().getLocale());
-            String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", getIgreja().getLocale(), jwt, getIgreja().getChave());
-            String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", getIgreja().getLocale());
+            String text = MensagemUtil.getMensagem("email.redefinir_senha.message.text", membro.getIgreja().getLocale());
+            String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", membro.getIgreja().getLocale(), jwt, membro.getIgreja().getChave());
+            String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", membro.getIgreja().getLocale());
             
         mensagemService.sendNow(
-                MensagemUtil.email(daoService.find(Institucional.class, getIgreja().getChave()), subject,
+                MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
                         new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, linkUrl, linkText), Collections.EMPTY_LIST)), 
                 new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
     }
