@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
 
 /**
  *
@@ -42,7 +43,7 @@ public class AcessoController {
     @EJB
     private AppService appService;
     
-    @Inject
+    @Context
     private HttpServletResponse response;
     
     @PUT
