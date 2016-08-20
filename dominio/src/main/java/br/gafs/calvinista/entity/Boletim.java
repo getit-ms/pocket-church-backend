@@ -11,6 +11,7 @@ import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 
@@ -32,6 +33,10 @@ import java.util.List;
 @Table(name = "tb_boletim")
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
+@NamedQueries({
+    @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :status and b.dataPublicacao <= CURRENT_DATE and b.divulgado = false group by i"),
+    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= CURRENT_DATE and b.igreja.chave = :igreja")
+})
 public class Boletim implements ArquivoPDF {
     @Id
     @JsonView(Resumido.class)
@@ -56,6 +61,9 @@ public class Boletim implements ArquivoPDF {
     @Column(name = "data_publicacao")
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
+    
+    @Column(name = "divulgado", nullable = false)
+    private boolean divulgado;
 
     @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
@@ -83,7 +91,7 @@ public class Boletim implements ArquivoPDF {
     private Arquivo thumbnail;
     
     @ManyToMany
-    @JsonView(Resumido.class)
+    @JsonIgnore
     @JoinTable(name = "rl_boletim_paginas", joinColumns = {
         @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
@@ -118,6 +126,8 @@ public class Boletim implements ArquivoPDF {
         return StatusBoletim.EM_EDICAO.equals(status);
     }
     
+    @JsonProperty
+    @JsonView(Resumido.class)
     public List<Arquivo> getPaginas(){
         Collections.sort(paginas);
         return paginas;

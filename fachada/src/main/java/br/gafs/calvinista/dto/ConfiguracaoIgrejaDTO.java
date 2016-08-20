@@ -10,7 +10,6 @@ import br.gafs.calvinista.view.View;
 import br.gafs.dto.DTO;
 import br.gafs.util.string.StringUtil;
 import lombok.Data;
-import lombok.Setter;
 
 /**
  *
@@ -37,6 +36,11 @@ public class ConfiguracaoIgrejaDTO implements DTO {
     @View.MergeViews(View.Edicao.class)
     @TipoParametro.Mapping(TipoParametro.TEXTO_ANIVERSARIO)
     private String textoAniversario;
+    @TipoParametro.Mapping(TipoParametro.TITULO_BOLETIM)
+    private String tituloBoletim;
+    @View.MergeViews(View.Edicao.class)
+    @TipoParametro.Mapping(TipoParametro.TEXTO_BOLETIM)
+    private String textoBoletim;
 
     public boolean isPagSeguroConfigurado() {
         return !StringUtil.isEmpty(userPagSeguro) &&

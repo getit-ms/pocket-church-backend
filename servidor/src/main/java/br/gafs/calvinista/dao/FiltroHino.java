@@ -26,7 +26,7 @@ public class FiltroHino extends AbstractPaginatedFiltro<FiltroHinoDTO> {
         Map<String, Object> args = new QueryParameters("igreja", igreja);
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
-            query.append(" and (lower(concat(h.nome, h.numero, h.assunto, h.autor, h.texto) like :filtro)");
+            query.append(" and (lower(concat(h.nome, h.numero, h.assunto, h.autor, h.texto)) like :filtro)");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         

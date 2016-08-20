@@ -183,6 +183,15 @@ public enum QueryAdmin {
         protected int extractResultLimit(Object... args) {
             return 10;
         }
+    }, 
+    UPDATE_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"),
+    IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusIgreja.ATIVO);
+        }
+        
     };
     private final String query;
     private final String[] parameters;

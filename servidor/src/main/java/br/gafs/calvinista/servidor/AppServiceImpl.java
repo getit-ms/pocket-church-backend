@@ -1328,6 +1328,26 @@ public class AppServiceImpl implements AppService {
         }
     }
 
+    @Schedule(hour = "*")
+    public void enviaNotificacoesBoletins() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR.create());
+        for (Igreja igreja : igrejas) {
+            String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_BOLETIM);
+            if (StringUtil.isEmpty(titulo)){
+                titulo = MensagemUtil.getMensagem("push.boletim.title", igreja.getLocale());
+            }
+            
+            String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_BOLETIM);
+            if (StringUtil.isEmpty(texto)){
+                texto = MensagemUtil.getMensagem("push.boletim.message", igreja.getLocale(), igreja.getNome());
+            }
+            
+            enviaPush(new FiltroDispositivoDTO(igreja), titulo, texto);
+            
+            daoService.execute(QueryAdmin.UPDATE_NAO_DIVULGADOS.create(igreja.getChave()));
+        }
+    }
+
     private void enviaPush(FiltroDispositivoDTO filtro, String titulo, String mensagem) {
         notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null), filtro);
     }

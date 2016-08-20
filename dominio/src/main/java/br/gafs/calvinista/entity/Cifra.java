@@ -25,19 +25,19 @@ public class Cifra implements ArquivoPDF {
     @GeneratedValue(generator = "seq_cifra", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "autor")
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
+    @Column(name = "autor", nullable = false, length = 150)
     private String autor;
 
-    @Column(name = "titulo")
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
+    @Column(name = "titulo", nullable = false, length = 150)
     private String titulo;
 
-    @Column(name = "letra")
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
+    @Column(name = "letra", nullable = false, columnDefinition = "TEXT")
     private String letra;
 
     @NotNull

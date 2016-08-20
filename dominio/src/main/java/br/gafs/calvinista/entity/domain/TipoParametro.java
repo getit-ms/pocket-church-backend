@@ -35,6 +35,8 @@ public enum TipoParametro {
     TITULO_VERSICULO_DIARIO(TipoValor.VALOR, String.class, null),
     TITULO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
     TEXTO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
+    TITULO_BOLETIM(TipoValor.VALOR, String.class, null),
+    TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
     
     BANNER_IGREJA(TipoValor.ANEXO, byte[].class, null),
     ICON_IGREJA(TipoValor.ANEXO, byte[].class, null),
@@ -158,6 +160,8 @@ public enum TipoParametro {
                     Logger.getLogger(TipoParametro.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            
+            return t;
         } catch (Exception ex) {
             Logger.getLogger(TipoParametro.class.getName()).log(Level.SEVERE, null, ex);
         }
