@@ -26,10 +26,12 @@ public class AcessoDTO implements DTO {
     private String token;
     private Integer tipoDispositivo;
     private String version;
+    private String auth;
 
-    public AcessoDTO(Membro membro, List<Funcionalidade> funcionalidades) {
+    public AcessoDTO(Membro membro, List<Funcionalidade> funcionalidades, String auth) {
         this.membro = membro;
         this.funcionalidades = funcionalidades;
+        this.auth = auth;
     }
 
     public AcessoDTO(Usuario usuario) {

@@ -25,6 +25,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -39,6 +41,9 @@ public class AcessoController {
     
     @EJB
     private AppService appService;
+    
+    @Inject
+    private HttpServletResponse response;
     
     @PUT
     @Path("login")
@@ -152,6 +157,6 @@ public class AcessoController {
     }
     
     private AcessoDTO acesso(Membro membro){
-        return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro());
+        return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(), response.getHeader("Set-Authorization"));
     }
 }
