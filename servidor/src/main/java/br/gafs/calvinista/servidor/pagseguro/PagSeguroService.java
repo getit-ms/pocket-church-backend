@@ -3,6 +3,7 @@ package br.gafs.calvinista.servidor.pagseguro;
 import br.com.uol.pagseguro.domain.*;
 import br.com.uol.pagseguro.domain.checkout.Checkout;
 import br.com.uol.pagseguro.enums.Currency;
+import br.com.uol.pagseguro.enums.ShippingType;
 import br.com.uol.pagseguro.exception.PagSeguroServiceException;
 import br.com.uol.pagseguro.service.NotificationService;
 import br.com.uol.pagseguro.service.TransactionSearchService;
@@ -157,14 +158,14 @@ public class PagSeguroService {
                     limit(item.getNome()),
                     item.getQuantidade(),
                     item.getValor(),
-                    0l, new BigDecimal("0.0")
+                    0l, new BigDecimal("0.00")
             );
         }
         if (pedido.getDesconto() != null){
             checkout.setExtraAmount(pedido.getDesconto().negate());
         }
         checkout.setShippingCost(pedido.getFrete());
-
+        checkout.setShippingType(ShippingType.NOT_SPECIFIED);
         checkout.setSender(new Sender(pedido.getSolicitante().getNome().contains(" ")
                 ? pedido.getSolicitante().getNome() : pedido.getSolicitante().getNome() + " do GET IT",
                 pedido.getSolicitante().getEmail()));

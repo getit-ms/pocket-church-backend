@@ -46,15 +46,7 @@ public enum QueryAcesso {
     }, 
     AUTENTICA_USUARIO("Usuario.autentica", "login", "senha"), 
     USUARIO_POR_AUTENTICACAO("Usuario.findByAutenticacao", "autenticacao"), 
-    FUNCIONALIDADES_MEMBRO("Membro.findFuncionalidadesAcesso", "membro", "igreja"){
-
-        @Override
-        protected QueryParameters extractArguments(Object... args) {
-            return super.extractArguments(args).
-                    set("aplicativo", Funcionalidade.FUNCIONALIDADES_APLICATIVO); 
-        }
-        
-    }, 
+    FUNCIONALIDADES_MEMBRO("Membro.findFuncionalidadesAcesso", "membro", "igreja"), 
     TODAS_FUNCIONALIDADES_ADMIN("Igreja.findFuncionalidadesInList", "igreja"){
 
         @Override
