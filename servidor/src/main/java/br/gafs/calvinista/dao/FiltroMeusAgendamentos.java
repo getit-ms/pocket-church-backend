@@ -29,7 +29,7 @@ public class FiltroMeusAgendamentos extends AbstractPaginatedFiltro<FiltroMeusAg
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).
                 set("statusMembro", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
         
-        query.append(" and (m.pastor = true and aa.calendario.pastor = m) or (m.pastor = false and aa.membro = m) and m.id = :idMembro");
+        query.append(" and ((m.pastor = true and aa.calendario.pastor = m) or (m.pastor = false and aa.membro = m)) and m.id = :idMembro and m.igreja.chave = :chaveIgrej");
         args.put("idMembro", membro);
         
         query.append(" and aa.dataHoraInicio >= :dataAtual");
