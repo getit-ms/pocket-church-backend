@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -45,6 +44,7 @@ public interface AppService extends Serializable {
     String extraiTexto(Long idArquivo);
 
     Chamado solicita(Chamado chamado);
+    Chamado buscaChamado(Long chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
 
     ConfiguracaoIgrejaDTO buscaConfiguracao();

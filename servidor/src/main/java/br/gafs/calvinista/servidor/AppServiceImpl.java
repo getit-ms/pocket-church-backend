@@ -13,12 +13,7 @@ import br.gafs.calvinista.entity.domain.*;
 import br.gafs.calvinista.security.AllowAdmin;
 import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.SecurityInterceptor;
-import br.gafs.calvinista.service.AcessoService;
-import br.gafs.calvinista.service.AppService;
-import br.gafs.calvinista.service.ArquivoService;
-import br.gafs.calvinista.service.MensagemService;
-import br.gafs.calvinista.service.ParametroService;
-import br.gafs.calvinista.servidor.mensagem.EmailService;
+import br.gafs.calvinista.service.*;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.util.PDFToImageConverterUtil;
@@ -33,13 +28,16 @@ import br.gafs.util.email.EmailUtil;
 import br.gafs.util.image.ImageUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
-import java.io.File;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -48,9 +46,6 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.inject.Inject;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 
 /**
  *
@@ -131,6 +126,8 @@ public class AppServiceImpl implements AppService {
                     !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)){
                 throw new ServiceException("mensagens.MSG-403");
             }
+        }else if (chamado.isSuporte()){
+            throw new ServiceException("mensagens.MSG-403");
         }
         
         chamado.setDispositivoSolicitante(daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo()));
@@ -151,8 +148,20 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AllowAdmin(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)
+    public Chamado buscaChamado(Long id) {
+        Chamado chamado = daoService.find(Chamado.class, id);
+        if (chamado == null || !chamado.getIgrejaSolicitante().getChave().equals(sessaoBean.getChaveIgreja()) ||
+                (chamado.isSuporte() && (sessaoBean.getIdMembro() == null ||
+                        !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)))){
+            throw new ServiceException("mensagens.MSG-403");
+        }
+        return chamado;
+    }
+
+    @Override
     public BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro) {
-        return daoService.findWith(new FiltroChamado(sessaoBean.getChaveIgreja(), 
+        return daoService.findWith(new FiltroChamado(sessaoBean.getChaveIgreja(),
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), sessaoBean.isAdmin(), filtro));
     }
 

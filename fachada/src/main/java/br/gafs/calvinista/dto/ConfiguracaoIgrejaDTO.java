@@ -36,6 +36,7 @@ public class ConfiguracaoIgrejaDTO implements DTO {
     @View.MergeViews(View.Edicao.class)
     @TipoParametro.Mapping(TipoParametro.TEXTO_ANIVERSARIO)
     private String textoAniversario;
+    @View.MergeViews(View.Edicao.class)
     @TipoParametro.Mapping(TipoParametro.TITULO_BOLETIM)
     private String tituloBoletim;
     @View.MergeViews(View.Edicao.class)

@@ -82,6 +82,10 @@ public class Chamado implements IEntity {
         dataResposta = new Date();
         dataConclusao = new Date();
     }
+
+    public boolean isSuporte(){
+        return TipoChamado.SUPORTE.equals(tipo);
+    }
     
     public String getCodigo(){
         return Long.toString(id, 36).toUpperCase() + 

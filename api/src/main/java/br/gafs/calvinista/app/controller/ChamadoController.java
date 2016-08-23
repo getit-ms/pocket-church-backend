@@ -47,4 +47,12 @@ public class ChamadoController {
         return Response.status(Status.OK).entity(appService.solicita(chamado)).build();
     }
 
+    @GET
+    @Path("{chamado}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response carrega(final @PathParam("chamado") Long chamado) throws IOException{
+        return Response.status(Status.OK).entity(appService.buscaChamado(chamado)).build();
+    }
+
 }
