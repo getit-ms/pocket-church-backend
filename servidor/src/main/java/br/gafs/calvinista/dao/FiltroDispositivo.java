@@ -56,7 +56,7 @@ public class FiltroDispositivo extends AbstractPaginatedFiltro<FiltroDispositivo
 
         if (filtro.getAniversario() != null){
             from.append(", AniversarioMembro am ");
-            where.append(" and am.membro.id = d.membro.id and am.membro.igreja.chave = d.membro.igreja.chave and am.dia = :dia and am.mes = :mes");
+            where.append(" and am.membro.id = d.membro.id and am.igreja.chave = d.igreja.chave and am.dia = :dia and am.mes = :mes");
             args.put("dia", DateUtil.getDia(filtro.getAniversario()));
             args.put("mes", DateUtil.getMes(filtro.getAniversario()));
         }
