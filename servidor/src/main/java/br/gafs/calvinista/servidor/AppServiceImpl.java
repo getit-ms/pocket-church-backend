@@ -1245,7 +1245,7 @@ public class AppServiceImpl implements AppService {
         for (Igreja igreja : igrejas) {
             ConfiguracaoIgrejaDTO configuracao = buscaConfiguracao();
             if (configuracao != null && configuracao.isPagSeguroConfigurado()){
-                List<String> referencias = daoService.findWith(QueryAdmin.BUSCA_REFERENCIAS_INSCRICOES_PENDENTES.create(igreja.getChave()));
+                List<String> referencias = daoService.findWith(QueryAdmin.REFERENCIAS_INSCRICOES_PENDENTES.create(igreja.getChave()));
 
                 for (String referencia : referencias){
                     atualizaSituacaoPagSeguro(referencia, configuracao);

@@ -10,6 +10,7 @@ import br.gafs.calvinista.entity.domain.StatusMembro;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
+import br.gafs.util.date.DateUtil;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -54,8 +55,10 @@ public class FiltroDispositivo extends AbstractPaginatedFiltro<FiltroDispositivo
         }
 
         if (filtro.getAniversario() != null){
-            where.append(" and function('to_char', d.membro.dataNascimento, 'DDMM') = function('to_char', :aniversario, 'DDMM')");
-            args.put("aniversario", filtro.getAniversario());
+            from.append(", AniversarioMembro am ");
+            where.append(" and am.membro.id = d.membro.id and am.membro.igreja.chave = d.membro.igreja.chave and am.dia = :dia and am.mes = :mes");
+            args.put("dia", DateUtil.getDia(filtro.getAniversario()));
+            args.put("mes", DateUtil.getMes(filtro.getAniversario()));
         }
         
         setArguments(args);

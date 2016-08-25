@@ -68,11 +68,18 @@ public class SessaoBean implements Serializable {
                 }
             }
 
-            String igreja = get("Igreja");
+            if (StringUtil.isEmpty(chaveIgreja)){
+                chaveIgreja = get("Igreja");
+                
+                if (StringUtil.isEmpty(chaveIgreja)){
+                    throw new ServiceException("mensagens.MSG-403");
+                }
+            }
+            
             String dispositivo = get("Dispositivo");
-            if (!StringUtil.isEmpty(igreja) && !StringUtil.isEmpty(dispositivo) &&
-                    !(dispositivo + "@" + igreja).equals(chaveDispositivo)){
-                dispositivo(igreja, dispositivo);
+            if (!StringUtil.isEmpty(dispositivo) &&
+                    !(dispositivo + "@" + chaveIgreja).equals(chaveDispositivo)){
+                dispositivo(dispositivo);
             }
             
             if (funcionalidades == null){
@@ -101,21 +108,25 @@ public class SessaoBean implements Serializable {
         }
     }
     
-    public void dispositivo(String chaveIgreja, String uuid) {
+    public void dispositivo(String uuid) {
         String chaveDispositivo = uuid + "@" + chaveIgreja;
-        
         Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
-        
+
         if (dispositivo == null){
-            Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
-            dispositivo = daoService.update(new Dispositivo(uuid, igreja));
-            daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
+            synchronized (SessaoBean.class){
+                dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+
+                if (dispositivo == null){
+                    Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
+                    dispositivo = daoService.update(new Dispositivo(uuid, igreja));
+                    daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
+                }
+            }
         }
-        
-        this.chaveIgreja = chaveIgreja;
+
         this.chaveDispositivo = chaveDispositivo;
         this.admin = dispositivo.isAdministrativo();
-        
+
         set();
     }
     

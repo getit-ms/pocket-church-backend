@@ -70,7 +70,7 @@ public class AcessoServiceImpl implements AcessoService {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
         dispositivo.registerToken(tipoDispositivo, pushKey, version);
         daoService.update(dispositivo);
-        sessaoBean.dispositivo(sessaoBean.getChaveIgreja(), dispositivo.getUuid());
+        sessaoBean.dispositivo(dispositivo.getUuid());
     }
 
     @Override
