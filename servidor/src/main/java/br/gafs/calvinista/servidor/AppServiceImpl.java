@@ -1322,17 +1322,22 @@ public class AppServiceImpl implements AppService {
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
 
             if (hora.equals(12)){
-                String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ANIVERSARIO);
-                if (StringUtil.isEmpty(titulo)){
-                    titulo = MensagemUtil.getMensagem("push.aniversario.title", igreja.getLocale());
-                }
+                List<Membro> aniversariantes = daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(igreja.getChave()));
                 
-                String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ANIVERSARIO);
-                if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.aniversario.message", igreja.getLocale(), igreja.getNome());
+                for (Membro membro : aniversariantes){
+                    String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ANIVERSARIO);
+                    if (StringUtil.isEmpty(titulo)){
+                        titulo = MensagemUtil.getMensagem("push.aniversario.title", igreja.getLocale());
+                    }
+
+                    String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ANIVERSARIO);
+                    if (StringUtil.isEmpty(texto)){
+                        texto = MensagemUtil.getMensagem("push.aniversario.message", 
+                                igreja.getLocale(), membro.getNome(), igreja.getNome());
+                    }
+
+                    enviaPush(new FiltroDispositivoDTO(igreja, membro.getId()), titulo, texto);
                 }
-                
-                enviaPush(new FiltroDispositivoDTO(igreja, cal.getTime()), titulo, texto);
             }
         }
     }

@@ -192,7 +192,8 @@ public enum QueryAdmin {
             return super.extractArguments(args).set("status", StatusIgreja.ATIVO);
         }
         
-    };
+    }, 
+    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja");
     private final String query;
     private final String[] parameters;
     private final QueryAdmin countQuery;

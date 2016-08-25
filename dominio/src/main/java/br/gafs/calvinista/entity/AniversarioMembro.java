@@ -11,11 +11,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 
@@ -27,6 +25,9 @@ import lombok.Getter;
 @Entity
 @IdClass(RegistroIgrejaId.class)
 @Table(name = "vw_aniversario_membro")
+@NamedQueries({
+    @NamedQuery(name = "AniversarioMembro.findAniversariantes", query = "select m from AniversarianteMembro am, Membro m where m.id = am.id and m.igreja = am.igreja and am.aniversariante = true and am.igreja.chave = :igreja")
+})
 public class AniversarioMembro implements IEntity {
     @Id
     @Column(name = "id_membro")
