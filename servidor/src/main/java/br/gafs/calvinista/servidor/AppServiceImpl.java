@@ -1158,8 +1158,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VERSICULOS_DIARIOS)
     public void removeVersiculo(Long versiculoDiario) {
-        VersiculoDiario entidade = buscaVersiculo(versiculoDiario);
-        daoService.delete(VersiculoDiario.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
+        daoService.delete(VersiculoDiario.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), versiculoDiario));
     }
 
     @Override

@@ -23,7 +23,7 @@ public class FiltroCifra extends AbstractPaginatedFiltro<FiltroCifraDTO> {
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
-            query.append(" and (lower(concat(c.titulo, c.autor, c.letra)) like :filtro)");
+            query.append(" and lower(concat(c.titulo, c.autor, c.letra)) like :filtro");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         

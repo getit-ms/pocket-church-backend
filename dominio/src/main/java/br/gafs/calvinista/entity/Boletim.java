@@ -62,6 +62,7 @@ public class Boletim implements ArquivoPDF {
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
     
+    @JsonView(Detalhado.class)
     @Column(name = "divulgado", nullable = false)
     private boolean divulgado;
 
