@@ -15,6 +15,7 @@ import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ import javax.inject.Named;
 @Named
 @RequestScoped
 public class SessaoBean implements Serializable {
+    
+    private final long TIMEOUT = 3 * DateUtil.MILESIMOS_POR_DIA;
     
     @Inject
     private SessionDataManager manager;
@@ -53,6 +56,7 @@ public class SessaoBean implements Serializable {
             
             String authorization = get("Authorization");
 
+            Number creation = null;
             if (!StringUtil.isEmpty(authorization)){
                 try{
                     JWTManager.JWTReader reader = JWTManager.reader(authorization);
@@ -62,6 +66,7 @@ public class SessaoBean implements Serializable {
                     admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
                     idUsuario = toLong("usuario");
                     funcionalidades = (List<Integer>) reader.get("funcionalidades");
+                    creation = (Number) reader.get("creation");
                 }catch(Exception e){
                     e.printStackTrace();
                     throw new ServiceException("mensagens.MSG-403");
@@ -82,7 +87,10 @@ public class SessaoBean implements Serializable {
                 dispositivo(dispositivo);
             }
             
-            if (funcionalidades == null){
+            boolean deprecated = creation == null || 
+                    creation.longValue() + TIMEOUT < System.currentTimeMillis();
+            
+            if (deprecated || funcionalidades == null){
                 refreshFuncionalidades();
                 set();
             }
@@ -143,6 +151,7 @@ public class SessaoBean implements Serializable {
                 map("dispositivo", chaveDispositivo).
                 map("membro", idMembro).
                 map("admin", admin).
+                map("creation", System.currentTimeMillis()).
                 map("usuario", idUsuario).
                 map("funcionalidades", funcionalidades).build());
     }

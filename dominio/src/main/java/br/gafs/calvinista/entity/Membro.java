@@ -37,7 +37,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -69,8 +68,7 @@ import org.hibernate.validator.constraints.NotEmpty;
     @NamedQuery(name = "Membro.autentica", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and upper(m.senha) = upper(:senha) and m.status in :status"),
     @NamedQuery(name = "Membro.findPastor", query = "select m from Membro m where m.pastor = true and m.igreja.chave = :chaveIgreja and m.status in :status and m.id not in (select ca.pastor.id from CalendarioAtendimento ca where ca.igreja.chave = :chaveIgreja and ca.status = :statusCalendario) order by m.nome"),
     @NamedQuery(name = "Membro.findByEmailIgreja", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and m.status in :status"),
-    @NamedQuery(name = "Membro.findFuncionalidadesAcesso", query = "select f from Membro m left join m.acesso a left join a.perfis pr left join pr.funcionalidades fu inner join m.igreja i inner join i.plano p inner join p.funcionalidades f where f = fu and i.chave = :igreja and m.id = :membro group by f"),
-    @NamedQuery(name = "Membro.findFuncionalidadesAplicativo", query = "select f from Membro m left join m.acesso a left join a.perfis pr left join pr.funcionalidades fu inner join m.igreja i inner join i.plano p inner join p.funcionalidades f left join i.funcionalidadesAplicativo fa where f = fu and f = fa and i.chave = :igreja and m.id = :membro group by f")
+    @NamedQuery(name = "Membro.findFuncionalidadesAcesso", query = "select f from Membro m left join m.acesso a left join a.perfis pr left join pr.funcionalidades fu inner join m.igreja i inner join i.plano p inner join p.funcionalidades f left join i.funcionalidadesAplicativo fa where f = fu and (f = fa or f in :funcionalidadesAdmin) and i.chave = :igreja and m.id = :membro group by f")
 })
 public class Membro implements IEntity {
     @Id
