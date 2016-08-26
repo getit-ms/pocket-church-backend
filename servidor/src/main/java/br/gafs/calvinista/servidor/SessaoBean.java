@@ -179,6 +179,16 @@ public class SessaoBean implements Serializable {
         
         return funcionalidades.contains(func.getCodigo());
     }
+    
+    public List<Funcionalidade> getFuncionalidades(){
+        List<Funcionalidade> funcs = new ArrayList<Funcionalidade>();
+        for (Funcionalidade func : Funcionalidade.values()){
+            if (temPermissao(func)){
+                funcs.add(func);
+            }
+        }
+        return funcs;
+    }
 
     public Long getIdMembro() {
         load();

@@ -50,8 +50,8 @@ public enum QueryAcesso {
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
-            return super.extractArguments(args).set("funcionalidadesAdmin",
-                    Arrays.asList(Funcionalidade.FUNCIONALIDADES_ADMINISTRATIVO));
+            return super.extractArguments(args).set("funcionalidadesAdmin", 
+                    Funcionalidade.FUNCIONALIDADES_ADMINISTRATIVO);
         }
         
     },

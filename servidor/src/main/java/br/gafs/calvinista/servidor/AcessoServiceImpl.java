@@ -149,8 +149,7 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public List<Funcionalidade> getFuncionalidadesMembro() {
-        return daoService.findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO.
-                create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
+        return sessaoBean.getFuncionalidades();
     }
 
     @Override
