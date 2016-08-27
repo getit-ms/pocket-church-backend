@@ -34,8 +34,8 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
-    @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :status and b.dataPublicacao <= CURRENT_DATE and b.divulgado = false group by i"),
-    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= CURRENT_DATE and b.igreja.chave = :igreja")
+    @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :status and b.dataPublicacao <= :data and b.divulgado = false group by i"),
+    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja")
 })
 public class Boletim implements ArquivoPDF {
     @Id

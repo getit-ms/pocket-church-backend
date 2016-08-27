@@ -184,12 +184,19 @@ public enum QueryAdmin {
             return 10;
         }
     }, 
-    UPDATE_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"),
+    UPDATE_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("data", DateUtil.getDataAtual());
+        }
+        
+    },
     IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
-            return super.extractArguments(args).set("status", StatusIgreja.ATIVO);
+            return super.extractArguments(args).set("status", StatusIgreja.ATIVO).set("data", DateUtil.getDataAtual());
         }
         
     }, 
