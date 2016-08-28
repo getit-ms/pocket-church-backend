@@ -132,6 +132,16 @@ public class PagSeguroService {
         public void add(ItemPedido item){
             itens.add(item);
         }
+        
+        public BigDecimal getTotal(){
+            BigDecimal total = BigDecimal.ZERO;
+            
+            for (ItemPedido item : itens){
+                total = total.add(item.getValor());
+            }
+            
+            return total;
+        }
     }
 
     @Getter

@@ -43,6 +43,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -800,19 +801,21 @@ public class AppServiceImpl implements AppService {
 
         AgendamentoAtendimento atendimento = daoService.create(new AgendamentoAtendimento(membro, horario, data));
         
-        enviaPush(new FiltroDispositivoDTO(atendimento.getIgreja(), atendimento.getCalendario().getPastor().getId()), 
-                MensagemUtil.getMensagem("push.agendamento.title", atendimento.getIgreja().getLocale()), 
-                MensagemUtil.getMensagem("push.agendamento.message", atendimento.getIgreja().getLocale(), 
-                        atendimento.getMembro().getNome(), 
-                        MensagemUtil.formataData(atendimento.getDataHoraInicio(), 
-                                atendimento.getIgreja().getLocale(), 
-                                atendimento.getIgreja().getTimezone()), 
-                        MensagemUtil.formataHora(atendimento.getDataHoraInicio(), 
-                                atendimento.getIgreja().getLocale(), 
-                                atendimento.getIgreja().getTimezone()), 
-                        MensagemUtil.formataHora(atendimento.getDataHoraFim(), 
-                                atendimento.getIgreja().getLocale(), 
-                                atendimento.getIgreja().getTimezone())));
+        if (!sessaoBean.isAdmin()){
+            enviaPush(new FiltroDispositivoDTO(atendimento.getIgreja(), atendimento.getCalendario().getPastor().getId()), 
+                    MensagemUtil.getMensagem("push.agendamento.title", atendimento.getIgreja().getLocale()), 
+                    MensagemUtil.getMensagem("push.agendamento.message", atendimento.getIgreja().getLocale(), 
+                            atendimento.getMembro().getNome(), 
+                            MensagemUtil.formataData(atendimento.getDataHoraInicio(), 
+                                    atendimento.getIgreja().getLocale(), 
+                                    atendimento.getIgreja().getTimezone()), 
+                            MensagemUtil.formataHora(atendimento.getDataHoraInicio(), 
+                                    atendimento.getIgreja().getLocale(), 
+                                    atendimento.getIgreja().getTimezone()), 
+                            MensagemUtil.formataHora(atendimento.getDataHoraFim(), 
+                                    atendimento.getIgreja().getLocale(), 
+                                    atendimento.getIgreja().getTimezone())));
+        }
         
         return atendimento;
     }
@@ -855,7 +858,8 @@ public class AppServiceImpl implements AppService {
         AgendamentoAtendimento agendamento = buscaAgendamento(id);
 
         if (!sessaoBean.isAdmin()
-                && !agendamento.getMembro().getId().equals(sessaoBean.getIdMembro())) {
+                && !agendamento.getMembro().getId().equals(sessaoBean.getIdMembro())
+                && !agendamento.getCalendario().getPastor().getId().equals(sessaoBean.getIdMembro())) {
             throw new ServiceException("mensagens.MSG-604");
         }
 
@@ -1216,6 +1220,22 @@ public class AppServiceImpl implements AppService {
                         inscricao.setReferenciaCheckout(referencia);
                         daoService.update(inscricao);
                     }
+                    
+                    NumberFormat nformat = NumberFormat.getInstance(new Locale(evento.getIgreja().getLocale()));
+                    nformat.setCurrency(Currency.getInstance(new Locale(evento.getIgreja().getLocale())));
+                    nformat.setMaximumFractionDigits(2);
+                    nformat.setMinimumFractionDigits(2);
+                    
+                    String subject = MensagemUtil.getMensagem("email.pagamento_inscricao.subject", evento.getIgreja().getLocale());
+                    String title = MensagemUtil.getMensagem("email.pagamento_inscricao.message.title", evento.getIgreja().getLocale(), membro.getNome());
+                    String text = MensagemUtil.getMensagem("email.pagamento_inscricao.message.text", evento.getIgreja().getLocale(), evento.getNome(), nformat.format(pedido.getTotal()));
+                    String url = MensagemUtil.getMensagem("email.pagamento_inscricao.message.link.url", evento.getIgreja().getLocale(), checkout);
+                    String link = MensagemUtil.getMensagem("email.pagamento_inscricao.message.link.text", evento.getIgreja().getLocale());
+
+                    notificacaoService.sendNow(
+                            MensagemUtil.email(recuperaInstitucional(), subject,
+                                    new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, url, link), Collections.EMPTY_LIST)), 
+                            new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
 
                     return new ResultadoInscricaoDTO(checkout);
                 }
