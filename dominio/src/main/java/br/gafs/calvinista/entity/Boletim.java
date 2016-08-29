@@ -62,6 +62,12 @@ public class Boletim implements ArquivoPDF {
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
     
+    @Setter
+    @JsonView(Resumido.class)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "data_alteracao")
+    private Date ultimaAlteracao = DateUtil.getDataAtual();
+    
     @JsonView(Detalhado.class)
     @Column(name = "divulgado", nullable = false)
     private boolean divulgado;

@@ -10,6 +10,7 @@ import br.gafs.calvinista.dao.*;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.*;
+import br.gafs.calvinista.exception.ValidationException;
 import br.gafs.calvinista.security.AllowAdmin;
 import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.SecurityInterceptor;
@@ -507,6 +508,7 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
     public Boletim atualiza(Boletim boletim) throws IOException {
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
+        boletim.setUltimaAlteracao(DateUtil.getDataAtual());
         trataPDF(boletim);
         return daoService.update(boletim);
     }
@@ -1248,6 +1250,35 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR)
     public ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao) {
+        ValidationException validation = ValidationException.build();
+        
+        if (!StringUtil.isEmpty(configuracao.getTituloAniversario()) &&
+                configuracao.getTituloAniversario().length() > 30){
+            validation.add("tituloAniversario", "mensagens.MSG-010");
+        }
+        
+        if (!StringUtil.isEmpty(configuracao.getTituloBoletim()) &&
+                configuracao.getTituloBoletim().length() > 30){
+            validation.add("tituloBoletim", "mensagens.MSG-010");
+        }
+        
+        if (!StringUtil.isEmpty(configuracao.getTituloVersiculoDiario()) &&
+                configuracao.getTituloVersiculoDiario().length() > 30){
+            validation.add("tituloVersiculoDiario", "mensagens.MSG-010");
+        }
+        
+        if (!StringUtil.isEmpty(configuracao.getTextoAniversario()) &&
+                configuracao.getTextoAniversario().length() > 150){
+            validation.add("textoAniversario", "mensagens.MSG-010");
+        }
+        
+        if (!StringUtil.isEmpty(configuracao.getTextoBoletim()) &&
+                configuracao.getTextoBoletim().length() > 150){
+            validation.add("textoBoletim", "mensagens.MSG-010");
+        }
+        
+        validation.validate();
+        
         paramService.salvaConfiguracao(configuracao, sessaoBean.getChaveIgreja());
         return buscaConfiguracao();
     }
