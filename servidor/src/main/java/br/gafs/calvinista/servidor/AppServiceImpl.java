@@ -1276,8 +1276,9 @@ public class AppServiceImpl implements AppService {
                         daoService.update(inscricao);
                     }
                     
-                    NumberFormat nformat = NumberFormat.getInstance(new Locale(evento.getIgreja().getLocale()));
-                    nformat.setCurrency(Currency.getInstance(new Locale(evento.getIgreja().getLocale().replace("-", "_"))));
+                    Locale locale = Locale.forLanguageTag(evento.getIgreja().getLocale());
+                    NumberFormat nformat = NumberFormat.getInstance(locale);
+                    nformat.setCurrency(Currency.getInstance(locale));
                     nformat.setMaximumFractionDigits(2);
                     nformat.setMinimumFractionDigits(2);
                     
