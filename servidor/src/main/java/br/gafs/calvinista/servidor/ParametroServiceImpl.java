@@ -18,6 +18,8 @@ import br.gafs.calvinista.entity.domain.TipoParametro.ParametroSupplier;
 import br.gafs.calvinista.security.AllowAdmin;
 import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.AllowUsuario;
+import br.gafs.calvinista.security.Audit;
+import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.dao.DAOService;
@@ -33,7 +35,7 @@ import javax.interceptor.Interceptors;
  */
 @Stateless
 @Local(ParametroService.class)
-@Interceptors({ServiceLoggerInterceptor.class, SecurityInterceptor.class})
+@Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class ParametroServiceImpl implements ParametroService {
     
     @EJB
@@ -54,18 +56,21 @@ public class ParametroServiceImpl implements ParametroService {
         return build(ConfiguracaoIgrejaDTO.class, igreja);
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void salvaParametrosGlobais(ParametrosGlobaisDTO params) {
         extract(params, Parametro.GLOBAL);
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void salvaParametros(ParametrosIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR)
     public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja) {

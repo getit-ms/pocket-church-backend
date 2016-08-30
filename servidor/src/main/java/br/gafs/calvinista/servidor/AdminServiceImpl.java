@@ -17,6 +17,8 @@ import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.security.AllowAdmin;
 import br.gafs.calvinista.security.AllowUsuario;
+import br.gafs.calvinista.security.Audit;
+import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.AdminService;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -36,12 +38,13 @@ import javax.interceptor.Interceptors;
  */
 @Stateless
 @Local(AdminService.class)
-@Interceptors({ServiceLoggerInterceptor.class, SecurityInterceptor.class})
+@Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class AdminServiceImpl implements AdminService {
     
     @EJB
     private DAOService daoService;
     
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Arquivo upload(String fileName, byte[] fileData) {
@@ -59,6 +62,7 @@ public class AdminServiceImpl implements AdminService {
         return daoService.findWith(new FiltroIgreja(filtro));
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void cadastra(Igreja igreja) {
@@ -83,6 +87,7 @@ public class AdminServiceImpl implements AdminService {
         acesso = daoService.create(acesso);
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void atualiza(Igreja igreja) {
@@ -95,6 +100,7 @@ public class AdminServiceImpl implements AdminService {
         return daoService.find(Igreja.class, chave);
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void inativa(Long igreja) {
@@ -107,12 +113,14 @@ public class AdminServiceImpl implements AdminService {
         return daoService.findAll(Plano.class);
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void cadastra(Plano plano) {
         daoService.create(plano);
     }
 
+    @Audit
     @Override
     @AllowUsuario
     public void atualiza(Plano plano) {

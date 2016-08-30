@@ -5,28 +5,26 @@
  */
 package br.gafs.calvinista.exception;
 
+import br.gafs.exceptions.ServiceException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  *
  * @author Gabriel
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ValidationException extends RuntimeException {
-    @Getter
-    private String message = "mensagens.MSG-002";
-    
+public class ValidationException extends ServiceException {
     @Getter
     private List<Validation> validations = new ArrayList<Validation>();
+
+    private ValidationException() {
+        super("mensagens.MSG-002");
+    }
     
     public static ValidationException build(){
         return new ValidationException();

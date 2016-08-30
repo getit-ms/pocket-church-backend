@@ -11,6 +11,8 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.security.AllowAdmin;
+import br.gafs.calvinista.security.Audit;
+import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.ArquivoService;
@@ -30,7 +32,7 @@ import javax.interceptor.Interceptors;
  */
 @Stateless
 @Local(ArquivoService.class)
-@Interceptors({ServiceLoggerInterceptor.class, SecurityInterceptor.class})
+@Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class ArquivoServiceImpl implements ArquivoService {
 
     @EJB
@@ -44,6 +46,7 @@ public class ArquivoServiceImpl implements ArquivoService {
         return daoService.find(Arquivo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), arquivo));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Arquivo upload(String fileName, byte[] fileData) {
@@ -58,11 +61,13 @@ public class ArquivoServiceImpl implements ArquivoService {
         }
     }
 
+    @Audit
     @Override
     public void registraDesuso(Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_DESUSO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
 
+    @Audit
     @Override
     public void registraUso(Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_USO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));

@@ -13,6 +13,8 @@ import br.gafs.calvinista.entity.domain.*;
 import br.gafs.calvinista.exception.ValidationException;
 import br.gafs.calvinista.security.AllowAdmin;
 import br.gafs.calvinista.security.AllowMembro;
+import br.gafs.calvinista.security.Audit;
+import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.*;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
@@ -55,7 +57,7 @@ import java.util.logging.Logger;
  */
 @Stateless
 @Local(AppService.class)
-@Interceptors({ServiceLoggerInterceptor.class, SecurityInterceptor.class})
+@Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class AppServiceImpl implements AppService {
 
     @EJB
@@ -119,6 +121,7 @@ public class AppServiceImpl implements AppService {
                 create(sessaoBean.getChaveIgreja()));
     }
 
+    @Audit
     @Override
     public Chamado solicita(Chamado chamado) {
         if (sessaoBean.isAdmin()){
@@ -167,6 +170,7 @@ public class AppServiceImpl implements AppService {
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), sessaoBean.isAdmin(), filtro));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro cadastra(Membro membro) {
@@ -174,6 +178,7 @@ public class AppServiceImpl implements AppService {
         return daoService.create(membro);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public Membro darAcessoMembro(Long membro) {
@@ -222,6 +227,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Igreja.class, sessaoBean.getChaveIgreja()).getPlano().getFuncionalidadesMembro();
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_FUNCIONALIDADES_APLICATIVO)
     public void salvaFuncionalidadesHabilitadasAplicativo(List<Funcionalidade> funcionalidades) {
@@ -230,6 +236,7 @@ public class AppServiceImpl implements AppService {
         daoService.update(igreja);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public Membro retiraAcessoMembro(Long membro) {
@@ -250,6 +257,7 @@ public class AppServiceImpl implements AppService {
                 sessaoBean.getChaveIgreja(), membro)));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public void removeMembro(Long membro) {
@@ -281,6 +289,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Questao.class, id);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public Acesso darAcessoAdmin(Long membro, List<Perfil> perfis, List<Ministerio> ministerios) {
@@ -307,6 +316,7 @@ public class AppServiceImpl implements AppService {
         return daoService.update(acesso);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public void retiraAcessoAdmin(Long membro) {
@@ -337,6 +347,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Igreja.class, chave);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro atualiza(Membro membro) {
@@ -357,6 +368,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(new FiltroMembro(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), filtro));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MINISTERIOS)
     public Ministerio cadastra(Ministerio ministerio) {
@@ -364,12 +376,14 @@ public class AppServiceImpl implements AppService {
         return daoService.create(ministerio);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MINISTERIOS)
     public Ministerio atualiza(Ministerio ministerio) {
         return daoService.update(ministerio);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MINISTERIOS)
     public void removeMinisterio(Long idMinisterio) {
@@ -390,6 +404,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja()));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
     public Perfil cadastra(Perfil perfil) {
@@ -397,6 +412,7 @@ public class AppServiceImpl implements AppService {
         return daoService.create(perfil);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
     public Perfil atualiza(Perfil perfil) {
@@ -409,6 +425,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Perfil.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), perfil));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
     public void removePerfil(Long perfil) {
@@ -424,6 +441,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.PERFIS.create(sessaoBean.getChaveIgreja()));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
     public Boletim cadastra(Boletim boletim) throws IOException {
@@ -433,6 +451,7 @@ public class AppServiceImpl implements AppService {
         return daoService.create(boletim);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
     public Cifra cadastra(Cifra cifra) throws IOException {
@@ -504,6 +523,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
     public Boletim atualiza(Boletim boletim) throws IOException {
@@ -513,6 +533,7 @@ public class AppServiceImpl implements AppService {
         return daoService.update(boletim);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
     public Cifra atualiza(Cifra cifra) throws IOException {
@@ -531,6 +552,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Cifra.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), cifra));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
     public void removeBoletim(Long boletim) {
@@ -545,6 +567,7 @@ public class AppServiceImpl implements AppService {
         daoService.delete(Boletim.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
     public void removeCifra(Long cifra) {
@@ -575,6 +598,7 @@ public class AppServiceImpl implements AppService {
         return buscaTodos(filtro);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_DADOS_INSTITUCIONAIS)
     public Institucional atualiza(Institucional institucional) {
@@ -595,6 +619,7 @@ public class AppServiceImpl implements AppService {
         return institucional;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo cadastra(Estudo estudo) {
@@ -603,6 +628,7 @@ public class AppServiceImpl implements AppService {
         return daoService.create(estudo);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo atualiza(Estudo estudo) {
@@ -614,6 +640,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Estudo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), estudo));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public void removeEstudo(Long estudo) {
@@ -632,6 +659,7 @@ public class AppServiceImpl implements AppService {
         return buscaTodos(filtro);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.ENVIAR_NOTIFICACOES)
     public void enviar(Notificacao notificacao) {
@@ -676,6 +704,7 @@ public class AppServiceImpl implements AppService {
         return val == null ? 0 : (Number) val;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
     public Votacao cadastra(Votacao votacao) {
@@ -699,6 +728,7 @@ public class AppServiceImpl implements AppService {
         votacao.setQuestoes(questoes);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
     public Votacao atualiza(Votacao votacao) {
@@ -713,6 +743,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(Votacao.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), votacao));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
     public void removeVotacao(Long votacao) {
@@ -740,6 +771,7 @@ public class AppServiceImpl implements AppService {
         return buscaTodas(filtro);
     }
 
+    @Audit
     @Override
     @AllowMembro(Funcionalidade.REALIZAR_VOTACAO)
     public void realizarVotacao(RespostaVotacao resposta) {
@@ -747,6 +779,7 @@ public class AppServiceImpl implements AppService {
         daoService.create(new Voto(resposta.getVotacao(), buscaMembro(sessaoBean.getIdMembro())));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)
     public PedidoOracao atende(Long pedidoOracao) {
@@ -775,6 +808,7 @@ public class AppServiceImpl implements AppService {
         return buscaTodos(filtro);
     }
 
+    @Audit
     @Override
     @AllowMembro(Funcionalidade.PEDIR_ORACAO)
     public PedidoOracao realizaPedido(PedidoOracao pedido) {
@@ -782,6 +816,7 @@ public class AppServiceImpl implements AppService {
         return daoService.create(pedido);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowMembro(Funcionalidade.AGENDAR_ACONSELHAMENTO)
@@ -822,6 +857,7 @@ public class AppServiceImpl implements AppService {
         return atendimento;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowMembro(Funcionalidade.AGENDAR_ACONSELHAMENTO)
@@ -853,6 +889,7 @@ public class AppServiceImpl implements AppService {
         return agendamento;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowMembro(Funcionalidade.AGENDAR_ACONSELHAMENTO)
@@ -926,6 +963,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(new FiltroMeusAgendamentos(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public CalendarioAtendimento cadastra(CalendarioAtendimento calendario) {
@@ -940,6 +978,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(CalendarioAtendimento.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), calendario));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void removeCalendario(Long calendario) {
@@ -965,6 +1004,7 @@ public class AppServiceImpl implements AppService {
         return h;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void cadastra(Long idCalendario, HorarioAtendimento horario) {
@@ -978,12 +1018,14 @@ public class AppServiceImpl implements AppService {
         }
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void removeDia(Long calendario, Long idHorario, Date data) {
         removePeriodo(calendario, idHorario, data, data);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void removePeriodo(Long calendario, Long idHorario, Date inicio, Date termino) {
@@ -1052,6 +1094,7 @@ public class AppServiceImpl implements AppService {
         return eventos;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
     public Evento cadastra(Evento evento) {
@@ -1059,12 +1102,14 @@ public class AppServiceImpl implements AppService {
         return daoService.create(evento);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
     public Evento atualiza(Evento evento) {
         return daoService.update(evento);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
     @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
@@ -1074,6 +1119,7 @@ public class AppServiceImpl implements AppService {
         return entidade;
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
     public void removeEvento(Long evento) {
@@ -1114,6 +1160,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
     public void confirmaInscricao(Long evento, Long inscricao) {
@@ -1125,6 +1172,7 @@ public class AppServiceImpl implements AppService {
         daoService.update(entidade);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VERSICULOS_DIARIOS)
     public VersiculoDiario cadastra(VersiculoDiario versiculoDiario) {
@@ -1136,6 +1184,7 @@ public class AppServiceImpl implements AppService {
         return daoService.create(versiculoDiario);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VERSICULOS_DIARIOS)
     public VersiculoDiario desabilita(Long versiculo) {
@@ -1144,6 +1193,7 @@ public class AppServiceImpl implements AppService {
         return daoService.update(entidade);
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VERSICULOS_DIARIOS)
     public VersiculoDiario habilita(Long versiculo) {
@@ -1162,6 +1212,7 @@ public class AppServiceImpl implements AppService {
         return daoService.find(VersiculoDiario.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), versiculoDiario));
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VERSICULOS_DIARIOS)
     public void removeVersiculo(Long versiculoDiario) {
@@ -1178,6 +1229,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.AGENDAMENTO_EM_CHOQUE.createSingle(calendario.getId(), dti, dtf)) != null;
     }
 
+    @Audit
     @Override
     @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
     public ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> inscricoes) {
@@ -1248,6 +1300,7 @@ public class AppServiceImpl implements AppService {
         return new ResultadoInscricaoDTO();
     }
 
+    @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR)
     public ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao) {

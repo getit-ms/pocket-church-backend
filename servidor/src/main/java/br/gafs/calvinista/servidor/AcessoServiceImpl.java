@@ -19,6 +19,8 @@ import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.Usuario;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.security.Audit;
+import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.util.JWTManager;
@@ -41,7 +43,7 @@ import javax.interceptor.Interceptors;
  */
 @Stateless
 @Local(AcessoService.class)
-@Interceptors(ServiceLoggerInterceptor.class)
+@Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class})
 public class AcessoServiceImpl implements AcessoService {
     
     @EJB
@@ -53,6 +55,7 @@ public class AcessoServiceImpl implements AcessoService {
     @Inject
     private SessaoBean sessaoBean;
 
+    @Audit
     @Override
     public Usuario admin(String username, String password) {
         Usuario usuario = daoService.findWith(QueryAcesso.AUTENTICA_USUARIO.createSingle(username, password));
@@ -65,6 +68,7 @@ public class AcessoServiceImpl implements AcessoService {
         throw new ServiceException("mensagens.MSG-600");
     }
 
+    @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
         Dispositivo dispositivo = dispositivo();
@@ -100,6 +104,7 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     
+    @Audit
     @Override
     public Preferencias salva(Preferencias preferencias) {
         if (sessaoBean.getIdMembro() != null){
@@ -117,6 +122,7 @@ public class AcessoServiceImpl implements AcessoService {
         }
     }
 
+    @Audit
     @Override
     public void logout() {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
@@ -125,6 +131,7 @@ public class AcessoServiceImpl implements AcessoService {
         sessaoBean.logout();
     }
 
+    @Audit
     @Override
     public Membro refreshLogin() {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
@@ -136,6 +143,7 @@ public class AcessoServiceImpl implements AcessoService {
         throw new ServiceException("mensagens.MSG-403");
     }
 
+    @Audit
     @Override
     public Usuario refreshAdmin() {
         Usuario usuario = daoService.find(Usuario.class, sessaoBean.getIdUsuario());
@@ -147,6 +155,7 @@ public class AcessoServiceImpl implements AcessoService {
         throw new ServiceException("mensagens.MSG-403");
     }
     
+    @Audit
     @Override
     public Membro login(String username, String password){
         Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
@@ -174,6 +183,7 @@ public class AcessoServiceImpl implements AcessoService {
                 create(sessaoBean.getChaveIgreja()));
     }
 
+    @Audit
     @Override
     public void alteraSenha(Membro entidade) {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
@@ -186,6 +196,7 @@ public class AcessoServiceImpl implements AcessoService {
         daoService.update(membro);
     }
 
+    @Audit
     @Override
     public void solicitaRedefinicaoSenha(String email) {
         Membro membro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.createSingle(email, sessaoBean.getChaveIgreja()));
@@ -209,6 +220,7 @@ public class AcessoServiceImpl implements AcessoService {
                 new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
     }
 
+    @Audit
     @Override
     public Membro redefineSenha(String jwt) {
         JWTManager.JWTReader reader = JWTManager.reader(jwt);

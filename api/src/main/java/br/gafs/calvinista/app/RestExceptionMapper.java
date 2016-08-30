@@ -37,14 +37,14 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
         
         try{
             throw ExceptionUnwrapperUtil.unwrappException(e0);
+        }catch(ValidationException e){
+            status = Response.Status.BAD_REQUEST;
+            dto = new ErrosDTO(e);
         }catch(ServiceException e){
             status = Response.Status.BAD_REQUEST;
             dto = new ErrosDTO(e);
         }catch(SecurityException e){
             status = Response.Status.FORBIDDEN;
-            dto = new ErrosDTO(e);
-        }catch(ValidationException e){
-            status = Response.Status.BAD_REQUEST;
             dto = new ErrosDTO(e);
         }catch(ServiceExceptionList e){
             status = Response.Status.BAD_REQUEST;
