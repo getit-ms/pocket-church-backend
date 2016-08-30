@@ -1277,7 +1277,7 @@ public class AppServiceImpl implements AppService {
                     }
                     
                     NumberFormat nformat = NumberFormat.getInstance(new Locale(evento.getIgreja().getLocale()));
-                    nformat.setCurrency(Currency.getInstance(new Locale(evento.getIgreja().getLocale())));
+                    nformat.setCurrency(Currency.getInstance(new Locale(evento.getIgreja().getLocale().replace("-", "_"))));
                     nformat.setMaximumFractionDigits(2);
                     nformat.setMinimumFractionDigits(2);
                     
