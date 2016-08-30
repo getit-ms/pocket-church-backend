@@ -82,11 +82,15 @@ public class SessaoBean implements Serializable {
             }
             
             if (StringUtil.isEmpty(chaveDispositivo)){
-                String dispositivo = getUUID();
-                if (StringUtil.isEmpty(dispositivo)){
+                String uuid = getUUID();
+                if (StringUtil.isEmpty(uuid)){
                     chaveDispositivo = "undefined@" + chaveIgreja;
                 }else{
-                    chaveDispositivo = dispositivo + "@" + chaveIgreja;
+                    chaveDispositivo = uuid + "@" + chaveIgreja;
+                    Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+                    if (dispositivo != null){
+                        admin = dispositivo.isAdministrativo();
+                    }
                 }
             }
             
