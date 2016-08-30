@@ -869,12 +869,13 @@ public class AppServiceImpl implements AppService {
         
         agendamento = daoService.update(agendamento);
         
-        if (!sessaoBean.isAdmin()){
+        if (sessaoBean.isAdmin() || 
+                agendamento.getCalendario().getPastor().getId().equals(sessaoBean.getIdMembro())){
             enviaPush(new FiltroDispositivoDTO(agendamento.getIgreja(), 
-                    agendamento.getCalendario().getPastor().getId()), 
-                    MensagemUtil.getMensagem("push.cancelamento_agendamento_membro.title", agendamento.getIgreja().getLocale()), 
-                MensagemUtil.getMensagem("push.cancelamento_agendamento_membro.message", agendamento.getIgreja().getLocale(), 
-                        agendamento.getMembro().getNome(), 
+                    agendamento.getMembro().getId()), 
+                    MensagemUtil.getMensagem("push.cancelamento_agendamento_pastor.title", agendamento.getIgreja().getLocale()), 
+                MensagemUtil.getMensagem("push.cancelamento_agendamento_pastor.message", agendamento.getIgreja().getLocale(), 
+                        agendamento.getCalendario().getPastor().getNome(), 
                         MensagemUtil.formataData(agendamento.getDataHoraInicio(), 
                                 agendamento.getIgreja().getLocale(), 
                                 agendamento.getIgreja().getTimezone()), 
@@ -886,10 +887,10 @@ public class AppServiceImpl implements AppService {
                                 agendamento.getIgreja().getTimezone())));
         }else{
             enviaPush(new FiltroDispositivoDTO(agendamento.getIgreja(), 
-                    agendamento.getMembro().getId()), 
-                    MensagemUtil.getMensagem("push.cancelamento_agendamento_pastor.title", agendamento.getIgreja().getLocale()), 
-                MensagemUtil.getMensagem("push.cancelamento_agendamento_pastor.message", agendamento.getIgreja().getLocale(), 
-                        agendamento.getCalendario().getPastor().getNome(), 
+                    agendamento.getCalendario().getPastor().getId()), 
+                    MensagemUtil.getMensagem("push.cancelamento_agendamento_membro.title", agendamento.getIgreja().getLocale()), 
+                MensagemUtil.getMensagem("push.cancelamento_agendamento_membro.message", agendamento.getIgreja().getLocale(), 
+                        agendamento.getMembro().getNome(), 
                         MensagemUtil.formataData(agendamento.getDataHoraInicio(), 
                                 agendamento.getIgreja().getLocale(), 
                                 agendamento.getIgreja().getTimezone()), 
