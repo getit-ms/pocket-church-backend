@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -25,6 +26,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -113,11 +115,19 @@ public class AndroidNotificationService implements Serializable {
     }
 
     @Data
-    @AllArgsConstructor
-    public class NotificationDTO implements DTO {
-        private String message;
-        private String title;
-        private String icon;
+    @NoArgsConstructor
+    public class NotificationDTO extends HashMap<String, Object> {
+
+        private NotificationDTO(String message, String title, String icon) {
+            put("message", message);
+            put("title", title);
+            put("icon", icon);
+            put("content-available", 1);
+        }
+
+        private String getMessage() {
+            return (String) get("message");
+        }
     }
 }
 
