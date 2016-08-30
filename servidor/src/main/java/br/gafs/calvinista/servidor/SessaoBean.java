@@ -84,7 +84,7 @@ public class SessaoBean implements Serializable {
             String dispositivo = get("Dispositivo");
             if (!StringUtil.isEmpty(dispositivo) &&
                     !(dispositivo + "@" + chaveIgreja).equals(chaveDispositivo)){
-                dispositivo(dispositivo);
+                chaveDispositivo = "undefined";
             }
             
             boolean deprecated = creation == null || 
@@ -121,14 +121,12 @@ public class SessaoBean implements Serializable {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
 
         if (dispositivo == null){
-            synchronized (SessaoBean.class){
-                dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+            dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
 
-                if (dispositivo == null){
-                    Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
-                    dispositivo = daoService.update(new Dispositivo(uuid, igreja));
-                    daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
-                }
+            if (dispositivo == null){
+                Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
+                dispositivo = daoService.update(new Dispositivo(uuid, igreja));
+                daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
             }
         }
 
