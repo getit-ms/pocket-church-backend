@@ -81,10 +81,13 @@ public class SessaoBean implements Serializable {
                 }
             }
             
-            String dispositivo = get("Dispositivo");
-            if (!StringUtil.isEmpty(dispositivo) &&
-                    !(dispositivo + "@" + chaveIgreja).equals(chaveDispositivo)){
-                chaveDispositivo = "undefined";
+            if (StringUtil.isEmpty(chaveDispositivo)){
+                String dispositivo = getUUID();
+                if (StringUtil.isEmpty(dispositivo)){
+                    chaveDispositivo = "undefined@" + chaveIgreja;
+                }else{
+                    chaveDispositivo = dispositivo + "@" + chaveIgreja;
+                }
             }
             
             boolean deprecated = creation == null || 
@@ -114,31 +117,6 @@ public class SessaoBean implements Serializable {
                 funcionalidades.add(funcionalidade.getCodigo());
             }
         }
-    }
-    
-    public void dispositivo(String uuid) {
-        String chaveDispositivo = uuid + "@" + chaveIgreja;
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
-
-        if (dispositivo == null){
-            dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
-
-            if (dispositivo == null){
-                Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
-                dispositivo = daoService.update(new Dispositivo(uuid, igreja));
-                daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
-            }
-        }
-
-        this.chaveDispositivo = chaveDispositivo;
-        this.admin = dispositivo.isAdministrativo();
-
-        set();
-    }
-    
-    private Preferencias preparaPreferencias(Preferencias preferencias){
-        preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(getChaveIgreja())));
-        return preferencias;
     }
     
     private void set(){
@@ -222,6 +200,10 @@ public class SessaoBean implements Serializable {
         this.funcionalidades.clear();
         
         set();
+    }
+
+    public String getUUID() {
+        return get("Dispositivo");
     }
     
 }

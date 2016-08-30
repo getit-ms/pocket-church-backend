@@ -67,10 +67,26 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
+        Dispositivo dispositivo = dispositivo();
         dispositivo.registerToken(tipoDispositivo, pushKey, version);
         daoService.update(dispositivo);
-        sessaoBean.dispositivo(dispositivo.getUuid());
+    }
+    
+    private Dispositivo dispositivo() {
+        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
+
+        if (dispositivo == null){
+            Igreja igreja = daoService.find(Igreja.class, sessaoBean.getChaveIgreja());
+            dispositivo = daoService.update(new Dispositivo(sessaoBean.getUUID(), igreja));
+            daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
+        }
+        
+        return dispositivo;
+    }
+    
+    private Preferencias preparaPreferencias(Preferencias preferencias){
+        preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja())));
+        return preferencias;
     }
 
     @Override
