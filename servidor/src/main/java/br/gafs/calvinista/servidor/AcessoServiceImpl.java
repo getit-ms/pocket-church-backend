@@ -91,7 +91,7 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public Preferencias buscaPreferencis() {
-        return daoService.find(Preferencias.class, sessaoBean.getChaveDispositivo());
+        return daoService.find(Preferencias.class, dispositivo().getChave());
     }
     
     @Override
@@ -152,7 +152,7 @@ public class AcessoServiceImpl implements AcessoService {
         Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
         
         if (membro != null && membro.isMembro()){
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
+            Dispositivo dispositivo = dispositivo();
             dispositivo.setMembro(membro);
             daoService.update(dispositivo);
             

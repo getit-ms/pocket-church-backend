@@ -51,8 +51,8 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizaLogin(final RequisicaoLoginDTO req){
-        Membro membro = acessoService.login(req.getUsername(), SenhaUtil.encryptSHA256(req.getPassword()));
         acessoService.registerPush(req.getTipoDispositivo(), null, req.getVersion());
+        Membro membro = acessoService.login(req.getUsername(), SenhaUtil.encryptSHA256(req.getPassword()));
         return Response.status(Response.Status.OK).entity(acesso(membro)).build();
     }
     
