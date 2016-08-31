@@ -35,8 +35,8 @@ public class PagSeguroService {
     public StatusPagamento getStatusPagamento(String referencia, ConfiguracaoIgrejaDTO configuracao) {
         try {
             TransactionSearchResult searchByReference = TransactionSearchService.
-                    searchByReference(getCredentialsPagSeguro(configuracao), referencia,
-                            DateUtil.decrementaDia(DateUtil.getDataAtual(), 2));
+                    searchByReference(DateUtil.decrementaDia(DateUtil.getDataAtual(), 2),
+                            getCredentialsPagSeguro(configuracao), referencia);
 
             Date data = null;
             int status = 0;
