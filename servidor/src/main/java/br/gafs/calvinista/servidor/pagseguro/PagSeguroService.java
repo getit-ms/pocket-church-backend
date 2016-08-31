@@ -10,6 +10,7 @@ import br.com.uol.pagseguro.service.TransactionSearchService;
 import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
 import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
+import br.gafs.util.date.DateUtil;
 import lombok.*;
 
 import javax.ejb.Stateless;
@@ -34,7 +35,8 @@ public class PagSeguroService {
     public StatusPagamento getStatusPagamento(String referencia, ConfiguracaoIgrejaDTO configuracao) {
         try {
             TransactionSearchResult searchByReference = TransactionSearchService.
-                    searchByReference(getCredentialsPagSeguro(configuracao), referencia);
+                    searchByReference(getCredentialsPagSeguro(configuracao), referencia,
+                            DateUtil.decrementaDia(DateUtil.getDataAtual(), 2));
 
             Date data = null;
             int status = 0;
