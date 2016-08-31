@@ -1395,7 +1395,7 @@ public class AppServiceImpl implements AppService {
                                 evento.getNome(), nformat.format(total), institucional.getEmail());
 
                         notificacaoService.sendNow(
-                                MensagemUtil.email(recuperaInstitucional(), subject,
+                                MensagemUtil.email(institucional, subject,
                                         new CalvinEmailDTO(null, Arrays.asList(new CalvinEmailDTO.Materia(title, text)))), 
                                 new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
                     }
