@@ -1253,14 +1253,14 @@ public class AppServiceImpl implements AppService {
                 ConfiguracaoIgrejaDTO configuracao = buscaConfiguracao();
                 if (configuracao != null && configuracao.isHabilitadoPagSeguro()){
                     String referencia = sessaoBean.getChaveIgreja().toUpperCase() +
-                            Long.toString(System.currentTimeMillis(), 36);
+                            Long.toString(System.currentTimeMillis(), 36).toUpperCase();
 
                     PagSeguroService.Pedido pedido = new PagSeguroService.Pedido(referencia,
                             new PagSeguroService.Solicitante(membro.getNome(), membro.getEmail()));
 
                     for (InscricaoEvento inscricao : inscricoes){
                         pedido.add(new PagSeguroService.ItemPedido(
-                            Long.toString(inscricao.getId(), 36),
+                            Long.toString(inscricao.getId(), 36).toUpperCase(),
                             MensagemUtil.getMensagem("pagseguro.inscricao.item", evento.getIgreja().getLocale(),
                                     inscricao.getEvento().getNome(), inscricao.getNomeInscrito()),
                             1,
@@ -1277,10 +1277,7 @@ public class AppServiceImpl implements AppService {
                     }
                     
                     Locale locale = Locale.forLanguageTag(evento.getIgreja().getLocale());
-                    NumberFormat nformat = NumberFormat.getInstance(locale);
-                    nformat.setCurrency(Currency.getInstance(locale));
-                    nformat.setMaximumFractionDigits(2);
-                    nformat.setMinimumFractionDigits(2);
+                    NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
                     
                     String subject = MensagemUtil.getMensagem("email.pagamento_inscricao.subject", evento.getIgreja().getLocale());
                     String title = MensagemUtil.getMensagem("email.pagamento_inscricao.message.title", evento.getIgreja().getLocale(), membro.getNome());
@@ -1344,11 +1341,11 @@ public class AppServiceImpl implements AppService {
         return paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", minute = "0/15")
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
-            ConfiguracaoIgrejaDTO configuracao = buscaConfiguracao();
+            ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(igreja.getChave());
             if (configuracao != null && configuracao.isPagSeguroConfigurado()){
                 List<String> referencias = daoService.findWith(QueryAdmin.REFERENCIAS_INSCRICOES_PENDENTES.create(igreja.getChave()));
 
@@ -1374,7 +1371,7 @@ public class AppServiceImpl implements AppService {
                 {
                     List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
                     for (InscricaoEvento inscricao : inscricoes){
-                        inscricao.confirmada();
+                        inscricao.cancelada();
                         daoService.update(inscricao);
                     }
                     break;

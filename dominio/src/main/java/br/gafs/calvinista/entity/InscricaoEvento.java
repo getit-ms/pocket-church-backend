@@ -132,6 +132,10 @@ public class InscricaoEvento implements IEntity {
         status = StatusInscricaoEvento.CONFIRMADA;
     }
     
+    public void cancelada(){
+        status = StatusInscricaoEvento.CANCELADA;
+    }
+    
     public boolean isConfirmada(){
         return StatusInscricaoEvento.CONFIRMADA.equals(status);
     }
