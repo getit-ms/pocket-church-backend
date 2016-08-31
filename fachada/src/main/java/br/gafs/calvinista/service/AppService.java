@@ -150,5 +150,9 @@ public interface AppService extends Serializable {
     List<Funcionalidade> getFuncionalidadesAplicativo();
 
     List<ReleaseNotes> buscaReleaseNotes(TipoVersao tipo);
+
+    void verificaPagSeguroPorCodigo(String code);
+
+    void verificaPagSeguroPorIdTransacao(String transactionId);
     
 }

@@ -1341,6 +1341,18 @@ public class AppServiceImpl implements AppService {
         return paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
     }
 
+    @Override
+    public void verificaPagSeguroPorCodigo(String code) {
+        ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
+        atualizaSituacaoPagSeguro(pagSeguroService.buscaReferenciaPorCodigo(code, configuracao), configuracao);
+    }
+
+    @Override
+    public void verificaPagSeguroPorIdTransacao(String transactionId) {
+        ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
+        atualizaSituacaoPagSeguro(pagSeguroService.buscaReferenciaIdTransacao(transactionId, configuracao), configuracao);
+    }
+
     @Schedule(hour = "*", minute = "0/15")
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
@@ -1361,10 +1373,33 @@ public class AppServiceImpl implements AppService {
             case PAGO:
                 {
                     List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
-                    for (InscricaoEvento inscricao : inscricoes){
-                        inscricao.confirmada();
-                        daoService.update(inscricao);
+                    
+                    if (!inscricoes.isEmpty()){
+                        Membro membro = inscricoes.get(0).getMembro();
+                        Evento evento = inscricoes.get(0).getEvento();
+                        Institucional institucional = daoService.find(Institucional.class, evento.getIgreja().getChave());
+                        BigDecimal total = BigDecimal.ZERO;
+                        
+                        for (InscricaoEvento inscricao : inscricoes){
+                            inscricao.confirmada();
+                            daoService.update(inscricao);
+                            total = total.add(inscricao.getValor());
+                        }
+                        
+                        Locale locale = Locale.forLanguageTag(evento.getIgreja().getLocale());
+                        NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
+
+                        String subject = MensagemUtil.getMensagem("email.confirmacao_inscricao.subject", evento.getIgreja().getLocale());
+                        String title = MensagemUtil.getMensagem("email.confirmacao_inscricao.message.title", evento.getIgreja().getLocale(), membro.getNome());
+                        String text = MensagemUtil.getMensagem("email.confirmacao_inscricao.message.text", evento.getIgreja().getLocale(), 
+                                evento.getNome(), nformat.format(total), institucional.getEmail());
+
+                        notificacaoService.sendNow(
+                                MensagemUtil.email(recuperaInstitucional(), subject,
+                                        new CalvinEmailDTO(null, Arrays.asList(new CalvinEmailDTO.Materia(title, text)))), 
+                                new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
                     }
+                    
                 }
                 break;
             case CANCELADO:
