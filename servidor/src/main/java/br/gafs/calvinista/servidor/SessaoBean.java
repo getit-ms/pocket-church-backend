@@ -184,6 +184,12 @@ public class SessaoBean implements Serializable {
         load();
         return admin;
     }
+    
+    public void dispositivo(boolean admin){
+        this.admin = admin;
+        
+        set();
+    }
 
     public void login(Long idMembro){
         this.idMembro = idMembro;

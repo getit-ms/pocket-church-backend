@@ -73,7 +73,8 @@ public class AcessoServiceImpl implements AcessoService {
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
         Dispositivo dispositivo = dispositivo();
         dispositivo.registerToken(tipoDispositivo, pushKey, version);
-        daoService.update(dispositivo);
+        dispositivo = daoService.update(dispositivo);
+        sessaoBean.dispositivo(dispositivo.isAdministrativo());
     }
     
     private Dispositivo dispositivo() {
