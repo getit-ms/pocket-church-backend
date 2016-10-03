@@ -47,7 +47,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = {"id", "igreja"})
 @EntityListeners(EntityFileManager.class)
 @NamedQueries({
-    @NamedQuery(name = "Arquivo.findVencidos", query = "select a from Arquivo a where a.timeout <= CURRENT_DATE"),
+    @NamedQuery(name = "Arquivo.findVencidos", query = "select a from Arquivo a where a.id not in (select aa.id from Arquivo aa where aa.id = a.id and aa.timeout is null) and a.timeout <= CURRENT_DATE"),
     @NamedQuery(name = "Arquivo.registraDesuso", query = "update Arquivo a set a.timeout = :timeout where a.id = :arquivo and a.igreja.chave = :igreja"),
     @NamedQuery(name = "Arquivo.registraUso", query = "update Arquivo a set a.timeout = null where a.id = :arquivo and a.igreja.chave = :igreja"),
 })
