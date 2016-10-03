@@ -10,6 +10,7 @@ import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoVersao;
 import br.gafs.dao.BuscaPaginadaDTO;
+import java.io.File;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -154,5 +155,7 @@ public interface AppService extends Serializable {
     void verificaPagSeguroPorCodigo(String code);
 
     void verificaPagSeguroPorIdTransacao(String transactionId);
+
+    File buscaAjuda(String path);
     
 }

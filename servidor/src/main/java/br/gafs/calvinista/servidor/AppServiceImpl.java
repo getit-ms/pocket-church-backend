@@ -460,6 +460,14 @@ public class AppServiceImpl implements AppService {
         trataPDF(cifra);
         return daoService.create(cifra);
     }
+
+    @Override
+    public File buscaAjuda(String path) {
+        return new File(new File(ResourceBundleUtil._default().getPropriedade("RESOURCES_ROOT"), "ajuda"), path);
+    }
+
+    public AppServiceImpl() {
+    }
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
