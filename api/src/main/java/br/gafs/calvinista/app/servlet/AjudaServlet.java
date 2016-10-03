@@ -35,7 +35,7 @@ public class AjudaServlet extends HttpServlet {
     private AppService appService;
     
     @Override
-    protected void doPost(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String path = req.getRequestURI().replaceAll("/?ajuda/?", "");
         
         File file = appService.buscaAjuda(path);
