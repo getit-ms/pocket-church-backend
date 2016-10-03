@@ -38,16 +38,10 @@ public enum TipoParametro {
     TITULO_BOLETIM(TipoValor.VALOR, String.class, null),
     TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
     
-    BANNER_IGREJA(TipoValor.ANEXO, byte[].class, null),
-    ICON_IGREJA(TipoValor.ANEXO, byte[].class, null),
-    APK_KEY_KEYSTORE(TipoValor.ANEXO, byte[].class, null),
-    APK_KEY_PASSWORD(TipoValor.VALOR, String.class, null),
-    APK_KEY_ALIAS(TipoValor.VALOR, String.class, null),
-    
     PUSH_ANDROID_KEY(TipoValor.VALOR, String.class, null),
     PUSH_ANDROID_SENDER_ID(TipoValor.VALOR, String.class, null),
     PUSH_IOS_PASS(TipoValor.VALOR, String.class, null),
-    PUSH_IOS_CERTIFICADO(TipoValor.ANEXO, byte[].class, null),
+    PUSH_IOS_CERTIFICADO(TipoValor.ANEXO, byte[].class, null)
             
     ;
     

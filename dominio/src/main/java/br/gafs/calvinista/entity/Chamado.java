@@ -32,6 +32,14 @@ public class Chamado implements IEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_solicitacao", nullable = false)
     private Date dataSolicitacao = new Date();
+    
+    @Setter
+    @Column(name = "nome_solicitante", nullable = false)
+    private String nomeSolicitante;
+    
+    @Setter
+    @Column(name = "email_solicitante", nullable = false)
+    private String emailSolicitante;
 
     @ManyToOne
     @JsonIgnore
@@ -100,5 +108,9 @@ public class Chamado implements IEntity {
         this.dispositivoSolicitante = dispositivoSolicitante;
         this.igrejaSolicitante = dispositivoSolicitante.getIgreja();
         this.membroSolicitante = dispositivoSolicitante.getMembro();
+        if (this.membroSolicitante != null){
+            this.nomeSolicitante = membroSolicitante.getNome();
+            this.emailSolicitante = membroSolicitante.getEmail();
+        }
     }
 }

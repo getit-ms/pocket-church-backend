@@ -141,7 +141,7 @@ public class AppServiceImpl implements AppService {
         EmailUtil.sendMail(
                 MessageFormat.format(ResourceBundleUtil._default().getPropriedade("CHAMADO_MESSAGE"),
                         chamado.getDescricao(), chamado.getIgrejaSolicitante().getNome(), 
-                        chamado.getMembroSolicitante() != null ? chamado.getMembroSolicitante().getNome() : "",
+                        chamado.getNomeSolicitante(), chamado.getEmailSolicitante(),
                         chamado.getDispositivoSolicitante().getUuid(),
                         chamado.getDispositivoSolicitante().getVersao()), 
                 MessageFormat.format(ResourceBundleUtil._default().getPropriedade("CHAMADO_SUBJECT"), 

@@ -16,18 +16,6 @@ import lombok.Data;
  */
 @Data
 public class ParametrosIgrejaDTO implements DTO {
-    @Mapping(TipoParametro.BANNER_IGREJA)
-    private byte[] banner;
-    @Mapping(TipoParametro.ICON_IGREJA)
-    private byte[] icon;
-    
-    @Mapping(TipoParametro.APK_KEY_KEYSTORE)
-    private byte[] apkKeyKeystore;
-    @Mapping(TipoParametro.APK_KEY_PASSWORD)
-    private String apkKeyPassword;
-    @Mapping(TipoParametro.APK_KEY_ALIAS)
-    private String apkKeyAlias;
-    
     @Mapping(TipoParametro.PUSH_ANDROID_KEY)
     private String pushAndroidKey;
     @Mapping(TipoParametro.PUSH_IOS_CERTIFICADO)

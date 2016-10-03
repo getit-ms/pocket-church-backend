@@ -73,10 +73,6 @@ public class ReportBuilder {
     private JasperPrint print() throws JRException{
         Map<String, Object> args = new HashMap<String, Object>();
         
-        if (this.parametros.getIcon() != null){
-            args.put("logo", new ByteArrayInputStream(this.parametros.getIcon()));
-        }
-        
         args.put("igreja", this.igreja.getNome());
         args.put("args", this.args);
         args.put("values", this.data);

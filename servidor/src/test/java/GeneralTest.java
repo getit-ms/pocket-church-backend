@@ -63,21 +63,22 @@ public class GeneralTest {
         Thread.sleep(60000);
     }
     
-//    @Test
-    public void testaJSON() throws IOException{
+    @Test
+    public void testaJSON() throws IOException, InterruptedException{
         Igreja igreja = new Igreja();
-        igreja.setNome("Igreja Teste");
+        igreja.setChave("tst");
+        igreja.setNome("Igreja Presbiteriana de Tambaú");
         Institucional institucional = new Institucional(igreja);
-        institucional.setSite("www.siteexemplo.com.br");
+        institucional.setSite("https://getitmobilesolutions.com");
         MensagemEmailDTO email = MensagemUtil.email(institucional, "Igreja Presbiteriana Nacional - Novo Acesso",
                 new CalvinEmailDTO(new CalvinEmailDTO.Manchete("Bem Vindo, Gabriel Silva", "Sua senha para acesso ao aplicativo Igreja Presbiteriana Nacional é 1234asdf. Após realizar o primeiro acesso lembre-se de fazer a troca para uma senha de sua escolha.",
-                        "http://calvin.projetos-gafs.com", "Projetos Calvin"), Collections.EMPTY_LIST));
+                        "https://getitmobilesolutions.com", "Projetos Calvin"), Collections.EMPTY_LIST));
         
-        ObjectMapper om = new ObjectMapper();
-        System.out.println(om.writeValueAsString(email));
+        EmailUtil.sendMail(email.getMessage(), email.getSubject(), Arrays.asList("gafsel@gmail.com"), email.getDataSources(), email.getAttachmentsNames());
+        Thread.sleep(10000);
     }
     
-    @Test
+//    @Test
     public void testaExtairTextoPDF() throws Exception{
         PDDocument pdffile = PDDocument.load(GeneralTest.class.getResourceAsStream("/p02.pdf"));
         

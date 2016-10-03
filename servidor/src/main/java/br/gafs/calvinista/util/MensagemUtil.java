@@ -5,10 +5,14 @@
  */
 package br.gafs.calvinista.util;
 
+import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
+import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Institucional;
+import java.io.File;
+import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,16 +39,16 @@ public class MensagemUtil {
         StringBuilder content = new StringBuilder();
         
         if (email.getManchete() != null){
-            content.append(loadManchete(email.getManchete(), attachments, attachNames));
+            content.append(loadManchete(institucional, email.getManchete(), attachments, attachNames));
         }
         
         for (Materia materia : email.getMaterias()){
             if (materia instanceof CalvinEmailDTO.MateriaIlustrada){
-                content.append(loadMateriaIlustrada((CalvinEmailDTO.MateriaIlustrada) materia, attachments, attachNames));
+                content.append(loadMateriaIlustrada(institucional, (CalvinEmailDTO.MateriaIlustrada) materia, attachments, attachNames));
             }else if (materia instanceof CalvinEmailDTO.MateriaDupla){
-                content.append(loadMateriaDupla((CalvinEmailDTO.MateriaDupla) materia, attachments, attachNames));
+                content.append(loadMateriaDupla(institucional, (CalvinEmailDTO.MateriaDupla) materia, attachments, attachNames));
             }else{
-                content.append(loadMateria(materia, attachments, attachNames));
+                content.append(loadMateria(institucional, materia, attachments, attachNames));
             }
         }
         
@@ -72,43 +76,47 @@ public class MensagemUtil {
         return formatter.format(data);
     }
 
-    private static String loadManchete(CalvinEmailDTO.Manchete manchete, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
+    private static String loadManchete(Institucional institucional, CalvinEmailDTO.Manchete manchete, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
         Map<String, String> args = new HashMap<String, String>();
         args.put("titulo", manchete.getTitulo());
         args.put("texto", manchete.getTexto());
         args.put("link.url", manchete.getLinkURL());
         args.put("link.texto", manchete.getLinkTexto());
         args.put("img_fundo", "cid:attachment" + attachments.size());
-        attachments.add(new MensagemEmailDTO.Anexo(MensagemUtil.class.getResource("/mensagem/email/img_fundo.png").toString(), MensagemEmailDTO.TipoAnexo.URL));
+        attachments.add(new MensagemEmailDTO.Anexo(resource(institucional.getIgreja().getChave(), "/email/img_fundo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
         attachNames.add("img_fundo.png");
-        return load("/mensagem/email/titulo-manchete.html", args);
+        return load(institucional.getIgreja(), "/email/titulo-manchete.html", args);
     }
     
     private final static Pattern dataPattern = Pattern.compile("\\{\\{[^\\}]+\\}\\}");
     
-    private static String load(String resource, Map<String, String> args){
-        Scanner scn = new Scanner(MensagemUtil.class.getResourceAsStream(resource), "UTF-8");
-        
-        StringBuilder str = new StringBuilder();
-        while (scn.hasNext()){
-            str.append(scn.nextLine().trim());
+    private static String load(Igreja igreja, String resource, Map<String, String> args){
+        try{
+            Scanner scn = new Scanner(new FileInputStream(resource(igreja.getChave(), resource)), "UTF-8");
+
+            StringBuilder str = new StringBuilder();
+            while (scn.hasNext()){
+                str.append(scn.nextLine().trim());
+            }
+
+            scn.close();
+
+            Matcher matcher = dataPattern.matcher(str);
+
+            while (matcher.find()){
+                String value = args.get(matcher.group().replaceAll("[\\{\\}]", ""));
+                if (value == null) value = "";
+                str.replace(matcher.start(), matcher.end(), value);
+                matcher = dataPattern.matcher(str);
+            }
+
+            return str.toString();
+        }catch(Exception e){
+            throw new RuntimeException(e);
         }
-        
-        scn.close();
-        
-        Matcher matcher = dataPattern.matcher(str);
-        
-        while (matcher.find()){
-            String value = args.get(matcher.group().replaceAll("[\\{\\}]", ""));
-            if (value == null) value = "";
-            str.replace(matcher.start(), matcher.end(), value);
-            matcher = dataPattern.matcher(str);
-        }
-        
-        return str.toString();
     }
 
-    private static String loadMateriaIlustrada(CalvinEmailDTO.MateriaIlustrada materia, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
+    private static String loadMateriaIlustrada(Institucional institucional, CalvinEmailDTO.MateriaIlustrada materia, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
         Map<String, String> args = new HashMap<String, String>();
         args.put("titulo", materia.getTitulo());
         args.put("texto", materia.getTexto());
@@ -117,23 +125,23 @@ public class MensagemUtil {
         args.put("imagem", "cid:attachment" + attachments.size());
         attachments.add(new MensagemEmailDTO.Anexo(materia.getImagem().getAbsolutePath(), MensagemEmailDTO.TipoAnexo.ARQUIVO));
         attachNames.add("imagem" + attachments.size() + ".png");
-        return load("/mensagem/email/materia-ilustrada-link.html", args);
+        return load(institucional.getIgreja(), "/email/materia-ilustrada-link.html", args);
     }
 
-    private static String loadMateriaDupla(CalvinEmailDTO.MateriaDupla materia, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
+    private static String loadMateriaDupla(Institucional institucional, CalvinEmailDTO.MateriaDupla materia, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
         Map<String, String> args = new HashMap<String, String>();
         args.put("titulo1", materia.getTitulo());
         args.put("texto1", materia.getTexto());
         args.put("titulo2", materia.getTitulo2());
         args.put("texto2", materia.getTexto2());
-        return load("/mensagem/email/materia-double.html", args);
+        return load(institucional.getIgreja(), "/email/materia-double.html", args);
     }
 
-    private static String loadMateria(CalvinEmailDTO.Materia materia, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
+    private static String loadMateria(Institucional institucional, CalvinEmailDTO.Materia materia, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
         Map<String, String> args = new HashMap<String, String>();
         args.put("titulo", materia.getTitulo());
         args.put("texto", materia.getTexto());
-        return load("/mensagem/email/materia-single.html", args);
+        return load(institucional.getIgreja(), "/email/materia-single.html", args);
     }
 
     private static String loadEmail(Institucional institucional, String content, List<MensagemEmailDTO.Anexo> attachments, List<String> attachNames) {
@@ -142,8 +150,12 @@ public class MensagemUtil {
         args.put("igreja.nome", institucional.getIgreja().getNome());
         args.put("igreja.site", institucional.getSite());
         args.put("logo", "cid:attachment" + attachments.size());
-        attachments.add(new MensagemEmailDTO.Anexo(MensagemUtil.class.getResource("/mensagem/email/logo.png").toString(), MensagemEmailDTO.TipoAnexo.URL));
+        attachments.add(new MensagemEmailDTO.Anexo(resource(institucional.getIgreja().getChave(), "/email/logo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
         attachNames.add("logo.png");
-        return load("/mensagem/email.html", args);
+        return load(institucional.getIgreja(), "/email.html", args);
+    }
+    
+    private static String resource(String igreja, String path){
+        return new File(new File(new File(ResourceBundleUtil._default().getPropriedade("RESOURCES_ROOT"), "mensagem"), igreja), path).getAbsolutePath();
     }
 }
