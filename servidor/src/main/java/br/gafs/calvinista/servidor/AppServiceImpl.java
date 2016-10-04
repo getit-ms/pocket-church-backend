@@ -87,8 +87,7 @@ public class AppServiceImpl implements AppService {
         StatusAdminDTO status = new StatusAdminDTO();
         status.setVersiculoDiario(buscaVersiculoDiario());
         
-        List<Funcionalidade> funcionalidades = acessoService.getFuncionalidadesMembro();
-        if (funcionalidades.contains(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)){
+        if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)){
             Number pedidos = daoService.findWith(new FiltroPedidoOracao(null, sessaoBean.getChaveIgreja(), 
                     new FiltroPedidoOracaoDTO(null, null, Arrays.asList(StatusPedidoOracao.PENDENTE), 1, 10)).getCountQuery());
 
@@ -462,8 +461,11 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AllowAdmin
     public File buscaAjuda(String path) {
-        return new File(new File(ResourceBundleUtil._default().getPropriedade("RESOURCES_ROOT"), "ajuda"), path);
+        Igreja igreja = daoService.find(Igreja.class, sessaoBean.getChaveIgreja());
+        return new File(new File(new File(ResourceBundleUtil._default().
+                getPropriedade("RESOURCES_ROOT"), "ajuda"), igreja.getLocale()), path);
     }
 
     public AppServiceImpl() {
