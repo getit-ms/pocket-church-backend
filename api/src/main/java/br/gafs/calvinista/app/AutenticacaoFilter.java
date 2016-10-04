@@ -5,20 +5,8 @@
 */
 package br.gafs.calvinista.app;
 
-import br.gafs.calvinista.entity.Dispositivo;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Preferencias;
-import br.gafs.calvinista.entity.domain.Funcionalidade;
-import br.gafs.calvinista.service.AcessoService;
-import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.sessao.SessionDataManager;
-import br.gafs.exceptions.ServiceException;
-import br.gafs.util.string.StringUtil;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.ejb.EJB;
-import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,14 +21,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Gabriel
  */
-@WebFilter(urlPatterns = "/rest/*")
+@WebFilter(urlPatterns = {"/rest/*","/ajuda/*"})
 public class AutenticacaoFilter implements Filter {
-    
-    @EJB
-    private AcessoService acessoService;
-    
-    @EJB
-    private AppService appService;
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
