@@ -122,6 +122,7 @@ public class AndroidNotificationService implements Serializable {
             put("message", message);
             put("title", title);
             put("icon", icon);
+            put("style", "inbox");
             put("content-available", 1);
         }
 
