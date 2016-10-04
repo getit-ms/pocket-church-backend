@@ -28,7 +28,7 @@ public class PagSeguroServlet extends HttpServlet {
     
     @Override
     protected void doPost(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final String igreja = req.getRequestURI().replaceAll("/?pagseguro/?", "");
+        final String igreja = req.getRequestURI().replaceAll("(.+/)?pagseguro/?", "");
         
         String code = req.getParameter("notificationCode");
         String type = req.getParameter("notificationType");
