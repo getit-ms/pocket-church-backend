@@ -705,7 +705,7 @@ public class AppServiceImpl implements AppService {
 
         notificacao = daoService.create(notificacao);
 
-        FiltroDispositivoDTO filtro = new FiltroDispositivoDTO(notificacao.getIgreja());
+        FiltroDispositivoNotificacaoDTO filtro = new FiltroDispositivoNotificacaoDTO(notificacao.getIgreja());
         filtro.setApenasMembros(notificacao.isApenasMembros());
         for (Ministerio m : notificacao.getMinisteriosAlvo()){
             filtro.getMinisterios().add(m.getId());
@@ -825,7 +825,7 @@ public class AppServiceImpl implements AppService {
         entidade.atende(buscaMembro(sessaoBean.getIdMembro()));
         entidade = daoService.update(entidade);
         
-        enviaPush(new FiltroDispositivoDTO(entidade.getIgreja(), 
+        enviaPush(new FiltroDispositivoNotificacaoDTO(entidade.getIgreja(), 
                 entidade.getSolicitante().getId()), 
                 MensagemUtil.getMensagem("push.atendimento_pedido_oracao.title", entidade.getIgreja().getLocale()), 
             MensagemUtil.getMensagem("push.atendimento_pedido_oracao.message", entidade.getIgreja().getLocale(),
@@ -877,7 +877,7 @@ public class AppServiceImpl implements AppService {
         AgendamentoAtendimento atendimento = daoService.create(new AgendamentoAtendimento(membro, horario, data));
         
         if (!sessaoBean.isAdmin()){
-            enviaPush(new FiltroDispositivoDTO(atendimento.getIgreja(), atendimento.getCalendario().getPastor().getId()), 
+            enviaPush(new FiltroDispositivoNotificacaoDTO(atendimento.getIgreja(), atendimento.getCalendario().getPastor().getId()), 
                     MensagemUtil.getMensagem("push.agendamento.title", atendimento.getIgreja().getLocale()), 
                     MensagemUtil.getMensagem("push.agendamento.message", atendimento.getIgreja().getLocale(), 
                             atendimento.getMembro().getNome(), 
@@ -910,7 +910,7 @@ public class AppServiceImpl implements AppService {
         agendamento.confirmado();
         agendamento = daoService.update(agendamento);
         
-        enviaPush(new FiltroDispositivoDTO(agendamento.getIgreja(), agendamento.getMembro().getId()), 
+        enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getIgreja(), agendamento.getMembro().getId()), 
                 MensagemUtil.getMensagem("push.confirmacao_agendamento.title", agendamento.getIgreja().getLocale()), 
                 MensagemUtil.getMensagem("push.confirmacao_agendamento.message", agendamento.getIgreja().getLocale(), 
                         agendamento.getCalendario().getPastor().getNome(), 
@@ -946,7 +946,7 @@ public class AppServiceImpl implements AppService {
         
         if (sessaoBean.isAdmin() || 
                 agendamento.getCalendario().getPastor().getId().equals(sessaoBean.getIdMembro())){
-            enviaPush(new FiltroDispositivoDTO(agendamento.getIgreja(), 
+            enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getIgreja(), 
                     agendamento.getMembro().getId()), 
                     MensagemUtil.getMensagem("push.cancelamento_agendamento_pastor.title", agendamento.getIgreja().getLocale()), 
                 MensagemUtil.getMensagem("push.cancelamento_agendamento_pastor.message", agendamento.getIgreja().getLocale(), 
@@ -961,7 +961,7 @@ public class AppServiceImpl implements AppService {
                                 agendamento.getIgreja().getLocale(), 
                                 agendamento.getIgreja().getTimezone())));
         }else{
-            enviaPush(new FiltroDispositivoDTO(agendamento.getIgreja(), 
+            enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getIgreja(), 
                     agendamento.getCalendario().getPastor().getId()), 
                     MensagemUtil.getMensagem("push.cancelamento_agendamento_membro.title", agendamento.getIgreja().getLocale()), 
                 MensagemUtil.getMensagem("push.cancelamento_agendamento_membro.message", agendamento.getIgreja().getLocale(), 
@@ -1481,7 +1481,7 @@ public class AppServiceImpl implements AppService {
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
                     if (hev.getHoraInt().equals(hora)){
-                        enviaPush(new FiltroDispositivoDTO(igreja, hev), titulo, atual.getVersiculo());
+                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev), titulo, atual.getVersiculo());
                         break;
                     }
                 }
@@ -1511,7 +1511,7 @@ public class AppServiceImpl implements AppService {
                                 igreja.getLocale(), membro.getNome(), igreja.getNome());
                     }
 
-                    enviaPush(new FiltroDispositivoDTO(igreja, membro.getId()), titulo, texto);
+                    enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, membro.getId()), titulo, texto);
                 }
             }
         }
@@ -1531,13 +1531,13 @@ public class AppServiceImpl implements AppService {
                 texto = MensagemUtil.getMensagem("push.boletim.message", igreja.getLocale(), igreja.getNome());
             }
             
-            enviaPush(new FiltroDispositivoDTO(igreja), titulo, texto);
+            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto);
             
             daoService.execute(QueryAdmin.UPDATE_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
 
-    private void enviaPush(FiltroDispositivoDTO filtro, String titulo, String mensagem) {
+    private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem) {
         notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null), filtro);
     }
 

@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class FiltroDispositivoDTO implements DTO {
+public class FiltroDispositivoNotificacaoDTO implements DTO {
     @JsonView(Resumido.class)
     private List<Long> ministerios = new ArrayList<Long>();
     @JsonIgnore
@@ -43,21 +43,21 @@ public class FiltroDispositivoDTO implements DTO {
     @JsonView(Resumido.class)
     private Date aniversario;
 
-    public FiltroDispositivoDTO(Igreja igreja) {
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja) {
         this.igreja = igreja;
     }
 
-    public FiltroDispositivoDTO(Igreja igreja, Date aniversario) {
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja, Date aniversario) {
         this.igreja = igreja;
         this.aniversario = aniversario;
     }
 
-    public FiltroDispositivoDTO(Igreja igreja, Long membro) {
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja, Long membro) {
         this(igreja);
         this.membro = membro;
     }
     
-    public FiltroDispositivoDTO(Igreja igreja, HorasEnvioVersiculo hora) {
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja, HorasEnvioVersiculo hora) {
         this(igreja);
         this.hora = hora;
     }

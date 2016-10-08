@@ -34,17 +34,17 @@ public class IOSNotificationService implements Serializable {
     @EJB
     private ParametroService paramService;
     
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, String... to) {
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... to) {
         pushNotifications(igreja, notification, Arrays.asList(to));
     }
     
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<String> tos) {
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
         try{
             ApnsService service = createApnsService(igreja);
             service.start();
 
-            for (String to : tos) {
-                doSendNotification(notification, to, service);
+            for (Object[] to : tos) {
+                doSendNotification(notification, (String) to[0], (Long) to[1], service);
             }
 
             service.stop();
@@ -63,7 +63,7 @@ public class IOSNotificationService implements Serializable {
         return service;
     }
     
-    private void doSendNotification(MensagemPushDTO notification, String to, ApnsService service) {
+    private void doSendNotification(MensagemPushDTO notification, String to, Long badge, ApnsService service) {
         PayloadBuilder builder = APNS.newPayload();
         
         if (notification.getBadge() != null){
@@ -77,6 +77,7 @@ public class IOSNotificationService implements Serializable {
         LOGGER.log(Level.WARNING, "Push iOS: '" + notification.getMessage() + "' para " + to);
         
         service.push(to, builder.
+                badge(badge.intValue()).
                 alertBody(notification.getMessage()).
                 alertTitle(notification.getTitle()).build());
     }

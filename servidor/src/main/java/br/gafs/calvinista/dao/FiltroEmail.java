@@ -5,7 +5,7 @@
  */
 package br.gafs.calvinista.dao;
 
-import br.gafs.calvinista.dto.FiltroDispositivoDTO;
+import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.entity.domain.StatusMembro;
 import br.gafs.dao.QueryParameters;

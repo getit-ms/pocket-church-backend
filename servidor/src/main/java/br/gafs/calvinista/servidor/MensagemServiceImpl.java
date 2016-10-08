@@ -5,16 +5,15 @@
 */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.dao.FiltroDispositivo;
+import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
-import br.gafs.calvinista.dto.FiltroDispositivoDTO;
+import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.NotificationSchedule;
 import br.gafs.calvinista.entity.domain.NotificationType;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
@@ -72,17 +71,17 @@ public class MensagemServiceImpl implements MensagemService {
     
     private void sendPushNow(final NotificationSchedule notificacao){
         try{
-            sendNow(notificacao, FiltroDispositivoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoDTO, MensagemPushDTO>() {
+            sendNow(notificacao, FiltroDispositivoNotificacaoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoNotificacaoDTO, MensagemPushDTO>() {
                 
                 @Override
-                public void send(FiltroDispositivoDTO filtro, MensagemPushDTO t) throws IOException {
-                    BuscaPaginadaDTO<String> dispositivos;
+                public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
+                    BuscaPaginadaDTO<Object[]> dispositivos;
                     try{
                         filtro.setPagina(1);
                         filtro.setTipo(TipoDispositivo.ANDROID);
                         List<String> failures = new ArrayList<String>();
                         do{
-                            dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
+                            dispositivos = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
 
                             if (!dispositivos.isEmpty()){
                                 failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
@@ -105,7 +104,7 @@ public class MensagemServiceImpl implements MensagemService {
                         filtro.setPagina(1);
                         filtro.setTipo(TipoDispositivo.IPHONE);
                         do{
-                            dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
+                            dispositivos = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
 
                             if (!dispositivos.isEmpty()){
                                 iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
@@ -176,7 +175,7 @@ public class MensagemServiceImpl implements MensagemService {
     
     @Override
     @Asynchronous
-    public void sendNow(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro) {
+    public void sendNow(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro) {
         sendPushNow(sendWhenPossible(notificacao, filtro));
     }
     
@@ -187,7 +186,7 @@ public class MensagemServiceImpl implements MensagemService {
     }
     
     @Override
-    public NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro) {
+    public NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro) {
         return sendLater(notificacao, filtro, DateUtil.getDataAtual());
     }
     
@@ -197,7 +196,7 @@ public class MensagemServiceImpl implements MensagemService {
     }
     
     @Override
-    public NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoDTO filtro, Date dataHora) {
+    public NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro, Date dataHora) {
         try {
             ObjectWriter writer = om.writerWithView(Resumido.class);
             

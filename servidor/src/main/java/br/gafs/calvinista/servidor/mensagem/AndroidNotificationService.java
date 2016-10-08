@@ -42,18 +42,18 @@ public class AndroidNotificationService implements Serializable {
     
     private ObjectMapper om = new ObjectMapper();
     
-    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, String... tos) {
+    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... tos) {
         return pushNotifications(igreja, notification, Arrays.asList(tos));
     }
     
-    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, List<String> tos) {
-        List<String> failures = new ArrayList<String>(tos);
+    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
+        List<String> failures = new ArrayList<String>();
         try {
             String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
             PushAndroidDTO push = new PushAndroidDTO(notification);
-            for (String to : tos) {
-                if (doSendNotification(push.cloneTo(to), chave)){
-                    failures.remove(to);
+            for (Object[] to : tos) {
+                if (!doSendNotification(push.cloneTo((String) to[0], (Long) to[1]), chave)){
+                    failures.add((String) to[0]);
                 }
             }
         } catch (Throwable t) {
@@ -101,10 +101,11 @@ public class AndroidNotificationService implements Serializable {
                     notification.getIcon()));
         }
         
-        public PushAndroidDTO cloneTo(String to) {
+        public PushAndroidDTO cloneTo(String to, Long badge) {
             try {
                 PushAndroidDTO clone = (PushAndroidDTO) this.clone();
                 clone.setTo(to);
+                clone.data.put("badge", badge);
                 return clone;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(PushAndroidDTO.class.getName()).log(Level.SEVERE, null, ex);
