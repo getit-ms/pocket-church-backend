@@ -34,7 +34,7 @@ import lombok.Getter;
     @NamedNativeQuery(name = "SentNotification.marcaComoLido", query = "update tb_sent_notification set lido = true where chave_igreja = #igreja and ((chave_dispositivo = #dispositivo and id_membro is null) or id_membro = #membro)"),
 })
 @NamedQueries({
-    @NamedQuery(name = "SentNotification.countNaoLidos", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where i.chave = :igreja and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)")
+    @NamedQuery(name = "SentNotification.countNaoLidos", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where sn.lido = false and i.chave = :igreja and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)")
 })
 public class SentNotification implements IEntity {
     @Id
