@@ -101,8 +101,10 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowMembro
     public BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
-        return daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(), 
+        BuscaPaginadaDTO<String> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(), 
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
+        marcaNotificacoesComoLidas();
+        return busca;
     }
 
     @Override
@@ -113,8 +115,6 @@ public class AppServiceImpl implements AppService {
                         sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
     }
 
-    @Override
-    @AllowMembro
     public void marcaNotificacoesComoLidas() {
         daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS.
                 create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), 

@@ -9,6 +9,7 @@ import br.gafs.calvinista.dao.FiltroDispositivo;
 import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dao.QueryNotificacao;
+import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.FiltroDispositivoDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
@@ -84,7 +85,6 @@ public class MensagemServiceImpl implements MensagemService {
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             if (!dispositivos.isEmpty()){
-                                daoService.execute(QueryNotificacao.INSERT_SENT_ITENS.create(notificacao.getId(), dispositivos));
                                 failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
                             }else{
                                 Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
@@ -108,7 +108,6 @@ public class MensagemServiceImpl implements MensagemService {
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             if (!dispositivos.isEmpty()){
-                                daoService.execute(QueryNotificacao.INSERT_SENT_ITENS.create(notificacao.getId(), dispositivos));
                                 iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
                             }else{
                                 Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
@@ -120,6 +119,8 @@ public class MensagemServiceImpl implements MensagemService {
                         Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo iOS " + e.getMessage());
                         e.printStackTrace();
                     }
+                    
+                    daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
                 }
             });
         }catch(Exception e){

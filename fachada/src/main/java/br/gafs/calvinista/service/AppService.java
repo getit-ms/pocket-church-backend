@@ -159,7 +159,6 @@ public interface AppService extends Serializable {
     File buscaAjuda(String path);
     
     Long countNotificacoesNaoLidas();
-    void marcaNotificacoesComoLidas();
     BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro);
 
     public void enviarMensagem(ContatoDTO contato);

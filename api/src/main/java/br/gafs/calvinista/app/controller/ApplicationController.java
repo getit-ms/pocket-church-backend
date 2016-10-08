@@ -44,7 +44,7 @@ public class ApplicationController {
     @POST
     @Path("contato")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response version(ContatoDTO contato){
+    public Response contato(ContatoDTO contato){
         appService.enviarMensagem(contato);
         return Response.status(Response.Status.OK).build();
     }

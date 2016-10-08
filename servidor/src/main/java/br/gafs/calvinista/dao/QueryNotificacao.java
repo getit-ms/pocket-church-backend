@@ -34,7 +34,6 @@ public enum QueryNotificacao {
         
     },
     DEVICES_POR_TIPO("Dispositivo.findPorTipoAndIgreja", "igreja", "tipo", "dispositivos"), 
-    INSERT_SENT_ITENS("SentNotification.bulkInsert", "notification", "pushkeys"), 
     COUNT_NOTIFICACOES_NAO_LIDAS("SentNotification.countNaoLidos", "igreja", "dispositivo", "membro"), 
     MARCA_NOTIFICACOES_COMO_LIDAS("SentNotification.marcaComoLido", "igreja", "dispositivo", "membro");
     
