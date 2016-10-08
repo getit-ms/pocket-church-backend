@@ -63,9 +63,6 @@ public class AppServiceImpl implements AppService {
     @EJB
     private DAOService daoService;
 
-    @EJB
-    private AcessoService acessoService;
-    
     @Inject
     private SessaoBean sessaoBean;
     
@@ -101,6 +98,37 @@ public class AppServiceImpl implements AppService {
         return status;
     }
 
+    @Override
+    @AllowMembro
+    public BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
+        return daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(), 
+                sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
+    }
+
+    @Override
+    @AllowMembro
+    public Long countNotificacoesNaoLidas() {
+        return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS.
+                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), 
+                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
+    }
+
+    @Override
+    @AllowMembro
+    public void marcaNotificacoesComoLidas() {
+        daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS.
+                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), 
+                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
+    }
+
+    @Override
+    public void enviarMensagem(ContatoDTO contato) {
+        EmailUtil.alertAdm(
+                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()),
+                MensagemUtil.getMensagem("email.contato.message", "pt-br", 
+                        contato.getMensagem(), contato.getNome(), contato.getEmail()));
+    }
+    
     @Override
     @AllowAdmin
     @AllowMembro

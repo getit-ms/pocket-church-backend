@@ -63,7 +63,7 @@ public class GeneralTest {
         Thread.sleep(60000);
     }
     
-    @Test
+//    @Test
     public void testaJSON() throws IOException, InterruptedException{
         Igreja igreja = new Igreja();
         igreja.setChave("tst");

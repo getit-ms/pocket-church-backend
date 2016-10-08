@@ -69,7 +69,7 @@ public class MensagemServiceImpl implements MensagemService {
         }
     }
     
-    private void sendPushNow(NotificationSchedule notificacao){
+    private void sendPushNow(final NotificationSchedule notificacao){
         try{
             sendNow(notificacao, FiltroDispositivoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoDTO, MensagemPushDTO>() {
                 
@@ -84,6 +84,7 @@ public class MensagemServiceImpl implements MensagemService {
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             if (!dispositivos.isEmpty()){
+                                daoService.execute(QueryNotificacao.INSERT_SENT_ITENS.create(notificacao.getId(), dispositivos));
                                 failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
                             }else{
                                 Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
@@ -107,6 +108,7 @@ public class MensagemServiceImpl implements MensagemService {
                             dispositivos = daoService.findWith(new FiltroDispositivo(filtro));
 
                             if (!dispositivos.isEmpty()){
+                                daoService.execute(QueryNotificacao.INSERT_SENT_ITENS.create(notificacao.getId(), dispositivos));
                                 iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
                             }else{
                                 Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
