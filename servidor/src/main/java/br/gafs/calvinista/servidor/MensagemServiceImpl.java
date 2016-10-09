@@ -75,6 +75,8 @@ public class MensagemServiceImpl implements MensagemService {
                 
                 @Override
                 public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
+                    daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
+                    
                     BuscaPaginadaDTO<Object[]> dispositivos;
                     try{
                         filtro.setPagina(1);
@@ -118,8 +120,6 @@ public class MensagemServiceImpl implements MensagemService {
                         Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo iOS " + e.getMessage());
                         e.printStackTrace();
                     }
-                    
-                    daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
                 }
             });
         }catch(Exception e){

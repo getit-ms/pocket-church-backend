@@ -99,7 +99,6 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowMembro
     public BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
         BuscaPaginadaDTO<String> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(), 
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
@@ -108,7 +107,6 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowMembro
     public Long countNotificacoesNaoLidas() {
         return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS.
                 createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), 
