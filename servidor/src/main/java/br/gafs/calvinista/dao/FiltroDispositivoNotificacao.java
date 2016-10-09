@@ -64,6 +64,10 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         StringBuilder from = new StringBuilder(" from tb_dispositivo d inner join tb_preferencias p on d.chave = p.chave_dispositivo left join tb_sent_notification sn on sn.chave_igreja = d.chave_igreja and ((d.chave_dispositivo = sn.chave_dispositivo and sn.id_membro is null) or sn.id_membro = d.id_membro) and sn.lido = false");
         StringBuilder where = query(filtro, from);
         
+        if (filtro.getTipo() != null){
+            where.append(" and d.tipo = ").append(filtro.getTipo().ordinal());
+        }
+        
         page = filtro.getPagina();
         query = new StringBuilder("select d.pushkey, count(distinct ns.id_notificacao_schedule) ").append(from).append(where).append(" group by d.pushkey").toString();
         countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(distinct d.pushkey) ").append(from).append(where).toString());
