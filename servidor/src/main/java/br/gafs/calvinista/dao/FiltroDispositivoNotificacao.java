@@ -69,7 +69,7 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         }
         
         page = filtro.getPagina();
-        query = new StringBuilder("select d.pushkey, count(distinct ns.id_notificacao_schedule) ").append(from).append(where).append(" group by d.pushkey").toString();
+        query = new StringBuilder("select d.pushkey, count(distinct sn.id_notificacao_schedule) ").append(from).append(where).append(" group by d.pushkey").toString();
         countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(distinct d.pushkey) ").append(from).append(where).toString());
     }
 
