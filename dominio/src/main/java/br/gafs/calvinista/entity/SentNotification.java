@@ -32,9 +32,10 @@ import lombok.Getter;
 @NamedNativeQueries({
     @NamedNativeQuery(name = "SentNotification.bulkInsert", query = " select d.chave_dispositivo, d.id_membro, d.chave_igreja, #notification, false from tb_dispositivo d where d.push_key in #pushkeys"),
     @NamedNativeQuery(name = "SentNotification.marcaComoLido", query = "update tb_sent_notification set lido = true where chave_igreja = #igreja and ((chave_dispositivo = #dispositivo and id_membro is null) or id_membro = #membro)"),
+    @NamedNativeQuery(name = "SentNotification.clearNotificacoes", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and ((sn.chave_dispositivo = #dispositivo and sn.id_membro is null) or sn.id_membro = #membro)")
 })
 @NamedQueries({
-    @NamedQuery(name = "SentNotification.countNaoLidos", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where sn.lido = false and i.chave = :igreja and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)")
+    @NamedQuery(name = "SentNotification.countNaoLidos", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where sn.lido = false and i.chave = :igreja and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)"),
 })
 public class SentNotification implements IEntity {
     @Id

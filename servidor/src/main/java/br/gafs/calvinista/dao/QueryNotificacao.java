@@ -5,20 +5,9 @@
  */
 package br.gafs.calvinista.dao;
 
-import br.gafs.calvinista.entity.domain.StatusAgendamentoAtendimento;
-import br.gafs.calvinista.entity.domain.StatusCalendario;
-import br.gafs.calvinista.entity.domain.StatusMinisterio;
-import br.gafs.calvinista.entity.domain.StatusIgreja;
-import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
-import br.gafs.calvinista.entity.domain.StatusMembro;
-import br.gafs.calvinista.entity.domain.StatusVersiculoDiario;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 /**
  *
@@ -35,6 +24,7 @@ public enum QueryNotificacao {
     },
     DEVICES_POR_TIPO("Dispositivo.findPorTipoAndIgreja", "igreja", "tipo", "dispositivos"), 
     COUNT_NOTIFICACOES_NAO_LIDAS("SentNotification.countNaoLidos", "igreja", "dispositivo", "membro"), 
+    CLEAR_NOTIFICACOES("SentNotification.clearNotificacoes", "igreja", "dispositivo", "membro"), 
     MARCA_NOTIFICACOES_COMO_LIDAS("SentNotification.marcaComoLido", "igreja", "dispositivo", "membro");
     
     private final String query;

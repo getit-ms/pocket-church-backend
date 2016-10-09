@@ -7,6 +7,7 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.NotificationType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -43,6 +44,7 @@ import lombok.NonNull;
 })
 public class NotificationSchedule implements IEntity {
     @Id
+    @JsonIgnore
     @Column(name = "id_notificacao_schedule")
     @SequenceGenerator(sequenceName = "seq_notificacao_schedule", name = "seq_notificacao_schedule")
     @GeneratedValue(generator = "seq_notificacao_schedule", strategy = GenerationType.SEQUENCE)
@@ -53,9 +55,11 @@ public class NotificationSchedule implements IEntity {
     @Column(name = "data", nullable = false, updatable = false)
     private Date data;
     
+    @JsonIgnore
     @Column(name = "enviado", nullable = false)
     private boolean enviado = false;
     
+    @JsonIgnore
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "type", nullable = false)
     private NotificationType type;
@@ -63,6 +67,7 @@ public class NotificationSchedule implements IEntity {
     @Column(name = "notificacao_json", columnDefinition = "TEXT", nullable = false, updatable = false)
     private String notificacao;
     
+    @JsonIgnore
     @Column(name = "to_json", columnDefinition = "TEXT", nullable = false, updatable = false)
     private String to;
 

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -53,6 +54,14 @@ public class NotificacaoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response count(){
         return Response.status(Response.Status.OK).entity(new QuantidadeDTO(appService.countNotificacoesNaoLidas())).build();
+    }
+    
+    @DELETE
+    @Path("clear")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response clear(){
+        appService.clearNotificacoes();
+        return Response.status(Response.Status.OK).build();
     }
     
     @GET
