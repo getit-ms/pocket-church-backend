@@ -61,7 +61,7 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
     }
     
     public FiltroDispositivoNotificacao(FiltroDispositivoNotificacaoDTO filtro) {
-        StringBuilder from = new StringBuilder(" from tb_dispositivo d inner join tb_preferencias p on d.chave = p.chave_dispositivo left join tb_sent_notification sn on sn.chave_igreja = d.chave_igreja and ((d.chave_dispositivo = sn.chave_dispositivo and sn.id_membro is null) or sn.id_membro = d.id_membro) and sn.lido = false");
+        StringBuilder from = new StringBuilder(" from tb_dispositivo d inner join tb_preferencias p on d.chave = p.chave_dispositivo left join tb_sent_notification sn on sn.chave_igreja = d.chave_igreja and ((d.chave = sn.chave_dispositivo and sn.id_membro is null) or sn.id_membro = d.id_membro) and sn.lido = false");
         StringBuilder where = query(filtro, from);
         
         if (filtro.getTipo() != null){
