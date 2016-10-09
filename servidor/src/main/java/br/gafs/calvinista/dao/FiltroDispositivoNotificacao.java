@@ -49,11 +49,12 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         }
         
         if (filtro.getMembro() != null){
-            where.append(" and d.id_membro = ").append(filtro.getMembro()).append(" and d.status in (0, 1)");
+            from.append(" inner join tb_membro m on m.id_membro = d.id_membro and m.chave_igreja = d.chave_igreja");
+            where.append(" and m.id_membro = ").append(filtro.getMembro()).append(" and m.status in (0, 1)");
         }
 
         if (filtro.getAniversario() != null){
-            from.append(" inner join vw_aniversario_membro am on and am.id_membro = d.id_membro and am.chave_igreja = d.chave_igreja");
+            from.append(" inner join vw_aniversario_membro am on am.id_membro = d.id_membro and am.chave_igreja = d.chave_igreja");
             where.append(" and am.dia = ").append(DateUtil.getDia(filtro.getAniversario())).append(" and am.mes = ").append(DateUtil.getMes(filtro.getAniversario()));
         }
         
