@@ -75,9 +75,9 @@ public class MensagemServiceImpl implements MensagemService {
     @Override
     public void enviarMensagem(ContatoDTO contato) {
         EmailUtil.alertAdm(
-                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()),
                 MensagemUtil.getMensagem("email.contato.message", "pt-br", 
-                        contato.getMensagem(), contato.getNome(), contato.getEmail()));
+                        contato.getMensagem(), contato.getNome(), contato.getEmail()),
+                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()));
     }
     
     private void sendPushNow(final NotificationSchedule notificacao){
