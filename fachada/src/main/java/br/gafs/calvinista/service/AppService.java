@@ -162,6 +162,4 @@ public interface AppService extends Serializable {
     Long countNotificacoesNaoLidas();
     BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro);
 
-    void enviarMensagem(ContatoDTO contato);
-
 }

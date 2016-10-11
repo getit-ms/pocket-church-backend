@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.service;
 
+import br.gafs.calvinista.dto.ContatoDTO;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
@@ -27,4 +28,6 @@ public interface MensagemService extends Serializable {
     void sendNow(MensagemEmailDTO notificacao, FiltroEmailDTO filtro);
     NotificationSchedule sendWhenPossible(MensagemEmailDTO notificacao, FiltroEmailDTO filtro);
     NotificationSchedule sendLater(MensagemEmailDTO notificacao, FiltroEmailDTO filtro, Date dataHora);
+    
+    void enviarMensagem(ContatoDTO contato);
 }

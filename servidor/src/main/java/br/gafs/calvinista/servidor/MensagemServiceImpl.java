@@ -10,6 +10,7 @@ import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
+import br.gafs.calvinista.dto.ContatoDTO;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
@@ -21,10 +22,12 @@ import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.servidor.mensagem.AndroidNotificationService;
 import br.gafs.calvinista.servidor.mensagem.EmailService;
 import br.gafs.calvinista.servidor.mensagem.IOSNotificationService;
+import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.email.EmailUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
@@ -67,6 +70,14 @@ public class MensagemServiceImpl implements MensagemService {
         for (NotificationSchedule notificacao : notificacoes){
             sendPushNow(notificacao);
         }
+    }
+    
+    @Override
+    public void enviarMensagem(ContatoDTO contato) {
+        EmailUtil.alertAdm(
+                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()),
+                MensagemUtil.getMensagem("email.contato.message", "pt-br", 
+                        contato.getMensagem(), contato.getNome(), contato.getEmail()));
     }
     
     private void sendPushNow(final NotificationSchedule notificacao){

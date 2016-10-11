@@ -125,14 +125,6 @@ public class AppServiceImpl implements AppService {
                 create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), 
                         sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
     }
-
-    @Override
-    public void enviarMensagem(ContatoDTO contato) {
-        EmailUtil.alertAdm(
-                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()),
-                MensagemUtil.getMensagem("email.contato.message", "pt-br", 
-                        contato.getMensagem(), contato.getNome(), contato.getEmail()));
-    }
     
     @Override
     @AllowAdmin

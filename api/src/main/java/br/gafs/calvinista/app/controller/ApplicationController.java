@@ -8,6 +8,7 @@ package br.gafs.calvinista.app.controller;
 import br.gafs.calvinista.dto.ContatoDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.service.MensagemService;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -31,7 +32,7 @@ public class ApplicationController {
     private HttpServletRequest request;
     
     @EJB
-    private AppService appService;
+    private MensagemService mensagemService;
     
     @GET
     @Path("version")
@@ -45,7 +46,7 @@ public class ApplicationController {
     @Path("contato")
     @Produces(MediaType.APPLICATION_JSON)
     public Response contato(ContatoDTO contato){
-        appService.enviarMensagem(contato);
+        mensagemService.enviarMensagem(contato);
         return Response.status(Response.Status.OK).build();
     }
     
