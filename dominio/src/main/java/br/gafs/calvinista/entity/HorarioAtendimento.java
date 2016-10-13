@@ -127,7 +127,6 @@ public class HorarioAtendimento implements IEntity {
         dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
         dateCal.set(Calendar.MILLISECOND, 0);
         
-        dateCal.setTimeZone(TimeZone.getDefault());
         // Get the time value!
         return dateCal.getTime();
     }
