@@ -11,6 +11,7 @@ import br.gafs.util.date.DateUtil;
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -95,8 +96,10 @@ public class AgendamentoAtendimento implements IEntity {
         this.membro = membro;
         this.igreja = membro.getIgreja();
         this.calendario = horario.getCalendario();
-        this.dataHoraInicio = horario.getInicio(data);
-        this.dataHoraFim = horario.getFim(data);
+        
+        TimeZone timeZone = TimeZone.getTimeZone(igreja.getTimezone());
+        this.dataHoraInicio = horario.getInicio(timeZone, data);
+        this.dataHoraFim = horario.getFim(timeZone, data);
     }
     
     public void confirmado(){
