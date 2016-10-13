@@ -15,6 +15,7 @@ import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -96,12 +97,12 @@ public class HorarioAtendimento implements IEntity {
         this.calendario = calendario;
     }
     
-    public Date getInicio(Date dataMerge){
-        return merge(dataMerge, horaInicio);
+    public Date getInicio(TimeZone timeZone, Date dataMerge){
+        return merge(timeZone, dataMerge, horaInicio);
     }
     
-    public Date getFim(Date dataMerge){
-        return merge(dataMerge, horaFim);
+    public Date getFim(TimeZone timeZone, Date dataMerge){
+        return merge(timeZone, dataMerge, horaFim);
     }
     
     public HorarioAtendimento copy(){
@@ -114,10 +115,10 @@ public class HorarioAtendimento implements IEntity {
         return copy;
     }
 
-    private static Date merge(Date date, Date time) {
-        Calendar dateCal = Calendar.getInstance();
+    private static Date merge(TimeZone timeZone, Date date, Date time) {
+        Calendar dateCal = Calendar.getInstance(timeZone);
         dateCal.setTime(date);
-        Calendar timeCal = Calendar.getInstance();
+        Calendar timeCal = Calendar.getInstance(timeZone);
         timeCal.setTime(time);
         
         // Extract the time of the "time" object to the "date"
@@ -126,6 +127,7 @@ public class HorarioAtendimento implements IEntity {
         dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
         dateCal.set(Calendar.MILLISECOND, 0);
         
+        dateCal.setTimeZone(TimeZone.getDefault());
         // Get the time value!
         return dateCal.getTime();
     }

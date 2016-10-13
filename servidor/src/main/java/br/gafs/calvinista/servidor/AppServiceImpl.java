@@ -1110,15 +1110,16 @@ public class AppServiceImpl implements AppService {
                 findWith(QueryAdmin.HORARIOS_POR_PERIODO.
                         create(idCalendario, dataInicio, dataTermino));
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(calendario.getIgreja().getTimezone()));
+        TimeZone timeZone = TimeZone.getTimeZone(calendario.getIgreja().getTimezone());
+        Calendar cal = Calendar.getInstance(timeZone);
         for (Date data = dataInicio;
                 DateUtil.compareSemHoras(data, dataTermino) <= 0; 
                 data = DateUtil.incrementaDias(data, 1)) {
             cal.setTime(data);
             for (HorarioAtendimento horario : horarios) {
                 if (horario.contains(cal)) {
-                    Date dti = horario.getInicio(data);
-                    Date dtf = horario.getFim(data);
+                    Date dti = horario.getInicio(timeZone, data);
+                    Date dtf = horario.getFim(timeZone, data);
                     if (dtf.after(dataInicio) && dti.before(dataTermino) 
                             && !temAgendamento(calendario, dti, dtf)) {
                         eventos.add(new EventoAgendaDTO(dti, dtf, horario));
