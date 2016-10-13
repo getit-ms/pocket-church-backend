@@ -7,6 +7,7 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.DiaSemana;
+import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -73,6 +74,11 @@ public class HorarioAtendimento implements IEntity {
     @Column(name = "dia_semana", nullable = false)
     private Integer diasSemana;
     
+    @JsonIgnore
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "data_cadastro", nullable = false)
+    private Date dataCadastro = new Date();
+    
     @Setter
     @Temporal(TemporalType.TIME)
     @Column(name = "hora_inicio", nullable = false)
@@ -114,12 +120,30 @@ public class HorarioAtendimento implements IEntity {
         copy.dataInicio = dataInicio;
         return copy;
     }
+    
+    private Date dataOriginal(Date time){
+        Calendar dateCal = Calendar.getInstance();
+        dateCal.setTime(dataCadastro);
+        
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime(time);
+        
+        // Extract the time of the "time" object to the "date"
+        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+        dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+        dateCal.set(Calendar.MILLISECOND, 0);
+        
+        // Get the time value!
+        return dateCal.getTime();
+    }
 
-    private static Date merge(TimeZone timeZone, Date date, Date time) {
+    private Date merge(TimeZone timeZone, Date date, Date time) {
         Calendar dateCal = Calendar.getInstance(timeZone);
         dateCal.setTime(date);
+        
         Calendar timeCal = Calendar.getInstance(timeZone);
-        timeCal.setTime(time);
+        timeCal.setTime(dataOriginal(time));
         
         // Extract the time of the "time" object to the "date"
         dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
