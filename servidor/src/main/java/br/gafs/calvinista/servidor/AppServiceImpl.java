@@ -389,7 +389,7 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     @AllowMembro(Funcionalidade.CONSULTAR_CONTATOS_IGREJA)
     public BuscaPaginadaDTO<Membro> busca(FiltroMembroDTO filtro) {
-        return daoService.findWith(new FiltroMembro(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), filtro));
+        return daoService.findWith(new FiltroMembro(sessaoBean.isAdmin(), sessaoBean.getChaveIgreja(), filtro));
     }
 
     @Audit

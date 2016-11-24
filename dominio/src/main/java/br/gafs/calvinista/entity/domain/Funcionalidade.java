@@ -26,7 +26,7 @@ public enum Funcionalidade {
     MANTER_ESTUDOS(Tipo.ADMIN, 6),
     MANTER_VOTACOES(Tipo.ADMIN, 7),
     CONSULTAR_PEDIDOS_ORACAO(Tipo.ADMIN, 8),
-    MANTER_AGENDA(Tipo.ADMIN, 8),
+    MANTER_AGENDA(Tipo.ADMIN, 9),
     MANTER_EVENTOS(Tipo.ADMIN, 10),
     GERENCIAR_ACESSO_MEMBROS(Tipo.ADMIN, 11),
     GERENCIAR_FUNCIONALIDADES_APLICATIVO(Tipo.ADMIN, 12),
@@ -41,18 +41,27 @@ public enum Funcionalidade {
     REALIZAR_VOTACAO(Tipo.MEMBRO, 20),
     PEDIR_ORACAO(Tipo.MEMBRO, 21),
     AGENDAR_ACONSELHAMENTO(Tipo.MEMBRO, 22),
-    REALIZAR_INSCRICAO_EVENTO(Tipo.MEMBRO, 23)
+    REALIZAR_INSCRICAO_EVENTO(Tipo.MEMBRO, 23),
+    
+    // Pública
+    LISTAR_BOLETINS(Tipo.PUBLICA, 24),
+    LISTAR_ESTUDOS(Tipo.PUBLICA, 25),
+    CONSULTAR_HINARIO(Tipo.PUBLICA, 26),
+    CONSULTAR_CIFRAS(Tipo.PUBLICA, 27)
     ;
     
     public final static List<Funcionalidade> FUNCIONALIDADES_APLICATIVO = new ArrayList<Funcionalidade>();
+    public final static List<Funcionalidade> FUNCIONALIDADES_PUBLICAS = new ArrayList<Funcionalidade>();
     public final static List<Funcionalidade> FUNCIONALIDADES_ADMINISTRATIVO = new ArrayList<Funcionalidade>();
     
     static {
         for (Funcionalidade func : values()){
             if (func.isAdmin()){
                 FUNCIONALIDADES_ADMINISTRATIVO.add(func);
-            }else{
+            }else if (func.isMembro()){
                 FUNCIONALIDADES_APLICATIVO.add(func);
+            }else{
+                FUNCIONALIDADES_PUBLICAS.add(func);
             }
         }
     }
@@ -75,9 +84,14 @@ public enum Funcionalidade {
         return Tipo.MEMBRO.equals(tipo);
     }
     
+    public boolean isPublica(){
+        return Tipo.PUBLICA.equals(tipo);
+    }
+    
     enum Tipo {
         ADMIN,
-        MEMBRO
+        MEMBRO,
+        PUBLICA
     }
     
 }

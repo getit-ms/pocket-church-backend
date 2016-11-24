@@ -21,13 +21,17 @@ import java.util.Map;
  */
 public class FiltroMembro extends AbstractPaginatedFiltro<FiltroMembroDTO> {
 
-    public FiltroMembro(Igreja igreja, FiltroMembroDTO filtro) {
+    public FiltroMembro(boolean admin, String igreja, FiltroMembroDTO filtro) {
         super(filtro);
         
         StringBuilder from = new StringBuilder("from Membro m");
         StringBuilder where = new StringBuilder(" where m.igreja.chave = :chaveIgreja and m.status in :status");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja.getChave()).
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).
                 set("status", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
+        
+        if (!admin){
+            where.append(" and m.dadosDisponiveis = true");
+        }
         
         if (!StringUtil.isEmpty(filtro.getNome())){
             where.append(" and lower(m.nome) like :nome");

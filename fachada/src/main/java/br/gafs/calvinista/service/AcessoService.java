@@ -38,5 +38,7 @@ public interface AcessoService extends Serializable {
     void solicitaRedefinicaoSenha(String email);
     
     Membro redefineSenha(String jwt);
+
+    List<Funcionalidade> buscaFuncionalidadesPublicas();
     
 }

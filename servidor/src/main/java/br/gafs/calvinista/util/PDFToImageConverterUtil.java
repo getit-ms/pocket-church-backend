@@ -43,16 +43,20 @@ public class PDFToImageConverterUtil {
         
         public void forEachPage(PageHandler handler) throws IOException {
             PDDocument pdffile = PDDocument.load(pdf);
-            int numPags = pdffile.getNumberOfPages();
-            PDFRenderer renderer = new PDFRenderer(pdffile);
-            
-            for (int i=0;i<numPags;i++){
-                BufferedImage img = renderer.renderImage(i, 3, ImageType.RGB);
-                
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(img, "png", baos);
-                
-                handler.handle(i, baos.toByteArray());
+            try{
+                int numPags = pdffile.getNumberOfPages();
+                PDFRenderer renderer = new PDFRenderer(pdffile);
+
+                for (int i=0;i<numPags;i++){
+                    BufferedImage img = renderer.renderImage(i, 3, ImageType.RGB);
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(img, "png", baos);
+
+                    handler.handle(i, baos.toByteArray());
+                }
+            }finally{
+                pdffile.close();
             }
         }
     }

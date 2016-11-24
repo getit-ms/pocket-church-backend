@@ -95,6 +95,11 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     @Override
+    public List<Funcionalidade> buscaFuncionalidadesPublicas() {
+        return daoService.findWith(QueryAcesso.FUNCIONALIDADES_PUBLICAS.create(sessaoBean.getChaveIgreja()));
+    }
+
+    @Override
     public Preferencias buscaPreferencis() {
         return daoService.find(Preferencias.class, dispositivo().getChave());
     }
@@ -109,6 +114,12 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public Preferencias salva(Preferencias preferencias) {
         if (sessaoBean.getIdMembro() != null){
+            Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+            
+            membro.setDesejaDisponibilizarDados(preferencias.isDadosDisponiveis());
+            
+            daoService.update(membro);
+            
             List<Preferencias> prefs = daoService.findWith(QueryAdmin.PREFERENCIAS_POR_MEMBRO.
                     create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
             

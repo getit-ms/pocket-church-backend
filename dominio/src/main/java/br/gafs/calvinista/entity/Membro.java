@@ -155,7 +155,17 @@ public class Membro implements IEntity {
     @JsonIgnore
     @OneToOne(mappedBy = "membro", cascade = CascadeType.ALL, orphanRemoval = true)
     private Acesso acesso;
-    
+
+    @JsonView(Detalhado.class)
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "dados_disponiveis", nullable = false)
+    private boolean dadosDisponiveis = true;
+
+    @Setter
+    @JsonView(Detalhado.class)
+    @Column(name = "deseja_disponibilizar_dados", nullable = false)
+    private boolean desejaDisponibilizarDados = true;
+
     @Transient
     @View.MergeViews(View.AlterarSenha.class)
     private String novaSenha;
@@ -166,6 +176,26 @@ public class Membro implements IEntity {
     
     public Membro(Igreja igreja) {
         this.igreja = igreja;
+    }
+    
+    public void setDesejaDisponibilizarDados(boolean deseja){
+        if (deseja != isDadosDisponiveis()){
+            this.desejaDisponibilizarDados = this.dadosDisponiveis = deseja;
+        }
+    }
+    
+    public void setDadosDisponiveis(boolean dadosDisponiveis){
+        if (isDadosDisponiveis() != dadosDisponiveis){
+            if (dadosDisponiveis && !desejaDisponibilizarDados){
+                throw new ServiceException("mensagens.MSG-");
+            }
+        
+            this.dadosDisponiveis = dadosDisponiveis;
+        }
+    }
+    
+    public boolean isDadosDisponiveis(){
+        return isDesejaDisponibilizarDados() && dadosDisponiveis;
     }
     
     @JsonIgnore

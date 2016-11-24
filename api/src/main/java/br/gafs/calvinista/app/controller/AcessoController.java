@@ -64,6 +64,13 @@ public class AcessoController {
     }
     
     @GET
+    @Path("funcionalidades/publicas")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaFuncionalidadesPublicas(){
+        return Response.status(Response.Status.OK).entity(acessoService.buscaFuncionalidadesPublicas()).build();
+    }
+    
+    @GET
     @Path("preferencias")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaPreferencias(){

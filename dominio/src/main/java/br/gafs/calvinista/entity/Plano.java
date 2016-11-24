@@ -114,7 +114,7 @@ public class Plano {
         List<Funcionalidade> admin = new ArrayList<Funcionalidade>();
         
         for (Funcionalidade func : funcionalidades){
-            if (func.isMembro()){
+            if (func.isMembro() || func.isPublica()){
                 admin.add(func);
             }
         }

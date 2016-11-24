@@ -28,6 +28,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -76,10 +77,24 @@ public class Preferencias implements IEntity {
             })
     private List<Ministerio> ministeriosInteresse = new ArrayList<Ministerio>();
     
+    @Setter
+    @Transient
+    @View.MergeViews(View.Edicao.class)
+    private Boolean dadosDisponiveis;
+    
     public Preferencias(Dispositivo dispositivo) {
         this.dispositivo = dispositivo;
     }
-
+    
+    public boolean isDadosDisponiveis(){
+        if (dadosDisponiveis != null){
+            return dadosDisponiveis;
+        }
+        
+        return dispositivo.getMembro() != null &&
+                dispositivo.getMembro().isDadosDisponiveis();
+    }
+    
     @Override
     public String getId() {
         return dispositivo.getChave();

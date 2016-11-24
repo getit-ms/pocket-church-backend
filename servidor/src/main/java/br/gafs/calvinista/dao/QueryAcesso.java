@@ -63,6 +63,15 @@ public enum QueryAcesso {
                     set("list", Funcionalidade.FUNCIONALIDADES_ADMINISTRATIVO); 
         }
         
+    }, 
+    FUNCIONALIDADES_PUBLICAS("Igreja.findFuncionalidadesAplicativoInList", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("list", Funcionalidade.FUNCIONALIDADES_PUBLICAS); 
+        }
+        
     };
     
     private final String query;

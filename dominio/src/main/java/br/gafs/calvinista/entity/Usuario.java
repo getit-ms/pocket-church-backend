@@ -52,9 +52,11 @@ public class Usuario implements IEntity {
     @Setter
     @Transient
     private String novaSenha;
+    
     @Setter
     @Transient
     private String confirmacaoSenha;
+    
     
     public void atualizaSenha(){
         if (!novaSenha.equals(confirmacaoSenha)){
