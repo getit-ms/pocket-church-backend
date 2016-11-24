@@ -185,7 +185,7 @@ public class Membro implements IEntity {
     }
     
     public void setDadosDisponiveis(boolean dadosDisponiveis){
-        if (isDadosDisponiveis() != dadosDisponiveis){
+        if (this.dadosDisponiveis != dadosDisponiveis){
             if (dadosDisponiveis && !desejaDisponibilizarDados){
                 throw new ServiceException("mensagens.MSG-");
             }
