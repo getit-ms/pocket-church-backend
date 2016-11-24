@@ -14,6 +14,7 @@ import br.gafs.exceptions.ServiceException;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,6 +47,7 @@ import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -161,8 +163,10 @@ public class Membro implements IEntity {
     @Column(name = "dados_disponiveis", nullable = false)
     private boolean dadosDisponiveis = true;
 
-    @Setter
-    @JsonView(Detalhado.class)
+    @Getter(onMethod = @_({
+        @JsonProperty,
+        @JsonView(Detalhado.class)
+    }))
     @Column(name = "deseja_disponibilizar_dados", nullable = false)
     private boolean desejaDisponibilizarDados = true;
 
@@ -178,6 +182,7 @@ public class Membro implements IEntity {
         this.igreja = igreja;
     }
     
+    @JsonIgnore
     public void setDesejaDisponibilizarDados(boolean deseja){
         if (deseja != isDadosDisponiveis()){
             this.desejaDisponibilizarDados = this.dadosDisponiveis = deseja;
@@ -187,7 +192,7 @@ public class Membro implements IEntity {
     public void setDadosDisponiveis(boolean dadosDisponiveis){
         if (this.dadosDisponiveis != dadosDisponiveis){
             if (dadosDisponiveis && !desejaDisponibilizarDados){
-                throw new ServiceException("mensagens.MSG-");
+                throw new ServiceException("mensagens.MSG-044");
             }
         
             this.dadosDisponiveis = dadosDisponiveis;

@@ -129,7 +129,7 @@ public class MembroController {
     }
     
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON) 
     @Consumes(MediaType.APPLICATION_JSON)
     public Response atualiza(final Membro membro){
         Membro entidade = appService.buscaMembro(membro.getId());
