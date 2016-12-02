@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.gafs.getit.calvinista</groupId>
     <artifactId>calvinista</artifactId>
-    <version>2.34</version>
+    <version>2.35-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -19,6 +19,10 @@
         <gafs.base.version>2.20</gafs.base.version>
         <version.jersey>2.22.1</version.jersey>
     </properties>
+    
+    <scm>
+        <connection>scm:git:https://bitbucket.org/getit-team/calvinista-backend</connection>
+    </scm>
     
     <dependencyManagement>
         <dependencies>
@@ -185,6 +189,11 @@
                 <configuration>
                     <debug>false</debug>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
             </plugin>
         </plugins>
     </build>
