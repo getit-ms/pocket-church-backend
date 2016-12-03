@@ -1,4 +1,7 @@
-image: gafsel/java-postgres-build:latest
+image: 
+  name: gafsel/java-postgres-build:latest
+  username: gafsel
+  password: discador01
 
 pipelines:
   branches:
