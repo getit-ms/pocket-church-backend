@@ -86,6 +86,11 @@ public class AcessoServiceImpl implements AcessoService {
             daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
         }
         
+        if (dispositivo.getMembro() == null && sessaoBean.getIdMembro() != null){
+            dispositivo.setMembro(daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())));
+            dispositivo = daoService.update(dispositivo);
+        }
+        
         return dispositivo;
     }
     

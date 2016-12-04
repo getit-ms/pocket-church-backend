@@ -6,6 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -34,6 +35,10 @@ public class AniversarioMembro implements IEntity {
     private Long id;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;

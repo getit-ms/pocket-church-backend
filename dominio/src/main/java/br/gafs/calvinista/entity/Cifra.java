@@ -72,6 +72,10 @@ public class Cifra implements ArquivoPDF {
     private List<Arquivo> paginas = new ArrayList<Arquivo>();
 
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)

@@ -6,7 +6,9 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -37,6 +39,20 @@ import lombok.RequiredArgsConstructor;
 })
 public class Voto implements IEntity {
     @Id
+    @JsonIgnore
+    @Column(name = "id_votacao", insertable = false, updatable = false)
+    private Long idVotacao;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "id_membro", insertable = false, updatable = false)
+    private Long idMembro;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @NonNull
     @ManyToOne
     @JoinColumns({
@@ -45,7 +61,6 @@ public class Voto implements IEntity {
     })
     private Votacao votacao;
     
-    @Id
     @NonNull
     @ManyToOne
     @JoinColumns({

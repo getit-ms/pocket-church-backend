@@ -69,6 +69,10 @@ public class Notificacao implements IEntity {
     private List<Ministerio> ministeriosAlvo = new ArrayList<Ministerio>();
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)

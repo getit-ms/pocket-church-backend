@@ -71,6 +71,15 @@ public class InscricaoEvento implements IEntity {
     private Membro membro;
     
     @Id
+    @JsonIgnore
+    @Column(name = "id_evento", insertable = false, updatable = false)
+    private Long idEvento;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumns({

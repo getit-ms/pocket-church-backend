@@ -8,6 +8,7 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Column;
@@ -105,6 +106,10 @@ public class Evento implements IEntity {
     private Date dataTerminoInscricao;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;

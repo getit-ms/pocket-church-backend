@@ -8,6 +8,7 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusAgendamentoAtendimento;
 import br.gafs.util.date.DateUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
@@ -62,6 +63,10 @@ public class AgendamentoAtendimento implements IEntity {
     private Long id;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JoinColumn(name = "chave_igreja", nullable = false)
     private Igreja igreja;

@@ -93,6 +93,10 @@ public class Votacao implements IEntity {
     private StatusVotacao status = StatusVotacao.EM_EDICAO;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja")

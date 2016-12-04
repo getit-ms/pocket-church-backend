@@ -20,6 +20,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"votacao", "membro"})
 public class VotoId implements Serializable {
-    private RegistroIgrejaId votacao;
-    private RegistroIgrejaId membro;
+    private Long idVotacao;
+    private Long idMembro;
+    private String chaveIgreja;
+    
+    public VotoId(RegistroIgrejaId votacao, RegistroIgrejaId membro){
+        this(votacao.getId(), membro.getId(), membro.getChaveIgreja());
+    }
 }

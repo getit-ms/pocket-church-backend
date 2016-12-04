@@ -76,6 +76,10 @@ public class VersiculoDiario implements IEntity {
     private Date ultimoEnvio = new Date();
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;

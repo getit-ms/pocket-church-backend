@@ -19,5 +19,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InscricaoEventoId implements Serializable{
     private Long id;
-    private RegistroIgrejaId evento;
+    private Long idEvento;
+    private String chaveIgreja;
+    
+    public InscricaoEventoId(Long id, RegistroIgrejaId evento){
+        this(id, evento.getId(), evento.getChaveIgreja());
+    }
 }

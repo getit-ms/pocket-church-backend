@@ -22,5 +22,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AcessoId implements Serializable {
-    private RegistroIgrejaId membro;
+    private Long idMembro;
+    private String chaveIgreja;
+    
+    public AcessoId(RegistroIgrejaId membro){
+        this(membro.getId(), membro.getChaveIgreja());
+    }
 }

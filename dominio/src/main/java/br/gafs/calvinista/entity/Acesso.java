@@ -10,6 +10,7 @@ import br.gafs.calvinista.entity.domain.Funcionalidade;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -39,6 +40,15 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "membro")
 public class Acesso implements IEntity {
     @Id
+    @JsonIgnore
+    @Column(name = "id_membro", insertable = false, updatable = false)
+    private Long idMembro;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+            
     @OneToOne
     @JsonIgnore
     @JoinColumns({

@@ -6,16 +6,9 @@
 package br.gafs.calvinista.entity;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  *
@@ -25,6 +18,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegistroIgrejaId implements Serializable {
-    private String igreja;
+    private String chaveIgreja;
     private Long id;
 }

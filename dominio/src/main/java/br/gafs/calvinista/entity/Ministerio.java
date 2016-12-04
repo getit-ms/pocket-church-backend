@@ -68,6 +68,10 @@ public class Ministerio implements IEntity {
     private StatusMinisterio status = StatusMinisterio.ATIVO;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @Setter
     @ManyToOne
     @JsonIgnore

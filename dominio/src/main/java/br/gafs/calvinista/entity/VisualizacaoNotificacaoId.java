@@ -18,6 +18,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VisualizacaoNotificacaoId implements Serializable {
-    private String dispositivo;
-    private RegistroIgrejaId notificacao;
+    private String chaveDispositivo;
+    private Long idNotificacao;
+    private String chaveIgreja;
+    
+    public VisualizacaoNotificacaoId(String dispositivo, RegistroIgrejaId notificacao){
+        this(dispositivo, notificacao.getId(), notificacao.getChaveIgreja());
+    }
 }

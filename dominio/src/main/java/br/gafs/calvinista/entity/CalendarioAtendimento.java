@@ -79,6 +79,10 @@ public class CalendarioAtendimento implements IEntity {
     private Membro pastor;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @OneToOne
     @JsonIgnore
     @XmlTransient

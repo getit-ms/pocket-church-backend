@@ -7,6 +7,7 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.util.date.DateUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,6 +59,15 @@ public class RespostaVotacao implements IEntity {
     private Long id;
     
     @Id
+    @JsonIgnore
+    @Column(name = "id_votacao", insertable = false, updatable = false)
+    private Long idVotacao;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @Setter
     @ManyToOne
     @JoinColumns({

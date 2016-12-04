@@ -6,7 +6,9 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -30,15 +32,28 @@ import lombok.NoArgsConstructor;
 @Table(name = "rl_dispositivo_notificacao")
 public class VisualizacaoNotificacao implements IEntity {
     @Id
+    @JsonIgnore
+    @Column(name = "chave_dispositivo", insertable = false, updatable = false)
+    private String chaveDispositivo;
+    
     @ManyToOne
     @JoinColumn(name = "chave_dispositivo")
     private Dispositivo dispositivo;
     
     @Id
+    @JsonIgnore
+    @Column(name = "id_notificacao", insertable = false, updatable = false)
+    private Long idNotificacao;
+    
+    @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JoinColumns({
         @JoinColumn(name = "id_notificacao", referencedColumnName = "id_notificacao"),
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
     })
     private Notificacao notificacao;
             

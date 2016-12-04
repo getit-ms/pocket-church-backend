@@ -107,6 +107,10 @@ public class Estudo implements IEntity {
     private Membro membro;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @Setter
     @ManyToOne
     @JsonIgnore

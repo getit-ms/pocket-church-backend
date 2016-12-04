@@ -74,6 +74,10 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     private byte[] dados;
     
     @Id
+    @JsonIgnore
+    @Column(name = "chave_igreja", insertable = false, updatable = false)
+    private String chaveIgreja;
+    
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja")
