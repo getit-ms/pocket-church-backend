@@ -8,7 +8,6 @@ pipelines:
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/gafs-base.git
             - cd gafs-base
-            - git checkout tags/2.20
             - mvn clean install
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
@@ -26,7 +25,6 @@ pipelines:
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/gafs-base.git
             - cd gafs-base
-            - git checkout tags/2.20
             - mvn clean install
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
