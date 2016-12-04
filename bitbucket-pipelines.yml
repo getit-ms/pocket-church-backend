@@ -5,6 +5,7 @@ pipelines:
     release:
       - step:
           script: 
+            - export DIR=$(pwd)
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/gafs-base.git
             - cd gafs-base
@@ -13,7 +14,8 @@ pipelines:
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
             - cd pagseguro/source/pagseguro-api
             - mvn clean install
-            - cd ../../../calvinista-backend
+            - cd ../../../
+            - cd $DIR
             - mvn clean package
             - git checkout master
             - git merge release
@@ -22,6 +24,7 @@ pipelines:
     calvinista-*:
       - step:
           script:
+            - export DIR=$(pwd)
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/gafs-base.git
             - cd gafs-base
@@ -30,7 +33,8 @@ pipelines:
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
             - cd pagseguro/source/pagseguro-api
             - mvn clean install
-            - cd ../../../calvinista-backend
+            - cd ../../../
+            - cd $DIR
             - mvn clean package
             - scp app/target/calvinista-app.ear root:d5gNA4Mbl6nzcC@getitmobilesolutions.com/tmp/
             - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app'
