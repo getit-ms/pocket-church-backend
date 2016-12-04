@@ -1,7 +1,20 @@
-image: maven:3.3.3
+image: gafsel/java-postgres-build
 
 pipelines:
-  default:
+  branches:
+    release:
       - step:
-        script: 
-          - mvn clean package
+          script: 
+            - mvn clean package
+            - git checkout master
+            - git merge release
+            - mvn release:prepare release:perform --batch-mode -Dusername=gafsel -Dpassword=discador01 -Darguments="-Dmaven.deploy.skip=true"
+  tags:
+    calvinista-*:
+      - step:
+          script:
+            - mvn clean package
+            - scp app/target/calvinista-app.ear root:d5gNA4Mbl6nzcC@getitmobilesolutions.com/tmp/
+            - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app'
+            - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin deploy /tmp/calvinista-app/calvinista-app.ear'
+            - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com 'rm /tmp/calvinista-app/calvinista-app.ear'
