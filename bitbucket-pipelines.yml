@@ -1,4 +1,4 @@
-image: gafsel/java-postgres-build
+image: maven:3.3.3    # gafsel/java-postgres-build
 
 pipelines:
   default:
