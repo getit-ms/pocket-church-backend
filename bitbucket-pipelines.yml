@@ -1,5 +1,4 @@
-image: 
-  name: gafsel/java-postgres-build
+image: gafsel/java-postgres-build
 
 pipelines:
   branches:
