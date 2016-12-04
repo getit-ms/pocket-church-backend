@@ -17,7 +17,7 @@ pipelines:
             - cd ../../../
             - cd $DIR
             - mvn clean package
-            - git checkout master
+            - git checkout origin/master
             - git merge release
             - mvn release:prepare release:perform --batch-mode -Dusername=gafsel -Dpassword=discador01 -Darguments="-Dmaven.deploy.skip=true"
   tags:
