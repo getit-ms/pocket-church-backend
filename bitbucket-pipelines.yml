@@ -1,6 +1,10 @@
 image: gafsel/java-postgres-build
 
 pipelines:
+  default:
+    - step:
+	  script:
+	    - echo 'Inicindo pipeline'
   branches:
     release:
       - step:
