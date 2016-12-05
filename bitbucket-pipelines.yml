@@ -19,7 +19,7 @@ pipelines:
             - git config --global user.email 'gafsel@gmail.com'
             - mvn clean package
             - apt-get update && apt-get install -y sshpass
-            - sshpass -p d5gNA4Mbl6nzcC scp app/target/calvinista-app.ear root@getitmobilesolutions.com:/tmp/
-            - sshpass -p d5gNA4Mbl6nzcC ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app'
-            - sshpass -p d5gNA4Mbl6nzcC ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin deploy /tmp/calvinista-app/calvinista-app.ear'
-            - sshpass -p d5gNA4Mbl6nzcC ssh root@getitmobilesolutions.com 'rm /tmp/calvinista-app/calvinista-app.ear'
+            - sshpass -p d5gNA4Mbl6nzcC scp app/target/calvinista-app.ear root@getitmobilesolutions.com:/tmp/ -o StrictHostKeyChecking=no
+            - sshpass -p d5gNA4Mbl6nzcC ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app' -o StrictHostKeyChecking=no
+            - sshpass -p d5gNA4Mbl6nzcC ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin deploy /tmp/calvinista-app/calvinista-app.ear' -o StrictHostKeyChecking=no
+            - sshpass -p d5gNA4Mbl6nzcC ssh root@getitmobilesolutions.com 'rm /tmp/calvinista-app/calvinista-app.ear' -o StrictHostKeyChecking=no
