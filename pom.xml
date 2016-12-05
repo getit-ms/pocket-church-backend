@@ -195,7 +195,9 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
-                    <arguments>-B -Dusername=gafsel -Dpassword=discador01 -Darguments="-Dmaven.deploy.skip=true"</arguments>
+                    <arguments>-Dmaven.deploy.skip=true</arguments>
+                    <username>gafsel</username>
+                    <password>discador01</password>
                 </configuration>
             </plugin>
         </plugins>
@@ -205,7 +207,7 @@
         <profile>
             <id>prod</id>
             <build>
-                <defaultGoal>release:prepare release:perform</defaultGoal>
+                <defaultGoal>release:prepare release:perform -B</defaultGoal>
             </build>
         </profile>
     </profiles>
