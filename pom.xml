@@ -22,7 +22,6 @@
     
     <scm>
         <connection>scm:git:https://bitbucket.org/getit-team/calvinista-backend</connection>
-        <tag>HEAD</tag>
     </scm>
     
     <dependencyManagement>
@@ -198,4 +197,13 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>prod</id>
+            <build>
+                <defaultGoal></defaultGoal>
+            </build>
+        </profile>
+    </profiles>
 </project>
