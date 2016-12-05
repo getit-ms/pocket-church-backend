@@ -201,9 +201,11 @@
     <profiles>
         <profile>
             <id>prod</id>
-            <build>
-                <defaultGoal></defaultGoal>
-            </build>
+            <properties>
+                <arguments>-Dmaven.deploy.skip=true</arguments>
+                <username>gafsel</username>
+                <password>discador01</password>
+            </properties>
         </profile>
     </profiles>
 </project>
