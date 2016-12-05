@@ -2,22 +2,6 @@ image: gafsel/java-postgres-build
 
 pipelines:
   tags:
-    release-*:
-      - step:
-          script:
-            - export DIR=$(pwd)
-            - cd ..
-            - git clone https://gafsel:discador01@bitbucket.org/gafsel/gafs-base.git
-            - cd gafs-base
-            - mvn clean install
-            - cd ..
-            - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
-            - cd pagseguro/source/pagseguro-api
-            - mvn clean install
-            - cd $DIR
-            - git config --global user.name 'Pipeline Bitbucket'
-            - git config --global user.email 'gafsel@gmail.com'
-            - mvn release:prepare release:perform --batch-mode -Dusername=gafsel -Dpassword=discador01 -Darguments="-Dmaven.deploy.skip=true"
     calvinista-*:
       - step:
           script:
@@ -34,7 +18,7 @@ pipelines:
             - git config --global user.name 'Pipeline Bitbucket'
             - git config --global user.email 'gafsel@gmail.com'
             - mvn clean package
-            - scp app/target/calvinista-app.ear root:d5gNA4Mbl6nzcC@getitmobilesolutions.com/tmp/
+            - sshpass -p 'd5gNA4Mbl6nzcC' scp app/target/calvinista-app.ear root@getitmobilesolutions.com/tmp/
             - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app'
             - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com '/opt/glassfish4/glassfish/bin/asadmin deploy /tmp/calvinista-app/calvinista-app.ear'
             - sshpass -p 'd5gNA4Mbl6nzcC' ssh root@getitmobilesolutions.com 'rm /tmp/calvinista-app/calvinista-app.ear'
