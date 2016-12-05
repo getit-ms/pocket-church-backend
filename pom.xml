@@ -208,7 +208,7 @@
         <profile>
             <id>prod</id>
             <build>
-                <defaultGoal>release:prepare release:perform -B</defaultGoal>
+                <defaultGoal>release:prepare release:perform</defaultGoal>
             </build>
         </profile>
     </profiles>
