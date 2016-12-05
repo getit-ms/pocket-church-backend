@@ -201,6 +201,9 @@
     <profiles>
         <profile>
             <id>prod</id>
+            <build>
+                <defaultGoal>relese:prepare release:perform -B</defaultGoal>
+            </build>
             <properties>
                 <arguments>-Dmaven.deploy.skip=true</arguments>
                 <username>gafsel</username>
