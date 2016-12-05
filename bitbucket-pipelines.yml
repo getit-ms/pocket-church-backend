@@ -1,10 +1,10 @@
 image: gafsel/java-postgres-build
 
 pipelines:
-  branches:
-    release:
+  tags:
+    release-*:
       - step:
-          script: 
+          script:
             - export DIR=$(pwd)
             - cd ..
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/gafs-base.git
@@ -14,14 +14,8 @@ pipelines:
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
             - cd pagseguro/source/pagseguro-api
             - mvn clean install
-            - cd ../../../
             - cd $DIR
-            - mvn clean package
-            - git fetch origin/master
-            - git checkout master
-            - git merge release
             - mvn release:prepare release:perform --batch-mode -Dusername=gafsel -Dpassword=discador01 -Darguments="-Dmaven.deploy.skip=true"
-  tags:
     calvinista-*:
       - step:
           script:
@@ -34,7 +28,6 @@ pipelines:
             - git clone https://gafsel:discador01@bitbucket.org/gafsel/pagseguro.git
             - cd pagseguro/source/pagseguro-api
             - mvn clean install
-            - cd ../../../
             - cd $DIR
             - mvn clean package
             - scp app/target/calvinista-app.ear root:d5gNA4Mbl6nzcC@getitmobilesolutions.com/tmp/
