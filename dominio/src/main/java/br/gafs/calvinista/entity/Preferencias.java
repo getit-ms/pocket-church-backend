@@ -88,17 +88,21 @@ public class Preferencias implements IEntity {
     }
     
     @JsonProperty
-    public boolean isDadosDisponiveis(){
+    public Boolean getDadosDisponiveis(){
         if (dadosDisponiveis != null){
             return dadosDisponiveis;
         }
         
-        return dispositivo.getMembro() != null &&
-                dispositivo.getMembro().isDadosDisponiveis();
+        if (dispositivo == null || dispositivo.getMembro() == null){
+            return null;
+        }
+        
+        return dispositivo.getMembro().isDadosDisponiveis();
     }
     
-    public void setDadosDisponiveis(boolean dadosDisponiveis){
-        if (dadosDisponiveis != isDadosDisponiveis()){
+    @JsonProperty
+    public void setDadosDisponiveis(Boolean dadosDisponiveis){
+        if (dadosDisponiveis != null && !dadosDisponiveis.equals(getDadosDisponiveis())){
             this.dadosDisponiveis = dadosDisponiveis;
         }
     }

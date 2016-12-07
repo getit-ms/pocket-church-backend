@@ -36,6 +36,8 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
         Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
         
         try{
+            e0.printStackTrace();
+            
             throw ExceptionUnwrapperUtil.unwrappException(e0);
         }catch(ValidationException e){
             status = Response.Status.BAD_REQUEST;
