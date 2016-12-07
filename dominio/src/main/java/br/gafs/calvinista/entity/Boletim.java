@@ -35,9 +35,12 @@ import java.util.List;
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
     @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :status and b.dataPublicacao <= :data and b.divulgado = false group by i"),
-    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja")
+    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja"),
+    @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
+    @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.igreja.chave = :igreja")
 })
 public class Boletim implements ArquivoPDF {
+
     @Id
     @JsonView(Resumido.class)
     @Column(name = "id_boletim")
@@ -49,25 +52,25 @@ public class Boletim implements ArquivoPDF {
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     private String titulo;
-    
+
     @Column(name = "data")
     @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @View.MergeViews(View.Edicao.class)
     private Date data;
-    
+
     @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_publicacao")
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
-    
+
     @Setter
     @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_alteracao")
     private Date ultimaAlteracao = DateUtil.getDataAtual();
-    
+
     @JsonView(Detalhado.class)
     @Column(name = "divulgado", nullable = false)
     private boolean divulgado;
@@ -75,8 +78,8 @@ public class Boletim implements ArquivoPDF {
     @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
-    private StatusBoletim status = StatusBoletim.PUBLICADO;
-    
+    private StatusBoletim status = StatusBoletim.PROCESSANDO;
+
     @NotNull
     @OneToOne
     @JsonView(Resumido.class)
@@ -86,17 +89,16 @@ public class Boletim implements ArquivoPDF {
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Arquivo boletim;
-    
+
     @Setter
-    @NotNull
     @OneToOne
     @JsonView(Resumido.class)
     @JoinColumns({
-        @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo", nullable = false),
+        @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo"),
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Arquivo thumbnail;
-    
+
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "rl_boletim_paginas", joinColumns = {
@@ -107,12 +109,12 @@ public class Boletim implements ArquivoPDF {
         @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private List<Arquivo> paginas = new ArrayList<Arquivo>();
-    
+
     @Id
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
-    
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
@@ -121,25 +123,32 @@ public class Boletim implements ArquivoPDF {
     public Boletim(Igreja igreja) {
         this.igreja = igreja;
     }
-    
-    public void publica(){
-        if (dataPublicacao == null){
-            dataPublicacao = DateUtil.getDataAtual();
-        }
-        status = StatusBoletim.PUBLICADO;
+
+    public void processando() {
+        this.status = StatusBoletim.PROCESSANDO;
     }
-    
-    public boolean isPublicado(){
-        return StatusBoletim.PUBLICADO.equals(status);
+
+    public boolean isAgendado() {
+        return StatusBoletim.PUBLICADO.equals(status)
+                && DateUtil.getDataAtual().before(dataPublicacao);
     }
-    
-    public boolean isEmEdicao(){
-        return StatusBoletim.EM_EDICAO.equals(status);
+
+    public boolean isPublicado() {
+        return StatusBoletim.PUBLICADO.equals(status)
+                && DateUtil.getDataAtual().after(dataPublicacao);
     }
-    
+
+    public boolean isProcessando() {
+        return StatusBoletim.PROCESSANDO.equals(status);
+    }
+
+    public boolean isRejeitado() {
+        return StatusBoletim.REJEITADO.equals(status);
+    }
+
     @JsonProperty
     @JsonView(Resumido.class)
-    public List<Arquivo> getPaginas(){
+    public List<Arquivo> getPaginas() {
         Collections.sort(paginas);
         return paginas;
     }

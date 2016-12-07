@@ -9,6 +9,7 @@ import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.HorasEnvioVersiculo;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,8 +78,8 @@ public class Preferencias implements IEntity {
             })
     private List<Ministerio> ministeriosInteresse = new ArrayList<Ministerio>();
     
-    @Setter
     @Transient
+    @JsonIgnore
     @View.MergeViews(View.Edicao.class)
     private Boolean dadosDisponiveis;
     
@@ -86,6 +87,7 @@ public class Preferencias implements IEntity {
         this.dispositivo = dispositivo;
     }
     
+    @JsonProperty
     public boolean isDadosDisponiveis(){
         if (dadosDisponiveis != null){
             return dadosDisponiveis;
@@ -95,7 +97,14 @@ public class Preferencias implements IEntity {
                 dispositivo.getMembro().isDadosDisponiveis();
     }
     
+    public void setDadosDisponiveis(boolean dadosDisponiveis){
+        if (dadosDisponiveis != isDadosDisponiveis()){
+            this.dadosDisponiveis = dadosDisponiveis;
+        }
+    }
+    
     @Override
+    @JsonIgnore
     public String getId() {
         return dispositivo.getChave();
     }

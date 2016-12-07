@@ -13,4 +13,6 @@ public interface ArquivoPDF extends IEntity {
 
     List<Arquivo> getPaginas();
     void setPaginas(List<Arquivo> arquivos);
+    
+    Igreja getIgreja();
 }

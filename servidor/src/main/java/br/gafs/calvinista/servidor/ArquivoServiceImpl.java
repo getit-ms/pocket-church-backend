@@ -50,7 +50,13 @@ public class ArquivoServiceImpl implements ArquivoService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Arquivo upload(String fileName, byte[] fileData) {
-        return daoService.update(new Arquivo(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), fileName, fileData));
+        return cadastra(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), fileName, fileData);
+    }
+    
+    @Audit
+    @Override
+    public Arquivo cadastra(Igreja igreja, String fileName, byte[] fileData) {
+        return daoService.update(new Arquivo(igreja, fileName, fileData));
     }
 
     @Schedule(hour = "0", minute = "0", second = "0")
@@ -64,12 +70,24 @@ public class ArquivoServiceImpl implements ArquivoService {
     @Audit
     @Override
     public void registraDesuso(Long idArquivo) {
+        registraDesuso(sessaoBean.getChaveIgreja(), idArquivo);
+    }
+
+    @Audit
+    @Override
+    public void registraDesuso(String igreja, Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_DESUSO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
 
     @Audit
     @Override
     public void registraUso(Long idArquivo) {
+        registraUso(sessaoBean.getChaveIgreja(), idArquivo);
+    }
+
+    @Audit
+    @Override
+    public void registraUso(String igreja, Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_USO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
     

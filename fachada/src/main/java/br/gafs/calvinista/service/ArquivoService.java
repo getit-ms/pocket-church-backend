@@ -6,6 +6,7 @@
 package br.gafs.calvinista.service;
 
 import br.gafs.calvinista.entity.Arquivo;
+import br.gafs.calvinista.entity.Igreja;
 
 /**
  *
@@ -14,6 +15,9 @@ import br.gafs.calvinista.entity.Arquivo;
 public interface ArquivoService {
     Arquivo buscaArquivo(Long arquivo);
     Arquivo upload(String nome, byte[] data);
+    Arquivo cadastra(Igreja igreja, String nome, byte[] data);
     void registraUso(Long idArquivo);
     void registraDesuso(Long idArquivo);
+    void registraUso(String igreja, Long idArquivo);
+    void registraDesuso(String igreja, Long idArquivo);
 }

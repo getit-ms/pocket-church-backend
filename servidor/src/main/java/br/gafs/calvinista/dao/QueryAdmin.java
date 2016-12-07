@@ -200,7 +200,17 @@ public enum QueryAdmin {
         }
         
     }, 
-    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja");
+    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja"), 
+    BOLETINS_PROCESSANDO("Boletim.findByStatus"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusBoletim.PROCESSANDO);
+        }
+        
+    }, 
+    UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status");
+    
     private final String query;
     private final String[] parameters;
     private final QueryAdmin countQuery;

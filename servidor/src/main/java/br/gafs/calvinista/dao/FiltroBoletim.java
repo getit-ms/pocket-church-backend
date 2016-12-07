@@ -7,6 +7,7 @@ package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroBoletimDTO;
 import br.gafs.calvinista.entity.Dispositivo;
+import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
@@ -26,7 +27,8 @@ public class FiltroBoletim extends AbstractPaginatedFiltro<FiltroBoletimDTO> {
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
         if (!admin){
-            query.append(" and b.dataPublicacao <= :dataCorte");
+            query.append(" and b.status = :status and b.dataPublicacao <= :dataCorte");
+            args.put("status", StatusBoletim.PUBLICADO);
             args.put("dataCorte", DateUtil.getDataAtual());
         }
         
