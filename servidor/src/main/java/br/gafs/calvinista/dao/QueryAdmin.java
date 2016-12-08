@@ -196,7 +196,10 @@ public enum QueryAdmin {
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
-            return super.extractArguments(args).set("status", StatusIgreja.ATIVO).set("data", DateUtil.getDataAtual());
+            return super.extractArguments(args).
+                    set("statusIgreja", StatusIgreja.ATIVO).
+                    set("statusBoletim", StatusBoletim.PUBLICADO).
+                    set("data", DateUtil.getDataAtual());
         }
         
     }, 

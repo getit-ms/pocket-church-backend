@@ -537,7 +537,7 @@ public class AppServiceImpl implements AppService {
             textStripper.writeText(pdffile, writer);
             
             return writer.toString().trim();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         
