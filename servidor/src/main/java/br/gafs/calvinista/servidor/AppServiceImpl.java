@@ -628,13 +628,19 @@ public class AppServiceImpl implements AppService {
     public void removeBoletim(Long boletim) {
         Boletim entidade = buscaBoletim(boletim);
         
-        for (Arquivo page : entidade.getPaginas()) {
-            arquivoService.registraDesuso(page.getId());
+        if (entidade != null){
+            for (Arquivo page : entidade.getPaginas()) {
+                arquivoService.registraDesuso(page.getId());
+            }
+
+            arquivoService.registraDesuso(entidade.getBoletim().getId());
+            
+            if (entidade.getThumbnail() != null){
+                arquivoService.registraDesuso(entidade.getThumbnail().getId());
+            }
+            
+            daoService.delete(Boletim.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
         }
-        
-        arquivoService.registraDesuso(entidade.getBoletim().getId());
-        arquivoService.registraDesuso(entidade.getThumbnail().getId());
-        daoService.delete(Boletim.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
     }
     
     @Audit
