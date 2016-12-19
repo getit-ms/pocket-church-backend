@@ -469,6 +469,8 @@ public class AppServiceImpl implements AppService {
     
     @Schedule(hour = "*", minute = "*")
     public void processaBoletins(){
+        Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Buscando boletins para processar.");
+        
         List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
         for (Boletim boletim : boletins){
             try{
@@ -476,25 +478,27 @@ public class AppServiceImpl implements AppService {
                 int totalPaginas = trataPaginasPDF(boletim, 10);
                 if  (totalPaginas == boletim.getPaginas().size()){
                     daoService.execute(QueryAdmin.UPDATE_STATUS_BOLETIM.create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.PUBLICADO));
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Processamneto do boletim " + boletim.getTitulo() + " completo.");
+                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " completo.");
                 }else{
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Processamneto do boletim " + boletim.getTitulo() + " parcial. Próxima execução agendada.");
+                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " parcial. Próxima execução agendada.");
                 }
             }catch(Exception e){
                 e.printStackTrace();
                 if (DateUtil.diferencaEmHoras(boletim.getUltimaAlteracao(), DateUtil.getDataAtual()) > 1){
                     daoService.execute(QueryAdmin.UPDATE_STATUS_BOLETIM.create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.REJEITADO));
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "[" + boletim.getChaveIgreja() + "] Processamneto do boletim " + boletim.getTitulo() + " rejeitado devido a erros por mais de uma hora.");
+                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " rejeitado devido a erros por mais de uma hora.");
 
                     Throwable t = ExceptionUnwrapperUtil.unwrappException(e);
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     EmailUtil.alertAdm(sw.toString(), "Erro ao processar Boletim: " + boletim.getChaveIgreja() + " - " + boletim.getTitulo() + "<pre>" + t.getMessage() + "</pre>");
                 }else{
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "[" + boletim.getChaveIgreja() + "] Processamneto do boletim " + boletim.getTitulo() + " com erro: "+ e.getMessage());
+                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " com erro: "+ e.getMessage());
                 }
             }
         }
+        
+        Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Encerrando processamento dos boletins.");
     }
     
     @Audit
