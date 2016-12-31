@@ -469,36 +469,36 @@ public class AppServiceImpl implements AppService {
     
     @Schedule(hour = "*", minute = "*")
     public void processaBoletins(){
-        Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Buscando boletins para processar.");
+        System.out.println("Buscando boletins para processar.");
         
         List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
         for (Boletim boletim : boletins){
             try{
-                Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Iniciando processamento do boletim " + boletim.getTitulo());
+                System.out.println("[" + boletim.getChaveIgreja() + "] Iniciando processamento do boletim " + boletim.getTitulo());
                 int totalPaginas = trataPaginasPDF(boletim, 10);
                 if  (totalPaginas == boletim.getPaginas().size()){
                     daoService.execute(QueryAdmin.UPDATE_STATUS_BOLETIM.create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.PUBLICADO));
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " completo.");
+                    System.out.println("[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " completo.");
                 }else{
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " parcial. Próxima execução agendada.");
+                    System.out.println("[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " parcial. Próxima execução agendada.");
                 }
             }catch(Exception e){
                 e.printStackTrace();
                 if (DateUtil.diferencaEmHoras(boletim.getUltimaAlteracao(), DateUtil.getDataAtual()) > 1){
                     daoService.execute(QueryAdmin.UPDATE_STATUS_BOLETIM.create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.REJEITADO));
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " rejeitado devido a erros por mais de uma hora.");
+                    System.out.println("[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " rejeitado devido a erros por mais de uma hora.");
 
                     Throwable t = ExceptionUnwrapperUtil.unwrappException(e);
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     EmailUtil.alertAdm(sw.toString(), "Erro ao processar Boletim: " + boletim.getChaveIgreja() + " - " + boletim.getTitulo() + "<pre>" + t.getMessage() + "</pre>");
                 }else{
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " com erro: "+ e.getMessage());
+                    System.out.println("[" + boletim.getChaveIgreja() + "] Processamento do boletim " + boletim.getTitulo() + " com erro: "+ e.getMessage());
                 }
             }
         }
         
-        Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Encerrando processamento dos boletins.");
+        System.out.println("Encerrando processamento dos boletins.");
     }
     
     @Audit
@@ -554,7 +554,7 @@ public class AppServiceImpl implements AppService {
             
             return writer.toString().trim();
         } catch (Exception ex) {
-            Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
         
         return null;
@@ -575,14 +575,14 @@ public class AppServiceImpl implements AppService {
                             return;
                         }
 
-                        Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Processando página " + page + " de PDF.");
+                        System.out.println("Processando página " + page + " de PDF.");
 
                         if (page == 0){
                             pdf.setThumbnail(arquivoService.cadastra(pdf.getIgreja(), pdf.getPDF().getNome().
                                     replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, 500, 500)));
                             arquivoService.registraUso(pdf.getIgreja().getChave(), pdf.getThumbnail().getId());
                             pdf.getThumbnail().clearDados();
-                            Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Thumbnail registrado.");
+                            System.out.println("Thumbnail registrado.");
                         }
                         
                         Arquivo pagina = arquivoService.cadastra(pdf.getIgreja(), pdf.getPDF().getNome().
@@ -591,7 +591,7 @@ public class AppServiceImpl implements AppService {
                         pdf.getPaginas().add(pagina);
                         arquivoService.registraUso(pdf.getIgreja().getChave(), pagina.getId());
                         pagina.clearDados();
-                        Logger.getLogger(AppServiceImpl.class.getName()).log(Level.INFO, "Página registrada.");
+                        System.out.println("Página registrada.");
                     }
                 });
     }
