@@ -29,6 +29,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,9 +69,9 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     @Column(name = "timeout", updatable = false)
     private Date timeout = new Date(System.currentTimeMillis() + DateUtil.MILESIMOS_POR_DIA);
     
+    @Transient
     @JsonIgnore
     @Attachment(load = false, root = "/calvin/files")
-    @Column(name = "dados", updatable = false, insertable = false)
     private byte[] dados;
     
     @Id

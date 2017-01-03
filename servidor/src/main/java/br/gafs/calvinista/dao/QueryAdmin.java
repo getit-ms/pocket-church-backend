@@ -210,6 +210,11 @@ public enum QueryAdmin {
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusBoletim.PROCESSANDO);
         }
+
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return 5;
+        }
         
     }, 
     UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status");

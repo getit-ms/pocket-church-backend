@@ -20,7 +20,9 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -41,6 +43,28 @@ import java.util.List;
 })
 public class Boletim implements ArquivoPDF {
 
+    private static final Map<RegistroIgrejaId, Integer> locks = new HashMap<RegistroIgrejaId, Integer>();
+    
+    public synchronized static boolean locked(RegistroIgrejaId id){
+        return locks.containsKey(id);
+    }
+    
+    public synchronized static int lock(RegistroIgrejaId id){
+        return locks.get(id);
+    }
+    
+    public synchronized static void lock(RegistroIgrejaId id, int percent){
+        locks.put(id, percent);
+    }
+    
+    public synchronized static void unlock(RegistroIgrejaId id){
+        locks.remove(id);
+    }
+    
+    public synchronized static int locked(){
+        return locks.size();
+    }
+    
     @Id
     @JsonView(Resumido.class)
     @Column(name = "id_boletim")
@@ -144,6 +168,19 @@ public class Boletim implements ArquivoPDF {
 
     public boolean isRejeitado() {
         return StatusBoletim.REJEITADO.equals(status);
+    }
+    
+    public double getPorcentagemProcessamento(){
+        RegistroIgrejaId riid = new RegistroIgrejaId(chaveIgreja, id);
+        if (isProcessando() && locked(riid)){
+            return lock(riid);
+        }
+        
+        if (isPublicado() || isAgendado()){
+            return 1d;
+        }
+        
+        return 0d;
     }
 
     @JsonProperty
