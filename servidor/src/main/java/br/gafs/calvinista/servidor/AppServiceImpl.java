@@ -474,7 +474,7 @@ public class AppServiceImpl implements AppService {
     public void processaBoletins() throws Exception {
         if (Boletim.locked() < 5){
             List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
-            for (final Boletim boletim : boletins){
+            for (Boletim boletim : boletins){
                 if (!Boletim.locked(new RegistroIgrejaId(boletim.getChaveIgreja(), boletim.getId()))){
                     processamentoService.processa(new ProcessamentoBoletim(boletim));
                 }
@@ -1605,6 +1605,7 @@ public class AppServiceImpl implements AppService {
         public boolean execute(int count) throws Exception {
             int total = trataPaginasPDF(boletim, count);
             int current = boletim.getPaginas().size();
+            daoService.update(boletim);
             Boletim.lock(bid, current / total);
             return total == current;
         }
