@@ -11,12 +11,11 @@ import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.*;
 import br.gafs.calvinista.exception.ValidationException;
-import br.gafs.calvinista.security.AllowAdmin;
-import br.gafs.calvinista.security.AllowMembro;
-import br.gafs.calvinista.security.Audit;
-import br.gafs.calvinista.security.AuditoriaInterceptor;
-import br.gafs.calvinista.security.SecurityInterceptor;
-import br.gafs.calvinista.service.*;
+import br.gafs.calvinista.security.*;
+import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.service.ArquivoService;
+import br.gafs.calvinista.service.MensagemService;
+import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.util.PDFToImageConverterUtil;
@@ -28,7 +27,6 @@ import br.gafs.file.EntityFileManager;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
-import br.gafs.util.exception.ExceptionUnwrapperUtil;
 import br.gafs.util.image.ImageUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
@@ -43,15 +41,12 @@ import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -1554,6 +1549,8 @@ public class AppServiceImpl implements AppService {
                     if (StringUtil.isEmpty(texto)){
                         texto = MensagemUtil.getMensagem("push.aniversario.message",
                                 igreja.getLocale(), membro.getNome(), igreja.getNome());
+                    }else{
+                        texto = MessageFormat.format(texto, membro.getNome(), igreja.getNome());
                     }
                     
                     enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, membro.getId()), titulo, texto);
