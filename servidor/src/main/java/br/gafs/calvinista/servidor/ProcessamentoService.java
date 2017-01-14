@@ -31,7 +31,7 @@ import javax.transaction.UserTransaction;
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ProcessamentoService {
     private static final int LIMITE_TENTATIVAS = 5;
-    private static final int FILA_TRANSACAO = 5;
+    private static final int FILA_TRANSACAO = 25;
     
     @PersistenceContext
     private EntityManager em;
@@ -52,7 +52,7 @@ public class ProcessamentoService {
                 do {
                     ut.begin();
                     
-                    complete = processo.execute(FILA_TRANSACAO);
+                    complete = processo.execute(FILA_TRANSACAO / (falhas + 1));
                     
                     ut.commit();
                 }while(!complete);

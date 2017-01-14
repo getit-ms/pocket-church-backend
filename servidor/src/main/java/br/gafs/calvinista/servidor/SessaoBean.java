@@ -115,8 +115,15 @@ public class SessaoBean implements Serializable {
     public void refreshFuncionalidades(){
         funcionalidades = new ArrayList<Integer>();
         if (idMembro != null){
-            List<Funcionalidade> funcs = daoService.
-                                findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO.create(idMembro, chaveIgreja));
+            List<Funcionalidade> funcs;
+            if (admin){
+                funcs = daoService.
+                        findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO_ADMIN.create(idMembro, chaveIgreja));
+            }else{
+                funcs = daoService.
+                        findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO_APP.create(idMembro, chaveIgreja));
+            }
+                                
             for (Funcionalidade funcionalidade : funcs){
                 funcionalidades.add(funcionalidade.getCodigo());
             }

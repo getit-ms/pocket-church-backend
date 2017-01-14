@@ -471,12 +471,16 @@ public class AppServiceImpl implements AppService {
     }
     
     @Schedule(hour = "*", minute = "*/5")
-    public void processaBoletins() throws Exception {
+    public void processaBoletins() {
         if (Boletim.locked() < 5){
             List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
             for (Boletim boletim : boletins){
-                if (!Boletim.locked(new RegistroIgrejaId(boletim.getChaveIgreja(), boletim.getId()))){
-                    processamentoService.processa(new ProcessamentoBoletim(boletim));
+                try{
+                    if (!Boletim.locked(new RegistroIgrejaId(boletim.getChaveIgreja(), boletim.getId()))){
+                        processamentoService.processa(new ProcessamentoBoletim(boletim));
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
             }
         }
@@ -1606,7 +1610,7 @@ public class AppServiceImpl implements AppService {
             int total = trataPaginasPDF(boletim, count);
             int current = boletim.getPaginas().size();
             daoService.update(boletim);
-            Boletim.lock(bid, current / total);
+            Boletim.lock(bid, (100 * current) / total);
             return total == current;
         }
         
