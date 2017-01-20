@@ -184,13 +184,21 @@ public enum QueryAdmin {
             return 10;
         }
     }, 
-    UPDATE_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"){
+    UPDATE_BOLETINS_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("data", DateUtil.getDataAtual());
         }
         
+    },
+    UPDATE_ESTUDOS_NAO_DIVULGADOS("Estudo.updateNaoDivulgadosByIgreja", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusEstudo.NOTIFICADO);
+        }
+
     },
     IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
 
@@ -203,7 +211,18 @@ public enum QueryAdmin {
         }
         
     }, 
-    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja"), 
+    IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR("Estudo.findIgrejaByStatusAndDataPublicacao"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("statusIgreja", StatusIgreja.ATIVO).
+                    set("statusBoletim", StatusEstudo.NAO_NOTIFICADO).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    },
+    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja"),
     BOLETINS_PROCESSANDO("Boletim.findByStatus"){
 
         @Override

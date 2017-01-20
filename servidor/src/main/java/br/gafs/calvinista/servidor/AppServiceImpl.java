@@ -745,6 +745,11 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.ENVIAR_NOTIFICACOES)
     public void enviar(Notificacao notificacao) {
         notificacao.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
+        if (StringUtil.isEmpty(notificacao.getTitulo())){
+            notificacao.setTitulo(MensagemUtil.getMensagem("push.notificacao.title",
+                    notificacao.getIgreja().getLocale(), notificacao.getIgreja().getNomeAplicativo()));
+        }
         
         notificacao = daoService.create(notificacao);
         
@@ -754,8 +759,7 @@ public class AppServiceImpl implements AppService {
             filtro.getMinisterios().add(m.getId());
         }
         
-        enviaPush(filtro, MensagemUtil.getMensagem("push.notificacao.title",
-                notificacao.getIgreja().getLocale(), notificacao.getIgreja().getNomeAplicativo()), notificacao.getMensagem());
+        enviaPush(filtro, notificacao.getTitulo(), notificacao.getMensagem());
     }
     
     @Override
@@ -1591,10 +1595,30 @@ public class AppServiceImpl implements AppService {
             
             enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto);
             
-            daoService.execute(QueryAdmin.UPDATE_NAO_DIVULGADOS.create(igreja.getChave()));
+            daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
-    
+
+    @Schedule(hour = "*")
+    public void enviaNotificacoesEstudos() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR.create());
+        for (Igreja igreja : igrejas) {
+            String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ESTUDO);
+            if (StringUtil.isEmpty(titulo)){
+                titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
+            }
+
+            String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ESTUDO);
+            if (StringUtil.isEmpty(texto)){
+                texto = MensagemUtil.getMensagem("push.estudo.message", igreja.getLocale(), igreja.getNome());
+            }
+
+            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto);
+
+            daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
+        }
+    }
+
     private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem) {
         notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null), filtro);
     }

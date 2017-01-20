@@ -6,6 +6,7 @@
 package br.gafs.calvinista.app.controller;
 
 import br.gafs.calvinista.app.util.MergeUtil;
+import br.gafs.calvinista.app.util.ReportUtil;
 import br.gafs.calvinista.dto.FiltroEventoDTO;
 import br.gafs.calvinista.dto.FiltroEventoFuturoDTO;
 import br.gafs.calvinista.dto.FiltroInscricaoDTO;
@@ -15,23 +16,21 @@ import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
-import java.util.ArrayList;
-import java.util.List;
+import br.gafs.dao.BuscaPaginadaDTO;
+import br.gafs.view.relatorio.BuscaPaginadaDataSource;
+import net.sf.jasperreports.engine.JRException;
+
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -46,6 +45,12 @@ public class EventoController {
     
     @EJB
     private AcessoService acessoService;
+
+    @Context
+    private HttpServletResponse response;
+
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -71,7 +76,35 @@ public class EventoController {
             @QueryParam("total") @DefaultValue("10") Integer total){
         return Response.status(Response.Status.OK).entity(appService.buscaTodas(evento, new FiltroInscricaoDTO(pagina, total))).build();
     }
-    
+
+    @GET
+    @Path("{evento}/inscricoes/pdf")
+    @Produces({"application/pdf", MediaType.APPLICATION_JSON})
+    public Response exportaInscricoes(
+            @PathParam("evento") Long id) throws JRException, IOException {
+        final Evento evento = appService.buscaEvento(id);
+
+        if (evento != null){
+            byte[] pdf = ReportUtil.igreja("logo.png", evento.getIgreja().getChave(), evento.getNome(), request.getServletContext())
+                    .arg("evento", evento)
+                    .dataSource(new BuscaPaginadaDataSource<>(new BuscaPaginadaDataSource.PaginaResolver<InscricaoEvento>() {
+                        @Override
+                        public BuscaPaginadaDTO<InscricaoEvento> buscaPagina(int pagina) {
+                            return appService.buscaTodas(evento.getId(), new FiltroInscricaoDTO(pagina, 30));
+                        }
+                    })).build().pdf();
+
+            response.addHeader("Content-Type", "application/pdf");
+            response.addHeader("Content-Length", "" + pdf.length);
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=\""+evento.getNome()+"\".pdf");
+            response.getOutputStream().write(pdf);
+            return Response.noContent().build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
     @GET
     @Path("{evento}/inscricoes/minhas")
     @Produces(MediaType.APPLICATION_JSON)

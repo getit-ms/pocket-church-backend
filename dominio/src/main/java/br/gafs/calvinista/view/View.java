@@ -17,7 +17,8 @@ import java.lang.annotation.Target;
 public class View {
     public static class AlterarSenha {}
     public static class Edicao {}
-    
+    public static class Cadastro {}
+
     public static interface Resumido {}
     public static interface Detalhado extends Resumido {}
     

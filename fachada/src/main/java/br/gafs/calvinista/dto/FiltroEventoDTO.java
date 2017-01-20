@@ -5,14 +5,12 @@
  */
 package br.gafs.calvinista.dto;
 
-import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.dto.DTO;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+
+import java.util.Date;
 
 /**
  *
@@ -23,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class FiltroEventoDTO implements DTO {
     private Date dataInicio;
     private Date dataTermino;
+    private TipoEvento tipo;
     private Integer pagina = 1;
     private Integer total = 10;
 }

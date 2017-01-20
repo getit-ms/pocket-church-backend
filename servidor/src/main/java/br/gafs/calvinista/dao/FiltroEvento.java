@@ -6,12 +6,11 @@
 package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroEventoDTO;
-import br.gafs.calvinista.entity.Dispositivo;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
-import java.util.Date;
+
 import java.util.Map;
 
 /**
@@ -25,6 +24,11 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
         
         StringBuilder query = new StringBuilder("from Evento e where e.igreja.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
+
+        if (filtro.getTipo() != null){
+            query.append(" and e.tipo = :tipo");
+            args.put("tipo", filtro.getTipo());
+        }
         
         if (admin){
             if (filtro.getDataInicio() != null){
@@ -40,8 +44,7 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
             query.append(" and e.dataHoraTermino >= :dataHoraTermino");
             args.put("dataHoraTermino", DateUtil.getDataAtual());
         }
-        
-        
+
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select e ").append(query).append(" order by e.dataHoraInicio").toString());

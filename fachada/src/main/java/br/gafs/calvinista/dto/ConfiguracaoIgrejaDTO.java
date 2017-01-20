@@ -42,6 +42,12 @@ public class ConfiguracaoIgrejaDTO implements DTO {
     @View.MergeViews(View.Edicao.class)
     @TipoParametro.Mapping(TipoParametro.TEXTO_BOLETIM)
     private String textoBoletim;
+    @View.MergeViews(View.Edicao.class)
+    @TipoParametro.Mapping(TipoParametro.TITULO_ESTUDO)
+    private String tituloEstudo;
+    @View.MergeViews(View.Edicao.class)
+    @TipoParametro.Mapping(TipoParametro.TEXTO_ESTUDO)
+    private String textoEstudo;
 
     public boolean isPagSeguroConfigurado() {
         return !StringUtil.isEmpty(userPagSeguro) &&

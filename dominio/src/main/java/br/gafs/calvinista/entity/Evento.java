@@ -6,34 +6,18 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.math.BigDecimal;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  *
@@ -69,7 +53,12 @@ public class Evento implements IEntity {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "limite_inscricoes")
     private Integer limiteInscricoes;
-    
+
+    @Setter
+    @NotNull
+    @Column(name = "tipo")
+    private TipoEvento tipo = TipoEvento.EVENTO;
+
     @Transient
     private Integer vagasRestantes = 0;
     

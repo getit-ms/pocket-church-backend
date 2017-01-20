@@ -5,10 +5,11 @@
  */
 package br.gafs.calvinista.entity.domain;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -28,6 +29,7 @@ public enum Funcionalidade {
     CONSULTAR_PEDIDOS_ORACAO(Tipo.ADMIN, 8),
     MANTER_AGENDA(Tipo.ADMIN, 9),
     MANTER_EVENTOS(Tipo.ADMIN, 10),
+    MANTER_EBD(Tipo.ADMIN, 28),
     GERENCIAR_ACESSO_MEMBROS(Tipo.ADMIN, 11),
     GERENCIAR_FUNCIONALIDADES_APLICATIVO(Tipo.ADMIN, 12),
     ENVIAR_NOTIFICACOES(Tipo.ADMIN, true, 13),
@@ -42,7 +44,8 @@ public enum Funcionalidade {
     PEDIR_ORACAO(Tipo.MEMBRO, 21),
     AGENDAR_ACONSELHAMENTO(Tipo.MEMBRO, 22),
     REALIZAR_INSCRICAO_EVENTO(Tipo.MEMBRO, 23),
-    
+    REALIZAR_INSCRICAO_EBD(Tipo.MEMBRO, 29),
+
     // Pública
     LISTAR_BOLETINS(Tipo.PUBLICA, 24),
     LISTAR_ESTUDOS(Tipo.PUBLICA, 25),

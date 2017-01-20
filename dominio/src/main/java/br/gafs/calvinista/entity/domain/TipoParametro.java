@@ -7,6 +7,10 @@ package br.gafs.calvinista.entity.domain;
 
 import br.gafs.calvinista.entity.Parametro;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -16,9 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  *
@@ -37,7 +38,9 @@ public enum TipoParametro {
     TEXTO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
     TITULO_BOLETIM(TipoValor.VALOR, String.class, null),
     TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
-    
+    TITULO_ESTUDO(TipoValor.VALOR, String.class, null),
+    TEXTO_ESTUDO(TipoValor.VALOR, String.class, null),
+
     PUSH_ANDROID_KEY(TipoValor.VALOR, String.class, null),
     PUSH_ANDROID_SENDER_ID(TipoValor.VALOR, String.class, null),
     PUSH_IOS_PASS(TipoValor.VALOR, String.class, null),

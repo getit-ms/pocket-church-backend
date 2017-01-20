@@ -14,32 +14,12 @@ import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  *
@@ -52,6 +32,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Table(name = "tb_estudo")
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
+@NamedQueries({
+    @NamedQuery(name = "Estudo.findIgrejaByStatusAndDataPublicacao", query = "select i from Estudo e inner join e.igreja i where e.igreja.status = :statusIgreja and e.status = :statusEstudo and e.dataPublicacao <= :data group by i"),
+    @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.status = :status where e.igreja.chave = :igreja")
+})
 public class Estudo implements IEntity {
     @Id
     @JsonView(Resumido.class)
@@ -90,7 +74,7 @@ public class Estudo implements IEntity {
     @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
-    private StatusEstudo status = StatusEstudo.EM_EDICAO;
+    private StatusEstudo status = StatusEstudo.NAO_NOTIFICADO;
     
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
@@ -124,18 +108,15 @@ public class Estudo implements IEntity {
     
     @JsonView(Detalhado.class)
     public boolean isEmEdicao(){
-        return StatusEstudo.EM_EDICAO.equals(status);
+        return dataPublicacao == null || DateUtil.getDataAtual().before(dataPublicacao);
     }
     
     @JsonView(Detalhado.class)
     public boolean isPublicado(){
-        return StatusEstudo.PUBLICADO.equals(status);
+        return !isEmEdicao();
     }
-    
-    public void publica(){
-        if (dataPublicacao == null){
-            dataPublicacao = DateUtil.getDataAtual();
-        }
-        status = StatusEstudo.PUBLICADO;
+
+    public void notificado(){
+        status = StatusEstudo.NOTIFICADO;
     }
 }
