@@ -83,7 +83,7 @@ public class MensagemUtil {
         args.put("link.url", manchete.getLinkURL());
         args.put("link.texto", manchete.getLinkTexto());
         args.put("img_fundo", "cid:attachment" + attachments.size());
-        attachments.add(new MensagemEmailDTO.Anexo(resource(institucional.getIgreja().getChave(), "/email/img_fundo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
+        attachments.add(new MensagemEmailDTO.Anexo(ResourceUtil.mensagem(institucional.getIgreja().getChave(), "/email/img_fundo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
         attachNames.add("img_fundo.png");
         return load(institucional.getIgreja(), "/email/titulo-manchete.html", args);
     }
@@ -92,7 +92,7 @@ public class MensagemUtil {
     
     private static String load(Igreja igreja, String resource, Map<String, String> args){
         try{
-            Scanner scn = new Scanner(new FileInputStream(resource(igreja.getChave(), resource)), "UTF-8");
+            Scanner scn = new Scanner(new FileInputStream(ResourceUtil.mensagem(igreja.getChave(), resource)), "UTF-8");
 
             StringBuilder str = new StringBuilder();
             while (scn.hasNext()){
@@ -150,12 +150,8 @@ public class MensagemUtil {
         args.put("igreja.nome", institucional.getIgreja().getNome());
         args.put("igreja.site", institucional.getSite());
         args.put("logo", "cid:attachment" + attachments.size());
-        attachments.add(new MensagemEmailDTO.Anexo(resource(institucional.getIgreja().getChave(), "/email/logo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
+        attachments.add(new MensagemEmailDTO.Anexo(ResourceUtil.mensagem(institucional.getIgreja().getChave(), "/email/logo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
         attachNames.add("logo.png");
         return load(institucional.getIgreja(), "/email.html", args);
-    }
-    
-    private static String resource(String igreja, String path){
-        return new File(new File(new File(ResourceBundleUtil._default().getPropriedade("RESOURCES_ROOT"), "mensagem"), igreja), path).getAbsolutePath();
     }
 }

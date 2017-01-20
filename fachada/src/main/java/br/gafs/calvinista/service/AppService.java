@@ -120,6 +120,7 @@ public interface AppService extends Serializable {
     Evento buscaEvento(Long evento);
     ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> merged);
     void confirmaInscricao(Long evento, Long inscricao);
+    void cancelaInscricao(Long evento, Long inscricao);
     
     VersiculoDiario cadastra(VersiculoDiario versiculoDiario);
     VersiculoDiario habilita(Long versiculo);
@@ -160,6 +161,6 @@ public interface AppService extends Serializable {
     
     void clearNotificacoes();
     Long countNotificacoesNaoLidas();
-    BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro);
+    BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);
 
 }

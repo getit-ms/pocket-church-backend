@@ -44,7 +44,6 @@ import lombok.NonNull;
 })
 public class NotificationSchedule implements IEntity {
     @Id
-    @JsonIgnore
     @Column(name = "id_notificacao_schedule")
     @SequenceGenerator(sequenceName = "seq_notificacao_schedule", name = "seq_notificacao_schedule")
     @GeneratedValue(generator = "seq_notificacao_schedule", strategy = GenerationType.SEQUENCE)

@@ -82,6 +82,10 @@ public class Institucional implements IEntity {
         @JoinColumn(name = "id_divulgacao", referencedColumnName = "id_arquivo")
     })
     private Arquivo divulgacao;
+    
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "texto_divulgacao")
+    private String textoDivulgacao;
 
     @View.MergeViews(View.Edicao.class)
     @Column(name = "quem_somos", columnDefinition = "TEXT")

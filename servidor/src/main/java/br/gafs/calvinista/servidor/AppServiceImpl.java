@@ -99,8 +99,8 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    public BuscaPaginadaDTO<String> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
-        BuscaPaginadaDTO<String> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(),
+    public BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
+        BuscaPaginadaDTO<NotificationSchedule> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(),
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
         marcaNotificacoesComoLidas();
         return busca;
@@ -1250,6 +1250,18 @@ public class AppServiceImpl implements AppService {
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
         
         entidade.confirmada();
+        
+        daoService.update(entidade);
+    }
+    
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    public void cancelaInscricao(Long evento, Long inscricao) {
+        InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
+                new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
+        
+        entidade.cancelada();
         
         daoService.update(entidade);
     }

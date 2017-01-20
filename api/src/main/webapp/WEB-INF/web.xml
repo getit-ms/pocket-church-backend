@@ -8,6 +8,11 @@
         <param-name>projectVersion</param-name>
         <param-value>${project.version}</param-value>
     </context-param>
+
+    <context-param>
+        <param-name>jrxml.paths</param-name>
+        <param-value>${jrxml.paths}</param-value>
+    </context-param>
     
     <security-constraint>
         <web-resource-collection>

@@ -123,8 +123,17 @@ public class EventoController {
     @Path("{evento}/confirmar/{inscricao}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response realizaInscricao(@PathParam("evento") Long evento, @PathParam("inscricao") Long inscricao){
+    public Response confirmaInscricao(@PathParam("evento") Long evento, @PathParam("inscricao") Long inscricao){
         appService.confirmaInscricao(evento, inscricao);
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    @DELETE
+    @Path("{evento}/cancelar/{inscricao}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response cancelaInscricao(@PathParam("evento") Long evento, @PathParam("inscricao") Long inscricao){
+        appService.cancelaInscricao(evento, inscricao);
         return Response.status(Response.Status.OK).build();
     }
     
