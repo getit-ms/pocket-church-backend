@@ -6,9 +6,9 @@
 package br.gafs.calvinista.service;
 
 import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
+import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
 import br.gafs.calvinista.dto.ParametrosGlobaisDTO;
 import br.gafs.calvinista.dto.ParametrosIgrejaDTO;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import java.io.Serializable;
 
@@ -20,10 +20,12 @@ public interface ParametroService extends Serializable {
     public ParametrosGlobaisDTO buscaParametrosGlobais();
     public ParametrosIgrejaDTO buscaParametros(String igreja);
     public ConfiguracaoIgrejaDTO buscaConfiguracao(String igreja);
+    public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube(String igreja);
     
     public void salvaParametrosGlobais(ParametrosGlobaisDTO params);
     public void salvaParametros(ParametrosIgrejaDTO params, String igreja);
     public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja);
+    public void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja);
     
     <T> T get(String grupo, TipoParametro param);
     <T> void set(String grupo, TipoParametro param, T value);

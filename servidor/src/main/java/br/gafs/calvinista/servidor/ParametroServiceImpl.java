@@ -6,6 +6,7 @@
 package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
+import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
 import br.gafs.calvinista.dto.ParametrosGlobaisDTO;
 import br.gafs.calvinista.dto.ParametrosIgrejaDTO;
 import br.gafs.calvinista.entity.Igreja;
@@ -61,6 +62,18 @@ public class ParametroServiceImpl implements ParametroService {
     @AllowUsuario
     public void salvaParametrosGlobais(ParametrosGlobaisDTO params) {
         extract(params, Parametro.GLOBAL);
+    }
+
+    @Override
+    public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube(String igreja) {
+        return build(ConfiguracaoYouTubeIgrejaDTO.class, igreja);
+    }
+
+    @Audit
+    @Override
+    @AllowMembro
+    public void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja) {
+        extract(params, igreja);
     }
 
     @Audit

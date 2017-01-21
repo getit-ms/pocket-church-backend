@@ -162,5 +162,9 @@ public interface AppService extends Serializable {
     void clearNotificacoes();
     Long countNotificacoesNaoLidas();
     BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);
-
+    
+    String buscaURLAutenticacaoYouTube();
+    void iniciaConfiguracaoYouTube(String code); 
+    List<VideoDTO> buscaVideos();
+    ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube();
 }

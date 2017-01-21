@@ -44,7 +44,11 @@ public enum TipoParametro {
     PUSH_ANDROID_KEY(TipoValor.VALOR, String.class, null),
     PUSH_ANDROID_SENDER_ID(TipoValor.VALOR, String.class, null),
     PUSH_IOS_PASS(TipoValor.VALOR, String.class, null),
-    PUSH_IOS_CERTIFICADO(TipoValor.ANEXO, byte[].class, null)
+    PUSH_IOS_CERTIFICADO(TipoValor.ANEXO, byte[].class, null),
+
+    GOOGLE_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
+    GOOGLE_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
+    YOUTUBE_CHANNEL_ID(TipoValor.VALOR, String.class, null),
             
     ;
     

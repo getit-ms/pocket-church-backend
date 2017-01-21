@@ -16,6 +16,7 @@ import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.util.PDFToImageConverterUtil;
@@ -47,6 +48,8 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,6 +74,9 @@ public class AppServiceImpl implements AppService {
     
     @EJB
     private PagSeguroService pagSeguroService;
+    
+    @EJB
+    private GoogleService googleService;
     
     @EJB
     private ParametroService  paramService;
@@ -759,7 +765,7 @@ public class AppServiceImpl implements AppService {
             filtro.getMinisterios().add(m.getId());
         }
         
-        enviaPush(filtro, notificacao.getTitulo(), notificacao.getMensagem());
+        enviaPush(filtro, notificacao.getTitulo(), notificacao.getMensagem(), TipoNotificacao.NOTIFICACAO, false);
     }
     
     @Override
@@ -876,7 +882,8 @@ public class AppServiceImpl implements AppService {
                 entidade.getSolicitante().getId()),
                 MensagemUtil.getMensagem("push.atendimento_pedido_oracao.title", entidade.getIgreja().getLocale()),
                 MensagemUtil.getMensagem("push.atendimento_pedido_oracao.message", entidade.getIgreja().getLocale(),
-                        MensagemUtil.formataDataHora(entidade.getDataSolicitacao(), entidade.getIgreja().getLocale(), entidade.getIgreja().getTimezone())));
+                        MensagemUtil.formataDataHora(entidade.getDataSolicitacao(), entidade.getIgreja().getLocale(), entidade.getIgreja().getTimezone())),
+                TipoNotificacao.PEDIDO_ORACAO, false);
         
         return entidade;
     }
@@ -936,7 +943,8 @@ public class AppServiceImpl implements AppService {
                                     atendimento.getIgreja().getTimezone()),
                             MensagemUtil.formataHora(atendimento.getDataHoraFim(),
                                     atendimento.getIgreja().getLocale(),
-                                    atendimento.getIgreja().getTimezone())));
+                                    atendimento.getIgreja().getTimezone())),
+                    TipoNotificacao.ACONSELHAMENTO, false);
         }
         
         return atendimento;
@@ -969,7 +977,8 @@ public class AppServiceImpl implements AppService {
                                 agendamento.getIgreja().getTimezone()),
                         MensagemUtil.formataHora(agendamento.getDataHoraFim(),
                                 agendamento.getIgreja().getLocale(),
-                                agendamento.getIgreja().getTimezone())));
+                                agendamento.getIgreja().getTimezone())),
+                TipoNotificacao.ACONSELHAMENTO, false);
         
         return agendamento;
     }
@@ -1006,7 +1015,8 @@ public class AppServiceImpl implements AppService {
                                     agendamento.getIgreja().getTimezone()),
                             MensagemUtil.formataHora(agendamento.getDataHoraFim(),
                                     agendamento.getIgreja().getLocale(),
-                                    agendamento.getIgreja().getTimezone())));
+                                    agendamento.getIgreja().getTimezone())),
+                    TipoNotificacao.ACONSELHAMENTO, false);
         }else{
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getIgreja(),
                     agendamento.getCalendario().getPastor().getId()),
@@ -1021,7 +1031,8 @@ public class AppServiceImpl implements AppService {
                                     agendamento.getIgreja().getTimezone()),
                             MensagemUtil.formataHora(agendamento.getDataHoraFim(),
                                     agendamento.getIgreja().getLocale(),
-                                    agendamento.getIgreja().getTimezone())));
+                                    agendamento.getIgreja().getTimezone())),
+                    TipoNotificacao.ACONSELHAMENTO, false);
         }
         
         return agendamento;
@@ -1450,7 +1461,50 @@ public class AppServiceImpl implements AppService {
         ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
         atualizaSituacaoPagSeguro(pagSeguroService.buscaReferenciaIdTransacao(transactionId, configuracao), configuracao);
     }
-    
+
+    @Override
+    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    public String buscaURLAutenticacaoYouTube() {
+        return googleService.getURLAutorizacaoYouTube();
+    }
+
+    @Override
+    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    public void iniciaConfiguracaoYouTube(String code) {
+        try {
+            googleService.saveCredentialsYouTube(code);
+            
+            ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
+            config.setIdCanal(googleService.buscaIdCanal());
+            paramService.salvaConfiguracaoYouTube(config, sessaoBean.getChaveIgreja());
+            
+            Institucional institucional = recuperaInstitucional();
+            if (!institucional.getRedesSociais().containsKey("youtube")){
+                institucional.getRedesSociais().put("youtube", "https://www.youtube.com/channel/" + config.getIdCanal());
+                daoService.update(institucional);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            throw new ServiceException("mensagens.MSG-046");
+        }
+    }
+
+    @Override
+    public List<VideoDTO> buscaVideos() {
+        try {
+            return googleService.buscaVideos();
+        } catch (IOException ex) {
+            Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube() {
+        return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
+    }
+
     @Schedule(hour = "*", minute = "0/15")
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
@@ -1541,7 +1595,7 @@ public class AppServiceImpl implements AppService {
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
                     if (hev.getHoraInt().equals(hora)){
-                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev), titulo, atual.getVersiculo());
+                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev), titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, false);
                         break;
                     }
                 }
@@ -1573,7 +1627,7 @@ public class AppServiceImpl implements AppService {
                         texto = MessageFormat.format(texto, membro.getNome(), igreja.getNome());
                     }
                     
-                    enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, membro.getId()), titulo, texto);
+                    enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, membro.getId()), titulo, texto, TipoNotificacao.ANIVERSARIO, false);
                 }
             }
         }
@@ -1593,7 +1647,7 @@ public class AppServiceImpl implements AppService {
                 texto = MensagemUtil.getMensagem("push.boletim.message", igreja.getLocale(), igreja.getNome());
             }
             
-            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto);
+            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.BOLETIM, false);
             
             daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
@@ -1613,14 +1667,15 @@ public class AppServiceImpl implements AppService {
                 texto = MensagemUtil.getMensagem("push.estudo.message", igreja.getLocale(), igreja.getNome());
             }
 
-            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto);
+            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
 
             daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
 
-    private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem) {
-        notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null), filtro);
+    private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem, TipoNotificacao tipo, boolean compartilhavel) {
+        notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null, 
+                new QueryParameters("tipo", tipo).set("compartilhavel", compartilhavel)), filtro);
     }
     
     private class ProcessamentoBoletim implements ProcessamentoService.Processo {

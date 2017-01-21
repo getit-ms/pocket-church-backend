@@ -6,6 +6,7 @@
 package br.gafs.calvinista.dto;
 
 import br.gafs.dto.DTO;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +24,5 @@ public class MensagemPushDTO implements DTO, Cloneable {
     private Integer badge;
     private String icon;
     private String sound;
+    private Map<String, Object> data;
 }

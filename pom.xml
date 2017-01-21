@@ -22,8 +22,8 @@
     
     <scm>
         <connection>scm:git:https://bitbucket.org/getit-team/calvinista-backend</connection>
-      <tag>calvinista-2.37</tag>
-  </scm>
+        <tag>calvinista-2.37</tag>
+    </scm>
     
     <dependencyManagement>
         <dependencies>
@@ -178,6 +178,19 @@
                 <artifactId>pagseguro-api</artifactId>
                 <version>0.0.2</version>
             </dependency>
+            
+            <dependency>
+                <groupId>com.google.api-client</groupId>
+                <artifactId>google-api-client</artifactId>
+                <version>1.22.0</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-youtube</artifactId>
+                <version>v3-rev181-1.22.0</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     

@@ -13,6 +13,7 @@ import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
@@ -54,17 +55,21 @@ public class EventoController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response busca(@QueryParam("pagina") @DefaultValue("1") Integer pagina,
+    public Response busca(
+            @QueryParam("tipo") @DefaultValue("EVENTO") TipoEvento tipo,
+            @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaTodos(new FiltroEventoDTO(null, null, pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaTodos(new FiltroEventoDTO(null, null, tipo, pagina, total))).build();
     }
     
     @GET
     @Path("proximos")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaFuturos(@QueryParam("pagina") @DefaultValue("1") Integer pagina,
+    public Response buscaFuturos(
+            @QueryParam("tipo") @DefaultValue("EVENTO") TipoEvento tipo,
+            @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaFuturos(new FiltroEventoFuturoDTO(pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaFuturos(new FiltroEventoFuturoDTO(tipo, pagina, total))).build();
     }
     
     @GET

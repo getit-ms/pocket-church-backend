@@ -57,6 +57,7 @@ public class Evento implements IEntity {
     @Setter
     @NotNull
     @Column(name = "tipo")
+    @Enumerated(EnumType.ORDINAL)
     private TipoEvento tipo = TipoEvento.EVENTO;
 
     @Transient
