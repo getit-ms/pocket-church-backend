@@ -11,6 +11,7 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.SessaoBean;
+import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -28,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -98,9 +100,15 @@ public class GoogleService {
     }
     
     public List<VideoDTO> buscaVideos() throws IOException {
+        String channelId = (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.YOUTUBE_CHANNEL_ID);
+        
+        if (StringUtil.isEmpty(channelId)){
+            return Collections.emptyList();
+        }
+        
         YouTube connection = connect(sessao.getChaveIgreja());
         SearchListResponse response = connection.search().list("id,snippet").
-                setChannelId((String) paramService.get(sessao.getChaveIgreja(), TipoParametro.YOUTUBE_CHANNEL_ID)).
+                setChannelId(channelId).
                 setMaxResults(30L).setType("video").setOrder("date").execute();
         
         List<VideoDTO> videos = new ArrayList<VideoDTO>();

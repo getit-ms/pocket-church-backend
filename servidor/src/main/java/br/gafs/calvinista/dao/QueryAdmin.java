@@ -217,7 +217,7 @@ public enum QueryAdmin {
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
                     set("statusIgreja", StatusIgreja.ATIVO).
-                    set("statusBoletim", StatusEstudo.NAO_NOTIFICADO).
+                    set("statusEstudo", StatusEstudo.NAO_NOTIFICADO).
                     set("data", DateUtil.getDataAtual());
         }
 
