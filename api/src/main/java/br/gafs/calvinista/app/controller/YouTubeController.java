@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.app.controller;
 
+import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.service.AppService;
 
 import javax.ejb.EJB;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +34,6 @@ public class YouTubeController {
     
     @Context
     private HttpServletResponse response;
-    
-    @Context
-    private HttpServletRequest request;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -61,16 +60,14 @@ public class YouTubeController {
     @GET
     @Path("integracao")
     public void redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
-        response.sendRedirect(request.getProtocol() + "://" + 
-                request.getRemoteAddr() + "/" + 
-                state + "/#/youtube/?code=" + code);
+        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_YOUTUBE_REDIRECT_URL"), state, code));
     }
     
     @PUT
-    @Path("configuracao/{code}")
+    @Path("configuracao")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response iniciaConfiguracao(@PathParam("code") String code){
-        appService.iniciaConfiguracaoYouTube(code);
+    public Response iniciaConfiguracao(Map<String, String> body){
+        appService.iniciaConfiguracaoYouTube(body.get("code"));
         return Response.status(Response.Status.OK).build();
     }
     
