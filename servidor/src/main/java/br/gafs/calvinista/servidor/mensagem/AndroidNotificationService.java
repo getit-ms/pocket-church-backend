@@ -98,7 +98,8 @@ public class AndroidNotificationService implements Serializable {
             this(new NotificationDTO(
                     notification.getMessage(), 
                     notification.getTitle(), 
-                    notification.getIcon()));
+                    notification.getIcon(),
+                    notification.getCustomData()));
         }
         
         public PushAndroidDTO cloneTo(String to, Long badge) {
@@ -119,12 +120,13 @@ public class AndroidNotificationService implements Serializable {
     @NoArgsConstructor
     public class NotificationDTO extends HashMap<String, Object> {
 
-        private NotificationDTO(String message, String title, String icon) {
+        private NotificationDTO(String message, String title, String icon, Map<String, Object> customData) {
             put("message", message);
             put("title", title);
             put("icon", icon);
             put("style", "inbox");
             put("content-available", 1);
+            putAll(customData);
         }
 
         private String getMessage() {

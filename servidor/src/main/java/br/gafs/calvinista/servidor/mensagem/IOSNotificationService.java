@@ -74,6 +74,8 @@ public class IOSNotificationService implements Serializable {
             builder.sound(notification.getSound());
         }
         
+        builder.customFields(notification.getCustomData());
+        
         LOGGER.log(Level.WARNING, "Push iOS: '" + notification.getMessage() + "' para " + to);
         
         service.push(to, builder.

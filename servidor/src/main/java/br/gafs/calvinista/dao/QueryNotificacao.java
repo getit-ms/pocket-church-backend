@@ -25,6 +25,7 @@ public enum QueryNotificacao {
     DEVICES_POR_TIPO("Dispositivo.findPorTipoAndIgreja", "igreja", "tipo", "dispositivos"), 
     COUNT_NOTIFICACOES_NAO_LIDAS("SentNotification.countNaoLidos", "igreja", "dispositivo", "membro"), 
     CLEAR_NOTIFICACOES("SentNotification.clearNotificacoes", "igreja", "dispositivo", "membro"), 
+    REMOVE_NOTIFICACAO("SentNotification.removeNotificacao", "igreja", "dispositivo", "membro", "notificacao"), 
     MARCA_NOTIFICACOES_COMO_LIDAS("SentNotification.marcaComoLido", "igreja", "dispositivo", "membro");
     
     private final String query;

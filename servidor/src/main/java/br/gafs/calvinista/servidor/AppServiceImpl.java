@@ -126,6 +126,13 @@ public class AppServiceImpl implements AppService {
                         sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
     }
     
+    @Override
+    public void removeNotificacao(Long notificacao){
+        daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO.
+                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
+                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
+    }
+    
     public void marcaNotificacoesComoLidas() {
         daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS.
                 create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),

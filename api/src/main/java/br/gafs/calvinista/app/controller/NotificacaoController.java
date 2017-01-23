@@ -64,6 +64,14 @@ public class NotificacaoController {
         return Response.status(Response.Status.OK).build();
     }
     
+    @DELETE
+    @Path("{notificacao:[0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response remove(Long notificacao){
+        appService.removeNotificacao(notificacao);
+        return Response.status(Response.Status.OK).build();
+    }
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(

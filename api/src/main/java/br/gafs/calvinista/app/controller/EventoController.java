@@ -87,7 +87,11 @@ public class EventoController {
         final Evento evento = appService.buscaEvento(id);
 
         if (evento != null){
-            byte[] pdf = ReportUtil.igreja("logo.png", evento.getIgreja().getChave(), evento.getNome(), request.getServletContext())
+            byte[] pdf = ReportUtil.igreja(
+                        "/WEB-INF/report/inscritos_evento.jasper", 
+                        evento.getIgreja().getChave(), 
+                        evento.getNome(), 
+                        request.getServletContext())
                     .arg("evento", evento)
                     .dataSource(new BuscaPaginadaDataSource<>(new BuscaPaginadaDataSource.PaginaResolver<InscricaoEvento>() {
                         @Override
