@@ -59,7 +59,7 @@ public class YouTubeController {
     }
     
     @GET
-    @Path("configuracao")
+    @Path("integracao")
     public void redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
         response.sendRedirect(request.getProtocol() + "://" + 
                 request.getRemoteAddr() + "/" + 
