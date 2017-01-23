@@ -44,9 +44,6 @@ public class EventoController {
     @EJB
     private AppService appService;
     
-    @EJB
-    private AcessoService acessoService;
-
     @Context
     private HttpServletResponse response;
 
