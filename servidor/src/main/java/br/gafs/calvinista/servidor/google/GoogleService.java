@@ -18,12 +18,14 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.LiveBroadcast;
 import com.google.api.services.youtube.model.LiveBroadcastListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -45,24 +49,40 @@ import javax.inject.Inject;
 @Stateless
 public class GoogleService {
     
-    @Inject
-    private SessaoBean sessao;
-    
     public static List<String> YOUTUBE_SCOPES = Arrays.asList(ResourceBundleUtil.
             _default().getPropriedade("YOUTUBE_SCOPES").split("\\s*,\\s*"));
+    
+    private static final File GOOGLE_STORE_DIR = new File(ResourceBundleUtil._default().getPropriedade("GOOGLE_STORE_DIR"));
+    
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+    
+    static {
+        if (!GOOGLE_STORE_DIR.exists()){
+            GOOGLE_STORE_DIR.mkdirs();
+        }
+        try {
+            DATA_STORE_FACTORY = new FileDataStoreFactory(new File(GOOGLE_STORE_DIR, "store"));
+        } catch (IOException ex) {
+            Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     @EJB
     private ParametroService paramService;
     
-    private GoogleAuthorizationCodeFlow flow(Collection<String> scopes){
+    @Inject
+    private SessaoBean sessao;
+    
+    
+    private GoogleAuthorizationCodeFlow flow(Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
                 (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
                 (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
-                scopes).setAccessType("offline").build();
+                scopes).setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline").build();
     }
     
-    public String getURLAutorizacaoYouTube(){
+    public String getURLAutorizacaoYouTube() throws IOException {
         return flow(YOUTUBE_SCOPES).newAuthorizationUrl().
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
                         getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).
@@ -71,9 +91,7 @@ public class GoogleService {
     
     public Credential saveCredentialsYouTube(String code) throws IOException {
         GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES);
-        TokenResponse resp = flow.newTokenRequest(code).
-                setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
-                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).execute();
+        TokenResponse resp = flow.newTokenRequest(code).execute();
         return flow.createAndStoreCredential(resp, sessao.getChaveIgreja());
     }
     
