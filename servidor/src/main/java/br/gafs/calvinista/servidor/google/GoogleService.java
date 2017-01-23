@@ -155,6 +155,8 @@ public class GoogleService {
                     
                     break;
             }
+            
+            videos.add(video);
         }
         
         return videos;
