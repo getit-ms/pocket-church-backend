@@ -65,7 +65,8 @@ public class GoogleService {
     public String getURLAutorizacaoYouTube(){
         return flow(YOUTUBE_SCOPES).newAuthorizationUrl().
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
-                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).build();
+                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).
+                setState(sessao.getChaveIgreja()).build();
     }
     
     public Credential saveCredentialsYouTube(String code) throws IOException {

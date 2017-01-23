@@ -5,22 +5,7 @@
  */
 package br.gafs.calvinista.app.controller;
 
-import br.gafs.calvinista.app.util.MergeUtil;
-import br.gafs.calvinista.app.util.ReportUtil;
-import br.gafs.calvinista.dto.FiltroEventoDTO;
-import br.gafs.calvinista.dto.FiltroEventoFuturoDTO;
-import br.gafs.calvinista.dto.FiltroInscricaoDTO;
-import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
-import br.gafs.calvinista.entity.Evento;
-import br.gafs.calvinista.entity.InscricaoEvento;
-import br.gafs.calvinista.entity.domain.TipoEvento;
-import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
-import br.gafs.calvinista.service.ParametroService;
-import br.gafs.calvinista.view.View;
-import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.view.relatorio.BuscaPaginadaDataSource;
-import net.sf.jasperreports.engine.JRException;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -31,9 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +30,11 @@ public class YouTubeController {
     @EJB
     private AppService appService;
     
+    @Context
+    private HttpServletResponse response;
+    
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,6 +56,14 @@ public class YouTubeController {
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("url", appService.buscaURLAutenticacaoYouTube());
         return Response.status(Response.Status.OK).entity(args).build();
+    }
+    
+    @GET
+    @Path("configuracao")
+    public void redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
+        response.sendRedirect(request.getProtocol() + "://" + 
+                request.getRemoteAddr() + "/" + 
+                state + "/#/youtube/?code=" + code);
     }
     
     @PUT
