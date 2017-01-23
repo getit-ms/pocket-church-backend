@@ -163,7 +163,7 @@ public interface AppService extends Serializable {
     Long countNotificacoesNaoLidas();
     BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);
     
-    String buscaURLAutenticacaoYouTube();
+    String buscaURLAutenticacaoYouTube() throws IOException;
     void iniciaConfiguracaoYouTube(String code); 
     List<VideoDTO> buscaVideos();
     ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube();

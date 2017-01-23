@@ -51,7 +51,7 @@ public class YouTubeController {
     @GET
     @Path("url")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaURL(){
+    public Response buscaURL() throws IOException{
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("url", appService.buscaURLAutenticacaoYouTube());
         return Response.status(Response.Status.OK).entity(args).build();

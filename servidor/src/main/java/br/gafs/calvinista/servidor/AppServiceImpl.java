@@ -1464,7 +1464,7 @@ public class AppServiceImpl implements AppService {
 
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
-    public String buscaURLAutenticacaoYouTube() {
+    public String buscaURLAutenticacaoYouTube() throws IOException {
         return googleService.getURLAutorizacaoYouTube();
     }
 
