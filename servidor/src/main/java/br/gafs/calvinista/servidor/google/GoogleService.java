@@ -91,7 +91,9 @@ public class GoogleService {
     
     public Credential saveCredentialsYouTube(String code) throws IOException {
         GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES);
-        TokenResponse resp = flow.newTokenRequest(code).execute();
+        TokenResponse resp = flow.newTokenRequest(code).
+                setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
+                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).execute();
         return flow.createAndStoreCredential(resp, sessao.getChaveIgreja());
     }
     
