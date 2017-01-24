@@ -13,6 +13,7 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.SessaoBean;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.RefreshTokenRequest;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.apache.ApacheHttpTransport;
@@ -91,9 +92,11 @@ public class GoogleService {
     
     public Credential saveCredentialsYouTube(String code) throws IOException {
         GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES);
+        
         TokenResponse resp = flow.newTokenRequest(code).
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
                         getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).execute();
+        
         return flow.createAndStoreCredential(resp, sessao.getChaveIgreja());
     }
     
@@ -102,7 +105,11 @@ public class GoogleService {
     }
     
     private Credential loadCredentialsYouTube(String chaveIgreja) throws IOException {
-        return flow(YOUTUBE_SCOPES).loadCredential(chaveIgreja);
+        Credential credential = flow(YOUTUBE_SCOPES).loadCredential(chaveIgreja);
+        
+        credential.refreshToken();
+        
+        return credential;
     }
     
     public String buscaIdCanal() throws IOException {
