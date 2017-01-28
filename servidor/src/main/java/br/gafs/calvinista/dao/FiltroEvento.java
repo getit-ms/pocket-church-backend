@@ -47,7 +47,7 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
 
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select e ").append(query).append(" order by e.dataHoraInicio").toString());
+        setQuery(new StringBuilder("select e ").append(query).append(" order by e.nome, e.dataHoraInicio").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(e) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());

@@ -43,9 +43,8 @@ public class Evento implements IEntity {
     @Column(name = "nome", length = 250, nullable = false)
     private String nome;
     
-    @Length(max = 500)
+    @Column(name = "descricao")
     @View.MergeViews(View.Edicao.class)
-    @Column(name = "descricao", length = 500)
     private String descricao;
     
     @Setter
