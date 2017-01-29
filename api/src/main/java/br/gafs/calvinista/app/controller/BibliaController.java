@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.gafs.calvinista.app.controller.infra;
+package br.gafs.calvinista.app.controller;
 
-import br.gafs.calvinista.app.controller.*;
-import br.gafs.calvinista.dto.FiltroHinoDTO;
+import br.gafs.calvinista.dto.FiltroLivroBibliaDTO;
 import br.gafs.calvinista.service.AppService;
 import java.util.Date;
 import javax.ejb.EJB;
@@ -14,7 +13,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -26,8 +24,8 @@ import javax.ws.rs.core.Response.Status;
  * @author Gabriel
  */
 @RequestScoped
-@Path("infra/hino")
-public class HinoController {
+@Path("biblia")
+public class BibliaController {
     
     @EJB
     private AppService appService;
@@ -35,19 +33,11 @@ public class HinoController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
-            @QueryParam("filtro") String filtro,
-            @QueryParam("ultimaAlteracao") Date ultimaAlteracao,
+            @QueryParam("ultimaAtualizacao") Date ultimaAtualizacao,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                busca(new FiltroHinoDTO(filtro, ultimaAlteracao, pagina, total))).build();
-    }
-    
-    @GET
-    @Path("{hino}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response get(@PathParam("hino") final Long hino){
-        return Response.status(Status.OK).entity(appService.buscaHino(hino)).build();
+                busca(new FiltroLivroBibliaDTO(ultimaAtualizacao, pagina, total))).build();
     }
     
 }

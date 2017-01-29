@@ -18,8 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FiltroHinoDTO implements DTO {
-    private String filtro;
+public class FiltroLivroBibliaDTO implements DTO {
     private Date ultimaAtualizacao;
     private Integer pagina;
     private Integer total;

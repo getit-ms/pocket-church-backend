@@ -98,6 +98,10 @@ public class Igreja implements IEntity {
     @JsonView(View.Detalhado.class)
     private String timezone;
     
+    @ManyToOne
+    @JoinColumn(name = "id_biblia")
+    private Biblia biblia;
+    
     @Setter
     @ElementCollection
     @Enumerated(EnumType.STRING)

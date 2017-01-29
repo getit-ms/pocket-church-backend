@@ -7,6 +7,7 @@ package br.gafs.calvinista.app.controller;
 
 import br.gafs.calvinista.dto.FiltroHinoDTO;
 import br.gafs.calvinista.service.AppService;
+import java.util.Date;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.DefaultValue;
@@ -33,11 +34,12 @@ public class HinoController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
-            @QueryParam("filtro") final String filtro,
+            @QueryParam("filtro") String filtro,
+            @QueryParam("ultimaAtualizacao") Date ultimaAtualizacao,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                busca(new FiltroHinoDTO(filtro, pagina, total))).build();
+                busca(new FiltroHinoDTO(filtro, ultimaAtualizacao, pagina, total))).build();
     }
     
     @GET

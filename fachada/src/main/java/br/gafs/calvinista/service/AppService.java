@@ -67,6 +67,8 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<Hino> busca(FiltroHinoDTO filtro);
     Hino buscaHino(Long hino);
     
+    BuscaPaginadaDTO<LivroBiblia> busca(FiltroLivroBibliaDTO filtro);
+    
     Institucional recuperaInstitucional();
     Institucional atualiza(Institucional institucional);
     

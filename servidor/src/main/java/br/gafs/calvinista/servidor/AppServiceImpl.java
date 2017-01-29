@@ -317,6 +317,11 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
+    public BuscaPaginadaDTO<LivroBiblia> busca(FiltroLivroBibliaDTO filtro) {
+        return daoService.findWith(new FiltroLivroBiblia(sessaoBean.getChaveIgreja(), filtro));
+    }
+    
+    @Override
     public Opcao buscaOpcao(Long id) {
         return daoService.find(Opcao.class, id);
     }
@@ -1602,7 +1607,8 @@ public class AppServiceImpl implements AppService {
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
                     if (hev.getHoraInt().equals(hora)){
-                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev), titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, false);
+                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev), 
+                                titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, true);
                         break;
                     }
                 }

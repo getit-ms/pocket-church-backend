@@ -52,7 +52,8 @@ public enum Funcionalidade {
     LISTAR_ESTUDOS(Tipo.PUBLICA, 25),
     CONSULTAR_HINARIO(Tipo.PUBLICA, 26),
     CONSULTAR_CIFRAS(Tipo.PUBLICA, 27),
-    YOUTUBE(Tipo.PUBLICA, 31)
+    YOUTUBE(Tipo.PUBLICA, 31),
+    BIBLIA(Tipo.PUBLICA, 32)
     ;
     
     public final static List<Funcionalidade> FUNCIONALIDADES_APLICATIVO = new ArrayList<Funcionalidade>();
