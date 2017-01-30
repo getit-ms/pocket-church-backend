@@ -39,7 +39,7 @@ public class ReportUtil {
                         .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
                         .arg("TITULO", titulo)
                         .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
-                        .arg("REPORT_TIMEZONE", TimeZone.getTimeZone(igreja.getTimezone()))
+                        .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
                         .bean(this).build();
             }
         };
