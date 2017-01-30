@@ -1212,7 +1212,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento cadastra(Evento evento) {
         evento.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         return daoService.create(evento);
@@ -1220,15 +1220,15 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento atualiza(Evento evento) {
         return daoService.update(evento);
     }
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
-    @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public Evento buscaEvento(Long evento) {
         Evento entidade = daoService.find(Evento.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento));
         entidade.setVagasRestantes(entidade.getLimiteInscricoes() - ((Number) daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento))).intValue());
@@ -1237,7 +1237,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public void removeEvento(Long evento) {
         Evento entidade = buscaEvento(evento);
         
@@ -1253,32 +1253,32 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public BuscaPaginadaDTO<Evento> buscaTodos(FiltroEventoDTO filtro) {
         return daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
     }
     
     @Override
-    @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public BuscaPaginadaDTO<Evento> buscaFuturos(FiltroEventoFuturoDTO filtro) {
         return daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public BuscaPaginadaDTO<InscricaoEvento> buscaTodas(Long evento, FiltroInscricaoDTO filtro) {
         return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
     }
     
     @Override
-    @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public BuscaPaginadaDTO<InscricaoEvento> buscaMinhas(Long evento, FiltroMinhasInscricoesDTO filtro) {
         return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
     }
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public void confirmaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
@@ -1290,7 +1290,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_EVENTOS)
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public void cancelaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
@@ -1359,7 +1359,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowMembro(Funcionalidade.REALIZAR_INSCRICAO_EVENTO)
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> inscricoes) {
         if (!inscricoes.isEmpty()) {
             Evento evento = inscricoes.get(0).getEvento();
