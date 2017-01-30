@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.gafs.getit.calvinista</groupId>
     <artifactId>calvinista</artifactId>
-    <version>3.0.13-SNAPSHOT</version>
+    <version>3.0.13</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -22,7 +22,7 @@
     
     <scm>
         <connection>scm:git:https://bitbucket.org/getit-team/calvinista-backend</connection>
-        <tag>calvinista-2.67</tag>
+        <tag>calvinista-3.0.13</tag>
     </scm>
     
     <dependencyManagement>
