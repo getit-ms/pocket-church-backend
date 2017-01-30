@@ -1,5 +1,8 @@
 package br.gafs.calvinista.app.util;
 
+import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.util.ResourceUtil;
+import br.gafs.exceptions.ServiceException;
 import br.gafs.view.relatorio.RelatorioUtil;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
@@ -7,10 +10,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 import javax.servlet.ServletContext;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mirante0 on 20/01/2017.
@@ -30,14 +30,16 @@ public class ReportUtil {
 
     public static ReportUtil igreja(String path,
                                     final String titulo,
-                                    final String igreja,
+                                    final Igreja igreja,
                                     final ServletContext sctxt){
         return new ReportUtil(sctxt.getRealPath(path)){
             @Override
             public Exporter build() {
                 return basic(sctxt.getRealPath("/WEB-INF/jasper/relatorio_igreja.jasper"))
-                        .arg("LOGO_IGREJA", igreja)
+                        .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
                         .arg("TITULO", titulo)
+                        .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
+                        .arg("REPORT_TIMEZONE", TimeZone.getTimeZone(igreja.getTimezone()))
                         .bean(this).build();
             }
         };
@@ -91,6 +93,29 @@ public class ReportUtil {
 
         public byte[] pdf() throws JRException {
             return RelatorioUtil.exportAsPDF(print);
+        }
+
+        public byte[] docx() throws JRException {
+            return RelatorioUtil.exportAsDocx(print);
+        }
+
+        public byte[] xls() throws JRException {
+            return RelatorioUtil.exportAsXLS(print);
+        }
+
+        public byte[] export(String tipo) throws JRException {
+            if (tipo.matches("pdf|docx|xls")){
+                switch (tipo){
+                    case "pdf":
+                        return pdf();
+                    case "docx":
+                        return docx();
+                    case "xls":
+                        return xls();
+                }
+            }
+
+            throw new ServiceException("Invalid Format");
         }
     }
 }

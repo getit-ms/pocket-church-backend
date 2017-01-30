@@ -14,7 +14,6 @@ import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
-import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -80,31 +79,32 @@ public class EventoController {
     }
 
     @GET
-    @Path("{evento}/inscricoes/pdf")
+    @Path("{evento}/inscricoes/{tipo}")
     @Produces({"application/pdf", MediaType.APPLICATION_JSON})
     public Response exportaInscricoes(
-            @PathParam("evento") Long id) throws JRException, IOException {
+            @PathParam("evento") Long id,
+            @PathParam("tipo") String tipo) throws JRException, IOException {
         final Evento evento = appService.buscaEvento(id);
 
         if (evento != null){
-            byte[] pdf = ReportUtil.igreja(
-                        "/WEB-INF/report/inscritos_evento.jasper", 
-                        evento.getIgreja().getChave(), 
-                        evento.getNome(), 
+            byte[] report = ReportUtil.igreja(
+                        "/WEB-INF/report/inscritos_evento.jasper",
+                        evento.getNome(),
+                        evento.getIgreja(),
                         request.getServletContext())
-                    .arg("evento", evento)
+                    .arg("EVENTO", evento)
                     .dataSource(new BuscaPaginadaDataSource<>(new BuscaPaginadaDataSource.PaginaResolver<InscricaoEvento>() {
                         @Override
                         public BuscaPaginadaDTO<InscricaoEvento> buscaPagina(int pagina) {
                             return appService.buscaTodas(evento.getId(), new FiltroInscricaoDTO(pagina, 30));
                         }
-                    })).build().pdf();
+                    })).build().export(tipo);
 
             response.addHeader("Content-Type", "application/pdf");
-            response.addHeader("Content-Length", "" + pdf.length);
+            response.addHeader("Content-Length", "" + report.length);
             response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+evento.getNome()+"\".pdf");
-            response.getOutputStream().write(pdf);
+                    "attachment; filename=\""+evento.getNome()+"\"." + tipo);
+            response.getOutputStream().write(report);
             return Response.noContent().build();
         }
 

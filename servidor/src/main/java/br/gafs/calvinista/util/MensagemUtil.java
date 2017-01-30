@@ -5,26 +5,16 @@
  */
 package br.gafs.calvinista.util;
 
-import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Institucional;
-import java.io.File;
+
 import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Scanner;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

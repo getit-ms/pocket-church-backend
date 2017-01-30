@@ -99,8 +99,15 @@ public class AppServiceImpl implements AppService {
                         new QueryParameters("quantidade", pedidos));
             }
         }
-        
-        
+
+        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
+            // TODO verificar a quantidade de inscrições pendentes em eventos
+        }
+
+        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)){
+            // TODO verificar a quantidade de inscrições pendentes em cursos EBD
+        }
+
         return status;
     }
     
