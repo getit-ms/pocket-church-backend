@@ -24,6 +24,7 @@ import javax.ws.rs.ext.Provider;
 public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
     
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXX";
     
     static {
       MAPPER.setSerializationInclusion(Include.NON_EMPTY);
@@ -32,7 +33,7 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
       MAPPER.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
       MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
       
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+      SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
       sdf.setTimeZone(TimeZone.getDefault());
       
       MAPPER.setDateFormat(sdf);

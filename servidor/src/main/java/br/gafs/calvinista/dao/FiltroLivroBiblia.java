@@ -20,17 +20,19 @@ public class FiltroLivroBiblia extends AbstractPaginatedFiltro<FiltroLivroBiblia
     public FiltroLivroBiblia(String igreja, FiltroLivroBibliaDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from LivroBiblia lb, Igreja i where i.bibia = lb.biblia and i.chave = :igreja");
+        StringBuilder query = new StringBuilder("from LivroBiblia lb, Igreja i where i.biblia = lb.biblia and i.chave = :igreja");
         Map<String, Object> args = new QueryParameters("igreja", igreja);
+        String orderBy = " order by lb.ordem";
         
         if (filtro.getUltimaAtualizacao() != null){
             query.append(" and lb.ultimaAtualizacao > :ultimaAtualizacao");
             args.put("ultimaAtualizacao", filtro.getUltimaAtualizacao());
+            orderBy = " order by lb.ultimaAtualizacao, lb.ordem";
         }
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select lb ").append(query).append(" order by lb.ordem").toString());
+        setQuery(new StringBuilder("select lb ").append(query).append(orderBy).toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(lb) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());

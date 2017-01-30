@@ -8,6 +8,7 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.TestamentoBiblia;
 import br.gafs.calvinista.entity.domain.VersiculoBiblia;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +65,7 @@ public class LivroBiblia implements IEntity {
     private TestamentoBiblia testamento;
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "id_biblia")
     private Biblia biblia;
     
