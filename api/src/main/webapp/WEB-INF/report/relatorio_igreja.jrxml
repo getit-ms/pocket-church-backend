@@ -37,7 +37,7 @@
 				<reportElement x="0" y="0" width="556" height="40" uuid="b03bf95f-ba54-45cf-9635-b76919b26995"/>
 				<parametersMapExpression><![CDATA[$F{arguments}]]></parametersMapExpression>
 				<subreportParameter name="REPORT_LOCALE">
-					<subreportParameterExpression><![CDATA[$PREPORT_LOCALE}]]></subreportParameterExpression>
+					<subreportParameterExpression><![CDATA[$P{REPORT_LOCALE}]]></subreportParameterExpression>
 				</subreportParameter>
 				<subreportParameter name="REPORT_TIME_ZONE">
 					<subreportParameterExpression><![CDATA[$P{REPORT_TIME_ZONE}]]></subreportParameterExpression>
