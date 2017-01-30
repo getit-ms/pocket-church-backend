@@ -10,7 +10,7 @@
 	</queryString>
 	<field name="reportPath" class="java.lang.String"/>
 	<field name="arguments" class="java.util.Map"/>
-	<field name="dataSource" class="net.sf.jasperreports.engine.DataSource"/>
+	<field name="dataSource" class="net.sf.jasperreports.engine.JRDataSource"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
