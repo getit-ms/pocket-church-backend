@@ -20,6 +20,6 @@ pipelines:
             - mvn clean package
             - apt-get update && apt-get install -y sshpass
             - sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no app/target/calvinista-app.ear "$DEPLOY_USER@$DEPLOY_HOST":/tmp/
-            - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app' 
-            - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" '/opt/glassfish4/glassfish/bin/asadmin deploy /tmp/calvinista-app.ear' || echo 'Não estava em execução'
+            - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" '/opt/glassfish4/glassfish/bin/asadmin undeploy calvinista-app' || echo 'Não estava em execução'
+            - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" '/opt/glassfish4/glassfish/bin/asadmin deploy /tmp/calvinista-app.ear'
             - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" 'rm /tmp/calvinista-app.ear' 
