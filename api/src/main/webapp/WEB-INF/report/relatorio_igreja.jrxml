@@ -15,17 +15,17 @@
 		<band splitType="Stretch"/>
 	</background>
 	<pageHeader>
-		<band height="81" splitType="Stretch">
+		<band height="100" splitType="Stretch">
 			<image vAlign="Middle">
-				<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="280" height="81" backcolor="#969696" uuid="aad22997-5ff1-4d92-9237-c963c4cee6fc"/>
+				<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="280" height="80" backcolor="#969696" uuid="aad22997-5ff1-4d92-9237-c963c4cee6fc"/>
 				<box topPadding="5" leftPadding="5" rightPadding="5"/>
 				<imageExpression><![CDATA[$P{LOGO_IGREJA}]]></imageExpression>
 			</image>
 			<textField>
-				<reportElement mode="Opaque" x="280" y="0" width="276" height="81" forecolor="#FFFFFF" backcolor="#969696" uuid="cabb92da-5233-46fe-bb9d-51cf24cd78eb"/>
+				<reportElement mode="Opaque" x="280" y="0" width="276" height="80" forecolor="#FFFFFF" backcolor="#969696" uuid="cabb92da-5233-46fe-bb9d-51cf24cd78eb"/>
 				<box padding="5"/>
 				<textElement textAlignment="Right" verticalAlignment="Bottom">
-					<font size="12"/>
+					<font size="18"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{TITULO}.toUpperCase()]]></textFieldExpression>
 			</textField>
@@ -50,10 +50,10 @@
 	<pageFooter>
 		<band height="30" splitType="Stretch">
 			<textField>
-				<reportElement x="300" y="0" width="140" height="30" forecolor="#969696" uuid="08e5e371-d8f1-462d-952e-5c54ac7ead29"/>
+				<reportElement x="386" y="0" width="140" height="30" forecolor="#969696" uuid="08e5e371-d8f1-462d-952e-5c54ac7ead29"/>
 				<box leftPadding="5" rightPadding="5"/>
 				<textElement textAlignment="Right" verticalAlignment="Top"/>
-				<textFieldExpression><![CDATA[$R{paginacao.pagina} + " " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$R{paginacao.pagina} + " " + $V{PAGE_NUMBER} + " " + $R{paginacao.de}]]></textFieldExpression>
 			</textField>
 			<textField pattern="">
 				<reportElement x="0" y="0" width="100" height="30" forecolor="#969696" uuid="bd580b8b-a730-4b3b-83d8-1476a3a31604"/>
@@ -63,10 +63,10 @@
 				<patternExpression><![CDATA[$R{format.data_hora}]]></patternExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement x="440" y="0" width="116" height="30" forecolor="#969696" uuid="f57d5976-47d8-462d-8e2d-c2024030288c"/>
+				<reportElement x="526" y="0" width="30" height="30" forecolor="#969696" uuid="f57d5976-47d8-462d-8e2d-c2024030288c"/>
 				<box leftPadding="5" rightPadding="5"/>
-				<textElement textAlignment="Left" verticalAlignment="Top"/>
-				<textFieldExpression><![CDATA[$R{paginacao.de} + " " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				<textElement textAlignment="Right" verticalAlignment="Top"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageFooter>

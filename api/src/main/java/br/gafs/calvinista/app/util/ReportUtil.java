@@ -35,7 +35,7 @@ public class ReportUtil {
         return new ReportUtil(sctxt.getRealPath(path)){
             @Override
             public Exporter build() {
-                return basic(sctxt.getRealPath("/WEB-INF/jasper/relatorio_igreja.jasper"))
+                return basic(sctxt.getRealPath("/WEB-INF/report/relatorio_igreja.jasper"))
                         .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
                         .arg("TITULO", titulo)
                         .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))

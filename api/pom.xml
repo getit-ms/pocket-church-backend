@@ -20,7 +20,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -65,6 +64,19 @@
         </dependency>
         
         <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
         </dependency>
@@ -98,11 +110,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>br.gafs</groupId>
-            <artifactId>gafs-base-report</artifactId>
         </dependency>
     </dependencies>
     

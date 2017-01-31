@@ -100,10 +100,10 @@ public class EventoController {
                         }
                     })).build().export(tipo);
 
-            response.addHeader("Content-Type", "application/pdf");
+            response.addHeader("Content-Type", "application/" + tipo);
             response.addHeader("Content-Length", "" + report.length);
             response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+evento.getNome()+"\"." + tipo);
+                    "attachment; filename=\""+evento.getNome()+"." + tipo + "\"");
             response.getOutputStream().write(report);
             return Response.noContent().build();
         }
