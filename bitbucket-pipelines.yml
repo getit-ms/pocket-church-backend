@@ -15,8 +15,6 @@ pipelines:
             - cd pagseguro/source/pagseguro-api
             - mvn clean install
             - cd $DIR
-            - git config --global user.name "$GIT_USER"
-            - git config --global user.email "$GIT_EMAIL"
             - mvn clean package
             - apt-get update && apt-get install -y sshpass
             - sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no app/target/calvinista-app.ear "$DEPLOY_USER@$DEPLOY_HOST":/tmp/

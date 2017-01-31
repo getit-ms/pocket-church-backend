@@ -5,25 +5,23 @@
  */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.dao.QueryAcesso;
-import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.Dispositivo;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -49,58 +47,59 @@ public class SessaoBean implements Serializable {
     private List<Integer> funcionalidades;
     
     private boolean loaded;
-    
+
+    public void load(String authorization){
+        Number creation = null;
+        if (!StringUtil.isEmpty(authorization)){
+            try{
+                JWTManager.JWTReader reader = JWTManager.reader(authorization);
+                chaveIgreja = (String) reader.get("igreja");
+                chaveDispositivo = (String) reader.get("dispositivo");
+                idMembro = toLong(reader.get("membro"));
+                admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
+                idUsuario = toLong("usuario");
+                funcionalidades = (List<Integer>) reader.get("funcionalidades");
+                creation = (Number) reader.get("creation");
+            }catch(Exception e){
+                e.printStackTrace();
+                throw new ServiceException("mensagens.MSG-403");
+            }
+        }
+
+        if (StringUtil.isEmpty(chaveIgreja)){
+            chaveIgreja = get("Igreja");
+
+            if (StringUtil.isEmpty(chaveIgreja)){
+                throw new ServiceException("mensagens.MSG-403");
+            }
+        }
+
+        if (StringUtil.isEmpty(chaveDispositivo)){
+            String uuid = getUUID();
+            if (StringUtil.isEmpty(uuid)){
+                chaveDispositivo = "undefined@" + chaveIgreja;
+            }else{
+                chaveDispositivo = uuid + "@" + chaveIgreja;
+                Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+                if (dispositivo != null){
+                    admin = dispositivo.isAdministrativo();
+                }
+            }
+        }
+
+        boolean deprecated = creation == null ||
+                creation.longValue() + TIMEOUT < System.currentTimeMillis();
+
+        if (deprecated || funcionalidades == null){
+            refreshFuncionalidades();
+            set();
+        }
+    }
+
     private void load(){
         if (!loaded){
             loaded = true;
-            
-            String authorization = get("Authorization");
-
-            Number creation = null;
-            if (!StringUtil.isEmpty(authorization)){
-                try{
-                    JWTManager.JWTReader reader = JWTManager.reader(authorization);
-                    chaveIgreja = (String) reader.get("igreja");
-                    chaveDispositivo = (String) reader.get("dispositivo");
-                    idMembro = toLong(reader.get("membro"));
-                    admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
-                    idUsuario = toLong("usuario");
-                    funcionalidades = (List<Integer>) reader.get("funcionalidades");
-                    creation = (Number) reader.get("creation");
-                }catch(Exception e){
-                    e.printStackTrace();
-                    throw new ServiceException("mensagens.MSG-403");
-                }
-            }
-
-            if (StringUtil.isEmpty(chaveIgreja)){
-                chaveIgreja = get("Igreja");
-                
-                if (StringUtil.isEmpty(chaveIgreja)){
-                    throw new ServiceException("mensagens.MSG-403");
-                }
-            }
-            
-            if (StringUtil.isEmpty(chaveDispositivo)){
-                String uuid = getUUID();
-                if (StringUtil.isEmpty(uuid)){
-                    chaveDispositivo = "undefined@" + chaveIgreja;
-                }else{
-                    chaveDispositivo = uuid + "@" + chaveIgreja;
-                    Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
-                    if (dispositivo != null){
-                        admin = dispositivo.isAdministrativo();
-                    }
-                }
-            }
-            
-            boolean deprecated = creation == null || 
-                    creation.longValue() + TIMEOUT < System.currentTimeMillis();
-            
-            if (deprecated || funcionalidades == null){
-                refreshFuncionalidades();
-                set();
-            }
+            load(get("Authorization"));
         }
     }
     

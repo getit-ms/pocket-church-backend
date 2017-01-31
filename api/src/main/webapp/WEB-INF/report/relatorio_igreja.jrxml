@@ -18,7 +18,7 @@
 		<band height="100" splitType="Stretch">
 			<image vAlign="Middle">
 				<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="280" height="80" backcolor="#969696" uuid="aad22997-5ff1-4d92-9237-c963c4cee6fc"/>
-				<box topPadding="5" leftPadding="5" rightPadding="5"/>
+				<box padding="5"/>
 				<imageExpression><![CDATA[$P{LOGO_IGREJA}]]></imageExpression>
 			</image>
 			<textField>
