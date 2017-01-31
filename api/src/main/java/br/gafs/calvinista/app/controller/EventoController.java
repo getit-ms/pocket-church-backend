@@ -15,7 +15,6 @@ import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.service.AppService;
-import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.view.View;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.view.relatorio.BuscaPaginadaDataSource;
@@ -88,7 +87,6 @@ public class EventoController {
         final Evento evento = appService.buscaEvento(id);
 
         if (evento != null){
-            final SessionDataManager sessionManager = (SessionDataManager) request.getAttribute(SessionDataManager.class.getSimpleName());
             byte[] report = ReportUtil.igreja(
                         "/WEB-INF/report/inscritos_evento.jasper",
                         evento.getNome(),
@@ -98,7 +96,6 @@ public class EventoController {
                     .dataSource(new BuscaPaginadaDataSource<>(new BuscaPaginadaDataSource.PaginaResolver<InscricaoEvento>() {
                         @Override
                         public BuscaPaginadaDTO<InscricaoEvento> buscaPagina(int pagina) {
-                            request.setAttribute(SessionDataManager.class.getSimpleName(), sessionManager);
                             return appService.buscaTodas(evento.getId(), new FiltroInscricaoDTO(pagina, 30));
                         }
                     })).build().export(tipo);

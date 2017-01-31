@@ -10,24 +10,22 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.dto.DTO;
+import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -121,9 +119,15 @@ public class AndroidNotificationService implements Serializable {
     public class NotificationDTO extends HashMap<String, Object> {
 
         private NotificationDTO(String message, String title, String icon, Map<String, Object> customData) {
-            put("message", message);
-            put("title", title);
-            put("icon", icon);
+            if (!StringUtil.isEmpty(title)){
+                put("title", title);
+            }
+            if (!StringUtil.isEmpty(message)){
+                put("message", message);
+            }
+            if (!StringUtil.isEmpty(icon)){
+                put("icon", icon);
+            }
             put("style", "inbox");
             put("content-available", 1);
             putAll(customData);

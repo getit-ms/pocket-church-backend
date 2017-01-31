@@ -14,14 +14,15 @@ import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.ApnsServiceBuilder;
 import com.notnoop.apns.PayloadBuilder;
+
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 
 /**
  *
@@ -77,11 +78,18 @@ public class IOSNotificationService implements Serializable {
         builder.customFields(notification.getCustomData());
         
         LOGGER.log(Level.WARNING, "Push iOS: '" + notification.getMessage() + "' para " + to);
-        
-        service.push(to, builder.
-                badge(badge.intValue()).
-                alertBody(notification.getMessage()).
-                alertTitle(notification.getTitle()).build());
+
+        builder.badge(badge.intValue());
+
+        if (!StringUtil.isEmpty(notification.getMessage())){
+            builder.alertBody(notification.getMessage());
+        }
+
+        if (!StringUtil.isEmpty(notification.getTitle())){
+            builder.alertTitle(notification.getTitle());
+        }
+
+        service.push(to, builder.build());
     }
 }
 
