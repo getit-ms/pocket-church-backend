@@ -144,13 +144,6 @@ public class AppServiceImpl implements AppService {
         daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS.
                 create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
                         sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
-
-        if (sessaoBean.getIdMembro() != null){
-            // Para retirar as badges dos outros dispositivos do membro
-            notificacaoService.sendNow(new MensagemPushDTO(),
-                    new FiltroDispositivoNotificacaoDTO(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()),
-                            sessaoBean.getIdMembro()));
-        }
     }
     
     @Override
