@@ -1365,6 +1365,13 @@ public class AppServiceImpl implements AppService {
             Evento evento = inscricoes.get(0).getEvento();
             Membro membro = buscaMembro(sessaoBean.getIdMembro());
             
+            
+
+            Number qtde = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento.getId()));
+            if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()){
+                throw new ServiceException("mensagens.MSG-034");
+            }
+            
             List<InscricaoEvento> cadastradas = new ArrayList<InscricaoEvento>();
             for (InscricaoEvento inscricao : inscricoes) {
                 inscricao.setMembro(membro);

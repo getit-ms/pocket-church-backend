@@ -39,12 +39,6 @@ public class InscricaoEventoValidation implements ValidadorServico<InscricaoEven
             if (!evento.isInscricoesAbertas()){
                 throw new ServiceException("mensagens.MSG-028");
             }
-
-            Number qtde = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento.getId()));
-        
-            if (qtde.intValue() >= evento.getLimiteInscricoes()){
-                throw new ServiceException("mensagens.MSG-034");
-            }
         }
         
         validation.validate();
