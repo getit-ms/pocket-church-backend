@@ -5,10 +5,9 @@
  */
 package br.gafs.calvinista.entity;
 
+import lombok.*;
+
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  *
@@ -17,6 +16,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(of = {"chaveIgreja", "id"})
+@EqualsAndHashCode(of = {"chaveIgreja", "id"})
 public class RegistroIgrejaId implements Serializable {
     private String chaveIgreja;
     private Long id;

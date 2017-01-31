@@ -27,7 +27,7 @@ public class FiltroLivroBiblia extends AbstractPaginatedFiltro<FiltroLivroBiblia
         if (filtro.getUltimaAtualizacao() != null){
             query.append(" and lb.ultimaAtualizacao > :ultimaAtualizacao");
             args.put("ultimaAtualizacao", filtro.getUltimaAtualizacao());
-            orderBy = " order by lb.ultimaAtualizacao, lb.ordem";
+            orderBy = " order by lb.ultimaAtualizacao desc, lb.ordem";
         }
         
         setArguments(args);

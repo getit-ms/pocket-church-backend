@@ -5,23 +5,26 @@
 */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.dao.QueryAdmin;
-import br.gafs.calvinista.entity.domain.StatusBoletim;
-import br.gafs.util.email.EmailUtil;
-import br.gafs.util.exception.ExceptionUnwrapperUtil;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.List;
+import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.dao.DAOService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.Asynchronous;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
+import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import javax.transaction.UserTransaction;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,68 +33,237 @@ import javax.transaction.UserTransaction;
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ProcessamentoService {
-    private static final int LIMITE_TENTATIVAS = 5;
-    private static final int FILA_TRANSACAO = 25;
-    
+    private static final Logger LOGGER = Logger.getLogger(ProcessamentoService.class.getName());
+    private static final int PROCESSMENTO_POOL_SIZE = ResourceBundleUtil._default().getPropriedadeAsInteger("PROCESSMENTO_POOL_SIZE");
+
+    private final Pool pool = new Pool();
+
     @PersistenceContext
     private EntityManager em;
-    
+
+    @EJB
+    private DAOService daoService;
+
     @Resource
     private UserTransaction ut;
-    
+
+    @PostConstruct
+    public void prepara(){
+        for (int i=0;i<PROCESSMENTO_POOL_SIZE;i++){
+            new Thread(new ProcessamentoRunnable()).start();
+        }
+    }
+
     @Asynchronous
-    public void processa(Processo processo) throws Exception {
-        int falhas = 0;
-        
-        processo.begin();
-        
-        while (true){
-            try{
-                
-                boolean complete;
-                do {
-                    ut.begin();
-                    
-                    complete = processo.execute(FILA_TRANSACAO / (falhas + 1));
-                    
-                    ut.commit();
-                }while(!complete);
-                
-                ut.begin();
-                
-                processo.success();
-                
-                ut.commit();
-                
-                break;
-            }catch(Exception e){
-                ut.rollback();
-                
-                if (falhas >= LIMITE_TENTATIVAS){
-                    Throwable t = ExceptionUnwrapperUtil.unwrappException(e);
-                    StringWriter sw = new StringWriter();
-                    t.printStackTrace(new PrintWriter(sw));
-                    EmailUtil.alertAdm(sw.toString(), "Erro em processamento: " + t.getMessage());
-                    
-                    ut.begin();
-                    
-                    processo.fail();
-                    
-                    ut.commit();
-                    
-                    break;
+    public void schedule(Processamento processamento){
+        try {
+            Persister.save(processamento);
+            pool.add(processamento);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao tentar agendar processamento: " + processamento.getId(), e);
+            Persister.remove(processamento.getId());
+        }
+    }
+
+    public void execute(final Processamento processamento) throws InterruptedException {
+        synchronized (processamento){
+            pool.priority(processamento, new Pool.Watcher() {
+                @Override
+                public void started() {
+
                 }
-                
-                falhas++;
+
+                @Override
+                public void ended() {
+                    synchronized(processamento){
+                        processamento.notify();
+                    }
+                }
+            });
+
+            processamento.wait();
+        }
+    }
+
+    public interface Processamento {
+        String getId();
+        int step(ProcessamentoTool tool) throws Exception;
+        void finished(ProcessamentoTool tool) throws Exception;
+        void dropped(ProcessamentoTool tool);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public class ProcessamentoTool {
+        private DAOService daoService;
+        private int step;
+    }
+
+    private static final int LIMITE_FALHAS = ResourceBundleUtil._default().getPropriedadeAsInteger("LIMITE_FALHAS_PROCESSAMENTO");
+
+    final class ProcessamentoRunnable implements Runnable, Pool.Executor {
+
+        @Override
+        public void run() {
+            try {
+                while (true){
+                    pool.next(this);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void execute(Processamento processamento) {
+            int step = 1;
+            int total = 2;
+            int fails = 0;
+
+            ProcessamentoTool tool = new ProcessamentoTool(daoService, step);
+
+            do{
+                try {
+                    ut.begin();
+                    total = processamento.step(tool);
+                    ut.commit();
+
+                    if (total <= step){
+                        ut.begin();
+                        processamento.finished(tool);
+                        ut.commit();
+                    }
+                } catch (Exception e) {
+                    try {
+                        ut.rollback();
+                        fails++;
+                        if (fails >= LIMITE_FALHAS){
+                            LOGGER.log(Level.SEVERE, "Processamento descartado por falhas: " + processamento.getId(), e);
+
+                            ut.begin();
+                            processamento.dropped(tool);
+                            ut.commit();
+
+                            Persister.remove(processamento.getId());
+                            return;
+                        }
+                    } catch (Exception e1) {
+                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                    }
+                }
+            }while(total > step);
+
+            Persister.remove(processamento.getId());
+        }
+    }
+
+    static final class Pool {
+        private static final Watcher EMPTY_WATCHER = new Watcher() {
+            @Override
+            public void started() {}
+
+            @Override
+            public void ended() {}
+        };
+
+        private final List<Element> pool = new ArrayList<Element>();
+
+        public synchronized void add(Processamento processamento){
+            pool.add(new Element(processamento,EMPTY_WATCHER));
+            notify();
+        }
+
+        public synchronized void priority(Processamento processamento, Watcher watcher) throws InterruptedException {
+            Element element = new Element(processamento, watcher);
+
+            pool.remove(element);
+            pool.add(0, element);
+            notify();
+        }
+
+        public synchronized void next(Executor executor) throws InterruptedException {
+            while (pool.isEmpty()){
+                wait();
+            }
+
+            Element element = pool.remove(0);
+            element.getWatcher().started();
+            executor.execute(element.getProcessamento());
+            element.getWatcher().ended();
+        }
+
+        @Getter
+        @AllArgsConstructor
+        @EqualsAndHashCode(of = "processamento")
+        static class Element {
+            private Processamento processamento;
+            private Watcher watcher;
+        }
+
+        interface Watcher {
+            void started();
+            void ended();
+        }
+
+        interface Executor {
+            void execute(Processamento processamento);
+        }
+    }
+
+    static final class Persister {
+        private static final File dir = new File(ResourceBundleUtil._default().getPropriedade("PROCESSAMENTO_DIR"));
+        private static final ObjectMapper om = new ObjectMapper();
+
+        static {
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+        }
+
+        public static void save(Processamento processamento) throws IOException {
+            om.writeValue(new FileOutputStream((new File(dir, processamento.getId()))), new Storage(processamento));
+        }
+
+        public static void remove(String id){
+            File processamento = new File(dir, id);
+            if (processamento.exists()){
+                processamento.delete();
+            }
+        }
+
+        public static List<Processamento> load() throws IOException, ClassNotFoundException {
+            Set<File> files = new TreeSet<File>(new Comparator<File>(){
+                @Override
+                public int compare(File o1, File o2) {
+                    return (int) (o1.lastModified() - o2.lastModified());
+                }
+            });
+
+            files.addAll(Arrays.asList(dir.listFiles()));
+
+            List<Processamento> processamentos = new ArrayList<Processamento>();
+
+            for (File file : files){
+                Storage storage = om.readValue(file, Storage.class);
+                processamentos.add((Processamento) storage.get());
+            }
+
+            return processamentos;
+        }
+
+        static class Storage {
+            private String processamento;
+            private String type;
+
+            Storage(Processamento processamento) throws JsonProcessingException {
+                this.processamento = om.writeValueAsString(processamento);
+                this.type = processamento.getClass().getName();
+            }
+
+            <T> T get() throws ClassNotFoundException, IOException {
+                return (T) om.readValue(processamento, Class.forName(type));
             }
         }
     }
-    
-    public interface Processo extends Serializable {
-        public void begin();
-        public boolean execute(int count) throws Exception;
-        public void success();
-        public void fail();
-    }
-    
+
 }
