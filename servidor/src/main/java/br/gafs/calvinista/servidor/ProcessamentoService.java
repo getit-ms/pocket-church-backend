@@ -25,12 +25,17 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.transaction.SystemException;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 /**
  *
  * @author Gabriel
  */
-@Stateless
+@Startup
+@Singleton
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ProcessamentoService {
     private static final Logger LOGGER = Logger.getLogger(ProcessamentoService.class.getName());
@@ -48,13 +53,23 @@ public class ProcessamentoService {
     private UserTransaction ut;
 
     @PostConstruct
-    public void prepara(){
+    public void prepara() {
         for (int i=0;i<PROCESSMENTO_POOL_SIZE;i++){
             new Thread(new ProcessamentoRunnable()).start();
         }
+        
+        synchronized(this){
+            try {
+                for (Processamento processamento : Persister.load()){
+                    pool.add(processamento);
+                }
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+            notifyAll();
+        }
     }
 
-    @Asynchronous
     public void schedule(Processamento processamento){
         try {
             Persister.save(processamento);
@@ -93,10 +108,14 @@ public class ProcessamentoService {
     }
 
     @Getter
-    @AllArgsConstructor
+    @RequiredArgsConstructor
     public class ProcessamentoTool {
-        private DAOService daoService;
-        private int step;
+        private final DAOService daoService;
+        private int step = 1;
+        
+        protected boolean next(int total){
+            return ++step <= total;
+        }
     }
 
     private static final int LIMITE_FALHAS = ResourceBundleUtil._default().getPropriedadeAsInteger("LIMITE_FALHAS_PROCESSAMENTO");
@@ -116,23 +135,19 @@ public class ProcessamentoService {
 
         @Override
         public void execute(Processamento processamento) {
-            int step = 1;
             int total = 2;
             int fails = 0;
 
-            ProcessamentoTool tool = new ProcessamentoTool(daoService, step);
+            
+            ProcessamentoTool tool = new ProcessamentoTool(daoService);
 
             do{
                 try {
+                    LOGGER.log(Level.INFO, "Iniciando setp "+ tool.step +" de processamento: " + processamento.getId());
+                    
                     ut.begin();
                     total = processamento.step(tool);
                     ut.commit();
-
-                    if (total <= step){
-                        ut.begin();
-                        processamento.finished(tool);
-                        ut.commit();
-                    }
                 } catch (Exception e) {
                     try {
                         ut.rollback();
@@ -148,11 +163,25 @@ public class ProcessamentoService {
                             return;
                         }
                     } catch (Exception e1) {
-                        LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
+                        LOGGER.log(Level.SEVERE, null, e1);
                     }
                 }
-            }while(total > step);
+            }while(tool.next(total));
 
+            try{
+                ut.begin();
+                processamento.finished(tool);
+                ut.commit();
+            }catch(Exception e){
+                try {
+                    ut.rollback();
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, null, ex);
+                }
+                
+                LOGGER.log(Level.SEVERE, "Erro ao finalizar processamento: " + processamento.getId(), e);
+            }
+                        
             Persister.remove(processamento.getId());
         }
     }
@@ -210,7 +239,7 @@ public class ProcessamentoService {
         }
     }
 
-    static final class Persister {
+    public static final class Persister {
         private static final File dir = new File(ResourceBundleUtil._default().getPropriedade("PROCESSAMENTO_DIR"));
         private static final ObjectMapper om = new ObjectMapper();
 
@@ -251,7 +280,9 @@ public class ProcessamentoService {
             return processamentos;
         }
 
-        static class Storage {
+        @Data
+        @NoArgsConstructor
+        public static class Storage {
             private String processamento;
             private String type;
 

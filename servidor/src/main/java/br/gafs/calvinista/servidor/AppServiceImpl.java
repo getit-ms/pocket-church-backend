@@ -50,6 +50,8 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -1708,10 +1710,12 @@ public class AppServiceImpl implements AppService {
                 new QueryParameters("tipo", tipo).set("compartilhavel", compartilhavel)), filtro);
     }
     
+    @Data
+    @NoArgsConstructor
     private static class ProcessamentoBoletim implements ProcessamentoService.Processamento {
         
-        private final Boletim boletim;
-        private final RegistroIgrejaId bid;
+        private Boletim boletim;
+        private RegistroIgrejaId bid;
         
         public ProcessamentoBoletim(Boletim boletim) {
             this.boletim = boletim;
@@ -1720,7 +1724,7 @@ public class AppServiceImpl implements AppService {
 
         @Override
         public String getId() {
-            return getClass().getName() + "#" + bid;
+            return getClass().getName() + "#" + bid.getChaveIgreja() + "#" + bid.getId();
         }
 
         @Override
