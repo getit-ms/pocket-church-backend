@@ -1,15 +1,14 @@
-package br.gafs.calvinista.app.util;
+package br.gafs.calvinista.util;
 
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.util.ResourceUtil;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.view.relatorio.RelatorioUtil;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 
-import javax.servlet.ServletContext;
+import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -30,12 +29,11 @@ public class ReportUtil {
 
     public static ReportUtil igreja(String path,
                                     final String titulo,
-                                    final Igreja igreja,
-                                    final ServletContext sctxt){
-        return new ReportUtil(sctxt.getRealPath(path)){
+                                    final Igreja igreja){
+        return new ReportUtil(path){
             @Override
             public Exporter build() {
-                return basic(sctxt.getRealPath("/WEB-INF/report/relatorio_igreja.jasper"))
+                return basic("WEB-INF/report/relatorio_igreja.jasper")
                         .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
                         .arg("TITULO", titulo)
                         .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
@@ -69,7 +67,12 @@ public class ReportUtil {
     }
 
     public Exporter build(){
-        return new Exporter(RelatorioUtil.gerarRelatorio(path, args, ds));
+        try {
+            return new Exporter(JasperFillManager.fillReport(ReportUtil.
+                    class.getClassLoader().getResourceAsStream(path), args, ds));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getReportPath(){
@@ -91,27 +94,35 @@ public class ReportUtil {
             this.print = print;
         }
 
-        public byte[] pdf() throws JRException {
-            return RelatorioUtil.exportAsPDF(print);
+        public void pdf(OutputStream os) throws JRException {
+            RelatorioUtil.exportAsPDF(print, os);
         }
 
-        public byte[] docx() throws JRException {
-            return RelatorioUtil.exportAsDocx(print);
+        public void docx(OutputStream os) throws JRException {
+            JRDocxExporter exporter = new JRDocxExporter();
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
         }
 
-        public byte[] xls() throws JRException {
-            return RelatorioUtil.exportAsXLS(print);
+        public void xls(OutputStream os) throws JRException {
+            JRXlsExporter exporter = new JRXlsExporter();
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
+            exporter.exportReport();
         }
 
-        public byte[] export(String tipo) throws JRException {
+        public void export(String tipo, OutputStream os) throws JRException {
             if (tipo.matches("pdf|docx|xls")){
                 switch (tipo){
                     case "pdf":
-                        return pdf();
+                        pdf(os);
+                        break;
                     case "docx":
-                        return docx();
+                        docx(os);
+                        break;
                     case "xls":
-                        return xls();
+                        xls(os);
+                        break;
                 }
             }
 

@@ -5,17 +5,20 @@
  */
 package br.gafs.calvinista.app.controller;
 
+import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroEstudoDTO;
 import br.gafs.calvinista.dto.FiltroEstudoPublicadoDTO;
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import com.fasterxml.jackson.annotation.JsonView;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -26,8 +29,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  *
@@ -39,6 +46,12 @@ public class EstudoController {
     
     @EJB
     private AppService appService;
+
+    @EJB
+    private RelatorioService relatorioService;
+
+    @Context
+    private HttpServletResponse response;
 
     @GET
     @JsonView(Resumido.class)
@@ -65,6 +78,23 @@ public class EstudoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("estudo") final Long estudo){
         return Response.status(Response.Status.OK).entity(appService.buscaEstudo(estudo)).build();
+    }
+
+    @GET
+    @Path("{estudo}/{tipo}")
+    @Produces({"application/pdf", "application/docx", "application/xls", MediaType.APPLICATION_JSON})
+    public Response exportaInscricoes(
+            @PathParam("estudo") Long id,
+            @PathParam("tipo") String tipo) throws IOException, InterruptedException {
+        File file = relatorioService.exportaEstudo(id, tipo);
+
+        response.addHeader("Content-Type", "application/" + tipo);
+        response.addHeader("Content-Length", "" + file.length());
+        response.addHeader("Content-Disposition",
+                "attachment; filename=\""+ file.getName() + "\"");
+        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+
+        return Response.noContent().build();
     }
     
     @DELETE

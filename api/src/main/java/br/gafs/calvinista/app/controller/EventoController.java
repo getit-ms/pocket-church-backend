@@ -5,8 +5,8 @@
  */
 package br.gafs.calvinista.app.controller;
 
+import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.app.util.MergeUtil;
-import br.gafs.calvinista.app.util.ReportUtil;
 import br.gafs.calvinista.dto.FiltroEventoDTO;
 import br.gafs.calvinista.dto.FiltroEventoFuturoDTO;
 import br.gafs.calvinista.dto.FiltroInscricaoDTO;
@@ -15,10 +15,8 @@ import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.view.View;
-import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.view.relatorio.BuscaPaginadaDataSource;
-import net.sf.jasperreports.engine.JRException;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -28,6 +26,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,10 @@ public class EventoController {
     
     @EJB
     private AppService appService;
-    
+
+    @EJB
+    private RelatorioService relatorioService;
+
     @Context
     private HttpServletResponse response;
 
@@ -80,35 +83,19 @@ public class EventoController {
 
     @GET
     @Path("{evento}/inscricoes/{tipo}")
-    @Produces({"application/pdf", MediaType.APPLICATION_JSON})
+    @Produces({"application/pdf", "application/docx", "application/xls", MediaType.APPLICATION_JSON})
     public Response exportaInscricoes(
             @PathParam("evento") Long id,
-            @PathParam("tipo") String tipo) throws JRException, IOException {
-        final Evento evento = appService.buscaEvento(id);
+            @PathParam("tipo") String tipo) throws IOException, InterruptedException {
+        File file = relatorioService.exportaInscritos(id, tipo);
 
-        if (evento != null){
-            byte[] report = ReportUtil.igreja(
-                        "/WEB-INF/report/inscritos_evento.jasper",
-                        evento.getNome(),
-                        evento.getIgreja(),
-                        request.getServletContext())
-                    .arg("EVENTO", evento)
-                    .dataSource(new BuscaPaginadaDataSource<>(new BuscaPaginadaDataSource.PaginaResolver<InscricaoEvento>() {
-                        @Override
-                        public BuscaPaginadaDTO<InscricaoEvento> buscaPagina(int pagina) {
-                            return appService.buscaTodas(evento.getId(), new FiltroInscricaoDTO(pagina, 30));
-                        }
-                    })).build().export(tipo);
+        response.addHeader("Content-Type", "application/" + tipo);
+        response.addHeader("Content-Length", "" + file.length());
+        response.addHeader("Content-Disposition",
+                "attachment; filename=\""+ file.getName() + "\"");
+        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
 
-            response.addHeader("Content-Type", "application/" + tipo);
-            response.addHeader("Content-Length", "" + report.length);
-            response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+evento.getNome()+"." + tipo + "\"");
-            response.getOutputStream().write(report);
-            return Response.noContent().build();
-        }
-
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.noContent().build();
     }
 
     @GET

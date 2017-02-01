@@ -5,33 +5,23 @@
  */
 package br.gafs.calvinista.app.controller;
 
+import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.entity.Arquivo;
-import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.file.EntityFileManager;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import java.io.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,7 +61,7 @@ public class ArquivoController {
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",
                             "attachment; filename=\""+arquivo.getNome()+"\"");
-            transfer(new FileInputStream(file), response.getOutputStream());
+            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
             return Response.noContent().build();
         }
 
@@ -80,22 +70,7 @@ public class ArquivoController {
     
     private byte[] read(InputStream is){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        transfer(is, baos);
+        ArquivoUtil.transfer(is, baos);
         return baos.toByteArray();
-    }
-    
-    private void transfer(InputStream is, OutputStream os){
-        try{
-            int size;
-            byte[] cache = new byte[5000];
-            while ((size = is.read(cache)) > 0){
-                os.write(cache, 0, size);
-            }
-
-            is.close();
-            os.close();
-        }catch(Exception e){
-            LOGGER.log(Level.SEVERE, "Problema ao transferir dados", e);
-        }
     }
 }

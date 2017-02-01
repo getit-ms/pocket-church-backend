@@ -48,7 +48,11 @@
             <groupId>br.gafs</groupId>
             <artifactId>gafs-base-validacao</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>br.gafs</groupId>
+            <artifactId>gafs-base-report</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-dominio</artifactId>

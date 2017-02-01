@@ -6,12 +6,12 @@
 package br.gafs.calvinista.servidor;
 
 import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.DAOService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -19,17 +19,13 @@ import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
-import java.io.File;
-import java.io.FileOutputStream;
+import javax.ws.rs.core.Context;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.transaction.SystemException;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-
+import br.gafs.bean.IEntity;
 /**
  *
  * @author Gabriel
@@ -49,6 +45,8 @@ public class ProcessamentoService {
     @EJB
     private DAOService daoService;
 
+    @Context
+
     @Resource
     private UserTransaction ut;
 
@@ -60,7 +58,7 @@ public class ProcessamentoService {
         
         synchronized(this){
             try {
-                for (Processamento processamento : Persister.load()){
+                for (Processamento processamento : Persister.load(Processamento.class)){
                     pool.add(processamento);
                 }
             } catch (Exception ex) {
@@ -75,8 +73,8 @@ public class ProcessamentoService {
             Persister.save(processamento);
             pool.add(processamento);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao tentar agendar processamento: " + processamento.getId(), e);
-            Persister.remove(processamento.getId());
+            LOGGER.log(Level.SEVERE, "Erro ao tentar agendar entity: " + processamento.getId(), e);
+            Persister.remove(Processamento.class, processamento.getId());
         }
     }
 
@@ -100,7 +98,7 @@ public class ProcessamentoService {
         }
     }
 
-    public interface Processamento {
+    public interface Processamento extends IEntity {
         String getId();
         int step(ProcessamentoTool tool) throws Exception;
         void finished(ProcessamentoTool tool) throws Exception;
@@ -112,7 +110,7 @@ public class ProcessamentoService {
     public class ProcessamentoTool {
         private final DAOService daoService;
         private int step = 1;
-        
+
         protected boolean next(int total){
             return ++step <= total;
         }
@@ -135,7 +133,7 @@ public class ProcessamentoService {
 
         @Override
         public void execute(Processamento processamento) {
-            int total = 2;
+            int total = 1;
             int fails = 0;
 
             
@@ -143,7 +141,7 @@ public class ProcessamentoService {
 
             do{
                 try {
-                    LOGGER.log(Level.INFO, "Iniciando setp "+ tool.step +" de processamento: " + processamento.getId());
+                    LOGGER.log(Level.INFO, "Iniciando setp "+ tool.step +" de entity: " + processamento.getId());
                     
                     ut.begin();
                     total = processamento.step(tool);
@@ -159,11 +157,14 @@ public class ProcessamentoService {
                             processamento.dropped(tool);
                             ut.commit();
 
-                            Persister.remove(processamento.getId());
+                            Persister.remove(Processamento.class, processamento.getId());
                             return;
+                        }else{
+                            continue;
                         }
                     } catch (Exception e1) {
                         LOGGER.log(Level.SEVERE, null, e1);
+                        continue;
                     }
                 }
             }while(tool.next(total));
@@ -179,10 +180,10 @@ public class ProcessamentoService {
                     LOGGER.log(Level.SEVERE, null, ex);
                 }
                 
-                LOGGER.log(Level.SEVERE, "Erro ao finalizar processamento: " + processamento.getId(), e);
+                LOGGER.log(Level.SEVERE, "Erro ao finalizar entity: " + processamento.getId(), e);
             }
                         
-            Persister.remove(processamento.getId());
+            Persister.remove(Processamento.class, processamento.getId());
         }
     }
 
@@ -198,7 +199,10 @@ public class ProcessamentoService {
         private final List<Element> pool = new ArrayList<Element>();
 
         public synchronized void add(Processamento processamento){
-            pool.add(new Element(processamento,EMPTY_WATCHER));
+            Element element = new Element(processamento,EMPTY_WATCHER);
+
+            pool.remove(element);
+            pool.add(element);
             notify();
         }
 
@@ -223,7 +227,7 @@ public class ProcessamentoService {
 
         @Getter
         @AllArgsConstructor
-        @EqualsAndHashCode(of = "processamento")
+        @EqualsAndHashCode(of = "entity")
         static class Element {
             private Processamento processamento;
             private Watcher watcher;
@@ -236,64 +240,6 @@ public class ProcessamentoService {
 
         interface Executor {
             void execute(Processamento processamento);
-        }
-    }
-
-    public static final class Persister {
-        private static final File dir = new File(ResourceBundleUtil._default().getPropriedade("PROCESSAMENTO_DIR"));
-        private static final ObjectMapper om = new ObjectMapper();
-
-        static {
-            if (!dir.exists()){
-                dir.mkdirs();
-            }
-        }
-
-        public static void save(Processamento processamento) throws IOException {
-            om.writeValue(new FileOutputStream((new File(dir, processamento.getId()))), new Storage(processamento));
-        }
-
-        public static void remove(String id){
-            File processamento = new File(dir, id);
-            if (processamento.exists()){
-                processamento.delete();
-            }
-        }
-
-        public static List<Processamento> load() throws IOException, ClassNotFoundException {
-            Set<File> files = new TreeSet<File>(new Comparator<File>(){
-                @Override
-                public int compare(File o1, File o2) {
-                    return (int) (o1.lastModified() - o2.lastModified());
-                }
-            });
-
-            files.addAll(Arrays.asList(dir.listFiles()));
-
-            List<Processamento> processamentos = new ArrayList<Processamento>();
-
-            for (File file : files){
-                Storage storage = om.readValue(file, Storage.class);
-                processamentos.add((Processamento) storage.get());
-            }
-
-            return processamentos;
-        }
-
-        @Data
-        @NoArgsConstructor
-        public static class Storage {
-            private String processamento;
-            private String type;
-
-            Storage(Processamento processamento) throws JsonProcessingException {
-                this.processamento = om.writeValueAsString(processamento);
-                this.type = processamento.getClass().getName();
-            }
-
-            <T> T get() throws ClassNotFoundException, IOException {
-                return (T) om.readValue(processamento, Class.forName(type));
-            }
         }
     }
 

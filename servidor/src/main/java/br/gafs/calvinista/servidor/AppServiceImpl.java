@@ -18,8 +18,8 @@ import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoBoletim;
 import br.gafs.calvinista.util.MensagemUtil;
-import br.gafs.calvinista.util.PDFToImageConverterUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 import br.gafs.dao.QueryParameters;
@@ -28,7 +28,6 @@ import br.gafs.file.EntityFileManager;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
-import br.gafs.util.image.ImageUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -44,14 +43,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  *
@@ -568,38 +564,7 @@ public class AppServiceImpl implements AppService {
     }
     
     private int trataPaginasPDF(ArquivoPDF pdf) throws IOException {
-        return trataPaginasPDF(daoService, pdf, -1);
-    }
-    
-    private static int trataPaginasPDF(final DAOService daoService, final ArquivoPDF pdf, final int limitePaginas) throws IOException {
-        final int offset = pdf.getPaginas().size();
-        
-        return PDFToImageConverterUtil.convert(EntityFileManager.
-                get(pdf.getPDF(), "dados")).forEachPage(new PDFToImageConverterUtil.PageHandler() {
-                    @Override
-                    public void handle(int page, byte[] dados) throws IOException {
-                        if (page < offset || (limitePaginas > 0 && page >= (offset + limitePaginas))){
-                            return;
-                        }
-                        
-                        if (page == 0){
-                            Arquivo arquivo = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
-                                    replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, 500, 500));
-                            arquivo.used();
-                            arquivo = daoService.update(arquivo);
-                            pdf.setThumbnail(arquivo);
-                            arquivo.clearDados();
-                        }
-                        
-                        Arquivo pagina = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
-                                replaceFirst(".[pP][dD][fF]$", "") + "_page"
-                                + new DecimalFormat("00000").format(page + 1) + ".png", dados);;
-                        pagina.used();
-                        pagina = daoService.update(pagina);
-                        pdf.getPaginas().add(pagina);
-                        pagina.clearDados();
-                    }
-                });
+        return ProcessamentoBoletim.trataPaginasPDF(daoService, pdf, -1);
     }
     
     private boolean trataTrocaPDF(final ArquivoPDF pdf) {
@@ -1710,45 +1675,6 @@ public class AppServiceImpl implements AppService {
                 new QueryParameters("tipo", tipo).set("compartilhavel", compartilhavel)), filtro);
     }
     
-    @Data
-    @NoArgsConstructor
-    private static class ProcessamentoBoletim implements ProcessamentoService.Processamento {
-        
-        private Boletim boletim;
-        private RegistroIgrejaId bid;
-        
-        public ProcessamentoBoletim(Boletim boletim) {
-            this.boletim = boletim;
-            this.bid = new RegistroIgrejaId(boletim.getChaveIgreja(), boletim.getId());
-        }
 
-        @Override
-        public String getId() {
-            return getClass().getName() + "#" + bid.getChaveIgreja() + "#" + bid.getId();
-        }
-
-        @Override
-        public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-            int total = trataPaginasPDF(tool.getDaoService(), boletim, 5);
-            int current = boletim.getPaginas().size();
-            tool.getDaoService().update(boletim);
-            Boletim.lock(bid, (100 * current) / total);
-            return tool.getStep() + ((int) Math.ceil((total - current) / 5d));
-        }
-
-        @Override
-        public void finished(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-            Boletim.unlock(bid);
-            tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
-                    create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.PUBLICADO));
-        }
-
-        @Override
-        public void dropped(ProcessamentoService.ProcessamentoTool tool) {
-            Boletim.unlock(bid);
-            tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
-                    create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.REJEITADO));
-        }
-    }
     
 }
