@@ -33,7 +33,7 @@ public class ReportUtil {
         return new ReportUtil(path){
             @Override
             public Exporter build() {
-                return basic("WEB-INF/report/relatorio_igreja.jasper")
+                return basic("report/relatorio_igreja.jasper")
                         .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
                         .arg("TITULO", titulo)
                         .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
@@ -44,12 +44,12 @@ public class ReportUtil {
     }
 
     public ReportUtil arg(String key, Object value){
-        args.put(key, value);
+        this.args.put(key, value);
         return this;
     }
 
     public ReportUtil args(Map<String, Object> args){
-        args.putAll(args);
+        this.args.putAll(args);
         return this;
     }
 
@@ -63,7 +63,7 @@ public class ReportUtil {
     }
 
     public ReportUtil bean(Object obj){
-        return dataSource(new JRBeanCollectionDataSource(Arrays.asList(new Object[]{obj})));
+        return collection(Arrays.asList(new Object[]{obj}));
     }
 
     public Exporter build(){
@@ -71,6 +71,8 @@ public class ReportUtil {
             return new Exporter(JasperFillManager.fillReport(ReportUtil.
                     class.getClassLoader().getResourceAsStream(path), args, ds));
         } catch (Exception e) {
+            e.printStackTrace();
+
             throw new RuntimeException(e);
         }
     }
