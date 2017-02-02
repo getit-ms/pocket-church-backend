@@ -19,30 +19,30 @@ public final class Persister {
     private static final File dir = new File(ResourceBundleUtil._default().getPropriedade("PERSISTER_DIR"));
     private static final ObjectMapper om = new ObjectMapper();
 
-    public static File file(Class<? extends IEntity> type, Serializable id){
+    public static File file(Class<?> type, Serializable id){
         return new File(new File(dir, type.getName().replaceAll("[\\.\\:]", "_")), id.toString());
     }
 
-    public static void save(IEntity entity) throws IOException {
-        File file = file(entity.getClass(), entity.getId());
+    public static void save(Object entity, String id) throws IOException {
+        File file = file(entity.getClass(), id);
         if (!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
         }
         om.writeValue(new FileOutputStream(file), new Storage(entity));
     }
 
-    public static void remove(Class<? extends IEntity> type, String id){
+    public static void remove(Class<?> type, String id){
         File processamento = file(type, id);
         if (processamento.exists()){
             processamento.delete();
         }
     }
 
-    public static <T extends IEntity> T load(Class<T> type, String id) throws IOException, ClassNotFoundException {
+    public static <T> T load(Class<T> type, String id) throws IOException, ClassNotFoundException {
         return (T) om.readValue(file(type, id), Storage.class).get();
     }
 
-    public static <T extends IEntity> List<T> load(final Class<T> type) throws IOException, ClassNotFoundException {
+    public static <T> List<T> load(final Class<T> type) throws IOException, ClassNotFoundException {
         Set<File> files = new TreeSet<File>(new Comparator<File>(){
             @Override
             public int compare(File o1, File o2) {
@@ -73,7 +73,7 @@ public final class Persister {
         private String entity;
         private String type;
 
-        Storage(IEntity entity) throws JsonProcessingException {
+        Storage(Object entity) throws JsonProcessingException {
             this.entity = om.writeValueAsString(entity);
             this.type = entity.getClass().getName();
         }

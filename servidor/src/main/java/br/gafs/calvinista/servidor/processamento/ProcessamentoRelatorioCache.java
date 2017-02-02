@@ -40,7 +40,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
         this.relatorio = relatorio.getClass();
         this.type = type;
 
-        Persister.save(relatorio);
+        Persister.save(relatorio, getId());
     }
 
     public static File file(Relatorio relatorio, String type){

@@ -70,7 +70,7 @@ public class ProcessamentoService {
 
     public void schedule(Processamento processamento){
         try {
-            Persister.save(processamento);
+            Persister.save(processamento, processamento.getId());
             pool.add(processamento);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Erro ao tentar agendar entity: " + processamento.getId(), e);
@@ -139,7 +139,9 @@ public class ProcessamentoService {
             
             ProcessamentoTool tool = new ProcessamentoTool(daoService);
 
+            boolean fail;
             do{
+                fail = false;
                 try {
                     LOGGER.log(Level.INFO, "Iniciando setp "+ tool.step +" de entity: " + processamento.getId());
                     
@@ -147,6 +149,7 @@ public class ProcessamentoService {
                     total = processamento.step(tool);
                     ut.commit();
                 } catch (Exception e) {
+                    fail = true;
                     try {
                         ut.rollback();
                         fails++;
@@ -167,7 +170,7 @@ public class ProcessamentoService {
                         continue;
                     }
                 }
-            }while(tool.next(total));
+            }while(fail || tool.next(total));
 
             try{
                 ut.begin();
