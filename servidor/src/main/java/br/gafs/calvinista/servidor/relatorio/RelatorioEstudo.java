@@ -30,7 +30,7 @@ public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
 
     @Override
     public String getTitulo() {
-        return estudo.getNome();
+        return estudo.getTitulo();
     }
 
     @Override
