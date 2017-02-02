@@ -80,7 +80,7 @@
         
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports-htmlcomponent</artifactId>                
+            <artifactId>jasperreports-htmlcomponent</artifactId>
             <version>6.1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/../config/lib/htmlcomponent.jar</systemPath>
@@ -174,7 +174,7 @@
                     <dependency>
                         <groupId>net.sf.jasperreports</groupId>
                         <artifactId>jasperreports</artifactId>
-                        <version>6.3.1</version>
+                        <version>6.1.0</version>
                     </dependency>
                 </dependencies>
                 <executions>
