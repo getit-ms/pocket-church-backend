@@ -26,15 +26,6 @@
         </dependency>
     
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.rhino</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>br.gafs</groupId>
             <artifactId>gafs-base-servidor-ejb</artifactId>
             <type>ejb</type>
