@@ -9,10 +9,11 @@ import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
-import br.gafs.view.relatorio.BuscaPaginadaDataSource;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -22,13 +23,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio {
     private Igreja igreja;
-    private Long membro;
     private Evento evento;
 
-    public RelatorioInscritos(Evento evento, Long membro){
+    public RelatorioInscritos(Evento evento){
         this.igreja = evento.getIgreja();
         this.evento = evento;
-        this.membro = membro;
     }
 
     @Override
@@ -43,16 +42,21 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
 
     @Override
     public ReportUtil.Exporter generate(final DAOService daoService) {
+        BuscaPaginadaDTO busca;
+        List<InscricaoEvento> inscricoes = new ArrayList<InscricaoEvento>();
+        FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(1, 30);
+        do{
+            busca = daoService.findWith(new FiltroInscricao(evento.getId(),
+                    igreja.getChave(), null, filtro));
+            inscricoes.addAll(busca.getResultados());
+            filtro.setPagina(filtro.getPagina() + 1);
+        }while(busca.isHasProxima());
+
         return ReportUtil.igreja(
                 "report/inscritos_evento.jasper",
                 evento.getNome(),
                 evento.getIgreja())
                 .arg("EVENTO", evento)
-                .dataSource(new BuscaPaginadaDataSource<>(new BuscaPaginadaDataSource.PaginaResolver<InscricaoEvento>() {
-                    @Override
-                    public BuscaPaginadaDTO<InscricaoEvento> buscaPagina(int pagina) {
-                        return daoService.findWith(new FiltroInscricao(evento.getId(), igreja.getChave(), membro, new FiltroInscricaoDTO(pagina, 30)));
-                    }
-                })).build();
+                .collection(inscricoes).build();
     }
 }

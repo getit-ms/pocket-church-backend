@@ -30,7 +30,7 @@
             <artifactId>jasperreports-htmlcomponent</artifactId>
             <version>6.1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../config/lib/htmlcomponent.jar</systemPath>
+            <systemPath>${basedir}/src/main/application/lib/htmlcomponent.jar</systemPath>
         </dependency>
     
         <dependency>

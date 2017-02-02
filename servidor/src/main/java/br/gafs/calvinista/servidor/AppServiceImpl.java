@@ -19,6 +19,9 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoBoletim;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
+import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
+import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
@@ -711,7 +714,19 @@ public class AppServiceImpl implements AppService {
     public Estudo cadastra(Estudo estudo) {
         estudo.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
-        return daoService.create(estudo);
+        estudo = daoService.create(estudo);
+        scheduleRelatorioEstudo(estudo);
+        return estudo;
+    }
+
+    private void scheduleRelatorioEstudo(Estudo estudo){
+        try {
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioEstudo(estudo), "pdf"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioEstudo(estudo), "xls"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioEstudo(estudo), "docx"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     @Audit
@@ -719,7 +734,9 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo atualiza(Estudo estudo) {
         estudo.alterado();
-        return daoService.update(estudo);
+        estudo = daoService.update(estudo);
+        scheduleRelatorioEstudo(estudo);
+        return estudo;
     }
     
     @Override
@@ -1196,7 +1213,19 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento cadastra(Evento evento) {
         evento.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
-        return daoService.create(evento);
+        evento = daoService.create(evento);
+        scheduleRelatoriosInscritos(evento);
+        return evento;
+    }
+
+    private void scheduleRelatoriosInscritos(Evento evento) {
+        try {
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "pdf"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "xls"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "docx"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     @Audit
@@ -1204,7 +1233,9 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento atualiza(Evento evento) {
         evento.alterado();
-        return daoService.update(evento);
+        evento = daoService.update(evento);
+        scheduleRelatoriosInscritos(evento);
+        return evento;
     }
     
     @Audit
@@ -1268,6 +1299,8 @@ public class AppServiceImpl implements AppService {
         entidade.confirmada();
         
         daoService.update(entidade);
+
+        scheduleRelatoriosInscritos(entidade.getEvento());
     }
     
     @Audit
@@ -1280,6 +1313,8 @@ public class AppServiceImpl implements AppService {
         entidade.cancelada();
         
         daoService.update(entidade);
+
+        scheduleRelatoriosInscritos(entidade.getEvento());
     }
     
     @Audit
@@ -1347,8 +1382,6 @@ public class AppServiceImpl implements AppService {
             Evento evento = inscricoes.get(0).getEvento();
             Membro membro = buscaMembro(sessaoBean.getIdMembro());
             
-            
-
             Number qtde = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento.getId()));
             if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()){
                 throw new ServiceException("mensagens.MSG-034");
@@ -1410,6 +1443,8 @@ public class AppServiceImpl implements AppService {
                     return new ResultadoInscricaoDTO(checkout);
                 }
             }
+
+            scheduleRelatoriosInscritos(evento);
         }
         
         return new ResultadoInscricaoDTO();
@@ -1558,6 +1593,9 @@ public class AppServiceImpl implements AppService {
                             MensagemUtil.email(institucional, subject,
                                     new CalvinEmailDTO(null, Arrays.asList(new CalvinEmailDTO.Materia(title, text)))),
                             new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
+
+
+                    scheduleRelatoriosInscritos(evento);
                 }
                 
             }
@@ -1568,6 +1606,7 @@ public class AppServiceImpl implements AppService {
                 for (InscricaoEvento inscricao : inscricoes){
                     inscricao.cancelada();
                     daoService.update(inscricao);
+                    scheduleRelatoriosInscritos(inscricao.getEvento());
                 }
                 break;
             }

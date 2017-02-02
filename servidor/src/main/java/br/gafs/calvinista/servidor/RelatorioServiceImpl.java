@@ -67,7 +67,7 @@ public class RelatorioServiceImpl implements RelatorioService {
             ultimaInscricao = entidade.getUltimaAlteracao();
         }
 
-        return export(new RelatorioInscritos(entidade, sessaoBean.getIdMembro()), tipo, ultimaInscricao);
+        return export(new RelatorioInscritos(entidade), tipo, ultimaInscricao);
     }
 
     @Override
