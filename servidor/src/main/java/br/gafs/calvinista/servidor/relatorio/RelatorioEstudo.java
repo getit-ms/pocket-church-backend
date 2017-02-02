@@ -21,6 +21,7 @@ public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
 
     public RelatorioEstudo(Estudo estudo){
         this.estudo = estudo;
+        this.igreja = estudo.getIgreja();
     }
 
     @Override

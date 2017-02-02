@@ -26,7 +26,18 @@
 	<columnHeader>
 		<band height="30">
 			<textField>
-				<reportElement x="0" y="0" width="370" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
+				<reportElement x="0" y="0" width="20" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
+				<box padding="5">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{evento.inscricao.numero}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="0" width="350" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
 				<box padding="5">
 					<topPen lineWidth="1.0"/>
 					<bottomPen lineWidth="1.0"/>
@@ -63,7 +74,15 @@
 	<detail>
 		<band height="50" splitType="Stretch">
 			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="0" y="0" width="370" height="25" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
+				<reportElement style="linha" stretchType="RelativeToBandHeight" x="0" y="0" width="20" height="50" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="linha" stretchType="RelativeToBandHeight" x="20" y="0" width="350" height="25" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
@@ -71,7 +90,7 @@
 				<textFieldExpression><![CDATA[$F{nomeInscrito}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="0" y="25" width="370" height="25" uuid="fa4b6218-d94e-42b1-b490-a0706800dc79">
+				<reportElement style="linha" stretchType="RelativeToBandHeight" x="20" y="25" width="350" height="25" uuid="fa4b6218-d94e-42b1-b490-a0706800dc79">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>

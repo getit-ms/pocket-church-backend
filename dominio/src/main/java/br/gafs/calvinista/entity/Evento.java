@@ -93,6 +93,10 @@ public class Evento implements IEntity {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "data_fim_inscricao", nullable = false)
     private Date dataTerminoInscricao;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ultima_alteracao")
+    private Date ultimaAlteracao = new Date();
     
     @Id
     @JsonIgnore
@@ -134,6 +138,10 @@ public class Evento implements IEntity {
     
     public boolean isComPagamento(){
         return valor != null && exigePagamento;
+    }
+
+    public void alterado(){
+        ultimaAlteracao = new Date();
     }
     
 }

@@ -25,9 +25,9 @@
 				<textFieldExpression><![CDATA[$F{autor}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="50">
+		<band height="30">
 			<componentElement>
-				<reportElement x="0" y="0" width="555" height="50" uuid="544d1860-7dbb-4b6d-a4fe-6151684d1380"/>
+				<reportElement x="5" y="5" width="545" height="20" uuid="544d1860-7dbb-4b6d-a4fe-6151684d1380"/>
 				<hc:html xmlns:hc="http://jasperreports.sourceforge.net/htmlcomponent" xsi:schemaLocation="http://jasperreports.sourceforge.net/htmlcomponent http://jasperreports.sourceforge.net/xsd/htmlcomponent.xsd" scaleType="RetainShape" horizontalAlign="Left" verticalAlign="Middle">
 					<hc:htmlContentExpression><![CDATA[$F{texto}]]></hc:htmlContentExpression>
 				</hc:html>

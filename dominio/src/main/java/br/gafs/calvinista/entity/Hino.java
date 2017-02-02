@@ -9,21 +9,14 @@ import br.gafs.bean.IEntity;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.*;
+import java.util.Date;
 /**
  *
  * @author Gabriel
@@ -60,7 +53,7 @@ public class Hino implements IEntity {
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     private String autor;
-    
+
     @NotEmpty
     @Length(max = 150)
     @JsonView(Resumido.class)
@@ -77,5 +70,13 @@ public class Hino implements IEntity {
     @JsonView(Detalhado.class)
     @Column(name = "locale")
     private String locale;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ultima_alteracao")
+    private Date ultimaAlteracao = new Date();
+
+    public void alterado(){
+        ultimaAlteracao = new Date();
+    }
     
 }

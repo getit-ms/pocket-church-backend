@@ -1,5 +1,9 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.QueryAdmin;
+import br.gafs.calvinista.entity.Estudo;
+import br.gafs.calvinista.entity.Evento;
+import br.gafs.calvinista.entity.Hino;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.security.AllowAdmin;
@@ -56,21 +60,28 @@ public class RelatorioServiceImpl implements RelatorioService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS})
     public File exportaInscritos(Long id, String tipo) throws IOException, InterruptedException {
-        return export(new RelatorioInscritos(appService.buscaEvento(id), sessaoBean.getIdMembro()), tipo, new Date());
+        Date ultimaInscricao = daoService.findWith(QueryAdmin.ULTIMA_INSCRICAO.createSingle(id, sessaoBean.getChaveIgreja()));
+        Evento entidade = appService.buscaEvento(id);
+
+        if (ultimaInscricao == null || ultimaInscricao.before(entidade.getUltimaAlteracao())){
+            ultimaInscricao = entidade.getUltimaAlteracao();
+        }
+
+        return export(new RelatorioInscritos(entidade, sessaoBean.getIdMembro()), tipo, ultimaInscricao);
     }
 
     @Override
     public File exportaHino(Long hino, String tipo) throws IOException, InterruptedException {
+        Hino entidade = appService.buscaHino(hino);
         return export(new RelatorioHino(
                 daoService.find(Igreja.class, sessaoBean.getChaveIgreja()),
-                appService.buscaHino(hino)), tipo, new Date());
+                entidade), tipo, entidade.getUltimaAlteracao());
     }
-
-
 
     @Override
     public File exportaEstudo(Long estudo, String tipo) throws IOException, InterruptedException {
+        Estudo entidade = appService.buscaEstudo(estudo);
         return export(new RelatorioEstudo(
-                appService.buscaEstudo(estudo)), tipo, new Date());
+                entidade), tipo, entidade.getUltimaAlteracao());
     }
 }

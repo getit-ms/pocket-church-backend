@@ -80,6 +80,10 @@ public class Estudo implements IEntity {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "autor", nullable = false)
     private String autor;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ultima_alteracao")
+    private Date ultimaAlteracao = new Date();
     
     @ManyToOne
     @Setter(onMethod = @_(@JsonIgnore))
@@ -118,5 +122,9 @@ public class Estudo implements IEntity {
 
     public void notificado(){
         status = StatusEstudo.NOTIFICADO;
+    }
+
+    public void alterado(){
+        ultimaAlteracao = new Date();
     }
 }

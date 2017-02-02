@@ -718,6 +718,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo atualiza(Estudo estudo) {
+        estudo.alterado();
         return daoService.update(estudo);
     }
     
@@ -1202,6 +1203,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento atualiza(Evento evento) {
+        evento.atualizado();
         return daoService.update(evento);
     }
     

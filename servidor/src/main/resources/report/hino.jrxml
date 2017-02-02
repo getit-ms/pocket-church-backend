@@ -21,15 +21,13 @@
 	<field name="autor" class="java.lang.String"/>
 	<field name="texto" class="java.lang.String"/>
 	<detail>
-		<band height="30" splitType="Stretch">
-			<textField isStretchWithOverflow="true">
-				<reportElement x="0" y="0" width="555" height="30" uuid="4c2c16a7-2a70-4bf3-95d9-6f386af1345a"/>
-				<box padding="5"/>
-				<textElement>
-					<font size="14"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{texto}]]></textFieldExpression>
-			</textField>
+		<band height="30">
+			<componentElement>
+				<reportElement x="5" y="5" width="545" height="20" uuid="544d1860-7dbb-4b6d-a4fe-6151684d1380"/>
+				<hc:html xmlns:hc="http://jasperreports.sourceforge.net/htmlcomponent" xsi:schemaLocation="http://jasperreports.sourceforge.net/htmlcomponent http://jasperreports.sourceforge.net/xsd/htmlcomponent.xsd" scaleType="RetainShape" horizontalAlign="Left" verticalAlign="Middle">
+					<hc:htmlContentExpression><![CDATA[$F{texto}]]></hc:htmlContentExpression>
+				</hc:html>
+			</componentElement>
 		</band>
 		<band height="30">
 			<textField isBlankWhenNull="true">

@@ -27,6 +27,7 @@ public enum QueryAdmin {
         }
     },
     INSCRICOES_POR_REFERENCIA("InscricaoEvento.findByReferencia", "referencia"),
+    ULTIMA_INSCRICAO("InscricaoEvento.findMaxDataByEvento", "evento", "igreja"),
     VERSICULOS_POR_STATUS("VersiculoDiario.findByIgrejaAndStatus", "chaveIgreja", "status"),
     REMOVER_VOTOS("Voto.removerPorVotacao", "chaveIgreja", "idVotacao"),
     REMOVER_RESPOSTAS_OPCAO("RespostaOpcao.removerPorVotacao", "chaveIgreja", "idVotacao"),
