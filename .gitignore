@@ -6,6 +6,7 @@
 **/www/lib/**
 **/vendor/**
 **/.idea/**
+**.jasper
 **.class
 **.war
 **.ear
