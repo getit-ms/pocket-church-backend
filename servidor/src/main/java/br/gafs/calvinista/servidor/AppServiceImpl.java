@@ -1203,7 +1203,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento atualiza(Evento evento) {
-        evento.atualizado();
+        evento.alterado();
         return daoService.update(evento);
     }
     
