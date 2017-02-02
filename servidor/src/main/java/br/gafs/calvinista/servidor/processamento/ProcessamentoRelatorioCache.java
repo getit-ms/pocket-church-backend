@@ -45,7 +45,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
 
     public static File file(Relatorio relatorio, String type){
         return new File(new File(new File(new File(dir, relatorio.getIgreja().getChave()),
-                relatorio.getClass().getName().replaceAll("[\\.\\:]", "_")),
+                relatorio.getClass().getSimpleName()),
                 relatorio.getId()), relatorio.getTitulo() + "." + type);
     }
 

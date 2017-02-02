@@ -1,6 +1,5 @@
 package br.gafs.calvinista.util;
 
-import br.gafs.bean.IEntity;
 import br.gafs.bundle.ResourceBundleUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +7,10 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -20,14 +22,16 @@ public final class Persister {
     private static final ObjectMapper om = new ObjectMapper();
 
     public static File file(Class<?> type, Serializable id){
-        return new File(new File(dir, type.getName().replaceAll("[\\.\\:]", "_")), id.toString());
+        return new File(new File(dir, type.getSimpleName()), id.toString());
     }
 
     public static void save(Object entity, String id) throws IOException {
         File file = file(entity.getClass(), id);
+
         if (!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
         }
+
         om.writeValue(new FileOutputStream(file), new Storage(entity));
     }
 
@@ -50,12 +54,11 @@ public final class Persister {
             }
         });
 
-        files.addAll(Arrays.asList(dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith(type.getName() + "#");
-            }
-        })));
+        File typeDir = new File(dir, type.getSimpleName());
+
+        if (typeDir.exists()){
+            files.addAll(Arrays.asList(typeDir.listFiles()));
+        }
 
         List<T> entities = new ArrayList<T>();
 

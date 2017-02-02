@@ -5,6 +5,7 @@
 */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.bean.IEntity;
 import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.DAOService;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import br.gafs.bean.IEntity;
 /**
  *
  * @author Gabriel
@@ -150,6 +150,7 @@ public class ProcessamentoService {
                     ut.commit();
                 } catch (Exception e) {
                     fail = true;
+
                     try {
                         ut.rollback();
                         fails++;
