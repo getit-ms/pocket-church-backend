@@ -1,5 +1,6 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.entity.Evento;
@@ -35,6 +36,8 @@ import java.util.Date;
 @Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class RelatorioServiceImpl implements RelatorioService {
 
+    private static final long LIMITE_CACHE = ResourceBundleUtil._default().getPropriedadesAsLong("LIMITE_TIMEOUT_CACHE_REPORT");
+
     @EJB
     private ProcessamentoService processamentoService;
 
@@ -50,7 +53,8 @@ public class RelatorioServiceImpl implements RelatorioService {
     private File export(ProcessamentoRelatorioCache.Relatorio relatorio, String type, Date timeout) throws IOException, InterruptedException {
         File file = ProcessamentoRelatorioCache.file(relatorio, type);
 
-        if (!file.exists() || file.lastModified() < timeout.getTime()){
+        if (!file.exists() || file.lastModified() < timeout.getTime() ||
+                System.currentTimeMillis() - file.lastModified() > LIMITE_CACHE){
             processamentoService.execute(new ProcessamentoRelatorioCache(relatorio, type));
         }
 

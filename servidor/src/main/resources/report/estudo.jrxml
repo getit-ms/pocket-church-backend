@@ -21,17 +21,21 @@
 			<textField>
 				<reportElement x="0" y="0" width="555" height="30" uuid="02f6da9f-bb86-4f36-b34b-1858097c05e6"/>
 				<box padding="5"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<textElement textAlignment="Right">
+					<font size="12" isItalic="true"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{autor}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="30">
-			<componentElement>
-				<reportElement x="5" y="5" width="545" height="20" uuid="544d1860-7dbb-4b6d-a4fe-6151684d1380"/>
-				<hc:html xmlns:hc="http://jasperreports.sourceforge.net/htmlcomponent" xsi:schemaLocation="http://jasperreports.sourceforge.net/htmlcomponent http://jasperreports.sourceforge.net/xsd/htmlcomponent.xsd" scaleType="RetainShape" horizontalAlign="Left" verticalAlign="Middle">
-					<hc:htmlContentExpression><![CDATA[$F{texto}]]></hc:htmlContentExpression>
-				</hc:html>
-			</componentElement>
+			<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="555" height="30" isPrintWhenDetailOverflows="true" uuid="f07142f0-fa10-4044-8a42-be8102a9726e"/>
+				<box padding="5"/>
+				<textElement markup="html" >
+					<font size="12" />
+				</textElement>
+				<textFieldExpression><![CDATA[$F{texto}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>

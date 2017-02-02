@@ -26,14 +26,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports-htmlcomponent</artifactId>
-            <version>6.1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/src/main/application/lib/htmlcomponent.jar</systemPath>
-        </dependency>
-    
-        <dependency>
             <groupId>br.gafs</groupId>
             <artifactId>gafs-base-servidor-ejb</artifactId>
             <type>ejb</type>
