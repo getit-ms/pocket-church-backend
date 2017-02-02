@@ -5,7 +5,6 @@
  */
 package br.gafs.calvinista.app.controller;
 
-import br.gafs.calvinista.app.ReportBuilder;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
 import br.gafs.calvinista.dto.FiltroVotacaoDTO;
@@ -81,19 +80,6 @@ public class VotacaoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("votacao") Long votacao){
         return Response.status(Response.Status.OK).entity(appService.buscaVotacao(votacao)).build();
-    }
-    
-    @GET
-    @Path("{votacao}/resultado")
-    @Produces({"application/pdf", MediaType.APPLICATION_JSON})
-    public Response getResultado(@PathParam("votacao") Long votacao) throws Exception {
-        Votacao entidade = appService.buscaVotacao(votacao);
-        return Response.ok(
-                ReportBuilder.init(entidade.getIgreja(), paramService.buscaParametros(entidade.getIgreja().getChave())).
-                        template("jasper/resultado_votacao.jasper").
-                        value(appService.buscaResultado(votacao)).build()
-                
-        , "application/pdf").build();
     }
     
     @DELETE

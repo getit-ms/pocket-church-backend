@@ -22,6 +22,7 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -33,44 +34,16 @@
         </dependency>
         
         <dependency>
-            <groupId>br.gafs</groupId>
-            <artifactId>gafs-base-report</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.sf.jasperreports</groupId>
-                    <artifactId>jasperreports</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>br.gafs</groupId>
-            <artifactId>gafs-base-web-report</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.sf.jasperreports</groupId>
-                    <artifactId>jasperreports</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        
-        <dependency>
             <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-dominio</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-fachada</artifactId>
             <scope>provided</scope>
         </dependency>
         
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
