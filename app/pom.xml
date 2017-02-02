@@ -24,6 +24,14 @@
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-htmlcomponent</artifactId>
+            <version>6.1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../config/lib/htmlcomponent.jar</systemPath>
+        </dependency>
     
         <dependency>
             <groupId>br.gafs</groupId>
