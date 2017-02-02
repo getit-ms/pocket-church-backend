@@ -188,7 +188,7 @@
                 <configuration>
                     <!-- These are the default configurations: -->
                     <sourceDirectory>src/main/resources/report</sourceDirectory>
-                    <outputDirectory>${project.build.directory}/report</outputDirectory>
+                    <outputDirectory>${project.build.directory}/classes/report</outputDirectory>
                     <classpathElements>
                         <element>your.classpath.element</element>
                     </classpathElements>
