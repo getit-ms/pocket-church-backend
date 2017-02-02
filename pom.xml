@@ -149,9 +149,9 @@
             </dependency>
             
             <dependency>
-                <groupId>org.mozilla</groupId>
-                <artifactId>rhino</artifactId>
-                <version>1.7.7.1</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.rhino</artifactId>
+                <version>1.7.6_1</version>
             </dependency>
             
             <dependency>
