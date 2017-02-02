@@ -126,16 +126,26 @@ public class AppServiceImpl implements AppService {
     
     @Override
     public void clearNotificacoes(){
-        daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES.
-                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
-                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
+        if (sessaoBean.getIdMembro() == null){
+            daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_DISPOSITIVO.
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+        }else{
+            
+        daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_MEMBRO.
+                create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        }
     }
     
     @Override
     public void removeNotificacao(Long notificacao){
-        daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO.
-                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
-                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro(), notificacao));
+        if (sessaoBean.getIdMembro() == null){
+            daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO_DISPOSITIVO.
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), notificacao));
+        }else{
+            daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO_MEMBRO.
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), notificacao));
+            
+        }
     }
 
     public void marcaNotificacoesComoLidas() {
