@@ -164,6 +164,7 @@ public class ProcessamentoService {
                             Persister.remove(Processamento.class, processamento.getId());
                             return;
                         }else{
+                            LOGGER.log(Level.SEVERE, "Processamento com erro: " + processamento.getId(), e);
                             continue;
                         }
                     } catch (Exception e1) {
