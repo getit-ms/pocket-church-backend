@@ -43,14 +43,14 @@ public class Hino implements IEntity {
     @NotEmpty
     @Length(max = 150)
     @Column(name = "assunto")
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     private String assunto;
 
     @NotEmpty
     @Length(max = 150)
     @Column(name = "autor")
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     private String autor;
 
@@ -62,7 +62,7 @@ public class Hino implements IEntity {
     private String nome;
     
     @NotEmpty
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     @Column(name = "texto", columnDefinition = "TEXT")
     @View.MergeViews(View.Edicao.class)
     private String texto;
@@ -71,6 +71,7 @@ public class Hino implements IEntity {
     @Column(name = "locale")
     private String locale;
 
+    @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "ultima_alteracao")
     private Date ultimaAlteracao = new Date();

@@ -23,7 +23,7 @@
 				<reportElement x="0" y="0" width="555" height="30" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="f07142f0-fa10-4044-8a42-be8102a9726e"/>
 				<box padding="5"/>
 				<textElement textAlignment="Right">
-					<font size="12" isItalic="true"/>
+					<font size="16" isItalic="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{autor}]]></textFieldExpression>
 			</textField>
@@ -33,7 +33,7 @@
 				<reportElement x="0" y="0" width="555" height="30" isPrintWhenDetailOverflows="true" uuid="f07142f0-fa10-4044-8a42-be8102a9726e"/>
 				<box padding="5"/>
 				<textElement markup="html" >
-					<font size="12" />
+					<font size="18" />
 				</textElement>
 				<textFieldExpression><![CDATA[$F{texto}]]></textFieldExpression>
 			</textField>
