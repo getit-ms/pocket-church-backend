@@ -5,10 +5,13 @@
  */
 package br.gafs.calvinista.app.controller;
 
+import br.gafs.calvinista.app.MyJacksonJsonProvider;
 import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.dto.FiltroHinoDTO;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
+import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -21,7 +24,6 @@ import javax.ws.rs.core.Response.Status;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Date;
 
 /**
  *
@@ -44,11 +46,13 @@ public class HinoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
             @QueryParam("filtro") String filtro,
-            @QueryParam("ultimaAtualizacao") Date ultimaAtualizacao,
+            @QueryParam("ultimaAtualizacao") String ultimaAtualizacao,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                busca(new FiltroHinoDTO(filtro, ultimaAtualizacao, pagina, total))).build();
+                busca(new FiltroHinoDTO(filtro, StringUtil.isEmpty(ultimaAtualizacao) ? null :
+                        DateUtil.parseData(ultimaAtualizacao, MyJacksonJsonProvider.DATE_FORMAT),
+                        pagina, total))).build();
     }
 
     @GET
