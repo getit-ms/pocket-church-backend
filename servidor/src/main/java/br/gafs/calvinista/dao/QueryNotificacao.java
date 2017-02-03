@@ -28,8 +28,9 @@ public enum QueryNotificacao {
     REMOVE_NOTIFICACAO_DISPOSITIVO("SentNotification.removeNotificacaoDispositivo", "igreja", "dispositivo", "notificacao"), 
     CLEAR_NOTIFICACOES_MEMBRO("SentNotification.clearNotificacoesMembro", "igreja", "membro"), 
     REMOVE_NOTIFICACAO_MEMBRO("SentNotification.removeNotificacaoMembro", "igreja", "membro", "notificacao"), 
-    MARCA_NOTIFICACOES_COMO_LIDAS("SentNotification.marcaComoLido", "igreja", "dispositivo", "membro");
-    
+    MARCA_NOTIFICACOES_COMO_LIDAS_DISPOSITIVO("SentNotification.marcaComoLidoDispositivo", "igreja", "dispositivo"),
+    MARCA_NOTIFICACOES_COMO_LIDAS_MEMBRO("SentNotification.marcaComoLidoMembro", "igreja", "membro");
+
     private final String query;
     private final String[] parameters;
     private final QueryNotificacao countQuery;

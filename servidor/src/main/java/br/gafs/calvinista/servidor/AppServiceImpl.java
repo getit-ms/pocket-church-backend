@@ -152,9 +152,13 @@ public class AppServiceImpl implements AppService {
     }
 
     public void marcaNotificacoesComoLidas() {
-        daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS.
-                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
-                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
+        if (sessaoBean.getIdMembro() == null){
+            daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS_DISPOSITIVO.
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+        }else{
+            daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS_MEMBRO.
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        }
     }
     
     @Override
