@@ -3,6 +3,7 @@ package br.gafs.calvinista.util;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.view.relatorio.RelatorioUtil;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -104,12 +105,14 @@ public class ReportUtil {
         }
 
         public void docx(OutputStream os) throws JRException {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            JRDocxExporter exporter = new JRDocxExporter();
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, baos);
+            exporter.exportReport();
+            
             try {
-                JRDocxExporter exporter = new JRDocxExporter();
-                exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-                exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
-                exporter.exportReport();
-                
+                os.write(baos.toByteArray());
                 os.flush();
                 os.close();
             } catch (IOException ex) {
@@ -118,12 +121,14 @@ public class ReportUtil {
         }
 
         public void xls(OutputStream os) throws JRException {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            JRXlsExporter exporter = new JRXlsExporter();
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, baos);
+            exporter.exportReport();
+            
             try {
-                JRXlsExporter exporter = new JRXlsExporter();
-                exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-                exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
-                exporter.exportReport();
-                
+                os.write(baos.toByteArray());
                 os.flush();
                 os.close();
             } catch (IOException ex) {
