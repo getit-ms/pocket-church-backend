@@ -60,12 +60,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
             file.getParentFile().mkdirs();
         }
 
-        byte[] relatorio = report.generate(tool.getDaoService()).export(type);
-        
-        OutputStream os = new FileOutputStream(file);
-        os.write(relatorio);
-        os.flush();
-        os.close();
+        report.generate(tool.getDaoService()).export(type, new FileOutputStream(file));
 
         return tool.getStep();
     }

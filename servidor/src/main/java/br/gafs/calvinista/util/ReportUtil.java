@@ -3,8 +3,6 @@ package br.gafs.calvinista.util;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.view.relatorio.RelatorioUtil;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
@@ -12,8 +10,6 @@ import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 
 import java.io.OutputStream;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by mirante0 on 20/01/2017.
@@ -100,28 +96,35 @@ public class ReportUtil {
             this.print = print;
         }
 
-        public byte[] pdf() throws JRException {
-            return RelatorioUtil.exportAsPDF(print);
+        public void pdf(OutputStream os) throws JRException {
+            RelatorioUtil.exportAsPDF(print, os);
         }
 
-        public byte[] docx() throws JRException {
-            return RelatorioUtil.exportAsDocx(print);
+        public void docx(OutputStream os) throws JRException {
+            JRDocxExporter exporter = new JRDocxExporter();
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
+            exporter.exportReport();
         }
 
-        public byte[] xls() throws JRException {
-            return RelatorioUtil.exportAsXLS(print);
+        public void xls(OutputStream os) throws JRException {
+            JRXlsExporter exporter = new JRXlsExporter();
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
+            exporter.exportReport();
         }
 
-        public byte[] export(String tipo) throws JRException {
+        public void export(String tipo, OutputStream os) throws JRException {
             if (tipo.matches("pdf|docx|xls")){
                 switch (tipo){
                     case "pdf":
-                        return pdf();
+                        pdf(os);
                     case "docx":
-                        return docx();
+                        docx(os);
                     case "xls":
-                        return xls();
+                        xls(os);
                 }
+                return;
             }
 
             throw new ServiceException("Invalid Format");
