@@ -143,10 +143,10 @@ public class AppServiceImpl implements AppService {
     public void removeNotificacao(Long notificacao){
         if (sessaoBean.getIdMembro() == null){
             daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO_DISPOSITIVO.
-                    create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), notificacao));
+                    create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
         }else{
             daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO_MEMBRO.
-                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), notificacao));
+                    create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             
         }
     }
@@ -1550,6 +1550,52 @@ public class AppServiceImpl implements AppService {
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube() {
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
+    public BuscaPaginadaDTO<PlanoLeituraBiblica> buscaTodos(FiltroPlanoLeituraBiblicaDTO filtro) {
+        return daoService.findWith(new FiltroPlanoLeituraBiblica(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
+    public PlanoLeituraBiblica buscaPlanoLeitura(Long idPlano) {
+        return daoService.find(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), idPlano));
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
+    public PlanoLeituraBiblica cadastra(PlanoLeituraBiblica plano) {
+        plano.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        preencheRelacionamentos(plano);
+        return daoService.create(plano);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
+    public PlanoLeituraBiblica atualiza(PlanoLeituraBiblica plano) {
+        preencheRelacionamentos(plano);
+        return daoService.update(plano);
+    }
+    private void preencheRelacionamentos(PlanoLeituraBiblica plano) {
+        List<DiaLeituraBiblica> dias = new ArrayList<DiaLeituraBiblica>();
+        for (DiaLeituraBiblica dia : plano.getDias()) {
+            dia.setPlano(plano);
+            dias.add(dia);
+        }
+        plano.setDias(dias);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
+    public void removePlanoLeitura(Long idPlano) {
+        daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveDispositivo(), idPlano));
     }
 
     @Schedule(hour = "*", minute = "0/15")

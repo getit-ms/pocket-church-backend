@@ -170,4 +170,10 @@ public interface AppService extends Serializable {
     void iniciaConfiguracaoYouTube(String code); 
     List<VideoDTO> buscaVideos();
     ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube();
+    
+    BuscaPaginadaDTO<PlanoLeituraBiblica> buscaTodos(FiltroPlanoLeituraBiblicaDTO filtro);
+    PlanoLeituraBiblica buscaPlanoLeitura(Long idPlano);
+    PlanoLeituraBiblica cadastra(PlanoLeituraBiblica plano);
+    PlanoLeituraBiblica atualiza(PlanoLeituraBiblica plano);
+    void removePlanoLeitura(Long idPlano);
 }
