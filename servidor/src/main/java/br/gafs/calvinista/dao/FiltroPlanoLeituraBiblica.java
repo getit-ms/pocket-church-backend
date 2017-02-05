@@ -29,19 +29,19 @@ public class FiltroPlanoLeituraBiblica extends AbstractPaginatedFiltro<FiltroPla
         if (admin){
             if (filtro.getDataInicio() != null){
                 from.append(", DiaLeituraBiblica dlbdi");
-                where.append(" and dlbdi.plano = plb and and dlbdi.data >= :dataHoraInicio");
+                where.append(" and dlbdi.plano.id = plb.id and dlbdi.plano.igreja.chave = plb.igreja.chave and dlbdi.data >= :dataHoraInicio");
                 args.put("dataHoraInicio", DateUtil.getDataPrimeiraHoraDia(filtro.getDataInicio()));
             }
 
             if (filtro.getDataTermino()!= null){
                 from.append(", DiaLeituraBiblica dlbdt");
-                where.append(" and dlbdt.plano = plb and dlbdt.data <= :dataHoraTermino");
+                where.append(" and dlbdt.plano.id = plb.id and dlbdt.plano.igreja.chave = plb.igreja.chave and dlbdt.data <= :dataHoraTermino");
                 args.put("dataHoraTermino", DateUtil.getDataUltimaHoraDia(filtro.getDataTermino()));
             }
         }else{
                 from.append(", DiaLeituraBiblica dlbdi, DiaLeituraBiblica dlbdt");
-                where.append(" and dlbdi.plano = plb and and dlbdi.data >= :dataHoraInicio")
-                        .append(" and dlbdt.plano = plb and dlbdt.data <= :dataHoraTermino");
+                where.append(" and dlbdi.plano.id = plb.id and dlbdi.plano.igreja.chave = plb.igreja.chave and and dlbdi.data >= :dataHoraInicio")
+                        .append(" and dlbdt.plano.id = plb.id and dlbdt.plano.igreja.chave = plb.igreja.chave and dlbdt.data <= :dataHoraTermino");
                 args.put("dataHoraInicio", DateUtil.getDataPrimeiraHoraDia(DateUtil.getDataAtual()));
                 args.put("dataHoraTermino", DateUtil.getDataUltimaHoraDia(DateUtil.getDataAtual()));
         }
