@@ -42,9 +42,16 @@ public class FiltroDispositivoNotificacaoDTO implements DTO {
     private boolean apenasMembros;
     @JsonView(Resumido.class)
     private Date aniversario;
+    @JsonView(Resumido.class)
+    private boolean desejaReceberNotificacoesVideos;
 
     public FiltroDispositivoNotificacaoDTO(Igreja igreja) {
         this.igreja = igreja;
+    }
+
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja, boolean desejaReceberNotificacoesVideos) {
+        this.igreja = igreja;
+        this.desejaReceberNotificacoesVideos = desejaReceberNotificacoesVideos;
     }
 
     public FiltroDispositivoNotificacaoDTO(Igreja igreja, Date aniversario) {

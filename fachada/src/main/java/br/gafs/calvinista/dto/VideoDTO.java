@@ -25,5 +25,9 @@ public class VideoDTO implements Serializable {
     private final Date publicacao;
     private Date agendamento;
     private boolean aoVivo;
+
+    public boolean isAgendado() {
+        return agendamento != null;
+    }
     
 }

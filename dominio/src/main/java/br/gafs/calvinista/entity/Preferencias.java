@@ -66,6 +66,11 @@ public class Preferencias implements IEntity {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "deseja_receber_versiculos_diarios")
     private boolean desejaReceberVersiculosDiarios = true;
+
+    @Setter
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "deseja_receber_notificacoes_videos")
+    private boolean desejaReceberNotificacoesVideos = true;
     
     @Setter
     @ManyToMany

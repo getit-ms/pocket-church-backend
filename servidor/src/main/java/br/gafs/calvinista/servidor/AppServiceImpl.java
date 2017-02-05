@@ -23,6 +23,7 @@ import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
 import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
 import br.gafs.calvinista.util.MensagemUtil;
+import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 import br.gafs.dao.QueryParameters;
@@ -51,6 +52,9 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -100,15 +104,15 @@ public class AppServiceImpl implements AppService {
                         new QueryParameters("quantidade", pedidos));
             }
         }
-
+        
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
             // TODO verificar a quantidade de inscrições pendentes em eventos
         }
-
+        
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)){
             // TODO verificar a quantidade de inscrições pendentes em cursos EBD
         }
-
+        
         return status;
     }
     
@@ -134,8 +138,8 @@ public class AppServiceImpl implements AppService {
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
         }else{
             
-        daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_MEMBRO.
-                create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+            daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_MEMBRO.
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
         }
     }
     
@@ -150,7 +154,7 @@ public class AppServiceImpl implements AppService {
             
         }
     }
-
+    
     public void marcaNotificacoesComoLidas() {
         if (sessaoBean.getIdMembro() == null){
             daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS_DISPOSITIVO.
@@ -722,7 +726,7 @@ public class AppServiceImpl implements AppService {
         scheduleRelatorioEstudo(estudo);
         return estudo;
     }
-
+    
     private void scheduleRelatorioEstudo(Estudo estudo){
         try {
             processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioEstudo(estudo), "pdf"));
@@ -772,7 +776,7 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.ENVIAR_NOTIFICACOES)
     public void enviar(Notificacao notificacao) {
         notificacao.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
-
+        
         if (StringUtil.isEmpty(notificacao.getTitulo())){
             notificacao.setTitulo(MensagemUtil.getMensagem("push.notificacao.title",
                     notificacao.getIgreja().getLocale(), notificacao.getIgreja().getNomeAplicativo()));
@@ -1221,7 +1225,7 @@ public class AppServiceImpl implements AppService {
         scheduleRelatoriosInscritos(evento);
         return evento;
     }
-
+    
     private void scheduleRelatoriosInscritos(Evento evento) {
         try {
             processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "pdf"));
@@ -1303,7 +1307,7 @@ public class AppServiceImpl implements AppService {
         entidade.confirmada();
         
         daoService.update(entidade);
-
+        
         scheduleRelatoriosInscritos(entidade.getEvento());
     }
     
@@ -1317,7 +1321,7 @@ public class AppServiceImpl implements AppService {
         entidade.cancelada();
         
         daoService.update(entidade);
-
+        
         scheduleRelatoriosInscritos(entidade.getEvento());
     }
     
@@ -1447,7 +1451,7 @@ public class AppServiceImpl implements AppService {
                     return new ResultadoInscricaoDTO(checkout);
                 }
             }
-
+            
             scheduleRelatoriosInscritos(evento);
         }
         
@@ -1508,13 +1512,20 @@ public class AppServiceImpl implements AppService {
         ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
         atualizaSituacaoPagSeguro(pagSeguroService.buscaReferenciaIdTransacao(transactionId, configuracao), configuracao);
     }
-
+    
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public String buscaURLAutenticacaoYouTube() throws IOException {
         return googleService.getURLAutorizacaoYouTube();
     }
 
+    @Override
+    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    public ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao) {
+        paramService.salvaConfiguracaoYouTube(configuracao, sessaoBean.getChaveIgreja());
+        return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
+    }
+    
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void iniciaConfiguracaoYouTube(String code) {
@@ -1535,7 +1546,7 @@ public class AppServiceImpl implements AppService {
             throw new ServiceException("mensagens.MSG-046");
         }
     }
-
+    
     @Override
     public List<VideoDTO> buscaVideos() {
         try {
@@ -1545,27 +1556,27 @@ public class AppServiceImpl implements AppService {
             return Collections.emptyList();
         }
     }
-
+    
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube() {
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
     }
-
+    
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
     @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
     public BuscaPaginadaDTO<PlanoLeituraBiblica> buscaTodos(FiltroPlanoLeituraBiblicaDTO filtro) {
         return daoService.findWith(new FiltroPlanoLeituraBiblica(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
     }
-
+    
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
     @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
     public PlanoLeituraBiblica buscaPlanoLeitura(Long idPlano) {
         return daoService.find(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), idPlano));
     }
-
+    
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
@@ -1574,7 +1585,7 @@ public class AppServiceImpl implements AppService {
         preencheRelacionamentos(plano);
         return daoService.create(plano);
     }
-
+    
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
@@ -1590,14 +1601,14 @@ public class AppServiceImpl implements AppService {
         }
         plano.setDias(dias);
     }
-
+    
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
     public void removePlanoLeitura(Long idPlano) {
         daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveDispositivo(), idPlano));
     }
-
+    
     @Schedule(hour = "*", minute = "0/15")
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
@@ -1643,8 +1654,8 @@ public class AppServiceImpl implements AppService {
                             MensagemUtil.email(institucional, subject,
                                     new CalvinEmailDTO(null, Arrays.asList(new CalvinEmailDTO.Materia(title, text)))),
                             new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
-
-
+                    
+                    
                     scheduleRelatoriosInscritos(evento);
                 }
                 
@@ -1692,7 +1703,7 @@ public class AppServiceImpl implements AppService {
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
                     if (hev.getHoraInt().equals(hora)){
-                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev), 
+                        enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev),
                                 titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, true);
                         break;
                     }
@@ -1750,7 +1761,7 @@ public class AppServiceImpl implements AppService {
             daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
-
+    
     @Schedule(hour = "*")
     public void enviaNotificacoesEstudos() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR.create());
@@ -1759,23 +1770,113 @@ public class AppServiceImpl implements AppService {
             if (StringUtil.isEmpty(titulo)){
                 titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
             }
-
+            
             String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ESTUDO);
             if (StringUtil.isEmpty(texto)){
                 texto = MensagemUtil.getMensagem("push.estudo.message", igreja.getLocale(), igreja.getNome());
             }
-
+            
             enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
-
+            
             daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
+    
+    @Schedule(hour = "*", minute = "*/5")
+    public void enviaNotificacoesYouTubeAoVivo() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
+            if (config.isConfigurado()){
+                try{
+                    List<VideoDTO> streamings = googleService.buscaStreamingsAtivos(igreja.getChave());
+                    
+                    for (VideoDTO video : streamings){
+                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()){
+                            Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
+                            
+                            try{
+                                String titulo = config.getTituloAoVivo();
+                                if (StringUtil.isEmpty(titulo)){
+                                    titulo = MensagemUtil.getMensagem("push.youtube.aovivo.title", igreja.getLocale());
+                                }
 
+                                String texto = config.getTextoAoVivo();
+                                if (StringUtil.isEmpty(texto)){
+                                    texto = MensagemUtil.getMensagem("push.youtube.aovivo.message", igreja.getLocale(), igreja.getNome());
+                                }
+
+                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
+                            }catch(Exception e){
+                                Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
+                                throw e;
+                            }
+                        }
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    @Schedule(hour = "*")
+    public void enviaNotificacoesYouTubeAgendados() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
+            if (config.isConfigurado()){
+                try{
+                    List<VideoDTO> streamings = googleService.buscaStreamingsAgendados(igreja.getChave());
+                    
+                    for (VideoDTO video : streamings){
+                        if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists()){
+                            Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
+                            
+                            try{
+                                String titulo = config.getTituloAoVivo();
+                                if (StringUtil.isEmpty(titulo)){
+                                    titulo = MensagemUtil.getMensagem("push.youtube.agendado.title", igreja.getLocale());
+                                }
+
+                                String texto = config.getTextoAoVivo();
+                                if (StringUtil.isEmpty(texto)){
+                                    texto = MensagemUtil.getMensagem("push.youtube.agendado.message", igreja.getLocale(), igreja.getNome());
+                                }
+
+                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
+                            }catch(Exception e){
+                                Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
+                                throw e;
+                            }
+                        }
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NotificacaoYouTubeAoVivo {
+        private VideoDTO video;
+    }
+    
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NotificacaoYouTubeAgendado {
+        private VideoDTO video;
+    }
+    
     private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem, TipoNotificacao tipo, boolean compartilhavel) {
-        notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null, 
+        notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null,
                 new QueryParameters("tipo", tipo).set("compartilhavel", compartilhavel)), filtro);
     }
     
-
+    
     
 }

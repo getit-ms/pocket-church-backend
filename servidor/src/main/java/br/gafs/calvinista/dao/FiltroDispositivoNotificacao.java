@@ -44,6 +44,10 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
             where.append(" and d.id_membro is not null");
         }
         
+        if (filtro.isDesejaReceberNotificacoesVideos()){
+            where.append(" and p.deseja_receber_notificacoes_videos = true");
+        }
+        
         if (filtro.getHora() != null){
             where.append(" and p.deseja_receber_versiculos_diarios = true and p.hora_versiculo_diario = ").append(filtro.getHora().ordinal());
         }

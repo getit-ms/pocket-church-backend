@@ -40,6 +40,10 @@ public enum TipoParametro {
     TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
     TITULO_ESTUDO(TipoValor.VALOR, String.class, null),
     TEXTO_ESTUDO(TipoValor.VALOR, String.class, null),
+    TITULO_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, null),
+    TEXTO_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, null),
+    TITULO_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, null),
+    TEXTO_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, null),
 
     PUSH_ANDROID_KEY(TipoValor.VALOR, String.class, null),
     PUSH_ANDROID_SENDER_ID(TipoValor.VALOR, String.class, null),

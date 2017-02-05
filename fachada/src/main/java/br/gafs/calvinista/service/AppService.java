@@ -50,6 +50,7 @@ public interface AppService extends Serializable {
 
     ConfiguracaoIgrejaDTO buscaConfiguracao();
     ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao);
+    ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao);
     
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);

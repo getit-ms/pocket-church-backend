@@ -6,6 +6,7 @@
 package br.gafs.calvinista.app.controller;
 
 import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
 import br.gafs.calvinista.service.AppService;
 
 import javax.ejb.EJB;
@@ -68,6 +69,13 @@ public class YouTubeController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response iniciaConfiguracao(Map<String, String> body){
         appService.iniciaConfiguracaoYouTube(body.get("code"));
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response salva(ConfiguracaoYouTubeIgrejaDTO configuracao){
+        appService.atualiza(configuracao);
         return Response.status(Response.Status.OK).build();
     }
     

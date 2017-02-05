@@ -128,13 +128,17 @@ public class GoogleService {
     }
     
     public List<VideoDTO> buscaVideos() throws IOException {
-        String channelId = (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.YOUTUBE_CHANNEL_ID);
+        return buscaVideos(sessao.getChaveIgreja());
+    }
+    
+    private List<VideoDTO> buscaVideos(String chave) throws IOException {
+        String channelId = (String) paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
         
         if (StringUtil.isEmpty(channelId)){
             return Collections.emptyList();
         }
         
-        YouTube connection = connect(sessao.getChaveIgreja());
+        YouTube connection = connect(chave);
         SearchListResponse response = connection.search().list("id,snippet").
                 setChannelId(channelId).
                 setMaxResults(30L).setType("video").setOrder("date").execute();
@@ -164,6 +168,30 @@ public class GoogleService {
             }
             
             videos.add(video);
+        }
+        
+        return videos;
+    }
+
+    public List<VideoDTO> buscaStreamingsAtivos(String chave) throws IOException {
+        List<VideoDTO> videos = new ArrayList<VideoDTO>();
+        
+        for (VideoDTO video : buscaVideos(chave)){
+            if (video.isAoVivo()){
+                videos.add(video);
+            }
+        }
+        
+        return videos;
+    }
+
+    public List<VideoDTO> buscaStreamingsAgendados(String chave) throws IOException {
+        List<VideoDTO> videos = new ArrayList<VideoDTO>();
+        
+        for (VideoDTO video : buscaVideos(chave)){
+            if (video.isAgendado()){
+                videos.add(video);
+            }
         }
         
         return videos;
