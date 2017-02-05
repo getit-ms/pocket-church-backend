@@ -118,13 +118,13 @@ public class ReportUtil {
                 switch (tipo){
                     case "pdf":
                         pdf(os);
-                        break;
+                        return;
                     case "docx":
                         docx(os);
-                        break;
+                        return;
                     case "xls":
                         xls(os);
-                        break;
+                        return;
                 }
             }
 

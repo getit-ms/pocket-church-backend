@@ -12,6 +12,8 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.dto.DTO;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -62,27 +66,35 @@ public class AndroidNotificationService implements Serializable {
     }
     
     private boolean doSendNotification(PushAndroidDTO notification, String chave) throws IOException {
-        HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://gcm-http.googleapis.com/gcm/send").openConnection();
-        
-        urlConnection.setRequestMethod("POST");
-        urlConnection.addRequestProperty("Content-Type", "application/json");
-        urlConnection.addRequestProperty("Authorization", "key="+chave);
-        urlConnection.setDoOutput(true);
-        
-        urlConnection.connect();
-        
-        LOGGER.log(Level.WARNING, "Push Android: '" + notification.getData().getMessage() + "' para " + notification.getTo());
-        
-        om.writeValue(urlConnection.getOutputStream(), notification);
-        
-        System.out.println(">> " + urlConnection.getResponseCode());
-        
-        Map<String, Object> response = om.readValue(urlConnection.getInputStream(), Map.class);
-        LOGGER.log(Level.WARNING, "Response Push Android: '" + response);
-        
-        urlConnection.disconnect();
+        try{
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://gcm-http.googleapis.com/gcm/send").openConnection();
 
-        return "0".equals(response.get("failure").toString());
+            urlConnection.setRequestMethod("POST");
+            urlConnection.addRequestProperty("Content-Type", "application/json");
+            urlConnection.addRequestProperty("Authorization", "key="+chave);
+            urlConnection.setDoOutput(true);
+
+            urlConnection.connect();
+
+            LOGGER.log(Level.WARNING, "Push Android: '" + notification.getData().getMessage() + "' para " + notification.getTo());
+
+            OutputStream os = new BufferedOutputStream(urlConnection.getOutputStream());
+            InputStream is = new BufferedInputStream(urlConnection.getInputStream());
+
+            om.writeValue(os, notification);
+
+            System.out.println(">> " + urlConnection.getResponseCode());
+
+            Map<String, Object> response = om.readValue(is, Map.class);
+            LOGGER.log(Level.WARNING, "Response Push Android: '" + response);
+
+            urlConnection.disconnect();
+
+            return "0".equals(response.get("failure").toString());
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
     
     @Data
