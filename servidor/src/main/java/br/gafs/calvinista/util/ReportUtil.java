@@ -100,53 +100,28 @@ public class ReportUtil {
             this.print = print;
         }
 
-        public void pdf(OutputStream os) throws JRException {
-            RelatorioUtil.exportAsPDF(print, os);
+        public byte[] pdf() throws JRException {
+            return RelatorioUtil.exportAsPDF(print);
         }
 
-        public void docx(OutputStream os) throws JRException {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            JRDocxExporter exporter = new JRDocxExporter();
-            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, baos);
-            exporter.exportReport();
-            
-            try {
-                os.write(baos.toByteArray());
-                os.flush();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ReportUtil.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        public byte[] docx() throws JRException {
+            return RelatorioUtil.exportAsDocx(print);
         }
 
-        public void xls(OutputStream os) throws JRException {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            JRXlsExporter exporter = new JRXlsExporter();
-            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-            exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, baos);
-            exporter.exportReport();
-            
-            try {
-                os.write(baos.toByteArray());
-                os.flush();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ReportUtil.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        public byte[] xls() throws JRException {
+            return RelatorioUtil.exportAsXLS(print);
         }
 
-        public void export(String tipo, OutputStream os) throws JRException {
+        public byte[] export(String tipo) throws JRException {
             if (tipo.matches("pdf|docx|xls")){
                 switch (tipo){
                     case "pdf":
-                        pdf(os);
+                        return pdf();
                     case "docx":
-                        docx(os);
+                        return docx();
                     case "xls":
-                        xls(os);
+                        return xls();
                 }
-                return;
             }
 
             throw new ServiceException("Invalid Format");

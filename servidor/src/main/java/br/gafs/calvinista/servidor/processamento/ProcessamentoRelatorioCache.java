@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -59,7 +60,12 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
             file.getParentFile().mkdirs();
         }
 
-        report.generate(tool.getDaoService()).export(type, new FileOutputStream(file));
+        byte[] relatorio = report.generate(tool.getDaoService()).export(type);
+        
+        OutputStream os = new FileOutputStream(file);
+        os.write(relatorio);
+        os.flush();
+        os.close();
 
         return tool.getStep();
     }
