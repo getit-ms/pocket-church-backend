@@ -104,6 +104,7 @@ public class ReportUtil {
             JRDocxExporter exporter = new JRDocxExporter();
             exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
             exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, os);
+            exporter.exportReport();
         }
 
         public void xls(OutputStream os) throws JRException {
@@ -118,14 +119,12 @@ public class ReportUtil {
                 switch (tipo){
                     case "pdf":
                         pdf(os);
-                        return;
                     case "docx":
                         docx(os);
-                        return;
                     case "xls":
                         xls(os);
-                        return;
                 }
+                return;
             }
 
             throw new ServiceException("Invalid Format");
