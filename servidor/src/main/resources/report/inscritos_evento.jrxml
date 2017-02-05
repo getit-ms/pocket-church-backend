@@ -84,7 +84,7 @@
 				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="70" y="0" width="350" height="25" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
+				<reportElement style="linha" stretchType="RelativeToBandHeight" x="70" y="0" width="300" height="25" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
@@ -92,7 +92,7 @@
 				<textFieldExpression><![CDATA[$F{nomeInscrito}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="70" y="25" width="350" height="25" uuid="fa4b6218-d94e-42b1-b490-a0706800dc79">
+				<reportElement style="linha" stretchType="RelativeToBandHeight" x="70" y="25" width="300" height="25" uuid="fa4b6218-d94e-42b1-b490-a0706800dc79">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
