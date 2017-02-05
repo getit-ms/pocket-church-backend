@@ -35,13 +35,13 @@ public class FiltroPlanoLeituraBiblica extends AbstractPaginatedFiltro<FiltroPla
 
             if (filtro.getDataTermino()!= null){
                 from.append(", DiaLeituraBiblica dlbdt");
-                where.append(" dlbdt.plano = plb and dlb.data <= :dataHoraTermino");
+                where.append(" dlbdt.plano = plb and dlbdt.data <= :dataHoraTermino");
                 args.put("dataHoraTermino", DateUtil.getDataUltimaHoraDia(filtro.getDataTermino()));
             }
         }else{
                 from.append(", DiaLeituraBiblica dlbdi, DiaLeituraBiblica dlbdt");
                 where.append(" dlbdi.plano = plb and and dlbdi.data >= :dataHoraInicio")
-                        .append(" dlbdt.plano = plb and dlb.data <= :dataHoraTermino");
+                        .append(" dlbdt.plano = plb and dlbdt.data <= :dataHoraTermino");
                 args.put("dataHoraInicio", DateUtil.getDataPrimeiraHoraDia(DateUtil.getDataAtual()));
                 args.put("dataHoraTermino", DateUtil.getDataUltimaHoraDia(DateUtil.getDataAtual()));
         }
