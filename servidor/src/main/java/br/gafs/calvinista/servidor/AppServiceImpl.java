@@ -1518,7 +1518,7 @@ public class AppServiceImpl implements AppService {
     public String buscaURLAutenticacaoYouTube() throws IOException {
         return googleService.getURLAutorizacaoYouTube();
     }
-
+    
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao) {
@@ -1800,12 +1800,12 @@ public class AppServiceImpl implements AppService {
                                 if (StringUtil.isEmpty(titulo)){
                                     titulo = MensagemUtil.getMensagem("push.youtube.aovivo.title", igreja.getLocale());
                                 }
-
+                                
                                 String texto = config.getTextoAoVivo();
                                 if (StringUtil.isEmpty(texto)){
                                     texto = MensagemUtil.getMensagem("push.youtube.aovivo.message", igreja.getLocale(), igreja.getNome());
                                 }
-
+                                
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
                             }catch(Exception e){
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
@@ -1825,12 +1825,20 @@ public class AppServiceImpl implements AppService {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
+            
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+            
             if (config.isConfigurado()){
                 try{
                     List<VideoDTO> streamings = googleService.buscaStreamingsAgendados(igreja.getChave());
                     
                     for (VideoDTO video : streamings){
-                        if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists()){
+                        if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
+                                DateUtil.equalsSemHoras(DateUtil.getDataAtual(), video.getAgendamento()) &&
+                                // Verifica se está em horário útil para fazer a notificação
+                                horaAtual >= 8 && horaAtual <= 20 ){
+                            
                             Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
                             
                             try{
@@ -1838,12 +1846,13 @@ public class AppServiceImpl implements AppService {
                                 if (StringUtil.isEmpty(titulo)){
                                     titulo = MensagemUtil.getMensagem("push.youtube.agendado.title", igreja.getLocale());
                                 }
-
+                                
                                 String texto = config.getTextoAoVivo();
                                 if (StringUtil.isEmpty(texto)){
-                                    texto = MensagemUtil.getMensagem("push.youtube.agendado.message", igreja.getLocale(), igreja.getNome());
+                                    texto = MensagemUtil.getMensagem("push.youtube.agendado.message", igreja.getLocale(), 
+                                            MensagemUtil.formataHora(video.getAgendamento(), igreja.getLocale(), igreja.getTimezone()));
                                 }
-
+                                
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
                             }catch(Exception e){
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());

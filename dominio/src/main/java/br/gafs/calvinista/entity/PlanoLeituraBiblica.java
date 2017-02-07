@@ -7,6 +7,8 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.view.View;
+import br.gafs.calvinista.view.View.JsonTemporal;
+import br.gafs.calvinista.view.View.JsonTemporalType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.ArrayList;
@@ -70,6 +72,7 @@ public class PlanoLeituraBiblica implements IEntity {
     private List<DiaLeituraBiblica> dias = new ArrayList<DiaLeituraBiblica>();
     
     @JsonView(View.Resumido.class)
+    @JsonTemporal(JsonTemporalType.DATE)
     public Date getDataInicio(){
         if (dias.isEmpty()){
             return null;
@@ -79,6 +82,7 @@ public class PlanoLeituraBiblica implements IEntity {
     }
     
     @JsonView(View.Resumido.class)
+    @JsonTemporal(JsonTemporalType.DATE)
     public Date getDataTermino(){
         if (dias.isEmpty()){
             return null;

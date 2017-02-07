@@ -7,20 +7,43 @@
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
+import br.gafs.calvinista.entity.HorarioAtendimento;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Institucional;
+import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.util.MensagemUtil;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
+import br.gafs.util.string.StringUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.json.stream.JsonParser;
+import static javax.management.Query.value;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.exolab.castor.types.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -86,5 +109,82 @@ public class GeneralTest {
         PDFTextStripper textStripper = new PDFTextStripper();
         textStripper.writeText(pdffile, writer);
         System.out.println(writer.toString());
+    }
+    
+    public static final ThreadLocal<TimeZone> TIME_ZONE_THREAD_LOCAL = new ThreadLocal<TimeZone>() {
+        @Override
+        protected TimeZone initialValue() {
+            return TimeZone.getDefault();
+        }
+    };
+    
+    public static class DataDeserializerTimeZone extends DateDeserializers.DateDeserializer implements ContextualDeserializer, Cloneable {
+
+        private TemporalType type = TemporalType.TIMESTAMP;
+
+        @Override
+        public DataDeserializerTimeZone createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+            try {
+                this.type = TemporalType.TIMESTAMP;
+                
+                if (property != null && property.getMember() != null){
+                    if (property.getMember().hasAnnotation(Temporal.class)){
+                        this.type = property.getMember().getAnnotation(Temporal.class).value();
+                    }
+                }
+                
+                return (DataDeserializerTimeZone) this.clone();
+            } catch (CloneNotSupportedException ex) {
+                Logger.getLogger(GeneralTest.class.getName()).log(Level.SEVERE, null, ex);
+                return this;
+            }
+        }
+        
+        @Override
+        public Date deserialize(com.fasterxml.jackson.core.JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            try{
+                String value = jp.getValueAsString();
+                if (!StringUtil.isEmpty(value)){
+                    switch (type){
+                        case DATE:{
+                            return DateUtil.parseData(value.substring(0, 10), "yyyy-MM-dd");
+                        }
+                        case TIME:{
+                            return DateUtil.parseData(value.substring(11, 16), "HH:mm");
+                        }
+                    }
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            
+            return super.deserialize(jp, ctxt);
+        }
+    }
+    
+    @Test
+    public void testaMultiplosTimeZones() throws JsonProcessingException, IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSXX"));
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(Date.class,
+                (JsonDeserializer) new DataDeserializerTimeZone());
+        mapper.registerModule(module);
+
+        String json = "{\"dataNascimento\":\"2017-02-06T12:00:00.000+0500\"}";
+        
+        TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("GMT-3:00"));
+        System.out.println(mapper.readValue(json, Membro.class).getDataNascimento() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
+        
+        TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("America/Sao_Paulo"));
+        System.out.println(mapper.readValue(json, Membro.class).getDataNascimento() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
+
+        json = "{\"horaInicio\":\"2017-02-06T12:00:00.000-0500\"}";
+        
+        TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("GMT-3:00"));
+        System.out.println(mapper.readValue(json, HorarioAtendimento.class).getHoraInicio() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
+        
+        TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("America/Sao_Paulo"));
+        System.out.println(mapper.readValue(json, HorarioAtendimento.class).getHoraInicio() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
     }
 }

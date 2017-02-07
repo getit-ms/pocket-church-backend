@@ -60,7 +60,7 @@ public class Estudo implements IEntity {
     private String texto;
     
     @JsonView(Resumido.class)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @Column(name = "data", nullable = false)
     private Date data = new Date();
     

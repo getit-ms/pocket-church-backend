@@ -9,6 +9,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import javax.persistence.TemporalType;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  *
@@ -26,5 +29,21 @@ public class View {
     @Retention(RetentionPolicy.RUNTIME)
     public static @interface MergeViews {
         Class[] value();
+    }
+    
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD, ElementType.METHOD})
+    public static @interface JsonTemporal {
+        JsonTemporalType value();
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum JsonTemporalType {
+        DATE(TemporalType.DATE),
+        TIME(TemporalType.TIME),
+        TIMESTAMP(TemporalType.TIMESTAMP);
+        
+        private final TemporalType type;
     }
 }

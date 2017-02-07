@@ -13,9 +13,11 @@ import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -108,7 +110,7 @@ public class Membro implements IEntity {
     private boolean deveAlterarSenha;
     
     @JsonView(Detalhado.class)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "data_nascimento")
     private Date dataNascimento;

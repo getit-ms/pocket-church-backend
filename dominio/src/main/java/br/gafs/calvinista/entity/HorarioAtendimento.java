@@ -90,12 +90,12 @@ public class HorarioAtendimento implements IEntity {
     private Date horaFim;
     
     @Setter
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @Column(name = "data_inicio")
     private Date dataInicio;
     
     @Setter
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @Column(name = "data_fim")
     private Date dataFim;
 
@@ -121,29 +121,12 @@ public class HorarioAtendimento implements IEntity {
         return copy;
     }
     
-    private Date dataOriginal(Date time){
-        Calendar dateCal = Calendar.getInstance();
-        dateCal.setTime(dataCadastro);
-        
-        Calendar timeCal = Calendar.getInstance();
-        timeCal.setTime(time);
-        
-        // Extract the time of the "time" object to the "date"
-        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-        dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
-        dateCal.set(Calendar.MILLISECOND, 0);
-        
-        // Get the time value!
-        return dateCal.getTime();
-    }
-
     private Date merge(TimeZone timeZone, Date date, Date time) {
         Calendar dateCal = Calendar.getInstance(timeZone);
         dateCal.setTime(date);
         
         Calendar timeCal = Calendar.getInstance(timeZone);
-        timeCal.setTime(dataOriginal(time));
+        timeCal.setTime(time);
         
         // Extract the time of the "time" object to the "date"
         dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
