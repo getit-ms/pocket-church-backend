@@ -7,13 +7,11 @@ package br.gafs.calvinista.servidor.google;
 
 import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dto.VideoDTO;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.SessaoBean;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.RefreshTokenRequest;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.apache.ApacheHttpTransport;
@@ -22,26 +20,19 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.LiveBroadcast;
 import com.google.api.services.youtube.model.LiveBroadcastListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -89,7 +80,7 @@ public class GoogleService {
                         getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).
                 setState(sessao.getChaveIgreja()).build();
     }
-    
+
     public Credential saveCredentialsYouTube(String code) throws IOException {
         GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES);
         

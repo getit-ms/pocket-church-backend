@@ -177,4 +177,6 @@ public interface AppService extends Serializable {
     PlanoLeituraBiblica cadastra(PlanoLeituraBiblica plano);
     PlanoLeituraBiblica atualiza(PlanoLeituraBiblica plano);
     void removePlanoLeitura(Long idPlano);
+
+    void desvinculaYouTube();
 }

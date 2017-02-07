@@ -34,6 +34,9 @@ import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
@@ -52,9 +55,6 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  *
@@ -1518,14 +1518,16 @@ public class AppServiceImpl implements AppService {
     public String buscaURLAutenticacaoYouTube() throws IOException {
         return googleService.getURLAutorizacaoYouTube();
     }
-    
+
+    @Audit
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao) {
         paramService.salvaConfiguracaoYouTube(configuracao, sessaoBean.getChaveIgreja());
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
     }
-    
+
+    @Audit
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void iniciaConfiguracaoYouTube(String code) {
@@ -1546,7 +1548,15 @@ public class AppServiceImpl implements AppService {
             throw new ServiceException("mensagens.MSG-046");
         }
     }
-    
+
+    @Audit
+    @Override
+    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    public void desvinculaYouTube() {
+        paramService.set(sessaoBean.getChaveIgreja(),
+                TipoParametro.YOUTUBE_CHANNEL_ID, null);
+    }
+
     @Override
     public List<VideoDTO> buscaVideos() {
         try {
@@ -1606,7 +1616,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
     public void removePlanoLeitura(Long idPlano) {
-        daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveDispositivo(), idPlano));
+        daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), idPlano));
     }
     
     @Schedule(hour = "*", minute = "0/15")
@@ -1803,7 +1813,7 @@ public class AppServiceImpl implements AppService {
                                 
                                 String texto = config.getTextoAoVivo();
                                 if (StringUtil.isEmpty(texto)){
-                                    texto = MensagemUtil.getMensagem("push.youtube.aovivo.message", igreja.getLocale(), igreja.getNome());
+                                    texto = MensagemUtil.getMensagem("push.youtube.aovivo.message", igreja.getLocale(), video.getTitulo());
                                 }
                                 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
@@ -1842,15 +1852,18 @@ public class AppServiceImpl implements AppService {
                             Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
                             
                             try{
+                                String horario = MensagemUtil.formataHora(video.getAgendamento(), igreja.getLocale(), igreja.getTimezone());
+
                                 String titulo = config.getTituloAoVivo();
                                 if (StringUtil.isEmpty(titulo)){
-                                    titulo = MensagemUtil.getMensagem("push.youtube.agendado.title", igreja.getLocale());
+                                    titulo = MensagemUtil.getMensagem("push.youtube.agendado.title",
+                                            igreja.getLocale(), video.getTitulo(), horario);
                                 }
                                 
                                 String texto = config.getTextoAoVivo();
                                 if (StringUtil.isEmpty(texto)){
-                                    texto = MensagemUtil.getMensagem("push.youtube.agendado.message", igreja.getLocale(), 
-                                            MensagemUtil.formataHora(video.getAgendamento(), igreja.getLocale(), igreja.getTimezone()));
+                                    texto = MensagemUtil.getMensagem("push.youtube.agendado.message", igreja.getLocale(),
+                                            video.getTitulo(), horario);
                                 }
                                 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);

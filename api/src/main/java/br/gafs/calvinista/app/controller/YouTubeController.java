@@ -11,7 +11,6 @@ import br.gafs.calvinista.service.AppService;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -57,7 +56,14 @@ public class YouTubeController {
         args.put("url", appService.buscaURLAutenticacaoYouTube());
         return Response.status(Response.Status.OK).entity(args).build();
     }
-    
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response desativa() throws IOException{
+        appService.desvinculaYouTube();
+        return Response.status(Response.Status.OK).build();
+    }
+
     @GET
     @Path("integracao")
     public void redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
