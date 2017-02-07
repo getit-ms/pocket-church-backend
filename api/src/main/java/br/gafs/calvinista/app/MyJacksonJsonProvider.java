@@ -102,12 +102,16 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
             try{
                 String value = jp.getValueAsString();
                 if (!StringUtil.isEmpty(value)){
+                    SimpleDateFormat sdf = new SimpleDateFormat();
+                    sdf.setTimeZone(TimeZone.getDefault());
                     switch (type){
                         case DATE:{
-                            return DateUtil.parseData(value.substring(0, 10), "yyyy-MM-dd");
+                            sdf.applyPattern("yyyy-MM-dd");
+                            return sdf.parse(value.substring(0, 10));
                         }
                         case TIME:{
-                            return DateUtil.parseData(value.substring(11, 16), "HH:mm");
+                            sdf.applyPattern("HH:mm:ss.SSS");
+                            return sdf.parse(value.substring(11, 16));
                         }
                     }
                 }
@@ -147,13 +151,17 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
         public void serialize(Date value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonGenerationException {
             try{
                 if (value != null){
+                    SimpleDateFormat sdf = new SimpleDateFormat();
+                    sdf.setTimeZone(TimeZone.getDefault());
                     switch (type){
                         case DATE:{
-                            gen.writeString(DateUtil.formataData(value, "yyyy-MM-dd"));
+                            sdf.applyPattern("yyyy-MM-dd");
+                            gen.writeString(sdf.format(value));
                             return;
                         }
                         case TIME:{
-                            gen.writeString(DateUtil.formataData(value, "HH:mm:ss.SSS"));
+                            sdf.applyPattern("HH:mm:ss.SSS");
+                            gen.writeString(sdf.format(value));
                             return;
                         }
                     }
