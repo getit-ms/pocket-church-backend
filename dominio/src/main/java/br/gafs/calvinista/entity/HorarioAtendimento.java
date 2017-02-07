@@ -121,12 +121,29 @@ public class HorarioAtendimento implements IEntity {
         return copy;
     }
     
+    private Date dataOriginal(Date time){
+        Calendar dateCal = Calendar.getInstance();
+        dateCal.setTime(dataCadastro);
+        
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime(time);
+        
+        // Extract the time of the "time" object to the "date"
+        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+        dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+        dateCal.set(Calendar.MILLISECOND, 0);
+        
+        // Get the time value!
+        return dateCal.getTime();
+    }
+
     private Date merge(TimeZone timeZone, Date date, Date time) {
         Calendar dateCal = Calendar.getInstance(timeZone);
         dateCal.setTime(date);
         
         Calendar timeCal = Calendar.getInstance(timeZone);
-        timeCal.setTime(time);
+        timeCal.setTime(dataOriginal(time));
         
         // Extract the time of the "time" object to the "date"
         dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
