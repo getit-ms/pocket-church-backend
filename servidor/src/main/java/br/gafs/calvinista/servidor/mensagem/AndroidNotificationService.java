@@ -79,10 +79,9 @@ public class AndroidNotificationService implements Serializable {
             LOGGER.log(Level.WARNING, "Push Android: '" + notification.getData().getMessage() + "' para " + notification.getTo());
 
             OutputStream os = new BufferedOutputStream(urlConnection.getOutputStream());
-            InputStream is = new BufferedInputStream(urlConnection.getInputStream());
-
             om.writeValue(os, notification);
 
+            InputStream is = new BufferedInputStream(urlConnection.getInputStream());
             System.out.println(">> " + urlConnection.getResponseCode());
 
             Map<String, Object> response = om.readValue(is, Map.class);
