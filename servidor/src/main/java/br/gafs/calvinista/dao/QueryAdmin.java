@@ -237,7 +237,18 @@ public enum QueryAdmin {
         }
         
     }, 
-    UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status");
+    UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status"), 
+    COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveIgreja", "idMembro"),
+    LEITURA_SELECIONADA("MarcacaoLeituraBiblica.findLeituraSelecionada", COUNT_LEITURA_SELECIONADA, "chaveIgreja", "idMembro"){
+
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return (Integer) args[2];
+        }
+        
+    }, 
+    OPCAO_PLANO_LEITURA_SELECIONADA("OpcaoLeituraBiblica.findOpcaoSelecionad", "chaveIgreja", "idMembro"), 
+    MARCACAO_LEITURA_DIA("MarcacaoLeituraBiblica.findByMembroAndDia", "chaveIgreja", "idMembro", "idDia");
     
     private final String query;
     private final String[] parameters;

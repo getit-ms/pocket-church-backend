@@ -1,8 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
 package br.gafs.calvinista.service;
 
 import br.gafs.calvinista.dto.*;
@@ -36,18 +36,18 @@ public interface AppService extends Serializable {
     void removePerfil(Long perfil);
     List<Perfil> buscaPerfis();
     Perfil buscaPerfil(Long perfil);
-
+    
     Cifra cadastra(Cifra cifra) throws IOException;
     Cifra atualiza(Cifra cifra) throws IOException;
     void removeCifra(Long cifra);
     BuscaPaginadaDTO<Cifra> busca(FiltroCifraDTO filtro);
     Cifra buscaCifra(Long cifra);
     String extraiTexto(Long idArquivo);
-
+    
     Chamado solicita(Chamado chamado);
     Chamado buscaChamado(Long chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
-
+    
     ConfiguracaoIgrejaDTO buscaConfiguracao();
     ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao);
     ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao);
@@ -131,35 +131,35 @@ public interface AppService extends Serializable {
     void removeVersiculo(Long versiculoDiario);
     BuscaPaginadaDTO<VersiculoDiario> busca(FiltroVersiculoDiarioDTO filtro);
     VersiculoDiario buscaVersiculo(Long versiculoDiario);
-
+    
     Igreja buscaPorChave(String propriedade);
-
+    
     List<Ministerio> buscaMinisteriosPorAcesso();
-
+    
     Membro darAcessoMembro(Long membro);
     Membro retiraAcessoMembro(Long membro);
     Acesso buscaAcessoAdmin(Long membro);
     Acesso darAcessoAdmin(Long membro, List<Perfil> perfis, List<Ministerio> ministerios);
     void retiraAcessoAdmin(Long membro);
-
+    
     List<Membro> buscaPastores();
-
+    
     Questao buscaQuestao(Long id);
-
+    
     Opcao buscaOpcao(Long id);
-
+    
     List<Funcionalidade> getFuncionalidadesHabilitadasAplicativo();
-
+    
     void salvaFuncionalidadesHabilitadasAplicativo(List<Funcionalidade> funcionalidades);
-
+    
     List<Funcionalidade> getFuncionalidadesAplicativo();
-
+    
     List<ReleaseNotes> buscaReleaseNotes(TipoVersao tipo);
-
+    
     void verificaPagSeguroPorCodigo(String code);
-
+    
     void verificaPagSeguroPorIdTransacao(String transactionId);
-
+    
     File buscaAjuda(String path);
     
     void clearNotificacoes();
@@ -168,7 +168,7 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);
     
     String buscaURLAutenticacaoYouTube() throws IOException;
-    void iniciaConfiguracaoYouTube(String code); 
+    void iniciaConfiguracaoYouTube(String code);
     List<VideoDTO> buscaVideos();
     ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube();
     
@@ -177,6 +177,16 @@ public interface AppService extends Serializable {
     PlanoLeituraBiblica cadastra(PlanoLeituraBiblica plano);
     PlanoLeituraBiblica atualiza(PlanoLeituraBiblica plano);
     void removePlanoLeitura(Long idPlano);
-
+    
     void desvinculaYouTube();
+    
+    BuscaPaginadaDTO<LeituraBibliaDTO> selecionaPlano(Long plano);
+    
+    void desselecionaPlano();
+    
+    LeituraBibliaDTO marcaLeitura(Long dia);
+    
+    LeituraBibliaDTO desmarcaLeitura(Long dia);
+    
+    BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(int pagina, int total);
 }

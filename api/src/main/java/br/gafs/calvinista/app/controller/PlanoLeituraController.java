@@ -8,19 +8,9 @@ package br.gafs.calvinista.app.controller;
 import br.gafs.calvinista.app.MyJacksonJsonProvider;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroPlanoLeituraBiblicaDTO;
-import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
-import br.gafs.calvinista.dto.FiltroVotacaoDTO;
 import br.gafs.calvinista.entity.DiaLeituraBiblica;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.PlanoLeituraBiblica;
-import br.gafs.calvinista.entity.Questao;
-import br.gafs.calvinista.entity.RespostaOpcao;
-import br.gafs.calvinista.entity.RespostaQuestao;
-import br.gafs.calvinista.entity.RespostaVotacao;
-import br.gafs.calvinista.entity.Votacao;
-import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
-import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -71,6 +61,44 @@ public class PlanoLeituraController {
                         StringUtil.isEmpty(dataTermino) ? null : 
                                 DateUtil.parseData(dataTermino, MyJacksonJsonProvider.DATE_FORMAT),
                         descricao, pagina, total))).build();
+    }
+    
+    @PUT
+    @Path("leitura/{plano}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response seleciona(@PathParam("plano") Long plano){
+        return Response.status(Response.Status.OK).entity(appService.selecionaPlano(plano)).build();
+    }
+    
+    @GET
+    @Path("leitura")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaLeituraSelecionada(
+            @QueryParam("pagina") @DefaultValue("1") Integer pagina,
+            @QueryParam("total") @DefaultValue("10") Integer total){
+        return Response.status(Response.Status.OK).entity(appService.buscaPlanoSelecionado(pagina, total)).build();
+    }
+    
+    @DELETE
+    @Path("leitura")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response desseleciona(){
+        appService.desselecionaPlano();
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    @PUT
+    @Path("leitura/dia/{dia}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response leitura(@PathParam("dia") Long dia){
+        return Response.status(Response.Status.OK).entity(appService.marcaLeitura(dia)).build();
+    }
+    
+    @DELETE
+    @Path("leitura/dia/{dia}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response desleitura(@PathParam("dia") Long dia){
+        return Response.status(Response.Status.OK).entity(appService.desmarcaLeitura(dia)).build();
     }
     
     @GET

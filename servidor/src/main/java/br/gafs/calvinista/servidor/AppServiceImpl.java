@@ -146,22 +146,33 @@ public class AppServiceImpl implements AppService {
     @Override
     public void removeNotificacao(Long notificacao){
         if (sessaoBean.getIdMembro() == null){
-            daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO_DISPOSITIVO.
+            List<Number> ids = daoService.findWith(QueryNotificacao.NOTIFICACAO_DISPOSITIVO.
                     create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+            for (Number id : ids){
+                daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), id.longValue()));
+            }
         }else{
-            daoService.execute(QueryNotificacao.REMOVE_NOTIFICACAO_MEMBRO.
+            List<Object[]> ids = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
                     create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-            
+            for (Object[] id : ids){
+                daoService.delete(SentNotification.class, new SentNotificationId((String) id[1], ((Number) id[0]).longValue()));
+            }
         }
     }
     
     public void marcaNotificacoesComoLidas() {
         if (sessaoBean.getIdMembro() == null){
-            daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS_DISPOSITIVO.
+            List<Number> ids = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+            for (Number id : ids){
+                daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), id.longValue()));
+            }
         }else{
-            daoService.execute(QueryNotificacao.MARCA_NOTIFICACOES_COMO_LIDAS_MEMBRO.
+            List<Object[]> ids = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+            for (Object[] id : ids){
+                daoService.delete(SentNotification.class, new SentNotificationId((String) id[1], ((Number) id[0]).longValue()));
+            }
         }
     }
     
@@ -1618,6 +1629,69 @@ public class AppServiceImpl implements AppService {
     public void removePlanoLeitura(Long idPlano) {
         daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), idPlano));
     }
+
+    @Override
+    public BuscaPaginadaDTO<LeituraBibliaDTO> selecionaPlano(Long plano) {
+        desselecionaPlano();
+        
+        daoService.create(new OpcaoLeituraBiblica(
+            daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
+            daoService.find(PlanoLeituraBiblica.class, plano)
+        ));
+        
+        return buscaPlanoSelecionado(1, 10);
+    }
+
+    @Override
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
+    public BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(int pagina, int total) {
+        BuscaPaginadaDTO<LeituraBibliaDTO> busca = daoService.findWith(QueryAdmin.
+                LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), total));
+        
+        for (LeituraBibliaDTO leitura : busca.getResultados()){
+            leitura.setLido(daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
+                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), leitura.getDia().getId())) != null);
+        }
+        
+        return busca;
+    }
+
+    @Override
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
+    public void desselecionaPlano() {
+        OpcaoLeituraBiblica opcao = daoService.findWith(QueryAdmin.OPCAO_PLANO_LEITURA_SELECIONADA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        
+        if (opcao != null){
+            opcao.encerra();
+            daoService.update(opcao);
+        }
+    }
+
+    @Override
+    public LeituraBibliaDTO desmarcaLeitura(Long dia) {
+        MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
+        
+        if (marcacao != null){
+            daoService.delete(MarcacaoLeituraBiblica.class, marcacao.getId());
+        }
+        
+        return new LeituraBibliaDTO(marcacao.getDia(), false);
+    }
+
+    @Override
+    public LeituraBibliaDTO marcaLeitura(Long dia) {
+        MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
+        
+        if (marcacao == null){
+            marcacao = new MarcacaoLeituraBiblica(
+                    daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
+                    daoService.find(DiaLeituraBiblica.class, dia));
+            daoService.create(marcacao);
+        }
+        
+        return new LeituraBibliaDTO(marcacao.getDia(), true);
+    }
+    
     
     @Schedule(hour = "*", minute = "0/15")
     public void verificaPagSeguro() {
