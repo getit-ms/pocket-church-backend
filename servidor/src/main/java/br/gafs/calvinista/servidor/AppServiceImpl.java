@@ -165,13 +165,17 @@ public class AppServiceImpl implements AppService {
             List<Number> ids = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
             for (Number id : ids){
-                daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), id.longValue()));
+                SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), id.longValue()));
+                sn.lido();
+                daoService.update(sn);
             }
         }else{
             List<Object[]> ids = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             for (Object[] id : ids){
-                daoService.delete(SentNotification.class, new SentNotificationId((String) id[1], ((Number) id[0]).longValue()));
+                SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId((String) id[1], ((Number) id[0]).longValue()));
+                sn.lido();
+                daoService.update(sn);
             }
         }
     }

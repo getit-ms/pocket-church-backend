@@ -31,8 +31,8 @@ import lombok.Getter;
 @Table(name = "tb_sent_notification")
 @NamedNativeQueries({
     @NamedNativeQuery(name = "SentNotification.bulkInsert", query = " select d.chave_dispositivo, d.id_membro, d.chave_igreja, #notification, false from tb_dispositivo d where d.push_key in #pushkeys"),
-    @NamedNativeQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select sn.id_notificacao_schedule tb_sent_notification set lido = true where chave_igreja = #igreja and chave_dispositivo = #dispositivo and id_membro is null"),
-    @NamedNativeQuery(name = "SentNotification.findNaoLidasMembro", query = "select sn.id_notificacao_schedule, sn.chave_dispositivo tb_sent_notification sn set lido = true from (select chave_igreja, id_membro from tb_sent_notification  where chave_igreja = #igreja and id_membro = #membro order by chave_igreja, id_membro for update) upd where sn.chave_igreja = upd.chave_igreja and sn.id_membro = upd.id_membro"),
+    @NamedNativeQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select id_notificacao_schedule form tb_sent_notification where chave_igreja = #igreja and chave_dispositivo = #dispositivo and id_membro is null"),
+    @NamedNativeQuery(name = "SentNotification.findNaoLidasMembro", query = "select id_notificacao_schedule, sn.chave_dispositivo from tb_sent_notification where chave_igreja = #igreja and id_membro = #membro"),
     @NamedNativeQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.chave_dispositivo = #dispositivo and sn.id_membro is null"),
     @NamedNativeQuery(name = "SentNotification.findNotificacaoDispositivo", query = "select sn.id_notificacao_schedule from tb_sent_notification sn where sn.id_notificacao_schedule = #notificacao and sn.chave_igreja = #igreja and sn.chave_dispositivo = #dispositivo and sn.id_membro is null"),
     @NamedNativeQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.id_membro = #membro"),
@@ -65,6 +65,10 @@ public class SentNotification implements IEntity {
     
     @Column(name = "lido")
     private boolean lido;
+    
+    public void lido(){
+        this.lido = true;
+    }
 
     @Override
     public SentNotificationId getId() {
