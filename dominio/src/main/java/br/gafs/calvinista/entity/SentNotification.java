@@ -30,9 +30,8 @@ import lombok.Getter;
 @IdClass(SentNotificationId.class)
 @Table(name = "tb_sent_notification")
 @NamedNativeQueries({
-    @NamedNativeQuery(name = "SentNotification.bulkInsert", query = " select d.chave_dispositivo, d.id_membro, d.chave_igreja, #notification, false from tb_dispositivo d where d.push_key in #pushkeys"),
-    @NamedNativeQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select id_notificacao_schedule form tb_sent_notification where chave_igreja = #igreja and chave_dispositivo = #dispositivo and id_membro is null"),
-    @NamedNativeQuery(name = "SentNotification.findNaoLidasMembro", query = "select id_notificacao_schedule, sn.chave_dispositivo from tb_sent_notification where chave_igreja = #igreja and id_membro = #membro"),
+    @NamedNativeQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select id_notificacao_schedule from tb_sent_notification where chave_igreja = #igreja and chave_dispositivo = #dispositivo and id_membro is null"),
+    @NamedNativeQuery(name = "SentNotification.findNaoLidasMembro", query = "select id_notificacao_schedule, chave_dispositivo from tb_sent_notification where chave_igreja = #igreja and id_membro = #membro"),
     @NamedNativeQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.chave_dispositivo = #dispositivo and sn.id_membro is null"),
     @NamedNativeQuery(name = "SentNotification.findNotificacaoDispositivo", query = "select sn.id_notificacao_schedule from tb_sent_notification sn where sn.id_notificacao_schedule = #notificacao and sn.chave_igreja = #igreja and sn.chave_dispositivo = #dispositivo and sn.id_membro is null"),
     @NamedNativeQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.id_membro = #membro"),
