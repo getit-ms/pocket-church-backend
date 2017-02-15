@@ -34,7 +34,7 @@ import lombok.Getter;
     @NamedNativeQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.id_membro = #membro"),
 })
 @NamedQueries({
-    @NamedQuery(name = "SentNotification.findNotificacaoDispositivo", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.membro.id is null"),
+    @NamedQuery(name = "SentNotification.findNotificacaoDispositivo", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.dispositivo.chave = :dispositivo and sn.membro.id is null"),
     @NamedQuery(name = "SentNotification.findNotificacaoMembro", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.membro.id = :membro"),
     @NamedQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select sn from SentNotification sn where sn.igreja.chave = :igreja and sn.dispositivo.chave = :dispositivo and sn.membro.id is null"),
     @NamedQuery(name = "SentNotification.findNaoLidasMembro", query = "select sn from SentNotification sn where sn.igreja.chave = :igreja and sn.membro.id = :membro"),
