@@ -148,10 +148,10 @@ public class AppServiceImpl implements AppService {
         if (sessaoBean.getIdMembro() == null){
             daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), notificacao));
         }else{
-            SentNotification sn = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
-                    createSingle(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
+                    create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             
-            if (sn != null){
+            for (SentNotification sn : sns){
                 daoService.delete(SentNotification.class, sn.getId());
             }
         }
