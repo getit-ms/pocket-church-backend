@@ -146,34 +146,32 @@ public class AppServiceImpl implements AppService {
     @Override
     public void removeNotificacao(Long notificacao){
         if (sessaoBean.getIdMembro() == null){
-            List<Number> ids = daoService.findWith(QueryNotificacao.NOTIFICACAO_DISPOSITIVO.
+            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_DISPOSITIVO.
                     create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
-            for (Number id : ids){
-                daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), id.longValue()));
+            for (SentNotification sn : sns){
+                daoService.delete(SentNotification.class, sn.getId());
             }
         }else{
-            List<Object[]> ids = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
+            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
                     create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-            for (Object[] id : ids){
-                daoService.delete(SentNotification.class, new SentNotificationId((String) id[1], ((Number) id[0]).longValue()));
+            for (SentNotification sn : sns){
+                daoService.delete(SentNotification.class, sn.getId());
             }
         }
     }
     
     public void marcaNotificacoesComoLidas() {
         if (sessaoBean.getIdMembro() == null){
-            List<Number> ids = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
+            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
-            for (Number id : ids){
-                SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), id.longValue()));
+            for (SentNotification sn : sns){
                 sn.lido();
                 daoService.update(sn);
             }
         }else{
-            List<Object[]> ids = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
+            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-            for (Object[] id : ids){
-                SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId((String) id[1], ((Number) id[0]).longValue()));
+            for (SentNotification sn : sns){
                 sn.lido();
                 daoService.update(sn);
             }
