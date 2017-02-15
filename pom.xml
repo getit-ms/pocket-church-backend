@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.gafs.getit.calvinista</groupId>
     <artifactId>calvinista</artifactId>
-    <version>3.0.60</version>
+    <version>3.0.61-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
