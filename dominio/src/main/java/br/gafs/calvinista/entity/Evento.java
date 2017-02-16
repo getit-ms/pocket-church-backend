@@ -136,7 +136,7 @@ public class Evento implements IEntity {
     }
     
     public String getFilename(){
-        return nome.replaceAll("[a-zA-Z0-9]", "_");
+        return nome.replaceAll("[^a-zA-Z0-9]", "_");
     }
     
     public boolean isComPagamento(){

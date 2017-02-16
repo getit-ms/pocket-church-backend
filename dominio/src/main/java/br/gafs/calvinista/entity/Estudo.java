@@ -121,7 +121,7 @@ public class Estudo implements IEntity {
     }
     
     public String getFilename(){
-        return titulo.replaceAll("[a-zA-Z0-9]", "_");
+        return titulo.replaceAll("[^a-zA-Z0-9]", "_");
     }
 
     public void notificado(){

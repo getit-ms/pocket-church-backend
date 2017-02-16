@@ -81,7 +81,7 @@ public class Hino implements IEntity {
     }
     
     public String getFilename(){
-        return getNumero() + "_" + getNome().replaceAll("[a-zA-Z0-9]", "_");
+        return getNumero() + "_" + getNome().replaceAll("[^a-zA-Z0-9]", "_");
     }
     
 }
