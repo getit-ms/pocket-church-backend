@@ -47,7 +47,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
     public static File file(Relatorio relatorio, String type){
         return new File(new File(new File(new File(dir, relatorio.getIgreja().getChave()),
                 relatorio.getClass().getSimpleName()),
-                relatorio.getId()), relatorio.getTitulo() + "." + type);
+                relatorio.getId()), relatorio.getFilename() + "." + type);
     }
 
     @Override
@@ -79,6 +79,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
         String getId();
         Igreja getIgreja();
         String getTitulo();
+        String getFilename();
         ReportUtil.Exporter generate(DAOService daoService);
     }
 

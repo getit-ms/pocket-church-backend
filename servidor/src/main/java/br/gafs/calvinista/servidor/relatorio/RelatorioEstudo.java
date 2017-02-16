@@ -31,6 +31,11 @@ public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
 
     @Override
     public String getTitulo() {
+        return estudo.getTitulo();
+    }
+
+    @Override
+    public String getFilename() {
         return estudo.getFilename();
     }
 
