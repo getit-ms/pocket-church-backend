@@ -65,7 +65,7 @@ public class ArquivoController {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
         
         if (arquivo != null && (StringUtil.isEmpty(filename) || 
-                arquivo.getNome().equals(filename))){
+                arquivo.getFilename().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
             
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
