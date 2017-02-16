@@ -30,7 +30,7 @@ public class RelatorioHino implements ProcessamentoRelatorioCache.Relatorio {
 
     @Override
     public String getTitulo() {
-        return hino.getNumero() + " - " + hino.getNome();
+        return hino.getFilename();
     }
 
     @Override

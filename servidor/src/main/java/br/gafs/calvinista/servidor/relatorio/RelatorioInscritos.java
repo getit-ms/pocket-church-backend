@@ -37,7 +37,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
 
     @Override
     public String getTitulo() {
-        return evento.getNome();
+        return evento.getFilename();
     }
 
     @Override

@@ -90,6 +90,10 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
         this.dados = dados;
     }
     
+    public String getFilename(){
+        return nome.replaceAll("[a-zA-Z0-9\\.]", "_");
+    }
+    
     public void used(){
         timeout = null;
     }

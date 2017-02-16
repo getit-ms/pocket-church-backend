@@ -135,6 +135,9 @@ public class Evento implements IEntity {
                 !DateUtil.getDataAtual().after(dataTerminoInscricao);
     }
     
+    public String getFilename(){
+        return nome.replaceAll("[a-zA-Z0-9]", "_");
+    }
     
     public boolean isComPagamento(){
         return valor != null && exigePagamento;

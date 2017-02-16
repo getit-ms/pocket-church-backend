@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.Response.Status;
 
 /**
  *
@@ -82,20 +83,25 @@ public class EventoController {
     }
 
     @GET
-    @Path("{evento}/inscricoes/{tipo}")
+    @Path("{evento}/inscricoes/{filename}.{tipo}")
     @Produces({"application/pdf", "application/docx", "application/xls", MediaType.APPLICATION_JSON})
     public Response exportaInscricoes(
             @PathParam("evento") Long id,
-            @PathParam("tipo") String tipo) throws IOException, InterruptedException {
+            @PathParam("tipo") String tipo,
+            @PathParam("filename") String filename) throws IOException, InterruptedException {
         File file = relatorioService.exportaInscritos(id, tipo);
 
-        response.addHeader("Content-Type", "application/" + tipo);
-        response.addHeader("Content-Length", "" + file.length());
-        response.addHeader("Content-Disposition",
-                "attachment; filename=\""+ file.getName() + "\"");
-        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+        if (file.getName().equals(filename)){
+            response.addHeader("Content-Type", "application/" + tipo);
+            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=\""+ file.getName() + "\"");
+            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
 
-        return Response.noContent().build();
+            return Response.noContent().build();
+        }
+        
+        return Response.status(Status.NOT_FOUND).build();
     }
 
     @GET

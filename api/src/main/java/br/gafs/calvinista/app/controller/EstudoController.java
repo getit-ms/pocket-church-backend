@@ -81,20 +81,25 @@ public class EstudoController {
     }
 
     @GET
-    @Path("{estudo}/{tipo}")
+    @Path("{estudo}/{nome}.{tipo}")
     @Produces({"application/pdf", "application/docx", "application/xls", MediaType.APPLICATION_JSON})
     public Response exportaInscricoes(
             @PathParam("estudo") Long id,
-            @PathParam("tipo") String tipo) throws IOException, InterruptedException {
+            @PathParam("tipo") String tipo,
+            @PathParam("nome") String nome) throws IOException, InterruptedException {
         File file = relatorioService.exportaEstudo(id, tipo);
 
-        response.addHeader("Content-Type", "application/" + tipo);
-        response.addHeader("Content-Length", "" + file.length());
-        response.addHeader("Content-Disposition",
-                "attachment; filename=\""+ file.getName() + "\"");
-        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+        if (file.getName().equals(nome)){
+            response.addHeader("Content-Type", "application/" + tipo);
+            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=\""+ file.getName() + "\"");
+            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
 
-        return Response.noContent().build();
+            return Response.noContent().build();
+        }
+        
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
     
     @DELETE

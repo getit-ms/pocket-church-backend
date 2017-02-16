@@ -9,6 +9,7 @@ import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.entity.Arquivo;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.file.EntityFileManager;
+import br.gafs.util.string.StringUtil;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -52,9 +53,19 @@ public class ArquivoController {
     @Path("/download/{arquivo}") 
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
     public Response downloadFile(@PathParam("arquivo") Long identificador) throws IOException {
+        return downloadFile(identificador, null);
+    }
+    
+    @GET
+    @Path("/download/{arquivo}/{filename}") 
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
+    public Response downloadFile(
+            @PathParam("arquivo") Long identificador, 
+            @PathParam("filename") String filename) throws IOException {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
         
-        if (arquivo != null){
+        if (arquivo != null && (StringUtil.isEmpty(filename) || 
+                arquivo.getNome().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
             
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);

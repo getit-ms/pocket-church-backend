@@ -34,6 +34,11 @@
         </dependency>
         
         <dependency>
+            <groupId>br.gafs</groupId>
+            <artifactId>gafs-base-util</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-dominio</artifactId>
         </dependency>

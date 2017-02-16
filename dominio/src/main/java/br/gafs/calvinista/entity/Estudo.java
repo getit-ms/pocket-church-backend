@@ -119,6 +119,10 @@ public class Estudo implements IEntity {
     public boolean isPublicado(){
         return !isEmEdicao();
     }
+    
+    public String getFilename(){
+        return titulo.replaceAll("[a-zA-Z0-9]", "_");
+    }
 
     public void notificado(){
         status = StatusEstudo.NOTIFICADO;

@@ -80,4 +80,8 @@ public class Hino implements IEntity {
         ultimaAlteracao = new Date();
     }
     
+    public String getFilename(){
+        return getNumero() + "_" + getNome().replaceAll("[a-zA-Z0-9]", "_");
+    }
+    
 }

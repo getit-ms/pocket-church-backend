@@ -115,7 +115,7 @@ public class GoogleService {
     
     private YouTube connect(String igreja) throws IOException {
         return new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), 
-                loadCredentialsYouTube(igreja)).build();
+                loadCredentialsYouTube(igreja)).setApplicationName("Pocket Church").build();
     }
     
     public List<VideoDTO> buscaVideos() throws IOException {
