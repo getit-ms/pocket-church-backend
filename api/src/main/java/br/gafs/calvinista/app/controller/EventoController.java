@@ -91,7 +91,7 @@ public class EventoController {
             @PathParam("filename") String filename) throws IOException, InterruptedException {
         File file = relatorioService.exportaInscritos(id, tipo);
 
-        if (file.getName().equals(filename)){
+        if (file.getName().startsWith(filename)){
             response.addHeader("Content-Type", "application/" + tipo);
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",

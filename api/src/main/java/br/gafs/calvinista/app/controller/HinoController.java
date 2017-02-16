@@ -64,7 +64,7 @@ public class HinoController {
             @PathParam("nome") String nome) throws IOException, InterruptedException {
         File file = relatorioService.exportaHino(id, tipo);
 
-        if (file.getName().equals(nome)){
+        if (file.getName().startsWith(nome)){
             response.addHeader("Content-Type", "application/" + tipo);
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",

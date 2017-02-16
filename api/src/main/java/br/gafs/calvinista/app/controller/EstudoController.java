@@ -89,7 +89,7 @@ public class EstudoController {
             @PathParam("nome") String nome) throws IOException, InterruptedException {
         File file = relatorioService.exportaEstudo(id, tipo);
 
-        if (file.getName().equals(nome)){
+        if (file.getName().startsWith(nome)){
             response.addHeader("Content-Type", "application/" + tipo);
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",
