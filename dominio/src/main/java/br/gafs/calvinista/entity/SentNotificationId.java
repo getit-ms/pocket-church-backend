@@ -18,6 +18,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SentNotificationId implements Serializable {
-    private String dispositivo;
-    private Long notification;
+    private String chaveDispositivo;
+    private Long idNotificacao;
 }

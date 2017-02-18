@@ -41,6 +41,13 @@ import lombok.Getter;
 })
 public class SentNotification implements IEntity {
     @Id
+    @Column(name = "chave_dispositivo", insertable = false, updatable = false)
+    private String chaveDispositivo;
+    
+    @Id
+    @Column(name = "id_notificacao_schedule", insertable = false, updatable = false)
+    private Long idNotificacao;
+    
     @ManyToOne
     @JoinColumn(name = "chave_dispositivo")
     private Dispositivo dispositivo;
