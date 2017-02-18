@@ -145,9 +145,9 @@ public class AppServiceImpl implements AppService {
     
     @Override
     public void removeNotificacao(Long notificacao){
-        if (sessaoBean.getIdMembro() == null){
-            daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), notificacao));
-        }else{
+        daoService.delete(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), notificacao));
+        
+        if (sessaoBean.getIdMembro() != null){
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
                     create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             
