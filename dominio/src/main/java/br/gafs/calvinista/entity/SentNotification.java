@@ -63,7 +63,6 @@ public class SentNotification implements IEntity {
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
     
-    @Id
     @ManyToOne
     @JoinColumn(name = "id_notificacao_schedule")
     private NotificationSchedule notification;
