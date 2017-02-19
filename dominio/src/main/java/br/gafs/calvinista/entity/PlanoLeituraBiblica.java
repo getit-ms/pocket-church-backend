@@ -27,6 +27,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -64,6 +66,11 @@ public class PlanoLeituraBiblica implements IEntity {
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
     
+    @JsonView(View.Resumido.class)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ultima_alteracao")
+    private Date ultimaAlteracao = new Date();
+    
     @Setter
     @OrderBy("data")
     @JsonView(View.Detalhado.class)
@@ -89,5 +96,9 @@ public class PlanoLeituraBiblica implements IEntity {
         }
         
         return dias.get(dias.size() - 1).getData();
+    }
+    
+    public void alterado(){
+        ultimaAlteracao = new Date();
     }
 }

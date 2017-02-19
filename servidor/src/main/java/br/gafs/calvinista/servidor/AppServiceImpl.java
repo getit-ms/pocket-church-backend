@@ -148,31 +148,30 @@ public class AppServiceImpl implements AppService {
         SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), notificacao));
         
         if (sn != null && (sn.getMembro() == null || sn.getMembro().equals(sessaoBean.getIdMembro()))){
-            
             daoService.delete(SentNotification.class, sn.getId());
+        }
 
-            if (sessaoBean.getIdMembro() != null){
-                List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
-                        create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        if (sessaoBean.getIdMembro() != null){
+            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
+                    create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
-                for (SentNotification sn0 : sns){
-                    daoService.delete(SentNotification.class, sn0.getId());
-                }
+            for (SentNotification sn0 : sns){
+                daoService.delete(SentNotification.class, sn0.getId());
             }
-        }else{
-            throw new ServiceException("mensagens.MSG-403");
         }
     }
     
     public void marcaNotificacoesComoLidas() {
-        if (sessaoBean.getIdMembro() == null){
+        {
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
             for (SentNotification sn : sns){
                 sn.lido();
                 daoService.update(sn);
             }
-        }else{
+        }
+        
+        if (sessaoBean.getIdMembro() != null){
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             for (SentNotification sn : sns){
