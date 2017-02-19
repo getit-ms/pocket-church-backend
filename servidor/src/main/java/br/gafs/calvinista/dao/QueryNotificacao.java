@@ -28,7 +28,7 @@ public enum QueryNotificacao {
     NOTIFICACAO_DISPOSITIVO("SentNotification.findNotificacaoDispositivo", "notificacao", "igreja", "dispositivo"), 
     CLEAR_NOTIFICACOES_MEMBRO("SentNotification.clearNotificacoesMembro", "igreja", "membro"), 
     NOTIFICACAO_MEMBRO("SentNotification.findNotificacaoMembro", "notificacao", "igreja", "membro"), 
-    NOTIFICACOES_NAO_LIDAS_DISPOSITIVO("SentNotification.findNaoLidasDispositivo", "igreja", "dispositivo"),
+    NOTIFICACOES_NAO_LIDAS_DISPOSITIVO("SentNotification.findNaoLidasDispositivo", "dispositivo"),
     NOTIFICACOES_NAO_LIDAS_MEMBRO("SentNotification.findNaoLidasMembro", "igreja", "membro");
 
     private final String query;

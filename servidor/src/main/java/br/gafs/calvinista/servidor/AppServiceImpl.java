@@ -164,7 +164,7 @@ public class AppServiceImpl implements AppService {
     public void marcaNotificacoesComoLidas() {
         {
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
-                    create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+                    create(sessaoBean.getChaveDispositivo()));
             for (SentNotification sn : sns){
                 sn.lido();
                 daoService.update(sn);
