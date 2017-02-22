@@ -188,5 +188,6 @@ public interface AppService extends Serializable {
     
     LeituraBibliaDTO desmarcaLeitura(Long dia);
     
-    BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(int pagina, int total);
+    PlanoLeituraBiblica buscaPlanoSelecionado();
+    BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total);
 }

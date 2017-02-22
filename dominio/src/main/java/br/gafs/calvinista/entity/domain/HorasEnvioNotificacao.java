@@ -14,7 +14,7 @@ import lombok.Getter;
  * @author Gabriel
  */
 @Getter
-public enum HorasEnvioVersiculo {
+public enum HorasEnvioNotificacao {
     _08_00("08:00"),
     _14_00("14:00"),
     _20_00("20:00");
@@ -26,7 +26,7 @@ public enum HorasEnvioVersiculo {
         return horaInt;
     }
 
-    private HorasEnvioVersiculo(String hora) {
+    private HorasEnvioNotificacao(String hora) {
         this.hora = DateUtil.parseData(hora, "HH:mm");
         this.horaInt = Integer.parseInt(DateUtil.formataData(this.hora, "HH"));
     }

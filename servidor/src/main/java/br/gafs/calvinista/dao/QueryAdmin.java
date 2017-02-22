@@ -238,12 +238,12 @@ public enum QueryAdmin {
         
     }, 
     UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status"), 
-    COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveIgreja", "idMembro"),
-    LEITURA_SELECIONADA("MarcacaoLeituraBiblica.findLeituraSelecionada", COUNT_LEITURA_SELECIONADA, "chaveIgreja", "idMembro"){
+    COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveIgreja", "idMembro", "ultimaAlteracao"),
+    LEITURA_SELECIONADA("MarcacaoLeituraBiblica.findLeituraSelecionada", COUNT_LEITURA_SELECIONADA, "chaveIgreja", "idMembro", "ultimaAlteracao"){
 
         @Override
         protected int extractResultLimit(Object... args) {
-            return (Integer) args[2];
+            return (Integer) args[3];
         }
         
     }, 

@@ -6,7 +6,7 @@
 package br.gafs.calvinista.dto;
 
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.domain.HorasEnvioVersiculo;
+import br.gafs.calvinista.entity.domain.HorasEnvioNotificacao;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dto.DTO;
@@ -33,7 +33,7 @@ public class FiltroDispositivoNotificacaoDTO implements DTO {
     @JsonIgnore
     private TipoDispositivo tipo;
     @JsonView(Resumido.class)
-    private HorasEnvioVersiculo hora;
+    private HorasEnvioNotificacao hora;
     @JsonView(Resumido.class)
     private Long membro;
     @JsonView(Resumido.class)
@@ -64,7 +64,7 @@ public class FiltroDispositivoNotificacaoDTO implements DTO {
         this.membro = membro;
     }
     
-    public FiltroDispositivoNotificacaoDTO(Igreja igreja, HorasEnvioVersiculo hora) {
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja, HorasEnvioNotificacao hora) {
         this(igreja);
         this.hora = hora;
     }

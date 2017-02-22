@@ -6,7 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import br.gafs.calvinista.entity.domain.HorasEnvioVersiculo;
+import br.gafs.calvinista.entity.domain.HorasEnvioNotificacao;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -60,7 +60,7 @@ public class Preferencias implements IEntity {
     @Enumerated(EnumType.ORDINAL)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "hora_versiculo_diario")
-    private HorasEnvioVersiculo horaVersiculoDiario = HorasEnvioVersiculo._14_00;
+    private HorasEnvioNotificacao horaVersiculoDiario = HorasEnvioNotificacao._14_00;
 
     @Setter
     @View.MergeViews(View.Edicao.class)
@@ -71,6 +71,17 @@ public class Preferencias implements IEntity {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "deseja_receber_notificacoes_videos")
     private boolean desejaReceberNotificacoesVideos = true;
+
+    @Setter
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "deseja_receber_lembretes_leitura_biblica")
+    private boolean desejaReceberLembretesLeitura = true;
+
+    @Setter
+    @Enumerated(EnumType.ORDINAL)
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "hora_lembrete_leitura")
+    private HorasEnvioNotificacao horaLembreteLeitura = HorasEnvioNotificacao._14_00;
     
     @Setter
     @ManyToMany

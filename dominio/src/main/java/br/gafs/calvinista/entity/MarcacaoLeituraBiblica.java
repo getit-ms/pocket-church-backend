@@ -6,6 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,8 +35,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = "id")
 @Table(name = "tb_marcacao_leitura_biblica")
 @NamedQueries({
-    @NamedQuery(name = "MarcacaoLeituraBiblica.countLeituraSelecionada", query = "select count(dlb.id) from DiaLeituraBiblica dlb, OpcaoLeituraBiblica olb where olb.membro.id = :idMembro and olb.membro.igreja.chave = :chaveIgreja and olb.dataTermino is null and olb.planoLeitura = dlb.plano order by dlb.data"),
-    @NamedQuery(name = "MarcacaoLeituraBiblica.findLeituraSelecionada", query = "select new br.gafs.calvinista.dto.LeituraBibliaDTO(dlb) from DiaLeituraBiblica dlb, OpcaoLeituraBiblica olb where olb.planoLeitura = dlb.plano and olb.membro.id = :idMembro and olb.membro.igreja.chave = :chaveIgreja and olb.dataTermino is null"),
+    @NamedQuery(name = "MarcacaoLeituraBiblica.countLeituraSelecionada", query = "select count(dlb.id) from DiaLeituraBiblica dlb, OpcaoLeituraBiblica olb where (dlb.plano.ultimaAlteracao > :ultimaAlteracao or exists( select mlb from MarcacaoLeituraBiblica mlb where mlb.dia = dlb and olb.membro = mlb.membro and mlb.data > :ultimaAlteracao )) and olb.membro.id = :idMembro and olb.membro.igreja.chave = :chaveIgreja and olb.dataTermino is null and olb.planoLeitura = dlb.plano"),
+    @NamedQuery(name = "MarcacaoLeituraBiblica.findLeituraSelecionada", query = "select new br.gafs.calvinista.dto.LeituraBibliaDTO(dlb) from DiaLeituraBiblica dlb, OpcaoLeituraBiblica olb where (dlb.plano.ultimaAlteracao > :ultimaAlteracao or exists( select mlb from MarcacaoLeituraBiblica mlb where mlb.dia = dlb and olb.membro = mlb.membro and mlb.data > :ultimaAlteracao )) and olb.planoLeitura = dlb.plano and olb.membro.id = :idMembro and olb.membro.igreja.chave = :chaveIgreja and olb.dataTermino is null order by dlb.data"),
     @NamedQuery(name = "MarcacaoLeituraBiblica.findByMembroAndDia", query = "select mlb from MarcacaoLeituraBiblica mlb where mlb.membro.id = :idMembro and mlb.membro.igreja.chave = :chaveIgreja and mlb.dia.id = :idDia")
 })
 public class MarcacaoLeituraBiblica implements IEntity {
@@ -53,6 +56,10 @@ public class MarcacaoLeituraBiblica implements IEntity {
     @ManyToOne
     @JoinColumn(name = "id_dia_leitura_biblica")
     private DiaLeituraBiblica dia;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "data")
+    private Date data = new Date();
 
     public MarcacaoLeituraBiblica(Membro membro, DiaLeituraBiblica dia) {
         this.membro = membro;

@@ -71,12 +71,24 @@ public class PlanoLeituraController {
     }
     
     @GET
+    @Path("leitura/plano")
+    @JsonView(Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaPlanoLeituraSelecionado(){
+        return Response.status(Response.Status.OK).entity(appService.buscaPlanoSelecionado()).build();
+    }
+    
+    @GET
     @Path("leitura")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaLeituraSelecionada(
+            @QueryParam("ultimaAlteracao") String ultimaAlteracao,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaPlanoSelecionado(pagina, total)).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaPlanoSelecionado(
+                StringUtil.isEmpty(ultimaAlteracao) ? null :
+                        DateUtil.parseData(ultimaAlteracao, MyJacksonJsonProvider.DATE_FORMAT),
+                pagina, total)).build();
     }
     
     @DELETE

@@ -11,7 +11,7 @@ import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Preferencias;
-import br.gafs.calvinista.entity.domain.HorasEnvioVersiculo;
+import br.gafs.calvinista.entity.domain.HorasEnvioNotificacao;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.entity.domain.TipoVersao;
 import br.gafs.calvinista.service.AcessoService;
@@ -155,7 +155,15 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaHorariosVersiculosDiarios(){
-        return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioVersiculo.values())).build();
+        return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
+    }
+    
+    @GET
+    @Path("horariosLembretesLeitura")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaHorariosLembretesLeitura(){
+        return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
     }
     
     @GET

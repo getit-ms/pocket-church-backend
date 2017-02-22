@@ -1617,6 +1617,7 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
     public PlanoLeituraBiblica atualiza(PlanoLeituraBiblica plano) {
         preencheRelacionamentos(plano);
+        plano.alterado();
         return daoService.update(plano);
     }
     private void preencheRelacionamentos(PlanoLeituraBiblica plano) {
@@ -1641,24 +1642,40 @@ public class AppServiceImpl implements AppService {
         
         daoService.create(new OpcaoLeituraBiblica(
             daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
-            daoService.find(PlanoLeituraBiblica.class, plano)
+            daoService.find(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), plano))
         ));
         
-        return buscaPlanoSelecionado(1, 10);
+        return buscaPlanoSelecionado(null, 1, 10);
     }
 
     @Override
     @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
-    public BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(int pagina, int total) {
+    public BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total) {
+        if (ultimaAlteracao == null){
+            ultimaAlteracao = DateUtil.getDataZero();
+        }
+        
         BuscaPaginadaDTO<LeituraBibliaDTO> busca = daoService.findWith(QueryAdmin.
-                LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), total));
+                LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), ultimaAlteracao, total));
         
         for (LeituraBibliaDTO leitura : busca.getResultados()){
-            leitura.setLido(daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
-                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), leitura.getDia().getId())) != null);
+            leitura.setLido((MarcacaoLeituraBiblica) daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
+                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), leitura.getDia().getId())));
         }
         
         return busca;
+    }
+
+    @Override
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
+    public PlanoLeituraBiblica buscaPlanoSelecionado() {
+        OpcaoLeituraBiblica opcao = daoService.findWith(QueryAdmin.OPCAO_PLANO_LEITURA_SELECIONADA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        
+        if (opcao != null){
+            return opcao.getPlanoLeitura();
+        }
+        
+        return null;
     }
 
     @Override
@@ -1673,25 +1690,30 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
     public LeituraBibliaDTO desmarcaLeitura(Long dia) {
-        MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
+        MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
+                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
         
         if (marcacao != null){
             daoService.delete(MarcacaoLeituraBiblica.class, marcacao.getId());
+
+            return new LeituraBibliaDTO(marcacao.getDia(), false);
         }
         
-        return new LeituraBibliaDTO(marcacao.getDia(), false);
+        return null;
     }
 
     @Override
+    @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
     public LeituraBibliaDTO marcaLeitura(Long dia) {
-        MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
+        MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
+                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
         
         if (marcacao == null){
-            marcacao = new MarcacaoLeituraBiblica(
+            marcacao = daoService.create(new MarcacaoLeituraBiblica(
                     daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
-                    daoService.find(DiaLeituraBiblica.class, dia));
-            daoService.create(marcacao);
+                    daoService.find(DiaLeituraBiblica.class, dia)));
         }
         
         return new LeituraBibliaDTO(marcacao.getDia(), true);
@@ -1790,7 +1812,7 @@ public class AppServiceImpl implements AppService {
             }
             
             if (atual != null && atual.isAtivo()){
-                for (HorasEnvioVersiculo hev : HorasEnvioVersiculo.values()){
+                for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
                     if (hev.getHoraInt().equals(hora)){
                         enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev),
                                 titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, true);
