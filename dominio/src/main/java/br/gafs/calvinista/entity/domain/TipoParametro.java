@@ -34,6 +34,7 @@ public enum TipoParametro {
     TOKEN_PAGSEGURO(TipoValor.VALOR, String.class, ""),
     HABILITADO_PAGSEGURO(TipoValor.VALOR, boolean.class, "false"),
     TITULO_VERSICULO_DIARIO(TipoValor.VALOR, String.class, null),
+    TITULO_LEMBRETE_LEITURA_BIBLICA(TipoValor.VALOR, String.class, null),
     TITULO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
     TEXTO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
     TITULO_BOLETIM(TipoValor.VALOR, String.class, null),

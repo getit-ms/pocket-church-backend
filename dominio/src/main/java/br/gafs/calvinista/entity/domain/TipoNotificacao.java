@@ -16,5 +16,6 @@ public enum TipoNotificacao {
     VERSICULO,
     ACONSELHAMENTO,
     ANIVERSARIO, 
-    PEDIDO_ORACAO
+    PEDIDO_ORACAO,
+    PLANO_LEITURA,
 }

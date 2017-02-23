@@ -49,7 +49,14 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         }
         
         if (filtro.getHora() != null){
-            where.append(" and p.deseja_receber_versiculos_diarios = true and p.hora_versiculo_diario = ").append(filtro.getHora().ordinal());
+            if (filtro.getIdPlanoLeiuraBiblica() != null){
+                from.append(" inner join tb_opcao_leitura_biblica olb on olb.id_membro = p.id_membro and olb.chave_igreja = p.chave_igreja and old.termino is null");
+                where.append(" and olb.id_plano_leitura_biblica = ").append(filtro.getIdPlanoLeiuraBiblica()).
+                        append(" and p.deseja_receber_lembretes_leitura_biblica = true").
+                        append(" and p.hora_lembrete_leitura = ").append(filtro.getHora().ordinal());
+            }else{
+                where.append(" and p.deseja_receber_versiculos_diarios = true and p.hora_versiculo_diario = ").append(filtro.getHora().ordinal());
+            }
         }
         
         if (filtro.getMembro() != null){

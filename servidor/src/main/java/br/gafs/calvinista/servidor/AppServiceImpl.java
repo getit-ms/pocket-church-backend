@@ -34,6 +34,7 @@ import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
+import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -1818,6 +1819,42 @@ public class AppServiceImpl implements AppService {
                                 titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, true);
                         break;
                     }
+                }
+            }
+        }
+    }
+    
+    @Schedule(hour = "*")
+    public void enviaLembreteLeituraBiblica() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer hora = cal.get(Calendar.HOUR_OF_DAY);
+            
+            for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
+                if (hev.getHoraInt().equals(hora)){
+                    String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_LEMBRETE_LEITURA_BIBLICA);
+                    if (StringUtil.isEmpty(titulo)){
+                        titulo = MensagemUtil.getMensagem("push.lembrete_leitura_biblica.title", igreja.getLocale());
+                    }
+                    
+                    FiltroPlanoLeituraBiblicaDTO filtro = new FiltroPlanoLeituraBiblicaDTO();
+                    BuscaPaginadaDTO<PlanoLeituraBiblica> busca;
+                    do{
+                        busca = daoService.findWith(new FiltroPlanoLeituraBiblica(igreja.getId(), false, filtro));
+                        
+                        for (PlanoLeituraBiblica plano : busca){
+                            DiaLeituraBiblica dia = daoService.findWith(QueryAdmin.DIA_PLANO.createSingle(igreja.getId(), plano.getId(), cal.getTime()));
+                            if (dia != null && !StringUtil.isEmpty(dia.getDescricao())){
+                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev, plano.getId()),
+                                        titulo, dia.getDescricao(), TipoNotificacao.PLANO_LEITURA, true);
+                            }
+                        }
+                        
+                        filtro.setPagina(filtro.getPagina() + 1);
+                    }while(busca.isHasProxima());
+                    
+                    break;
                 }
             }
         }

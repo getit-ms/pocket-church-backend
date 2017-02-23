@@ -44,6 +44,8 @@ public class FiltroDispositivoNotificacaoDTO implements DTO {
     private Date aniversario;
     @JsonView(Resumido.class)
     private boolean desejaReceberNotificacoesVideos;
+    @JsonView(Resumido.class)
+    private Long idPlanoLeiuraBiblica;
 
     public FiltroDispositivoNotificacaoDTO(Igreja igreja) {
         this.igreja = igreja;
@@ -67,6 +69,12 @@ public class FiltroDispositivoNotificacaoDTO implements DTO {
     public FiltroDispositivoNotificacaoDTO(Igreja igreja, HorasEnvioNotificacao hora) {
         this(igreja);
         this.hora = hora;
+    }
+    
+    public FiltroDispositivoNotificacaoDTO(Igreja igreja, HorasEnvioNotificacao hora, Long idPlanoLeiuraBiblica) {
+        this(igreja);
+        this.hora = hora;
+        this.idPlanoLeiuraBiblica = idPlanoLeiuraBiblica;
     }
     
     public void proxima(){

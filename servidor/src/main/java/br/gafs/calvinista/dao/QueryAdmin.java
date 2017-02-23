@@ -248,7 +248,8 @@ public enum QueryAdmin {
         
     }, 
     OPCAO_PLANO_LEITURA_SELECIONADA("OpcaoLeituraBiblica.findOpcaoSelecionad", "chaveIgreja", "idMembro"), 
-    MARCACAO_LEITURA_DIA("MarcacaoLeituraBiblica.findByMembroAndDia", "chaveIgreja", "idMembro", "idDia");
+    MARCACAO_LEITURA_DIA("MarcacaoLeituraBiblica.findByMembroAndDia", "chaveIgreja", "idMembro", "idDia"), 
+    DIA_PLANO("DiaLeituraBiblica.findByPlanoAndData", "chaveIgreja", "idPlano", "data");
     
     private final String query;
     private final String[] parameters;
