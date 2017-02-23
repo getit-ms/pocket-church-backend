@@ -75,7 +75,7 @@ public class Preferencias implements IEntity {
     @Setter
     @View.MergeViews(View.Edicao.class)
     @Column(name = "deseja_receber_lembretes_leitura_biblica")
-    private boolean desejaReceberLembretesLeitura = true;
+    private boolean desejaReceberLembreteLeitura = true;
 
     @Setter
     @Enumerated(EnumType.ORDINAL)
