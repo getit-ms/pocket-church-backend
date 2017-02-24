@@ -34,7 +34,6 @@ import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
-import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -1634,7 +1633,15 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PLANOS_LEITURA_BIBLICA)
     public void removePlanoLeitura(Long idPlano) {
-        daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), idPlano));
+        PlanoLeituraBiblica plano = buscaPlanoLeitura(idPlano);
+        
+        if (plano != null){
+            daoService.execute(QueryAdmin.REMOVE_OPCAO_PLANO.create(sessaoBean.getChaveIgreja(), idPlano));
+            daoService.execute(QueryAdmin.REMOVE_MARCACAO_PLANO.create(sessaoBean.getChaveIgreja(), idPlano));
+            
+            daoService.delete(PlanoLeituraBiblica.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), idPlano));
+        }
+        
     }
 
     @Override

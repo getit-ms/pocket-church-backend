@@ -1,10 +1,5 @@
-insert into tb_igreja(chave_igreja, nome, status, id_plano, template, locale, timezone, nome_aplicativo)
-	values('<chave_igreja>', '<nome_igreja>', 0, 1, 1, 'pt-br', 'America/Sao_Paulo', '<nome_aplicativo_igreja>');
-	
-insert into rl_igreja_funcionalidade_aplicativo values('<chave_igreja>', 'REALIZAR_INSCRICAO_EVENTO');
-insert into rl_igreja_funcionalidade_aplicativo values('<chave_igreja>', 'AGENDAR_ACONSELHAMENTO');
-insert into rl_igreja_funcionalidade_aplicativo values('<chave_igreja>', 'PEDIR_ORACAO');
-insert into rl_igreja_funcionalidade_aplicativo values('<chave_igreja>', 'CONSULTAR_CONTATOS_IGREJA');
+insert into tb_igreja(chave_igreja, nome, status, id_plano, template, locale, timezone, nome_aplicativo, id_biblia)
+	values('<chave_igreja>', '<nome_igreja>', 0, 1, 1, 'pt-br', 'America/Sao_Paulo', '<nome_aplicativo_igreja>', 1);
 	
 insert into tb_endereco(id_endereco) values(nextval('seq_endereco'));
 
@@ -22,4 +17,7 @@ insert into rl_acesso_perfil(id_membro, chave_igreja, id_perfil)
 insert into rl_perfil_funcionalidade (id_perfil, chave_igreja, funcionalidade)
 	select (select max(id_perfil) from tb_perfil), '<chave_igreja>', funcionalidade from rl_perfil_funcionalidade where id_perfil = 1;
 
-
+insert into tb_parametro(grupo, chave, valor) values('<chave_igreja>', 'GOOGLE_OAUTH_CLIENT_KEY', '65118528623-tlgg9invlav3nljorfrbd57uhrf9jiv2.apps.googleusercontent.com');
+insert into tb_parametro(grupo, chave, valor) values('<chave_igreja>', 'GOOGLE_OAUTH_SECRET_KEY', '3QNbshcUP1gF_mk1RjafFtF3');
+insert into tb_parametro(grupo, chave, valor) values('<chave_igreja>', 'PUSH_ANDROID_KEY', 'AIzaSyAACRTJbKBQe4Ufb3ZfN48abC_JCLhNU-Q');
+insert into tb_parametro(grupo, chave, valor) values('<chave_igreja>', 'PUSH_ANDROID_SENDER_ID', 'AIzaSyAACRTJbKBQe4Ufb3ZfN48abC_JCLhNU-Q');

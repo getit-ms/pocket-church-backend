@@ -249,7 +249,9 @@ public enum QueryAdmin {
     }, 
     OPCAO_PLANO_LEITURA_SELECIONADA("OpcaoLeituraBiblica.findOpcaoSelecionad", "chaveIgreja", "idMembro"), 
     MARCACAO_LEITURA_DIA("MarcacaoLeituraBiblica.findByMembroAndDia", "chaveIgreja", "idMembro", "idDia"), 
-    DIA_PLANO("DiaLeituraBiblica.findByPlanoAndData", "chaveIgreja", "idPlano", "data");
+    DIA_PLANO("DiaLeituraBiblica.findByPlanoAndData", "chaveIgreja", "idPlano", "data"), 
+    REMOVE_OPCAO_PLANO("OpcaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano"),
+    REMOVE_MARCACAO_PLANO("MarcacaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano");
     
     private final String query;
     private final String[] parameters;

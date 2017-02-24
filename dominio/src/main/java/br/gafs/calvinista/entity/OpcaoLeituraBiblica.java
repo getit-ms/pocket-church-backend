@@ -35,7 +35,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = "id")
 @Table(name = "tb_opcao_leitura_biblica")
 @NamedQueries({
-    @NamedQuery(name = "OpcaoLeituraBiblica.findOpcaoSelecionad", query = "select olb from OpcaoLeituraBiblica olb where olb.membro.id = :idMembro and olb.membro.igreja.chave = :chaveIgreja and olb.dataTermino is null")
+    @NamedQuery(name = "OpcaoLeituraBiblica.findOpcaoSelecionad", query = "select olb from OpcaoLeituraBiblica olb where olb.membro.id = :idMembro and olb.membro.igreja.chave = :chaveIgreja and olb.dataTermino is null"),
+    @NamedQuery(name = "OpcaoLeituraBiblica.removeByPlano", query = "delete from OpcaoLeituraBiblica olb where olb.planoLeitura.igreja.chave = :chaveIgreja and olb.planoLeitura.id = :idPlano")
 })
 public class OpcaoLeituraBiblica implements IEntity {
     @Id

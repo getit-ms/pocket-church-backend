@@ -12,6 +12,7 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.SessaoBean;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.apache.ApacheHttpTransport;
@@ -66,23 +67,23 @@ public class GoogleService {
     private SessaoBean sessao;
     
     
-    private GoogleAuthorizationCodeFlow flow(Collection<String> scopes) throws IOException{
+    private GoogleAuthorizationCodeFlow.Builder flow(Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
                 (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
                 (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
-                scopes).setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline").build();
+                scopes).setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline");
     }
     
     public String getURLAutorizacaoYouTube() throws IOException {
-        return flow(YOUTUBE_SCOPES).newAuthorizationUrl().
+        return flow(YOUTUBE_SCOPES).build().newAuthorizationUrl().
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
                         getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).
                 setState(sessao.getChaveIgreja()).build();
     }
 
     public Credential saveCredentialsYouTube(String code) throws IOException {
-        GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES);
+        GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES).build();
         
         TokenResponse resp = flow.newTokenRequest(code).
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
@@ -96,11 +97,9 @@ public class GoogleService {
     }
     
     private Credential loadCredentialsYouTube(String chaveIgreja) throws IOException {
-        Credential credential = flow(YOUTUBE_SCOPES).loadCredential(chaveIgreja);
-        
-        credential.refreshToken();
-        
-        return credential;
+        return flow(YOUTUBE_SCOPES).
+                addRefreshListener(new DataStoreCredentialRefreshListener(chaveIgreja, DATA_STORE_FACTORY)).
+                build().loadCredential(chaveIgreja);
     }
     
     public String buscaIdCanal() throws IOException {
