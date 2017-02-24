@@ -50,7 +50,7 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         
         if (filtro.getHora() != null){
             if (filtro.getIdPlanoLeiuraBiblica() != null){
-                from.append(" inner join tb_opcao_leitura_biblica olb on olb.id_membro = d.id_membro and olb.chave_igreja = d.chave_igreja and old.termino is null");
+                from.append(" inner join tb_opcao_leitura_biblica olb on olb.id_membro = d.id_membro and olb.chave_igreja = d.chave_igreja and olb.termino is null");
                 where.append(" and olb.id_plano_leitura_biblica = ").append(filtro.getIdPlanoLeiuraBiblica()).
                         append(" and p.deseja_receber_lembretes_leitura_biblica = true").
                         append(" and p.hora_lembrete_leitura = ").append(filtro.getHora().ordinal());
