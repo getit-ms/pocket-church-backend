@@ -6,13 +6,19 @@
 package br.gafs.calvinista.app.controller;
 
 import br.gafs.calvinista.app.util.MergeUtil;
+import br.gafs.calvinista.entity.Endereco;
 import br.gafs.calvinista.entity.Institucional;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
+import static com.sun.xml.internal.ws.api.message.Packet.Status.Response;
+import java.awt.PageAttributes.MediaType;
+import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.shape.Path;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import static javax.swing.text.html.FormSubmitEvent.MethodType.GET;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -44,7 +50,12 @@ public class InstituicaoController {
     public Response atualiza(final Institucional institucional){
         Institucional entidade = appService.recuperaInstitucional();
         MergeUtil.merge(institucional, View.Edicao.class).into(entidade);
-        MergeUtil.merge(institucional.getEndereco(), View.Edicao.class).into(entidade.getEndereco());
+        
+        List<Endereco> enderecos = new ArrayList<Endereco>();
+        for (Endereco endereco : institucional.getEnderecos()){
+            enderecos.add(MergeUtil.merge(endereco, View.Edicao.class).into(new Endereco()));
+        }
+        
         return Response.status(Response.Status.OK).entity(appService.atualiza(entidade)).build();
     }
     

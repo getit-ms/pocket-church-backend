@@ -8,10 +8,13 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.internal.NotNull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.scene.chart.PieChart.Data;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -27,8 +30,10 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.swing.text.html.parser.Entity;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
+import jdk.nashorn.internal.objects.annotations.Setter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,6 +43,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+import sun.security.util.Length;
 
 /**
  *
@@ -99,9 +105,11 @@ public class Institucional implements IEntity {
     private List<String> telefones = new ArrayList<String>();
     
     @NotNull
-    @JoinColumn(name = "id_endereco", nullable = false)
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Endereco endereco = new Endereco();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "rl_endereco_igreja",
+            joinColumns = @JoinColumn(name = "chave_igreja"),
+            inverseJoinColumns = @JoinColumn(name = "id_endereco", nullable = false))
+    private List<Endereco> enderecos = new ArrayList(Arrays.asList(new Endereco()));
 
     public Institucional(Igreja igreja) {
         this.igreja = igreja;
@@ -113,6 +121,18 @@ public class Institucional implements IEntity {
     
     public void removeTelefone(String telefone){
         telefones.remove(telefone);
+    }
+    
+    public Endereco getEndereco(){
+        if (enderecos.size() == 1){
+            return enderecos.get(0);
+        }
+        return null;
+    }
+    
+    public void setEndereco(Endereco endereco){
+        enderecos.clear();
+        enderecos.add(endereco);
     }
     
     @JsonIgnore
