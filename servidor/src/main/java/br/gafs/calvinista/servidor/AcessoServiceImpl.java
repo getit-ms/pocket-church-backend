@@ -225,12 +225,12 @@ public class AcessoServiceImpl implements AcessoService {
         
         String jwt = JWTManager.writer().map("igreja", membro.getIgreja().getId()).map("membro", membro.getId()).build();
         
-        String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", membro.getIgreja().getChave(), membro.getIgreja().getLocale());
-            String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", membro.getIgreja().getChave(), membro.getIgreja().getLocale(), 
+        String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", membro.getIgreja().getLocale());
+            String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", membro.getIgreja().getLocale(), 
                     membro.getNome());
-            String text = MensagemUtil.getMensagem("email.redefinir_senha.message.text", membro.getIgreja().getChave(), membro.getIgreja().getLocale());
-            String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", membro.getIgreja().getChave(), membro.getIgreja().getLocale(), jwt, membro.getIgreja().getChave());
-            String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", membro.getIgreja().getChave(), membro.getIgreja().getLocale());
+            String text = MensagemUtil.getMensagem("email.redefinir_senha.message.text", membro.getIgreja().getLocale());
+            String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", membro.getIgreja().getLocale(), jwt, membro.getIgreja().getChave());
+            String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", membro.getIgreja().getLocale());
             
         mensagemService.sendNow(
                 MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
@@ -253,11 +253,11 @@ public class AcessoServiceImpl implements AcessoService {
             membro = daoService.update(membro);
             
             String subject = MensagemUtil.getMensagem("email.nova_senha.subject", 
-                    membro.getIgreja().getChave(), membro.getIgreja().getLocale());
+                    membro.getIgreja().getLocale());
             String title = MensagemUtil.getMensagem("email.nova_senha.message.title", 
-                    membro.getIgreja().getChave(), membro.getIgreja().getLocale(), membro.getNome());
+                    membro.getIgreja().getLocale(), membro.getNome());
             String text = MensagemUtil.getMensagem("email.nova_senha.message.text", 
-                    membro.getIgreja().getChave(), membro.getIgreja().getLocale(), membro.getIgreja().getNome());
+                    membro.getIgreja().getLocale(), membro.getIgreja().getNome());
             
             mensagemService.sendNow(
                     MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
