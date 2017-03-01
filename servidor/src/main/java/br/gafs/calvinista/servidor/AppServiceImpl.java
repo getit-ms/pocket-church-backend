@@ -1551,7 +1551,7 @@ public class AppServiceImpl implements AppService {
             googleService.saveCredentialsYouTube(sessaoBean.getChaveIgreja(),code);
             
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
-            config.setIdCanal(googleService.buscaIdCanal());
+            config.setIdCanal(googleService.buscaIdCanal(sessaoBean.getChaveIgreja()));
             paramService.salvaConfiguracaoYouTube(config, sessaoBean.getChaveIgreja());
             
             Institucional institucional = recuperaInstitucional();

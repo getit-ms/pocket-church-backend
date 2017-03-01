@@ -108,7 +108,7 @@ public class GoogleService {
                 loadCredentialsYouTube(igreja)).setApplicationName("Pocket Church").build();
     }
     
-    private List<VideoDTO> buscaVideos(String chave) throws IOException {
+    public List<VideoDTO> buscaVideos(String chave) throws IOException {
         String channelId = paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
         
         if (StringUtil.isEmpty(channelId)){
