@@ -9,7 +9,6 @@ import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.calvinista.servidor.SessaoBean;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
@@ -27,7 +26,6 @@ import com.google.api.services.youtube.model.SearchResult;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -63,47 +61,40 @@ public class GoogleService {
     @EJB
     private ParametroService paramService;
     
-    @Inject
-    private SessaoBean sessao;
     
-    
-    private GoogleAuthorizationCodeFlow.Builder flow(Collection<String> scopes) throws IOException{
+    private GoogleAuthorizationCodeFlow.Builder flow(String chaveIgreja, Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
-                (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
-                (String) paramService.get(sessao.getChaveIgreja(), TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
+                (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
+                (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
                 scopes).setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline");
     }
     
-    public String getURLAutorizacaoYouTube() throws IOException {
-        return flow(YOUTUBE_SCOPES).build().newAuthorizationUrl().
+    public String getURLAutorizacaoYouTube(String chaveIgreja) throws IOException {
+        return flow(chaveIgreja, YOUTUBE_SCOPES).build().newAuthorizationUrl().
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
-                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).
-                setState(sessao.getChaveIgreja()).build();
+                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), chaveIgreja)).
+                setState(chaveIgreja).build();
     }
 
-    public Credential saveCredentialsYouTube(String code) throws IOException {
-        GoogleAuthorizationCodeFlow flow = flow(YOUTUBE_SCOPES).build();
+    public Credential saveCredentialsYouTube(String chaveIgreja, String code) throws IOException {
+        GoogleAuthorizationCodeFlow flow = flow(chaveIgreja, YOUTUBE_SCOPES).build();
         
         TokenResponse resp = flow.newTokenRequest(code).
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
-                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), sessao.getChaveIgreja())).execute();
+                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), chaveIgreja)).execute();
         
-        return flow.createAndStoreCredential(resp, sessao.getChaveIgreja());
+        return flow.createAndStoreCredential(resp, chaveIgreja);
     }
-    
-    public Credential loadCredentialsYouTube() throws IOException {
-        return loadCredentialsYouTube(sessao.getChaveIgreja());
-    }
-    
+
     private Credential loadCredentialsYouTube(String chaveIgreja) throws IOException {
-        return flow(YOUTUBE_SCOPES).
+        return flow(chaveIgreja, YOUTUBE_SCOPES).
                 addRefreshListener(new DataStoreCredentialRefreshListener(chaveIgreja, DATA_STORE_FACTORY)).
                 build().loadCredential(chaveIgreja);
     }
     
-    public String buscaIdCanal() throws IOException {
-        ChannelListResponse response = connect(sessao.getChaveIgreja()).channels().list("id").setMine(true).execute();
+    public String buscaIdCanal(String chaveIgreja) throws IOException {
+        ChannelListResponse response = connect(chaveIgreja).channels().list("id").setMine(true).execute();
         
         if (!response.isEmpty()){
             return response.getItems().get(0).getId();
@@ -117,12 +108,8 @@ public class GoogleService {
                 loadCredentialsYouTube(igreja)).setApplicationName("Pocket Church").build();
     }
     
-    public List<VideoDTO> buscaVideos() throws IOException {
-        return buscaVideos(sessao.getChaveIgreja());
-    }
-    
     private List<VideoDTO> buscaVideos(String chave) throws IOException {
-        String channelId = (String) paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
+        String channelId = paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
         
         if (StringUtil.isEmpty(channelId)){
             return Collections.emptyList();

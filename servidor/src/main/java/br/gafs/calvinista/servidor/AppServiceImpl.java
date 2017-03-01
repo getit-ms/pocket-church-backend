@@ -1532,7 +1532,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public String buscaURLAutenticacaoYouTube() throws IOException {
-        return googleService.getURLAutorizacaoYouTube();
+        return googleService.getURLAutorizacaoYouTube(sessaoBean.getChaveIgreja());
     }
 
     @Audit
@@ -1548,7 +1548,7 @@ public class AppServiceImpl implements AppService {
     @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void iniciaConfiguracaoYouTube(String code) {
         try {
-            googleService.saveCredentialsYouTube(code);
+            googleService.saveCredentialsYouTube(sessaoBean.getChaveIgreja(),code);
             
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
             config.setIdCanal(googleService.buscaIdCanal());
@@ -1576,7 +1576,7 @@ public class AppServiceImpl implements AppService {
     @Override
     public List<VideoDTO> buscaVideos() {
         try {
-            return googleService.buscaVideos();
+            return googleService.buscaVideos(sessaoBean.getChaveIgreja());
         } catch (IOException ex) {
             Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             return Collections.emptyList();
@@ -1854,7 +1854,7 @@ public class AppServiceImpl implements AppService {
                             DiaLeituraBiblica dia = daoService.findWith(QueryAdmin.DIA_PLANO.createSingle(igreja.getId(), plano.getId(), cal.getTime()));
                             if (dia != null && !StringUtil.isEmpty(dia.getDescricao())){
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev, plano.getId()),
-                                        titulo, dia.getDescricao(), TipoNotificacao.PLANO_LEITURA, true);
+                                        titulo, dia.getDescricao(), TipoNotificacao.PLANO_LEITURA, false);
                             }
                         }
                         
