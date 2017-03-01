@@ -8,20 +8,16 @@ package br.gafs.calvinista.app.controller;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.entity.Endereco;
 import br.gafs.calvinista.entity.Institucional;
-import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -51,6 +47,7 @@ public class InstituicaoController {
         for (Endereco endereco : institucional.getEnderecos()){
             enderecos.add(MergeUtil.merge(endereco, View.Edicao.class).into(new Endereco()));
         }
+        entidade.setEnderecos(enderecos);
         
         return Response.status(Response.Status.OK).entity(appService.atualiza(entidade)).build();
     }
