@@ -18,4 +18,5 @@ public enum TipoNotificacao {
     ANIVERSARIO, 
     PEDIDO_ORACAO,
     PLANO_LEITURA,
+    YOUTUBE,
 }

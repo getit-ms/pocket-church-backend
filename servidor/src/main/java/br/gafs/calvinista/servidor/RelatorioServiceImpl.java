@@ -13,6 +13,7 @@ import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache.Relatorio;
 import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
 import br.gafs.calvinista.servidor.relatorio.RelatorioHino;
 import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
@@ -27,6 +28,7 @@ import javax.interceptor.Interceptors;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import static org.bouncycastle.asn1.x509.X509ObjectIdentifiers.id;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -50,11 +52,10 @@ public class RelatorioServiceImpl implements RelatorioService {
     @Inject
     private SessaoBean sessaoBean;
 
-    private File export(ProcessamentoRelatorioCache.Relatorio relatorio, String type, Date timeout) throws IOException, InterruptedException {
+    private File export(ProcessamentoRelatorioCache.Relatorio relatorio, String type) throws IOException, InterruptedException {
         File file = ProcessamentoRelatorioCache.file(relatorio, type);
 
-        if (!file.exists() || file.lastModified() < timeout.getTime() ||
-                System.currentTimeMillis() - file.lastModified() > LIMITE_CACHE){
+        if (!file.exists() || System.currentTimeMillis() - file.lastModified() > LIMITE_CACHE){
             processamentoService.execute(new ProcessamentoRelatorioCache(relatorio, type));
         }
 
@@ -64,14 +65,7 @@ public class RelatorioServiceImpl implements RelatorioService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS})
     public File exportaInscritos(Long id, String tipo) throws IOException, InterruptedException {
-        Date ultimaInscricao = daoService.findWith(QueryAdmin.ULTIMA_INSCRICAO.createSingle(id, sessaoBean.getChaveIgreja()));
-        Evento entidade = appService.buscaEvento(id);
-
-        if (ultimaInscricao == null || ultimaInscricao.before(entidade.getUltimaAlteracao())){
-            ultimaInscricao = entidade.getUltimaAlteracao();
-        }
-
-        return export(new RelatorioInscritos(entidade), tipo, ultimaInscricao);
+        return export(new RelatorioInscritos(appService.buscaEvento(id)), tipo);
     }
 
     @Override
@@ -79,13 +73,12 @@ public class RelatorioServiceImpl implements RelatorioService {
         Hino entidade = appService.buscaHino(hino);
         return export(new RelatorioHino(
                 daoService.find(Igreja.class, sessaoBean.getChaveIgreja()),
-                entidade), tipo, entidade.getUltimaAlteracao());
+                entidade), tipo);
     }
 
     @Override
     public File exportaEstudo(Long estudo, String tipo) throws IOException, InterruptedException {
         Estudo entidade = appService.buscaEstudo(estudo);
-        return export(new RelatorioEstudo(
-                entidade), tipo, entidade.getUltimaAlteracao());
+        return export(new RelatorioEstudo(entidade), tipo);
     }
 }

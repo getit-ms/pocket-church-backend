@@ -1385,7 +1385,8 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VERSICULOS_DIARIOS)
     public void removeVersiculo(Long versiculoDiario) {
-        daoService.delete(VersiculoDiario.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), versiculoDiario));
+        VersiculoDiario entidade = buscaVersiculo(versiculoDiario);
+        daoService.delete(VersiculoDiario.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
     }
     
     @Override
@@ -1961,7 +1962,7 @@ public class AppServiceImpl implements AppService {
                                     texto = MensagemUtil.getMensagem("push.youtube.aovivo.message", igreja.getLocale(), video.getTitulo());
                                 }
                                 
-                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
+                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
                             }catch(Exception e){
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
                                 throw e;
@@ -2011,7 +2012,7 @@ public class AppServiceImpl implements AppService {
                                             video.getTitulo(), horario);
                                 }
                                 
-                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.ESTUDO, false);
+                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
                             }catch(Exception e){
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
                                 throw e;

@@ -22,12 +22,12 @@ public class FiltroLivroBiblia extends AbstractPaginatedFiltro<FiltroLivroBiblia
         
         StringBuilder query = new StringBuilder("from LivroBiblia lb, Igreja i where i.biblia = lb.biblia and i.chave = :igreja");
         Map<String, Object> args = new QueryParameters("igreja", igreja);
-        String orderBy = " order by lb.ordem";
+        String orderBy = " order by lb.testamento, lb.ordem";
         
         if (filtro.getUltimaAtualizacao() != null){
             query.append(" and lb.ultimaAtualizacao > :ultimaAtualizacao");
             args.put("ultimaAtualizacao", filtro.getUltimaAtualizacao());
-            orderBy = " order by lb.ultimaAtualizacao desc, lb.ordem";
+            orderBy = " order by lb.ultimaAtualizacao desc, lb.testamento, lb.ordem";
         }
         
         setArguments(args);
