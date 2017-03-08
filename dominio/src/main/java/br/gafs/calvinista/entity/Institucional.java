@@ -100,7 +100,7 @@ public class Institucional implements IEntity {
     private List<String> telefones = new ArrayList<String>();
     
     @NotNull
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(name = "rl_endereco_igreja",
             joinColumns = @JoinColumn(name = "chave_igreja"),
             inverseJoinColumns = @JoinColumn(name = "id_endereco", nullable = false))
