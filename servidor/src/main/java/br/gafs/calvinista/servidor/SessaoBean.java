@@ -82,7 +82,7 @@ public class SessaoBean implements Serializable {
             if (dispositivo != null){
                 admin = dispositivo.isAdministrativo();
             }
-        }else if (StringUtil.isEmpty(uuid) && !chaveDispositivo.startsWith(uuid)){
+        }else if (StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
             chaveDispositivo = UUID.randomUUID() + "@" + chaveIgreja;
         }
 
