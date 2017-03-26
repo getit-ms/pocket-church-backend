@@ -37,7 +37,7 @@ public class PDFToImageConverterUtil {
                 PDFRenderer renderer = new PDFRenderer(pdffile);
 
                 for (int i=0;i<numPags;i++){
-                    BufferedImage img = renderer.renderImage(i, 3, ImageType.ARGB);
+                    BufferedImage img = renderer.renderImage(i, 3, ImageType.RGB);
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ImageIO.write(img, "png", baos);
