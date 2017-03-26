@@ -26,4 +26,11 @@ public class MensagemPushDTO implements DTO, Cloneable {
     private String icon;
     private String sound;
     private Map<String, Object> customData = new HashMap<String, Object>();
+
+    @Override
+    public MensagemPushDTO clone() throws CloneNotSupportedException {
+        return (MensagemPushDTO) super.clone(); 
+    }
+    
+    
 }

@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class FiltroDispositivoNotificacaoDTO implements DTO {
+public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     @JsonView(Resumido.class)
     private List<Long> ministerios = new ArrayList<Long>();
     @JsonIgnore
@@ -80,4 +80,11 @@ public class FiltroDispositivoNotificacaoDTO implements DTO {
     public void proxima(){
         pagina++;
     }
+
+    @Override
+    public FiltroDispositivoNotificacaoDTO clone() throws CloneNotSupportedException {
+        return (FiltroDispositivoNotificacaoDTO) super.clone(); 
+    }
+    
+    
 }

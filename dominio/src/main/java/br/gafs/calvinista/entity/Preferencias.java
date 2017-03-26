@@ -131,7 +131,11 @@ public class Preferencias implements IEntity {
 
     public void copia(Preferencias outro){
         outro.setDesejaReceberVersiculosDiarios(desejaReceberVersiculosDiarios);
+        outro.setDesejaReceberLembreteLeitura(desejaReceberLembreteLeitura);
+        outro.setDesejaReceberNotificacoesVideos(desejaReceberNotificacoesVideos);
+        outro.setDadosDisponiveis(dadosDisponiveis);
         outro.setMinisteriosInteresse(ministeriosInteresse);
         outro.setHoraVersiculoDiario(horaVersiculoDiario);
+        outro.setHoraLembreteLeitura(horaLembreteLeitura);
     }
 }

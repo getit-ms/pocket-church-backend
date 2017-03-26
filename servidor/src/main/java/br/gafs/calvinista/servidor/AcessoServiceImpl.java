@@ -144,8 +144,12 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public void logout() {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
-        dispositivo.setMembro(null);
-        daoService.update(dispositivo);
+        
+        if (dispositivo != null){
+            dispositivo.setMembro(null);
+            daoService.update(dispositivo);
+        }
+        
         sessaoBean.logout();
     }
 

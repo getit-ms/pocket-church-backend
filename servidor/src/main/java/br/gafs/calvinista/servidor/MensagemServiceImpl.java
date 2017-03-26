@@ -22,6 +22,8 @@ import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.servidor.mensagem.AndroidNotificationService;
 import br.gafs.calvinista.servidor.mensagem.EmailService;
 import br.gafs.calvinista.servidor.mensagem.IOSNotificationService;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoNotificacaoAndroid;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoNotificacaoIOS;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -31,7 +33,6 @@ import br.gafs.util.email.EmailUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -52,13 +53,10 @@ public class MensagemServiceImpl implements MensagemService {
     private DAOService daoService;
     
     @EJB
-    private IOSNotificationService iOSNotificationService;
-    
-    @EJB
     private EmailService emailService;
     
     @EJB
-    private AndroidNotificationService androidNotificationService;
+    private ProcessamentoService processamentoService;
     
     private ObjectMapper om = new ObjectMapper();
     
@@ -83,55 +81,22 @@ public class MensagemServiceImpl implements MensagemService {
     private void sendPushNow(final NotificationSchedule notificacao){
         try{
             sendNow(notificacao, FiltroDispositivoNotificacaoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoNotificacaoDTO, MensagemPushDTO>() {
-                
+
                 @Override
                 public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
-                    daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
-                    
-                    BuscaPaginadaDTO<Object[]> dispositivos;
-                    try{
-                        filtro.setPagina(1);
-                        filtro.setTipo(TipoDispositivo.ANDROID);
-                        List<String> failures = new ArrayList<String>();
-                        do{
-                            dispositivos = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
-
-                            if (!dispositivos.isEmpty()){
-                                failures.addAll(androidNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
-                            }else{
-                                Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo Android para notificação " + t);
-                            }
-                            
-                            filtro.proxima();
-                        }while(dispositivos.isHasProxima());
-                        
-                        for (String fail : failures){
-                            daoService.execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
-                        }
-                    }catch(Exception e){
-                        Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo Android " + e.getMessage());
-                        e.printStackTrace();
+                    try {
+                        processamentoService.execute(new ProcessamentoNotificacaoAndroid(notificacao.getId(), filtro.clone(), t.clone()));
+                    } catch (Exception ex) {
+                        Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
-                    try{
-                        filtro.setPagina(1);
-                        filtro.setTipo(TipoDispositivo.IPHONE);
-                        do{
-                            dispositivos = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
-
-                            if (!dispositivos.isEmpty()){
-                                iOSNotificationService.pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
-                            }else{
-                                Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
-                            }
-
-                            filtro.proxima();
-                        }while(dispositivos.isHasProxima());
-                    }catch(Exception e){
-                        Logger.getLogger(MensagemServiceImpl.class.getName()).severe("Exceção durante o envio de notificações para dispositivo iOS " + e.getMessage());
-                        e.printStackTrace();
+                    try {
+                        processamentoService.execute(new ProcessamentoNotificacaoIOS(notificacao.getId(), filtro.clone(), t.clone()));
+                    } catch (Exception ex) {
+                        Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
+                
             });
         }catch(Exception e){
             e.printStackTrace();

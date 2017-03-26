@@ -22,6 +22,7 @@ import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -74,17 +75,15 @@ public class SessaoBean implements Serializable {
             }
         }
 
-        if (StringUtil.isEmpty(chaveDispositivo)){
-            String uuid = getUUID();
-            if (StringUtil.isEmpty(uuid)){
-                chaveDispositivo = "undefined@" + chaveIgreja;
-            }else{
-                chaveDispositivo = uuid + "@" + chaveIgreja;
-                Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
-                if (dispositivo != null){
-                    admin = dispositivo.isAdministrativo();
-                }
+        String uuid = getUUID();
+        if (StringUtil.isEmpty(chaveDispositivo) && !StringUtil.isEmpty(uuid)){
+            chaveDispositivo = uuid + "@" + chaveIgreja;
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+            if (dispositivo != null){
+                admin = dispositivo.isAdministrativo();
             }
+        }else if (StringUtil.isEmpty(uuid) && !chaveDispositivo.startsWith(uuid)){
+            chaveDispositivo = UUID.randomUUID() + "@" + chaveIgreja;
         }
 
         boolean deprecated = creation == null ||

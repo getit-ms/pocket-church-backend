@@ -39,14 +39,13 @@ public class ProcessamentoService {
 
     private final Pool pool = new Pool();
 
-    @PersistenceContext
-    private EntityManager em;
-
     @EJB
     private DAOService daoService;
+    
+    @Resource
+    private SessionContext sctx;
 
     @Context
-
     @Resource
     private UserTransaction ut;
 
@@ -109,6 +108,7 @@ public class ProcessamentoService {
     @RequiredArgsConstructor
     public class ProcessamentoTool {
         private final DAOService daoService;
+        private final SessionContext sessionContext;
         private int step = 1;
 
         protected boolean next(int total){
@@ -137,7 +137,7 @@ public class ProcessamentoService {
             int fails = 0;
 
             
-            ProcessamentoTool tool = new ProcessamentoTool(daoService);
+            ProcessamentoTool tool = new ProcessamentoTool(daoService, sctx);
 
             boolean fail;
             do{
