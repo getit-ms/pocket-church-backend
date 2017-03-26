@@ -223,7 +223,7 @@
                 <configuration>
                     <arguments>-Dmaven.deploy.skip=true</arguments>
                     <username>gafsel</username>
-                    <password>discador01</password>
+                    <password>cubomagico04</password>
                 </configuration>
             </plugin>
             <plugin>
