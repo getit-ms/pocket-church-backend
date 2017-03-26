@@ -38,14 +38,14 @@ public class ProcessamentoNotificacaoIOS implements ProcessamentoService.Process
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
         filtro.setTipo(TipoDispositivo.IPHONE);
         filtro.setPagina(tool.getStep());
-        
-        tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));
             
         BuscaPaginadaDTO<Object[]> dispositivos = tool.getDaoService().findWith(new FiltroDispositivoNotificacao(filtro));
 
         if (!dispositivos.isEmpty()){
             ((IOSNotificationService) tool.getSessionContext().lookup("ejb/IOSNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
+
+            tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));
         }else{
             Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
         }

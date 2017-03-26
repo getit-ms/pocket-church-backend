@@ -40,8 +40,6 @@ public class ProcessamentoNotificacaoAndroid implements ProcessamentoService.Pro
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
         filtro.setTipo(TipoDispositivo.ANDROID);
         filtro.setPagina(tool.getStep());
-        
-        tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));
             
         BuscaPaginadaDTO<Object[]> dispositivos = tool.getDaoService().findWith(new FiltroDispositivoNotificacao(filtro));
 
@@ -50,6 +48,8 @@ public class ProcessamentoNotificacaoAndroid implements ProcessamentoService.Pro
 
             failures.addAll(((AndroidNotificationService) tool.getSessionContext().lookup("ejb/AndroidNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
+
+            tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));
 
             for (String fail : failures){
                 tool.getDaoService().execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
