@@ -48,7 +48,7 @@ public class ProcessamentoNotificacaoAndroid implements ProcessamentoService.Pro
         if (!dispositivos.isEmpty()){
             List<String> failures = new ArrayList<String>();
 
-            failures.addAll(tool.getSessionContext().getBusinessObject(AndroidNotificationService.class).
+            failures.addAll(((AndroidNotificationService) tool.getSessionContext().lookup("ejb/AndroidNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
 
             for (String fail : failures){

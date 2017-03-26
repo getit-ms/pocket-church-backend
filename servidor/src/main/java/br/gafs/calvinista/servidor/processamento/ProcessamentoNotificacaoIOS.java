@@ -12,6 +12,7 @@ import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.servidor.MensagemServiceImpl;
 import br.gafs.calvinista.servidor.ProcessamentoService;
+import br.gafs.calvinista.servidor.mensagem.AndroidNotificationService;
 import br.gafs.calvinista.servidor.mensagem.IOSNotificationService;
 import br.gafs.dao.BuscaPaginadaDTO;
 import java.util.logging.Logger;
@@ -43,7 +44,7 @@ public class ProcessamentoNotificacaoIOS implements ProcessamentoService.Process
         BuscaPaginadaDTO<Object[]> dispositivos = tool.getDaoService().findWith(new FiltroDispositivoNotificacao(filtro));
 
         if (!dispositivos.isEmpty()){
-            tool.getSessionContext().getBusinessObject(IOSNotificationService.class).
+            ((IOSNotificationService) tool.getSessionContext().lookup("ejb/IOSNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
         }else{
             Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
