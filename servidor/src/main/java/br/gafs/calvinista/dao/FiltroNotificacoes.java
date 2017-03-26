@@ -38,7 +38,7 @@ public class FiltroNotificacoes extends AbstractPaginatedFiltro<FiltroNotificaco
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select sn.notification ").append(from).append(where).append(" group by sn.notification order by sn.notification.data desc").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
-                new StringBuilder("select count(distinct sn) ").append(where).toString(), args));
+                new StringBuilder("select count(distinct sn) ").append(from).append(where).toString(), args));
         setResultLimit(filtro.getTotal());
     }
 
