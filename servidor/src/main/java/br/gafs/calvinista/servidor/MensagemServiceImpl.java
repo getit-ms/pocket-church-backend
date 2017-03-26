@@ -85,13 +85,13 @@ public class MensagemServiceImpl implements MensagemService {
                 @Override
                 public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
                     try {
-                        processamentoService.execute(new ProcessamentoNotificacaoAndroid(notificacao.getId(), filtro.clone(), t.clone()));
+                        processamentoService.schedule(new ProcessamentoNotificacaoAndroid(notificacao.getId(), filtro.clone(), t.clone()));
                     } catch (Exception ex) {
                         Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
                     try {
-                        processamentoService.execute(new ProcessamentoNotificacaoIOS(notificacao.getId(), filtro.clone(), t.clone()));
+                        processamentoService.schedule(new ProcessamentoNotificacaoIOS(notificacao.getId(), filtro.clone(), t.clone()));
                     } catch (Exception ex) {
                         Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
