@@ -9,12 +9,14 @@ import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
+import br.gafs.calvinista.entity.NotificationSchedule;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.servidor.MensagemServiceImpl;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.mensagem.AndroidNotificationService;
 import br.gafs.calvinista.servidor.mensagem.IOSNotificationService;
 import br.gafs.dao.BuscaPaginadaDTO;
+import br.gafs.dao.DAOService;
 import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 
@@ -36,13 +38,23 @@ public class ProcessamentoNotificacaoIOS implements ProcessamentoService.Process
     
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
+        NotificationSchedule entidade;
+        do{
+            entidade = ((DAOService) tool.getSessionContext().
+                    lookup("java:global/calvinista-app/gafs-base-servidor/CrudServiceBean")).
+                    find(NotificationSchedule.class, notificacao);
+            if (entidade == null){
+                Thread.sleep(5000);
+            }
+        }while(entidade == null);
+        
         filtro.setTipo(TipoDispositivo.IPHONE);
         filtro.setPagina(tool.getStep());
             
         BuscaPaginadaDTO<Object[]> dispositivos = tool.getDaoService().findWith(new FiltroDispositivoNotificacao(filtro));
 
         if (!dispositivos.isEmpty()){
-            ((IOSNotificationService) tool.getSessionContext().lookup("ejb/IOSNotificationService")).
+            ((IOSNotificationService) tool.getSessionContext().lookup("java:global/calvinista-app/calvinista-servidor/IOSNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
 
             tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));

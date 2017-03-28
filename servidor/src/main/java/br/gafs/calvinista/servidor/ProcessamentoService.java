@@ -67,6 +67,7 @@ public class ProcessamentoService {
         }
     }
 
+    @Asynchronous
     public void schedule(Processamento processamento){
         try {
             Persister.save(processamento, processamento.getId());
@@ -143,7 +144,7 @@ public class ProcessamentoService {
             do{
                 fail = false;
                 try {
-                    LOGGER.log(Level.INFO, "Iniciando setp "+ tool.step +" de entity: " + processamento.getId());
+                    LOGGER.log(Level.INFO, "Iniciando step "+ tool.step +" de entity: " + processamento.getId());
                     
                     ut.begin();
                     total = processamento.step(tool);
@@ -153,6 +154,9 @@ public class ProcessamentoService {
 
                     try {
                         ut.rollback();
+                    } catch (Exception e1) {}
+                    
+                    try {
                         fails++;
                         if (fails >= LIMITE_FALHAS){
                             LOGGER.log(Level.SEVERE, "Processamento descartado por falhas: " + processamento.getId(), e);

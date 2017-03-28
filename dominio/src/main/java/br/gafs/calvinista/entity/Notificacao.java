@@ -16,6 +16,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,6 +49,11 @@ public class Notificacao implements IEntity {
 
     @Column(name = "apenas_membros", nullable = false, updatable = false)
     private boolean apenasMembros;
+    
+    @JsonIgnore
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "data", nullable = false, updatable = false)
+    private Date data = new Date();
     
     @ManyToMany
     @JoinTable(name = "rl_notificacao_ministerio_alvo",
