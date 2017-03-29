@@ -96,7 +96,7 @@ public class MensagemServiceImpl implements MensagemService {
                         Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
-                    daoService.execute(new RegisterSentNotifications(notificacao, filtro));
+                    daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
                 }
                 
             });
