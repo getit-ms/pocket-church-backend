@@ -95,6 +95,8 @@ public class MensagemServiceImpl implements MensagemService {
                     } catch (Exception ex) {
                         Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    
+                    daoService.execute(new RegisterSentNotifications(notificacao, filtro));
                 }
                 
             });

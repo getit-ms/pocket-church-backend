@@ -38,16 +38,6 @@ public class ProcessamentoNotificacaoIOS implements ProcessamentoService.Process
     
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-        NotificationSchedule entidade;
-        do{
-            entidade = ((DAOService) tool.getSessionContext().
-                    lookup("java:global/calvinista-app/gafs-base-servidor/CrudServiceBean")).
-                    find(NotificationSchedule.class, notificacao);
-            if (entidade == null){
-                Thread.sleep(5000);
-            }
-        }while(entidade == null);
-        
         filtro.setTipo(TipoDispositivo.IPHONE);
         filtro.setPagina(tool.getStep());
             
@@ -56,8 +46,6 @@ public class ProcessamentoNotificacaoIOS implements ProcessamentoService.Process
         if (!dispositivos.isEmpty()){
             ((IOSNotificationService) tool.getSessionContext().lookup("java:global/calvinista-app/calvinista-servidor/IOSNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados());
-
-            tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));
         }else{
             Logger.getLogger(MensagemServiceImpl.class.getName()).warning("Nenhum dispositivo iOS para notificação " + t);
         }

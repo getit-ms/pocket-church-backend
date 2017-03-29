@@ -136,7 +136,6 @@ public class ProcessamentoService {
         public void execute(Processamento processamento) {
             int total = 1;
             int fails = 0;
-
             
             ProcessamentoTool tool = new ProcessamentoTool(daoService, sctx);
 
@@ -144,7 +143,7 @@ public class ProcessamentoService {
             do{
                 fail = false;
                 try {
-                    LOGGER.log(Level.INFO, "Iniciando step "+ tool.step +" de entity: " + processamento.getId());
+                    LOGGER.log(Level.INFO, "Iniciando step "+ tool.step +" do processamento: " + processamento.getClass() + " - " + processamento.getId());
                     
                     ut.begin();
                     total = processamento.step(tool);
@@ -159,16 +158,16 @@ public class ProcessamentoService {
                     try {
                         fails++;
                         if (fails >= LIMITE_FALHAS){
-                            LOGGER.log(Level.SEVERE, "Processamento descartado por falhas: " + processamento.getId(), e);
+                            LOGGER.log(Level.SEVERE, "Processamento descartado por falhas: " + processamento.getClass() + " - " + processamento.getId(), e);
 
                             ut.begin();
                             processamento.dropped(tool);
                             ut.commit();
 
-                            Persister.remove(Processamento.class, processamento.getId());
+                            Persister.remove(processamento.getClass(), processamento.getId());
                             return;
                         }else{
-                            LOGGER.log(Level.SEVERE, "Processamento com erro: " + processamento.getId(), e);
+                            LOGGER.log(Level.SEVERE, "Processamento com erro: " + processamento.getClass() + " - " + processamento.getId(), e);
                             continue;
                         }
                     } catch (Exception e1) {
@@ -192,7 +191,7 @@ public class ProcessamentoService {
                 LOGGER.log(Level.SEVERE, "Erro ao finalizar entity: " + processamento.getId(), e);
             }
                         
-            Persister.remove(Processamento.class, processamento.getId());
+            Persister.remove(processamento.getClass(), processamento.getId());
         }
     }
 

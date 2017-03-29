@@ -40,19 +40,9 @@ public class ProcessamentoNotificacaoAndroid implements ProcessamentoService.Pro
     
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-        NotificationSchedule entidade;
-        do{
-            entidade = ((DAOService) tool.getSessionContext().
-                    lookup("java:global/calvinista-app/gafs-base-servidor/CrudServiceBean")).
-                    find(NotificationSchedule.class, notificacao);
-            if (entidade == null){
-                Thread.sleep(5000);
-            }
-        }while(entidade == null);
-        
         filtro.setTipo(TipoDispositivo.ANDROID);
         filtro.setPagina(tool.getStep());
-            
+
         BuscaPaginadaDTO<Object[]> dispositivos = tool.getDaoService().findWith(new FiltroDispositivoNotificacao(filtro));
 
         if (!dispositivos.isEmpty()){
@@ -60,8 +50,6 @@ public class ProcessamentoNotificacaoAndroid implements ProcessamentoService.Pro
 
             failures.addAll(((AndroidNotificationService) tool.getSessionContext().lookup("java:global/calvinista-app/calvinista-servidor/AndroidNotificationService")).
                     pushNotifications(filtro.getIgreja(), t, dispositivos.getResultados()));
-
-            tool.getDaoService().execute(new RegisterSentNotifications(notificacao, filtro));
 
             for (String fail : failures){
                 tool.getDaoService().execute(QueryAdmin.DESABILITA_DISPOSITIVO_BY_PUSHKEY.create(fail));
