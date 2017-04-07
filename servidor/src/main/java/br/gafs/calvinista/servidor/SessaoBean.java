@@ -76,13 +76,26 @@ public class SessaoBean implements Serializable {
         }
 
         String uuid = getUUID();
-        if (StringUtil.isEmpty(chaveDispositivo) && !StringUtil.isEmpty(uuid)){
+        if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
+            String oldCD = chaveDispositivo;
             chaveDispositivo = uuid + "@" + chaveIgreja;
             Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
             if (dispositivo != null){
                 admin = dispositivo.isAdministrativo();
             }
-        }else if (StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
+            if (!StringUtil.isEmpty(oldCD)){
+                daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
+              
+                Dispositivo old = daoService.find(Dispositivo.class, oldCD);
+                dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
+                daoService.update(dispositivo);
+                
+                if (dispositivo.isRegistrado()){
+                    daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
+                }
+            }
+
+        }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
             chaveDispositivo = UUID.randomUUID() + "@" + chaveIgreja;
         }
 

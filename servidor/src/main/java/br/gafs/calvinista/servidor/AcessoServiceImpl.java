@@ -74,6 +74,7 @@ public class AcessoServiceImpl implements AcessoService {
         Dispositivo dispositivo = dispositivo();
         dispositivo.registerToken(tipoDispositivo, pushKey, version);
         dispositivo = daoService.update(dispositivo);
+        daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
         sessaoBean.dispositivo(dispositivo.isAdministrativo());
     }
     

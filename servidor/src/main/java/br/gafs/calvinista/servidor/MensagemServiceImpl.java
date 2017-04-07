@@ -74,7 +74,7 @@ public class MensagemServiceImpl implements MensagemService {
     public void enviarMensagem(ContatoDTO contato) {
         EmailUtil.alertAdm(
                 MensagemUtil.getMensagem("email.contato.message", "pt-br", 
-                        contato.getMensagem(), contato.getNome(), contato.getEmail()),
+                        contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()),
                 MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()));
     }
     

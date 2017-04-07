@@ -16,6 +16,7 @@ import lombok.Data;
 public class ContatoDTO implements DTO {
     private String nome;
     private String email;
+    private String telefone;
     private String assunto;
     private String mensagem;
 }

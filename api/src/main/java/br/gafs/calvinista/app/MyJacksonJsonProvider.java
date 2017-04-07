@@ -117,6 +117,7 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
                 }
             }catch(Exception ex){
                 Logger.getLogger(MyJacksonJsonProvider.class.getName()).log(Level.SEVERE, null, ex);
+                return new Date();
             }
             
             return super.deserialize(jp, ctxt);

@@ -65,7 +65,9 @@ public enum QueryAcesso {
                     set("list", Funcionalidade.FUNCIONALIDADES_PUBLICAS); 
         }
         
-    };
+    }, 
+    MIGRA_SENT_NOTIFICATIONS("SentNotification.migraDispositivo", "oldDispositivo", "newDispositivo"), 
+    UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo");
     
     private final String query;
     private final String[] parameters;
@@ -86,7 +88,7 @@ public enum QueryAcesso {
                query, extractArguments(args), extractResultLimit(args));
    }
         
-   public Queries.SingleNamedQuery createSingle(Object... args){
+    public Queries.SingleNamedQuery createSingle(Object... args){
        return QueryUtil.create(Queries.SingleNamedQuery.class, 
                query, extractArguments(args));
    }
