@@ -6,6 +6,7 @@
 package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroEventoDTO;
+import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
@@ -22,8 +23,8 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
     public FiltroEvento(String igreja, boolean admin, FiltroEventoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Evento e where e.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
+        StringBuilder query = new StringBuilder("from Evento e where e.igreja.chave = :chaveIgreja and e.status = :status");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).set("status", StatusEvento.ATIVO);
 
         if (filtro.getTipo() != null){
             query.append(" and e.tipo = :tipo");

@@ -1278,15 +1278,9 @@ public class AppServiceImpl implements AppService {
     public void removeEvento(Long evento) {
         Evento entidade = buscaEvento(evento);
         
-        if (entidade != null){
-            Number count = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento));
-            if (count.intValue() > 0){
-                throw new ServiceException("mensagens.MSG-041");
-            }
-            
-            daoService.execute(QueryAdmin.DELETE_INSCRICOES.create(evento));
-            daoService.delete(Evento.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
-        }
+        entidade.inativo();
+        
+        daoService.update(entidade);
     }
     
     @Override

@@ -10,6 +10,6 @@ package br.gafs.calvinista.entity.domain;
  * @author Gabriel
  */
 public enum StatusEvento {
-    EM_EDICAO,
-    PUBLICADO
+    ATIVO,
+    INATIVO
 }

@@ -177,7 +177,6 @@ public enum QueryAdmin {
         }
         
     }, 
-    DELETE_INSCRICOES("InscricaoEvento.deleteByEvento", "idEvento"), 
     DESABILITA_DISPOSITIVO_BY_PUSHKEY("Dispositivo.desabilitaByPushkey", "pushkey"),
     RELEASE_NOTES("ReleaseNotes.findByTipo", "tipo"){
         @Override

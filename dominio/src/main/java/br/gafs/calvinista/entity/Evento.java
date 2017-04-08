@@ -6,6 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
@@ -58,6 +59,11 @@ public class Evento implements IEntity {
     @Column(name = "tipo")
     @Enumerated(EnumType.ORDINAL)
     private TipoEvento tipo = TipoEvento.EVENTO;
+
+    @NotNull
+    @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
+    private StatusEvento status = StatusEvento.ATIVO;
 
     @Transient
     private Integer vagasRestantes = 0;
@@ -145,6 +151,10 @@ public class Evento implements IEntity {
 
     public void alterado(){
         ultimaAlteracao = new Date();
+    }
+    
+    public void inativo(){
+        status = StatusEvento.INATIVO;
     }
     
 }
