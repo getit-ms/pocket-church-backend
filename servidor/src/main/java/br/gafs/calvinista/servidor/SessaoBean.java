@@ -53,7 +53,7 @@ public class SessaoBean implements Serializable {
     
     private boolean loaded;
     
-    private static final Set<String> creatings = new HashSet<String>();
+    private static final Set<String> DISPOSITIVOS_REGISTRANDO = new HashSet<String>();
     
     public void load(String authorization){
         Number creation = null;
@@ -92,24 +92,20 @@ public class SessaoBean implements Serializable {
             boolean processa = !StringUtil.isEmpty(oldCD);
             
             if (dispositivo == null){
-                boolean contains;
-                
-                synchronized (creatings){
-                    contains = creatings.contains(chaveDispositivo);
-                }
-                
-                if (!contains){
-                    dispositivo = createDispositivo(uuid);
+                synchronized (DISPOSITIVOS_REGISTRANDO){
+                    processa = !DISPOSITIVOS_REGISTRANDO.contains(chaveDispositivo);
                     
-                    synchronized (creatings){
-                        creatings.add(chaveDispositivo);
+                    if (processa){
+                        DISPOSITIVOS_REGISTRANDO.add(chaveDispositivo);
                     }
                 }
-            }else{
-                processa = false;
                 
-                synchronized (creatings){
-                    creatings.remove(dispositivo);
+                if (processa){
+                    dispositivo = createDispositivo(uuid);
+                }
+            }else{
+                synchronized (DISPOSITIVOS_REGISTRANDO){
+                    DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
                 }
             }
             
