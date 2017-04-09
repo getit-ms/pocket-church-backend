@@ -1,8 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
 package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
@@ -23,7 +23,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -50,7 +52,9 @@ public class SessaoBean implements Serializable {
     private List<Integer> funcionalidades;
     
     private boolean loaded;
-
+    
+    private static final Set<String> creatings = new HashSet<String>();
+    
     public void load(String authorization){
         Number creation = null;
         if (!StringUtil.isEmpty(authorization)){
@@ -68,29 +72,44 @@ public class SessaoBean implements Serializable {
                 throw new ServiceException("mensagens.MSG-403");
             }
         }
-
+        
         if (StringUtil.isEmpty(chaveIgreja)){
             chaveIgreja = get("Igreja");
-
+            
             if (StringUtil.isEmpty(chaveIgreja)){
                 throw new ServiceException("mensagens.MSG-403");
             }
         }
-
+        
         String uuid = getUUID();
         if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
             String oldCD = chaveDispositivo;
             
             chaveDispositivo = uuid + "@" + chaveIgreja;
+            
             Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
             
+            boolean processa = !StringUtil.isEmpty(oldCD);
+            
             if (dispositivo == null){
-                dispositivo = createDispositivo(uuid);
+                if (!creatings.contains(chaveDispositivo)){
+                    dispositivo = createDispositivo(uuid);
+                    
+                    synchronized (creatings){
+                        creatings.add(chaveDispositivo);
+                    }
+                }
+            }else{
+                processa = false;
+                
+                synchronized (creatings){
+                    creatings.remove(dispositivo);
+                }
             }
             
-            if (!StringUtil.isEmpty(oldCD)){
+            if (processa){
                 daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
-              
+                
                 Dispositivo old = daoService.find(Dispositivo.class, oldCD);
                 if (old != null){
                     dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
@@ -102,7 +121,7 @@ public class SessaoBean implements Serializable {
                         daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
                     }
                 }
-
+                
                 set();
             }
             
@@ -112,10 +131,10 @@ public class SessaoBean implements Serializable {
         }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
             createDispositivo(UUID.randomUUID().toString());
         }
-
+        
         boolean deprecated = creation == null ||
                 creation.longValue() + TIMEOUT < System.currentTimeMillis();
-
+        
         if (deprecated || funcionalidades == null){
             refreshFuncionalidades();
             set();
@@ -135,7 +154,7 @@ public class SessaoBean implements Serializable {
         preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(chaveIgreja)));
         return preferencias;
     }
-
+    
     private void load(){
         if (!loaded){
             loaded = true;
@@ -162,7 +181,7 @@ public class SessaoBean implements Serializable {
                 funcs = daoService.
                         findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO_APP.create(idMembro, chaveIgreja));
             }
-                                
+            
             for (Funcionalidade funcionalidade : funcs){
                 funcionalidades.add(funcionalidade.getCodigo());
             }
@@ -189,12 +208,12 @@ public class SessaoBean implements Serializable {
         }
         return head;
     }
-
+    
     public String getChaveDispositivo() {
         load();
         return chaveDispositivo;
     }
-
+    
     public String getChaveIgreja() {
         load();
         return chaveIgreja;
@@ -215,17 +234,17 @@ public class SessaoBean implements Serializable {
         }
         return funcs;
     }
-
+    
     public Long getIdMembro() {
         load();
         return idMembro;
     }
-
+    
     public Long getIdUsuario() {
         load();
         return idUsuario;
     }
-
+    
     public boolean isAdmin() {
         load();
         return admin;
@@ -236,7 +255,7 @@ public class SessaoBean implements Serializable {
         
         set();
     }
-
+    
     public void login(Long idMembro){
         this.idMembro = idMembro;
         this.refreshFuncionalidades();
@@ -257,7 +276,7 @@ public class SessaoBean implements Serializable {
         
         set();
     }
-
+    
     public String getUUID() {
         return get("Dispositivo");
     }
