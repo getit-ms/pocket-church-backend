@@ -92,7 +92,13 @@ public class SessaoBean implements Serializable {
             boolean processa = !StringUtil.isEmpty(oldCD);
             
             if (dispositivo == null){
-                if (!creatings.contains(chaveDispositivo)){
+                boolean contains;
+                
+                synchronized (creatings){
+                    contains = creatings.contains(chaveDispositivo);
+                }
+                
+                if (!contains){
                     dispositivo = createDispositivo(uuid);
                     
                     synchronized (creatings){
