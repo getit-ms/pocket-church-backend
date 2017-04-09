@@ -81,23 +81,15 @@ public class AcessoServiceImpl implements AcessoService {
     private Dispositivo dispositivo() {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
 
-        if (dispositivo == null){
-            Igreja igreja = daoService.find(Igreja.class, sessaoBean.getChaveIgreja());
-            dispositivo = daoService.update(new Dispositivo(sessaoBean.getUUID(), igreja));
-            daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
-        }
-        
         if (dispositivo.getMembro() == null && sessaoBean.getIdMembro() != null){
             dispositivo.setMembro(daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())));
+            dispositivo = daoService.update(dispositivo);
+        }else if (dispositivo.getMembro() != null && sessaoBean.getIdMembro() == null){
+            dispositivo.setMembro(null);
             dispositivo = daoService.update(dispositivo);
         }
         
         return dispositivo;
-    }
-    
-    private Preferencias preparaPreferencias(Preferencias preferencias){
-        preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja())));
-        return preferencias;
     }
 
     @Override

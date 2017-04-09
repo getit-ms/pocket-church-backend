@@ -7,6 +7,8 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.entity.Dispositivo;
+import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
@@ -78,25 +80,35 @@ public class SessaoBean implements Serializable {
         String uuid = getUUID();
         if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
             String oldCD = chaveDispositivo;
+            
             chaveDispositivo = uuid + "@" + chaveIgreja;
             Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
-            if (dispositivo != null){
-                admin = dispositivo.isAdministrativo();
+            
+            if (dispositivo == null){
+                dispositivo = createDispositivo(uuid);
             }
+            
             if (!StringUtil.isEmpty(oldCD)){
                 daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
               
                 Dispositivo old = daoService.find(Dispositivo.class, oldCD);
                 dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
+                dispositivo.setMembro(old.getMembro());
+                
                 daoService.update(dispositivo);
                 
                 if (dispositivo.isRegistrado()){
                     daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
                 }
+                
+                set();
             }
-
+            
+            if (dispositivo != null){
+                admin = dispositivo.isAdministrativo();
+            }
         }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
-            chaveDispositivo = UUID.randomUUID() + "@" + chaveIgreja;
+            createDispositivo(UUID.randomUUID().toString());
         }
 
         boolean deprecated = creation == null ||
@@ -106,6 +118,20 @@ public class SessaoBean implements Serializable {
             refreshFuncionalidades();
             set();
         }
+    }
+    
+    private Dispositivo createDispositivo(String uuid){
+        Dispositivo dispositivo = daoService.create(new Dispositivo(uuid, daoService.find(Igreja.class, chaveIgreja)));
+        daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
+        
+        chaveDispositivo = uuid + "@" + chaveIgreja;
+        
+        return dispositivo;
+    }
+    
+    private Preferencias preparaPreferencias(Preferencias preferencias){
+        preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(chaveIgreja)));
+        return preferencias;
     }
 
     private void load(){
