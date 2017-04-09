@@ -102,6 +102,11 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
             try{
                 String value = jp.getValueAsString();
                 if (!StringUtil.isEmpty(value)){
+                    if (!value.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}.{3,6}")){
+                        Logger.getLogger(MyJacksonJsonProvider.class.getName()).log(Level.SEVERE, "Data inválida: " + value);
+                        return new Date(0l);
+                    }
+                    
                     SimpleDateFormat sdf = new SimpleDateFormat();
                     sdf.setTimeZone(TimeZone.getDefault());
                     switch (type){

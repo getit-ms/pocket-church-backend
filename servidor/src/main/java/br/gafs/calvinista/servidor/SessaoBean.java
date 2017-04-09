@@ -92,15 +92,17 @@ public class SessaoBean implements Serializable {
                 daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
               
                 Dispositivo old = daoService.find(Dispositivo.class, oldCD);
-                dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
-                dispositivo.setMembro(old.getMembro());
-                
-                daoService.update(dispositivo);
-                
-                if (dispositivo.isRegistrado()){
-                    daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
+                if (old != null){
+                    dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
+                    dispositivo.setMembro(old.getMembro());
+                    
+                    daoService.update(dispositivo);
+                    
+                    if (dispositivo.isRegistrado()){
+                        daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
+                    }
                 }
-                
+
                 set();
             }
             
@@ -121,7 +123,7 @@ public class SessaoBean implements Serializable {
     }
     
     private Dispositivo createDispositivo(String uuid){
-        Dispositivo dispositivo = daoService.create(new Dispositivo(uuid, daoService.find(Igreja.class, chaveIgreja)));
+        Dispositivo dispositivo = daoService.update(new Dispositivo(uuid, daoService.find(Igreja.class, chaveIgreja)));
         daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
         
         chaveDispositivo = uuid + "@" + chaveIgreja;

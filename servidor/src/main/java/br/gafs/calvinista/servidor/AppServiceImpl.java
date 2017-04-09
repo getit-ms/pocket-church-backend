@@ -167,7 +167,9 @@ public class AppServiceImpl implements AppService {
                     create(sessaoBean.getChaveDispositivo()));
             for (SentNotification sn : sns){
                 sn.lido();
-                daoService.update(sn);
+                synchronized (AppServiceImpl.class){
+                    daoService.update(sn);
+                }
             }
         }
         
@@ -176,7 +178,9 @@ public class AppServiceImpl implements AppService {
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             for (SentNotification sn : sns){
                 sn.lido();
-                daoService.update(sn);
+                synchronized (AppServiceImpl.class){
+                    daoService.update(sn);
+                }
             }
         }
     }
