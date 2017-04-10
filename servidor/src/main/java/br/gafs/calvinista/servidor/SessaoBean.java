@@ -129,7 +129,7 @@ public class SessaoBean implements Serializable {
                 }
             }
             
-            if (dispositivo != null){
+            if (dispositivo != null && admin != dispositivo.isAdministrativo()){
                 admin = dispositivo.isAdministrativo();
                 set();
             }
