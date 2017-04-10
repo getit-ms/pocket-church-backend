@@ -85,19 +85,19 @@ public class SessaoBean implements Serializable {
         if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
             String oldCD = chaveDispositivo;
             
-            chaveDispositivo = uuid + "@" + chaveIgreja;
+            String newCD = uuid + "@" + chaveIgreja;
             
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
             
             if (!StringUtil.isEmpty(oldCD)){
                 boolean processa = true;
 
                 if (dispositivo == null){
                     synchronized (DISPOSITIVOS_REGISTRANDO){
-                        processa = !DISPOSITIVOS_REGISTRANDO.contains(chaveDispositivo);
+                        processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
 
                         if (processa){
-                            DISPOSITIVOS_REGISTRANDO.add(chaveDispositivo);
+                            DISPOSITIVOS_REGISTRANDO.add(newCD);
                         }
                     }
 
@@ -111,7 +111,7 @@ public class SessaoBean implements Serializable {
                 }
                 
                 if (processa){
-                    daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
+                    daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
 
                     Dispositivo old = daoService.find(Dispositivo.class, oldCD);
                     if (old != null){
@@ -121,7 +121,7 @@ public class SessaoBean implements Serializable {
                         daoService.update(dispositivo);
 
                         if (dispositivo.isRegistrado()){
-                            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
+                            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
                         }
                     }
 
@@ -131,6 +131,7 @@ public class SessaoBean implements Serializable {
             
             if (dispositivo != null){
                 admin = dispositivo.isAdministrativo();
+                set();
             }
         }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
             createDispositivo(UUID.randomUUID().toString());
