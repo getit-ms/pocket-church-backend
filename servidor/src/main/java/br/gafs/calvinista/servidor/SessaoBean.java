@@ -89,42 +89,44 @@ public class SessaoBean implements Serializable {
             
             Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
             
-            boolean processa = !StringUtil.isEmpty(oldCD);
-            
-            if (dispositivo == null){
-                synchronized (DISPOSITIVOS_REGISTRANDO){
-                    processa = !DISPOSITIVOS_REGISTRANDO.contains(chaveDispositivo);
-                    
+            if (!StringUtil.isEmpty(oldCD)){
+                boolean processa = true;
+
+                if (dispositivo == null){
+                    synchronized (DISPOSITIVOS_REGISTRANDO){
+                        processa = !DISPOSITIVOS_REGISTRANDO.contains(chaveDispositivo);
+
+                        if (processa){
+                            DISPOSITIVOS_REGISTRANDO.add(chaveDispositivo);
+                        }
+                    }
+
                     if (processa){
-                        DISPOSITIVOS_REGISTRANDO.add(chaveDispositivo);
+                        dispositivo = createDispositivo(uuid);
+                    }
+                }else{
+                    synchronized (DISPOSITIVOS_REGISTRANDO){
+                        DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
                     }
                 }
                 
                 if (processa){
-                    dispositivo = createDispositivo(uuid);
-                }
-            }else{
-                synchronized (DISPOSITIVOS_REGISTRANDO){
-                    DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
-                }
-            }
-            
-            if (processa){
-                daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
-                
-                Dispositivo old = daoService.find(Dispositivo.class, oldCD);
-                if (old != null){
-                    dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
-                    dispositivo.setMembro(old.getMembro());
-                    
-                    daoService.update(dispositivo);
-                    
-                    if (dispositivo.isRegistrado()){
-                        daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
+                    daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, chaveDispositivo));
+
+                    Dispositivo old = daoService.find(Dispositivo.class, oldCD);
+                    if (old != null){
+                        dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
+                        dispositivo.setMembro(old.getMembro());
+
+                        daoService.update(dispositivo);
+
+                        if (dispositivo.isRegistrado()){
+                            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), chaveDispositivo));
+                        }
                     }
+
+                    set();
                 }
-                
-                set();
             }
             
             if (dispositivo != null){
