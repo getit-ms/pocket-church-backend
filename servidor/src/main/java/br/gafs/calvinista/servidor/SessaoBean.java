@@ -127,6 +127,8 @@ public class SessaoBean implements Serializable {
 
                     set();
                 }
+            }else{
+                chaveDispositivo = newCD;
             }
             
             if (dispositivo != null && admin != dispositivo.isAdministrativo()){
