@@ -89,27 +89,27 @@ public class SessaoBean implements Serializable {
             
             Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
             
-            if (!StringUtil.isEmpty(oldCD)){
-                boolean processa = true;
+            boolean processa = true;
 
-                if (dispositivo == null){
-                    synchronized (DISPOSITIVOS_REGISTRANDO){
-                        processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
-
-                        if (processa){
-                            DISPOSITIVOS_REGISTRANDO.add(newCD);
-                        }
-                    }
+            if (dispositivo == null){
+                synchronized (DISPOSITIVOS_REGISTRANDO){
+                    processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
 
                     if (processa){
-                        dispositivo = createDispositivo(uuid);
-                    }
-                }else{
-                    synchronized (DISPOSITIVOS_REGISTRANDO){
-                        DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
+                        DISPOSITIVOS_REGISTRANDO.add(newCD);
                     }
                 }
-                
+
+                if (processa){
+                    dispositivo = createDispositivo(uuid);
+                }
+            }else{
+                synchronized (DISPOSITIVOS_REGISTRANDO){
+                    DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
+                }
+            }
+            
+            if (!StringUtil.isEmpty(oldCD)){
                 if (processa){
                     daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
 
