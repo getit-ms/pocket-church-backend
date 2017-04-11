@@ -164,7 +164,7 @@ public class AppServiceImpl implements AppService {
     private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
     private static List<RegistroIgrejaId> MEMBROS_LIDOS = new ArrayList<RegistroIgrejaId>();
     
-    @Schedule(hour = "*", minute = "0/5")
+    @Schedule(hour = "*", minute = "*", second = "0/20")
     public void flushNotificacoesLidas(){
         {
             Set<String> flush = new HashSet<String>();
