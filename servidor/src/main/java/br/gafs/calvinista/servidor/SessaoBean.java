@@ -104,6 +104,7 @@ public class SessaoBean implements Serializable {
                     dispositivo = createDispositivo(uuid);
                 }
             }else{
+                chaveDispositivo = newCD;
                 synchronized (DISPOSITIVOS_REGISTRANDO){
                     DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
                 }
@@ -126,6 +127,8 @@ public class SessaoBean implements Serializable {
                     }
 
                     set();
+                }else{
+                    chaveDispositivo = oldCD;
                 }
             }else{
                 chaveDispositivo = newCD;
