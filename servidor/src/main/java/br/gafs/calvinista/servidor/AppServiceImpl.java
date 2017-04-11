@@ -161,40 +161,56 @@ public class AppServiceImpl implements AppService {
         }
     }
     
-    private static List<SentNotificationId> NOTIFICACOES_LIDAS = new ArrayList<SentNotificationId>();
+    private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
+    private static List<RegistroIgrejaId> MEMBROS_LIDOS = new ArrayList<RegistroIgrejaId>();
     
     @Schedule(hour = "*", minute = "0/5")
     public void flushNotificacoesLidas(){
-        Set<SentNotificationId> flush = new HashSet<SentNotificationId>();
-        synchronized (NOTIFICACOES_LIDAS){
-            flush.addAll(NOTIFICACOES_LIDAS);
-        }
-        
-        for (SentNotificationId id : flush){
-            SentNotification sn = daoService.find(SentNotification.class, id);
-            sn.lido();
-            daoService.update(sn);
-        }
-    }
-    
-    public void marcaNotificacoesComoLidas() {
         {
-            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
-                    create(sessaoBean.getChaveDispositivo()));
-            for (SentNotification sn : sns){
-                synchronized (NOTIFICACOES_LIDAS){
-                    NOTIFICACOES_LIDAS.add(sn.getId());
+            Set<String> flush = new HashSet<String>();
+            synchronized (DISPOSITIVOS_LIDOS){
+                flush.addAll(DISPOSITIVOS_LIDOS);
+                DISPOSITIVOS_LIDOS.clear();
+            }
+            
+
+            for (String dispositivo : flush){
+                List<SentNotification> sns = daoService.findWith(QueryNotificacao.
+                        NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.create(dispositivo));
+                for (SentNotification sn : sns){
+                    sn.lido();
+                    daoService.update(sn);
                 }
             }
         }
         
-        if (sessaoBean.getIdMembro() != null){
-            List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
-                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-            for (SentNotification sn : sns){
-                synchronized (NOTIFICACOES_LIDAS){
-                    NOTIFICACOES_LIDAS.add(sn.getId());
+        {
+            Set<RegistroIgrejaId> flush = new HashSet<RegistroIgrejaId>();
+            synchronized (MEMBROS_LIDOS){
+                flush.addAll(MEMBROS_LIDOS);
+                MEMBROS_LIDOS.clear();
+            }
+            
+
+            for (RegistroIgrejaId membro : flush){
+                List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
+                        create(membro.getChaveIgreja(), membro.getId()));
+                for (SentNotification sn : sns){
+                    sn.lido();
+                    daoService.update(sn);
                 }
+            }
+        }
+    }
+    
+    public void marcaNotificacoesComoLidas() {
+        synchronized (DISPOSITIVOS_LIDOS){
+            DISPOSITIVOS_LIDOS.add(sessaoBean.getChaveDispositivo());
+        }
+        
+        if (sessaoBean.getIdMembro() != null){
+            synchronized (MEMBROS_LIDOS){
+                MEMBROS_LIDOS.add(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             }
         }
     }
