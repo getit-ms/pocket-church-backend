@@ -161,14 +161,29 @@ public class AppServiceImpl implements AppService {
         }
     }
     
+    private static List<SentNotificationId> NOTIFICACOES_LIDAS = new ArrayList<SentNotificationId>();
+    
+    @Schedule(hour = "*", minute = "0/5")
+    public void flushNotificacoesLidas(){
+        Set<SentNotificationId> flush = new HashSet<SentNotificationId>();
+        synchronized (NOTIFICACOES_LIDAS){
+            flush.addAll(NOTIFICACOES_LIDAS);
+        }
+        
+        for (SentNotificationId id : flush){
+            SentNotification sn = daoService.find(SentNotification.class, id);
+            sn.lido();
+            daoService.update(sn);
+        }
+    }
+    
     public void marcaNotificacoesComoLidas() {
         {
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
                     create(sessaoBean.getChaveDispositivo()));
             for (SentNotification sn : sns){
-                sn.lido();
-                synchronized (AppServiceImpl.class){
-                    daoService.update(sn);
+                synchronized (NOTIFICACOES_LIDAS){
+                    NOTIFICACOES_LIDAS.add(sn.getId());
                 }
             }
         }
@@ -177,9 +192,8 @@ public class AppServiceImpl implements AppService {
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             for (SentNotification sn : sns){
-                sn.lido();
-                synchronized (AppServiceImpl.class){
-                    daoService.update(sn);
+                synchronized (NOTIFICACOES_LIDAS){
+                    NOTIFICACOES_LIDAS.add(sn.getId());
                 }
             }
         }
