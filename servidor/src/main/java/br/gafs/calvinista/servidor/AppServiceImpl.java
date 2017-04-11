@@ -120,12 +120,30 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
         BuscaPaginadaDTO<NotificationSchedule> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(),
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
-        marcaNotificacoesComoLidas();
+        
+        if (filtro.getPagina().equals(1)){
+            marcaNotificacoesComoLidas();
+        }
+        
         return busca;
     }
     
     @Override
     public Long countNotificacoesNaoLidas() {
+        synchronized (DISPOSITIVOS_LIDOS){
+            if (DISPOSITIVOS_LIDOS.contains(sessaoBean.getChaveDispositivo())){
+                return 0l;
+            }
+        }
+        
+        if (sessaoBean.getIdMembro() != null){
+            synchronized (MEMBROS_LIDOS){
+                if (MEMBROS_LIDOS.contains(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))){
+                    return 0l;
+                }
+            }
+        }
+        
         return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS.
                 createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
                         sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
@@ -164,7 +182,7 @@ public class AppServiceImpl implements AppService {
     private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
     private static List<RegistroIgrejaId> MEMBROS_LIDOS = new ArrayList<RegistroIgrejaId>();
     
-    @Schedule(hour = "*", minute = "*", second = "0/20")
+    @Schedule(hour = "*", minute = "0/5")
     public void flushNotificacoesLidas(){
         {
             Set<String> flush = new HashSet<String>();
