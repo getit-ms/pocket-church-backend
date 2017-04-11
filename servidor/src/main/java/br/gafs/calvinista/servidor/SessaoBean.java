@@ -36,7 +36,7 @@ import java.util.UUID;
 @RequestScoped
 public class SessaoBean implements Serializable {
     
-    private final long TIMEOUT = 3 * DateUtil.MILESIMOS_POR_DIA;
+    private static final long TIMEOUT = 3 * DateUtil.MILESIMOS_POR_DIA;
     
     @Inject
     private SessionDataManager manager;
