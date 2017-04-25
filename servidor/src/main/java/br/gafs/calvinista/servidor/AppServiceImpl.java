@@ -1766,6 +1766,8 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
     public LeituraBibliaDTO marcaLeitura(Long dia) {
+        if (dia == null) return null;
+        
         MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
                 createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
         
