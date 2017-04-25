@@ -219,7 +219,7 @@ public class SessaoBean implements Serializable {
         return head;
     }
     
-    public String getChaveDispositivo() {
+    public String getChaveDispositivo() {   
         load();
         return chaveDispositivo;
     }

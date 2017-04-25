@@ -26,16 +26,23 @@ import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.dao.DAOService;
+import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.senha.SenhaUtil;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  *
@@ -68,14 +75,50 @@ public class AcessoServiceImpl implements AcessoService {
         throw new ServiceException("mensagens.MSG-600");
     }
 
+    private final static List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
+    
     @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        Dispositivo dispositivo = dispositivo();
-        dispositivo.registerToken(tipoDispositivo, pushKey, version);
-        dispositivo = daoService.update(dispositivo);
-        daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
-        sessaoBean.dispositivo(dispositivo.isAdministrativo());
+        synchronized (REGISTER_DEVICES){
+            REGISTER_DEVICES.add(new RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
+        }
+    }
+    
+    @Getter
+    @AllArgsConstructor
+    @EqualsAndHashCode(of = "dispositivo")
+    static class RegisterPushDTO implements DTO {
+        private String dispositivo;
+        private TipoDispositivo tipo;
+        private String pushkey;
+        private String version;
+    }
+    
+    @Schedule(hour = "*", minute = "0/5")
+    public void doRegisterPush(){
+        List<RegisterPushDTO> register = new ArrayList<RegisterPushDTO>();
+        synchronized (REGISTER_DEVICES){
+            register.addAll(REGISTER_DEVICES);
+        }
+        Iterator<RegisterPushDTO> iterator = register.iterator();
+        
+        while (iterator.hasNext()){
+            RegisterPushDTO dto = iterator.next();
+            
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, dto.getDispositivo());
+
+            if (dispositivo != null){
+                dispositivo.registerToken(dto.getTipo(), dto.getPushkey(), dto.getVersion());
+                dispositivo = daoService.update(dispositivo);
+                daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
+            }else{
+                iterator.remove();
+            }
+        }
+        synchronized (REGISTER_DEVICES){
+            REGISTER_DEVICES.removeAll(register);
+        }
     }
     
     private Dispositivo dispositivo() {

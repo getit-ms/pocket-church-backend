@@ -23,4 +23,13 @@ public class FiltroLivroBibliaDTO implements DTO {
     private Integer pagina;
     private Integer total;
     
+    public void setUltimaAtualizacao(Date ultimaAtualizacao){
+        if (ultimaAtualizacao != null &&
+                ultimaAtualizacao.getTime() > System.currentTimeMillis()){
+            this.ultimaAtualizacao = new Date();
+        }else{
+            this.ultimaAtualizacao = ultimaAtualizacao;
+        }
+    }
+    
 }

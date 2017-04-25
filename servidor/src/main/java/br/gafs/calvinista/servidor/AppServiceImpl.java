@@ -661,7 +661,9 @@ public class AppServiceImpl implements AppService {
             if (pdf.getId() != null){
                 ArquivoPDF old = daoService.find(pdf.getClass(), new RegistroIgrejaId(sessaoBean.getChaveIgreja(), pdf.getId()));
                 arquivoService.registraDesuso(old.getPDF().getId());
-                arquivoService.registraDesuso(old.getThumbnail().getId());
+                if (old.getThumbnail() != null){
+                    arquivoService.registraDesuso(old.getThumbnail().getId());
+                }
                 
                 List<Arquivo> pages = new ArrayList<Arquivo>(old.getPaginas());
                 old.getPaginas().clear();
@@ -1708,6 +1710,8 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total) {
         if (ultimaAlteracao == null){
             ultimaAlteracao = DateUtil.getDataZero();
+        }else if (ultimaAlteracao.getTime() > System.currentTimeMillis()){
+            ultimaAlteracao = new Date();
         }
         
         BuscaPaginadaDTO<LeituraBibliaDTO> busca = daoService.findWith(QueryAdmin.
