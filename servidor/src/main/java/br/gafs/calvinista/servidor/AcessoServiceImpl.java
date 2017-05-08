@@ -194,7 +194,7 @@ public class AcessoServiceImpl implements AcessoService {
     public Membro refreshLogin() {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
         if (membro != null && membro.isMembro()){
-            sessaoBean.login(membro.getId());
+            sessaoBean.login(membro.getId(), sessaoBean.isAdmin());
             return membro;
         }
         
@@ -215,7 +215,7 @@ public class AcessoServiceImpl implements AcessoService {
     
     @Audit
     @Override
-    public Membro login(String username, String password){
+    public Membro login(String username, String password, TipoDispositivo tipo, String version){
         Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
         
         if (membro != null && membro.isMembro()){
@@ -223,7 +223,9 @@ public class AcessoServiceImpl implements AcessoService {
             dispositivo.setMembro(membro);
             daoService.update(dispositivo);
             
-            sessaoBean.login(membro.getId());
+            registerPush(tipo, null, version);
+            
+            sessaoBean.login(membro.getId(), TipoDispositivo.PC.equals(tipo));
             return membro;
         }
         

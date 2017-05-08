@@ -19,7 +19,7 @@ import java.util.List;
  * @author Gabriel
  */
 public interface AcessoService extends Serializable {
-    Membro login(String username, String password);
+    Membro login(String username, String password, TipoDispositivo tipo, String version);
     Usuario admin(String username, String password);
     Membro refreshLogin();
     Usuario refreshAdmin();

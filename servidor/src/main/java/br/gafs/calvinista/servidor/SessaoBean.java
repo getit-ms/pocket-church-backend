@@ -10,6 +10,7 @@ import br.gafs.calvinista.entity.Dispositivo;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.dao.DAOService;
@@ -266,8 +267,10 @@ public class SessaoBean implements Serializable {
         set();
     }
     
-    public void login(Long idMembro){
+    public void login(Long idMembro, boolean admin){
         this.idMembro = idMembro;
+        this.admin = admin;
+        
         this.refreshFuncionalidades();
         
         set();

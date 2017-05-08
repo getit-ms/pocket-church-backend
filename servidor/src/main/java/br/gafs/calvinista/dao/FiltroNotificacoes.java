@@ -20,17 +20,16 @@ public class FiltroNotificacoes extends AbstractPaginatedFiltro<FiltroNotificaco
     public FiltroNotificacoes(String igreja, String dispositivo, Long membro, FiltroNotificacoesDTO filtro) {
         super(filtro);
         
-        StringBuilder from = new StringBuilder("from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d");
+        StringBuilder from = new StringBuilder("from SentNotification sn inner join sn.igreja i left join sn.membro m inner join sn.dispositivo d");
         StringBuilder where = new StringBuilder(" where i.chave = :igreja");
         Map<String, Object> args = new QueryParameters("igreja", igreja);
         
         if (membro != null){
-            from.append(" left join sn.membro m");
             where.append(" and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)");
             args.put("dispositivo", dispositivo);
             args.put("membro", membro);
         }else{
-            where.append(" and d.chave = :dispositivo and sn.membro.id is null");
+            where.append(" and d.chave = :dispositivo and m.id is null");
             args.put("dispositivo", dispositivo);
         }
         
