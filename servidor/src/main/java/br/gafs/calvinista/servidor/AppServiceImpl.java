@@ -565,7 +565,8 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
     public void removePerfil(Long perfil) {
-        daoService.delete(Perfil.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), perfil));
+        Perfil entidade = buscaPerfil(perfil);
+        daoService.delete(Perfil.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
     }
     
     @Override
