@@ -1716,7 +1716,8 @@ public class AppServiceImpl implements AppService {
         }
         
         BuscaPaginadaDTO<LeituraBibliaDTO> busca = daoService.findWith(QueryAdmin.
-                LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), ultimaAlteracao, total));
+                LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(), 
+                        sessaoBean.getIdMembro(), new Date(ultimaAlteracao.getTime() + 1), total));
         
         for (LeituraBibliaDTO leitura : busca.getResultados()){
             leitura.setLido((MarcacaoLeituraBiblica) daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.

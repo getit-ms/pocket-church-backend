@@ -24,12 +24,12 @@ public class FiltroHinoDTO implements DTO {
     private Integer pagina;
     private Integer total;
     
-    public void setUltimaAtualizacao(Date ultimaAtualizacao){
+    public Date getUltimaAtualizacao(){
         if (ultimaAtualizacao != null &&
                 ultimaAtualizacao.getTime() > System.currentTimeMillis()){
             this.ultimaAtualizacao = new Date();
-        }else{
-            this.ultimaAtualizacao = ultimaAtualizacao;
         }
+        
+        return this.ultimaAtualizacao;
     }
 }

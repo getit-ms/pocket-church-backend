@@ -10,6 +10,7 @@ import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.string.StringUtil;
+import java.util.Date;
 
 import java.util.Map;
 
@@ -32,8 +33,8 @@ public class FiltroHino extends AbstractPaginatedFiltro<FiltroHinoDTO> {
         }
 
         if (filtro.getUltimaAtualizacao() != null){
-            query.append(" and h.ultimaAlteracao > :ultimaAlteracao");
-            args.put("ultimaAlteracao", filtro.getUltimaAtualizacao());
+            query.append(" and h.ultimaAlteracao >= :ultimaAlteracao");
+            args.put("ultimaAlteracao", new Date(filtro.getUltimaAtualizacao().getTime() + 1));
             orderBy = " order by h.ultimaAlteracao desc, h.numero, h.nome";
         }
 
