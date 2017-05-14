@@ -102,30 +102,39 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
             try{
                 String value = jp.getValueAsString();
                 if (!StringUtil.isEmpty(value)){
-                    if (!value.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}.{1,6}")){
-                        Logger.getLogger(MyJacksonJsonProvider.class.getName()).log(Level.SEVERE, "Data inválida: " + value);
-                        return new Date(0l);
+                    SimpleDateFormat sdf = new SimpleDateFormat();
+                    sdf.applyPattern(DATE_FORMAT);
+                    
+                    if (value.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}.{1,6}")){
+                        sdf.setTimeZone(TimeZone.getDefault());
+                        switch (type){
+                            case DATE:{
+                                sdf.applyPattern("yyyy-MM-dd");
+                                return sdf.parse(value.substring(0, 10));
+                            }
+                            case TIME:{
+                                sdf.applyPattern("HH:mm:ss.SSSXX");
+                                return sdf.parse(value.substring(11, 16));
+                            }
+                        }
+                        
+                        return sdf.parse(value);
+                    }else if (value.matches("\\d{4}-\\d{2}-\\d{2}")){
+                        sdf.applyPattern("yyyy-MM-dd");
+                        return sdf.parse(value);
+                    }else if (value.matches("\\d{2}:\\d{2}:\\d{2}.\\d{3}.{1,6}")){
+                        sdf.applyPattern("HH:mm:ss.SSSXX");
+                        return sdf.parse(value);
                     }
                     
-                    SimpleDateFormat sdf = new SimpleDateFormat();
-                    sdf.setTimeZone(TimeZone.getDefault());
-                    switch (type){
-                        case DATE:{
-                            sdf.applyPattern("yyyy-MM-dd");
-                            return sdf.parse(value.substring(0, 10));
-                        }
-                        case TIME:{
-                            sdf.applyPattern("HH:mm:ss.SSS");
-                            return sdf.parse(value.substring(11, 16));
-                        }
-                    }
+                    throw new RuntimeException("Não foi possível processar a requisição.");
                 }
             }catch(Exception ex){
                 Logger.getLogger(MyJacksonJsonProvider.class.getName()).log(Level.SEVERE, null, ex);
-                return new Date();
+                throw new RuntimeException("Não foi possível processar a requisição.");
             }
             
-            return super.deserialize(jp, ctxt);
+            return null;
         }
     }
     
@@ -155,9 +164,11 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
 
         @Override
         public void serialize(Date value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            sdf.applyPattern(DATE_FORMAT);
+            
             try{
                 if (value != null){
-                    SimpleDateFormat sdf = new SimpleDateFormat();
                     sdf.setTimeZone(TimeZone.getDefault());
                     switch (type){
                         case DATE:{
@@ -166,17 +177,18 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
                             return;
                         }
                         case TIME:{
-                            sdf.applyPattern("HH:mm:ss.SSS");
+                            sdf.applyPattern("HH:mm:ss.SSSXX");
                             gen.writeString(sdf.format(value));
                             return;
                         }
                     }
+                    
                 }
             }catch(Exception ex){
                 Logger.getLogger(MyJacksonJsonProvider.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            super.serialize(value, gen, provider);
+
+            gen.writeString(sdf.format(value));
         }
     }
 }
