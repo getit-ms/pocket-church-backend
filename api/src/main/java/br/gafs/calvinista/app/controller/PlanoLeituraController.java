@@ -82,12 +82,12 @@ public class PlanoLeituraController {
     @Path("leitura")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaLeituraSelecionada(
-            @QueryParam("ultimaAlteracao") String ultimaAlteracao,
+            @QueryParam("ultimaAtualizacao") String ultimaAtualizacao,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("total") @DefaultValue("10") Integer total){
         return Response.status(Response.Status.OK).entity(appService.buscaPlanoSelecionado(
-                StringUtil.isEmpty(ultimaAlteracao) ? null :
-                        DateUtil.parseData(ultimaAlteracao, MyJacksonJsonProvider.DATE_FORMAT),
+                StringUtil.isEmpty(ultimaAtualizacao) ? null :
+                        DateUtil.parseData(ultimaAtualizacao, MyJacksonJsonProvider.DATE_FORMAT),
                 pagina, total)).build();
     }
     
