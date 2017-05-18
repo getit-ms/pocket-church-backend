@@ -1774,12 +1774,18 @@ public class AppServiceImpl implements AppService {
                 createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
         
         if (marcacao == null){
-            marcacao = daoService.create(new MarcacaoLeituraBiblica(
-                    daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
-                    daoService.find(DiaLeituraBiblica.class, dia)));
+            DiaLeituraBiblica diaLeitura = daoService.find(DiaLeituraBiblica.class, dia);
+            
+            if (diaLeitura != null){
+                marcacao = daoService.create(new MarcacaoLeituraBiblica(
+                        daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
+                        diaLeitura));
+                
+                return new LeituraBibliaDTO(marcacao.getDia(), true);
+            }
         }
         
-        return new LeituraBibliaDTO(marcacao.getDia(), true);
+        return null;
     }
     
     
