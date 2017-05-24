@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.Asynchronous;
 
 /**
  *
@@ -35,10 +36,12 @@ public class IOSNotificationService implements Serializable {
     @EJB
     private ParametroService paramService;
     
+    @Asynchronous
     public void pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... to) {
         pushNotifications(igreja, notification, Arrays.asList(to));
     }
     
+    @Asynchronous
     public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
         try{
             ApnsService service = createApnsService(igreja);

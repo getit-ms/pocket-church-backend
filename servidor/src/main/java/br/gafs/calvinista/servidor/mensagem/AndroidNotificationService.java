@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.Asynchronous;
 
 /**
  *
@@ -44,10 +45,12 @@ public class AndroidNotificationService implements Serializable {
     
     private ObjectMapper om = new ObjectMapper();
     
+    @Asynchronous
     public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... tos) {
         return pushNotifications(igreja, notification, Arrays.asList(tos));
     }
     
+    @Asynchronous
     public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
         List<String> failures = new ArrayList<String>();
         try {

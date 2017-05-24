@@ -132,12 +132,14 @@ public class GoogleService {
                     result.getId().getVideoId(), 
                     result.getSnippet().getTitle(),
                     result.getSnippet().getDescription(),
-                    result.getSnippet().getThumbnails().getDefault().getUrl(),
                     new Date(result.getSnippet().getPublishedAt().getValue()));
+            
+            video.setThumbnail(result.getSnippet().getThumbnails().getDefault().getUrl());
             
             switch (result.getSnippet().getLiveBroadcastContent()){
                 case "live":
                     video.setAoVivo(true);
+                    video.setThumbnail(result.getSnippet().getThumbnails().getHigh().getUrl());
                     break;
                 case "upcoming":
                     LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();

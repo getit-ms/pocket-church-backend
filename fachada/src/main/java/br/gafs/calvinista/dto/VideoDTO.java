@@ -21,7 +21,7 @@ public class VideoDTO implements Serializable {
     private final String id;
     private final String titulo;
     private final String descricao;
-    private final String thumbnail;
+    private String thumbnail;
     private final Date publicacao;
     private Date agendamento;
     private boolean aoVivo;

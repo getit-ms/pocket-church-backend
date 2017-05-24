@@ -5,9 +5,7 @@
 */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.FiltroEmail;
-import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.ContatoDTO;
@@ -17,13 +15,9 @@ import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.NotificationSchedule;
 import br.gafs.calvinista.entity.domain.NotificationType;
-import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.service.MensagemService;
-import br.gafs.calvinista.servidor.mensagem.AndroidNotificationService;
 import br.gafs.calvinista.servidor.mensagem.EmailService;
-import br.gafs.calvinista.servidor.mensagem.IOSNotificationService;
-import br.gafs.calvinista.servidor.processamento.ProcessamentoNotificacaoAndroid;
-import br.gafs.calvinista.servidor.processamento.ProcessamentoNotificacaoIOS;
+import br.gafs.calvinista.servidor.mensagem.NotificacaoService;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -56,7 +50,7 @@ public class MensagemServiceImpl implements MensagemService {
     private EmailService emailService;
     
     @EJB
-    private ProcessamentoService processamentoService;
+    private NotificacaoService notificacaoService;
     
     private ObjectMapper om = new ObjectMapper();
     
@@ -84,18 +78,11 @@ public class MensagemServiceImpl implements MensagemService {
 
                 @Override
                 public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
-                    try {
-                        processamentoService.schedule(new ProcessamentoNotificacaoAndroid(notificacao.getId(), filtro.clone(), t.clone()));
-                    } catch (Exception ex) {
-                        Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    try{
+                        notificacaoService.enviaNotificacoes(filtro.clone(), t.clone());
+                    }catch(Exception e){
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Erro ao enviar notificações: " + e.getMessage(), e);
                     }
-                    
-                    try {
-                        processamentoService.schedule(new ProcessamentoNotificacaoIOS(notificacao.getId(), filtro.clone(), t.clone()));
-                    } catch (Exception ex) {
-                        Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
                     daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
                 }
                 
