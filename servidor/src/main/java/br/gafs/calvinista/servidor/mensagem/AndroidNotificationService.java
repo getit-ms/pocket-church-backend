@@ -46,12 +46,12 @@ public class AndroidNotificationService implements Serializable {
     private ObjectMapper om = new ObjectMapper();
     
     @Asynchronous
-    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... tos) {
-        return pushNotifications(igreja, notification, Arrays.asList(tos));
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... tos) {
+        pushNotifications(igreja, notification, Arrays.asList(tos));
     }
     
     @Asynchronous
-    public List<String> pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
         List<String> failures = new ArrayList<String>();
         try {
             String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
@@ -65,7 +65,6 @@ public class AndroidNotificationService implements Serializable {
             t.printStackTrace();
             
         }
-        return failures;
     }
     
     private boolean doSendNotification(PushAndroidDTO notification, String chave) throws IOException {
