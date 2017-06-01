@@ -70,10 +70,6 @@ public class IOSNotificationService implements Serializable {
     private void doSendNotification(MensagemPushDTO notification, String to, Long badge, ApnsService service) {
         PayloadBuilder builder = APNS.newPayload();
         
-        if (notification.getBadge() != null){
-            builder.badge(notification.getBadge());
-        }
-        
         if (!StringUtil.isEmpty(notification.getSound())){
             builder.sound(notification.getSound());
         }

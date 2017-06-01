@@ -201,15 +201,17 @@ public class SessaoBean implements Serializable {
     
     private void set(){
         load();
-        
-        manager.header("Set-Authorization", JWTManager.writer().
-                map("igreja", chaveIgreja).
-                map("dispositivo", chaveDispositivo).
-                map("membro", idMembro).
-                map("admin", admin).
-                map("creation", System.currentTimeMillis()).
-                map("usuario", idUsuario).
-                map("funcionalidades", funcionalidades).build());
+
+        if (idUsuario != null){
+            manager.header("Set-Authorization", JWTManager.writer().
+                    map("igreja", chaveIgreja).
+                    map("dispositivo", chaveDispositivo).
+                    map("membro", idMembro).
+                    map("admin", admin).
+                    map("creation", System.currentTimeMillis()).
+                    map("usuario", idUsuario).
+                    map("funcionalidades", funcionalidades).build());
+        }
     }
     
     private String get(String key){
