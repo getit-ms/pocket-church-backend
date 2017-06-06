@@ -113,7 +113,7 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
                                 return sdf.parse(value.substring(0, 10));
                             }
                             case TIME:{
-                                sdf.applyPattern("HH:mm:ss.SSSXX");
+                                sdf.applyPattern("HH:mm");
                                 return sdf.parse(value.substring(11, 16));
                             }
                         }
@@ -122,8 +122,8 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
                     }else if (value.matches("\\d{4}-\\d{2}-\\d{2}")){
                         sdf.applyPattern("yyyy-MM-dd");
                         return sdf.parse(value);
-                    }else if (value.matches("\\d{2}:\\d{2}:\\d{2}.\\d{3}.{1,6}")){
-                        sdf.applyPattern("HH:mm:ss.SSSXX");
+                    }else if (value.matches("\\d{2}:\\d{2}")){
+                        sdf.applyPattern("HH:mm");
                         return sdf.parse(value);
                     }
                     
@@ -177,7 +177,7 @@ public class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
                             return;
                         }
                         case TIME:{
-                            sdf.applyPattern("HH:mm:ss.SSSXX");
+                            sdf.applyPattern("HH:mm");
                             gen.writeString(sdf.format(value));
                             return;
                         }
