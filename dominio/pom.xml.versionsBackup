@@ -4,10 +4,10 @@
     <parent>
         <groupId>br.gafs.getit.calvinista</groupId>
         <artifactId>calvinista</artifactId>
-        <version>3.1.52-SNAPSHOT</version>
+        <version>3.1.51</version>
     </parent>
     
-    <artifactId>calvinista-fachada</artifactId>
+    <artifactId>calvinista-dominio</artifactId>
     <packaging>jar</packaging>
     
     <properties>
@@ -18,19 +18,30 @@
     <dependencies>
         <dependency>
             <groupId>br.gafs</groupId>
-            <artifactId>gafs-base-fachada</artifactId>
+            <artifactId>gafs-base-dominio</artifactId>
         </dependency>
         
         <dependency>
-            <groupId>br.gafs.getit.calvinista</groupId>
-            <artifactId>calvinista-dominio</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
