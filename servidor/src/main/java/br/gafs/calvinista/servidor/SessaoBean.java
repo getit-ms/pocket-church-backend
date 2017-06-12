@@ -202,7 +202,7 @@ public class SessaoBean implements Serializable {
     private void set(){
         load();
 
-        if (idUsuario != null){
+        if (idUsuario != null || idMembro != null){
             manager.header("Set-Authorization", JWTManager.writer().
                     map("igreja", chaveIgreja).
                     map("dispositivo", chaveDispositivo).
