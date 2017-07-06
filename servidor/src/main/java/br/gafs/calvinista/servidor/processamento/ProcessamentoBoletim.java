@@ -15,8 +15,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.logging.Logger;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -25,6 +27,8 @@ import java.text.DecimalFormat;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "bid")
 public class ProcessamentoBoletim implements ProcessamentoService.Processamento {
+
+    private static final Logger LOGGER = Logger.getLogger(ProcessamentoBoletim.class.getName());
 
     private Boletim boletim;
     private RegistroIgrejaId bid;
@@ -41,16 +45,19 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
 
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
+        LOGGER.info("Realizando passo de processamento de boletim " + boletim.getId() + ".");
         int total = trataPaginasPDF(tool.getDaoService(), boletim, 5);
         int current = boletim.getPaginas().size();
         tool.getDaoService().update(boletim);
         Boletim.lock(bid, (100 * current) / total);
+        LOGGER.info("Passo de processamento de boletim " + boletim.getId() + " concluído. Andamento do processamento: " + current + " de " + total + ".");
         return tool.getStep() + ((int) Math.ceil((total - current) / 5d));
     }
 
     @Override
     public void finished(ProcessamentoService.ProcessamentoTool tool) throws Exception {
         Boletim.unlock(bid);
+        LOGGER.info("Finalizando processamento de boletim " + boletim.getId() + ".");
         tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
                 create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.PUBLICADO));
     }
@@ -58,6 +65,7 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
     @Override
     public void dropped(ProcessamentoService.ProcessamentoTool tool) {
         Boletim.unlock(bid);
+        LOGGER.severe("Abandonando processamento de boletim " + boletim.getId() + ".");
         tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
                 create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.REJEITADO));
     }

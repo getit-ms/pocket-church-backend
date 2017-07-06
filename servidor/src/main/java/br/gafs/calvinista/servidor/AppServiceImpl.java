@@ -64,7 +64,8 @@ import java.util.logging.Logger;
 @Local(AppService.class)
 @Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class AppServiceImpl implements AppService {
-    
+
+    public static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
     @EJB
     private DAOService daoService;
     
@@ -580,17 +581,24 @@ public class AppServiceImpl implements AppService {
     
     @Schedule(hour = "*", minute = "*/5")
     public void processaBoletins() {
-        if (Boletim.locked() < 5){
+        LOGGER.info("Iniciando processamento de boletins");
+        if (Boletim.locked() < 15){
             List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
+            LOGGER.info("Quantidade de boletins a processar: " + boletins.size());
             for (Boletim boletim : boletins){
                 try{
                     if (!Boletim.locked(new RegistroIgrejaId(boletim.getChaveIgreja(), boletim.getId()))){
+                        LOGGER.info("Agendando processamento do boletim " + boletim.getId());
                         processamentoService.schedule(new ProcessamentoBoletim(boletim));
+                    }else{
+                        LOGGER.info("Boletim já encontra-se em processamento: " + boletim.getId());
                     }
                 }catch(Exception e){
-                    e.printStackTrace();
+                    LOGGER.log(Level.SEVERE, "Erro ao tentar processar boletim " + boletim.getId(), e);
                 }
             }
+        }else{
+            LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
         }
     }
     
@@ -672,9 +680,9 @@ public class AppServiceImpl implements AppService {
                     arquivoService.registraDesuso(arq.getId());
                 }
             }
-            
+
             arquivoService.registraUso(pdf.getPDF().getId());
-            
+
             return true;
         }
         
@@ -1610,7 +1618,7 @@ public class AppServiceImpl implements AppService {
                 daoService.update(institucional);
             }
         } catch (IOException ex) {
-            Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             throw new ServiceException("mensagens.MSG-046");
         }
     }
@@ -1628,7 +1636,7 @@ public class AppServiceImpl implements AppService {
         try {
             return googleService.buscaVideos(sessaoBean.getChaveIgreja());
         } catch (IOException ex) {
-            Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             return Collections.emptyList();
         }
     }
