@@ -118,9 +118,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
     private void addCaption(WritableSheet sheet, int column, int row, String s)
             throws RowsExceededException, WriteException {
-        Label label;
-        label = new Label(column, row, s, FONTE_HEADER);
-        sheet.addCell(label);
+        sheet.addCell(new Label(column, row, s, FONTE_HEADER));
     }
 
     private void addDate(WritableSheet sheet, int column, int row, Date data) throws WriteException, RowsExceededException {
@@ -129,8 +127,6 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
     private void addLabel(WritableSheet sheet, int column, int row, String s)
             throws WriteException, RowsExceededException {
-        Label label;
-        label = new Label(column, row, s, FONTE_TEXTO);
-        sheet.addCell(label);
+        sheet.addCell(new Label(column, row, s, FONTE_TEXTO));
     }
 }
