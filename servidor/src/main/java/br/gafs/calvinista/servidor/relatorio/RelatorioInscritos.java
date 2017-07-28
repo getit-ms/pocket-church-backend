@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -62,6 +64,8 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
                 evento.getNome(),
                 evento.getIgreja())
                 .arg("EVENTO", evento)
+                .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
+                .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
                 .collection(inscricoes).build();
     }
 }
