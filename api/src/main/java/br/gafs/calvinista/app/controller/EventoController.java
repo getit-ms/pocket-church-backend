@@ -110,17 +110,13 @@ public class EventoController {
     public Response exportaInscricoes(@PathParam("tipo") TipoEvento tipo) throws IOException, InterruptedException {
         File file = relatorioService.exportaInscritos(tipo);
 
-        if (file.getName().startsWith("inscritos.xls")){
-            response.addHeader("Content-Type", "application/xls");
-            response.addHeader("Content-Length", "" + file.length());
-            response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+ file.getName() + "\"");
-            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+        response.addHeader("Content-Type", "application/xls");
+        response.addHeader("Content-Length", "" + file.length());
+        response.addHeader("Content-Disposition",
+                "attachment; filename=\""+ file.getName() + "\"");
+        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
 
-            return Response.noContent().build();
-        }
-
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.noContent().build();
     }
 
     @GET
