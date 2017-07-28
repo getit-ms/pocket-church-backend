@@ -32,7 +32,7 @@ public class ReportUtil {
                                     final Igreja igreja){
         return new ReportUtil(path){
             @Override
-            public Exporter build() {
+            public ExporterImpl build() {
                 return basic("report/relatorio_igreja.jasper")
                         .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
                         .arg("TITULO", titulo)
@@ -66,9 +66,9 @@ public class ReportUtil {
         return collection(Arrays.asList(new Object[]{obj}));
     }
 
-    public Exporter build(){
+    public ExporterImpl build(){
         try {
-            return new Exporter(JasperFillManager.fillReport(ReportUtil.
+            return new ExporterImpl(JasperFillManager.fillReport(ReportUtil.
                     class.getClassLoader().getResourceAsStream(path), args, ds));
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,10 +89,14 @@ public class ReportUtil {
         return ds;
     }
 
-    public class Exporter {
+    public interface Reporter {
+        void export(String tipo, OutputStream os) throws JRException;
+    }
+
+    public class ExporterImpl implements Reporter {
         private JasperPrint print;
 
-        public Exporter(JasperPrint print){
+        public ExporterImpl(JasperPrint print){
             this.print = print;
         }
 

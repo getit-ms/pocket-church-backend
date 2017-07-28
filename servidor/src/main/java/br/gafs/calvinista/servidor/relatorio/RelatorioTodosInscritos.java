@@ -1,21 +1,25 @@
 package br.gafs.calvinista.servidor.relatorio;
 
-import br.gafs.calvinista.dao.FiltroInscricao;
 import br.gafs.calvinista.dao.QueryAdmin;
-import br.gafs.calvinista.dto.FiltroInscricaoDTO;
-import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
-import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.write.*;
+import jxl.write.Number;
+import jxl.write.biff.RowsExceededException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -24,6 +28,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Relatorio {
+
+    private final static WritableCellFormat FONTE_HEADER =
+            new WritableCellFormat(new WritableFont(WritableFont.TIMES,
+                    10, WritableFont.BOLD, false));
+    private final static WritableCellFormat FONTE_TEXTO = new WritableCellFormat(
+            new WritableFont(WritableFont.TIMES, 10));
+
     private Igreja igreja;
     private TipoEvento tipo;
 
@@ -48,8 +59,73 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
     }
 
     @Override
-    public ReportUtil.Exporter generate(final DAOService daoService) {
-        List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_EVENTOS_ATIVOS.create(igreja.getChave()));
-        return ReportUtil.basic("report/inscritos_igreja.jasper").collection(inscricoes).arg("TIPO", tipo).build();
+    public ReportUtil.Reporter generate(final DAOService daoService) {
+        final List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_EVENTOS_ATIVOS.create(igreja.getChave()));
+
+        return new ReportUtil.Reporter(){
+
+            @Override
+            public void export(String tipo, OutputStream os) {
+                try {
+                    WorkbookSettings wbSettings = new WorkbookSettings();
+                    wbSettings.setLocale(new Locale("pt", "BR"));
+
+                    WritableWorkbook workbook = Workbook.createWorkbook(os, wbSettings);
+
+                    WritableSheet excelSheet = workbook.createSheet("Inscritos " + RelatorioTodosInscritos.this.tipo.name(), 0);
+
+                    createCabecalhos(excelSheet);
+                    createLinhas(excelSheet, inscricoes);
+
+                    workbook.write();
+                    workbook.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private void createLinhas(WritableSheet sheet, List<InscricaoEvento> inscricoes) throws WriteException {
+        int i = 0;
+        for (InscricaoEvento inscricao : inscricoes) {
+            addLabel(sheet, 0, i, inscricao.getEmailInscrito());
+            addLabel(sheet, 1, i, inscricao.getEvento().getNome());
+            addLabel(sheet, 2, i, inscricao.getNomeInscrito());
+            addLabel(sheet, 3, i, inscricao.getTelefoneInscrito());
+            addDate(sheet, 4, i, inscricao.getEvento().getDataHoraInicio());
+            addDate(sheet, 5, i, inscricao.getEvento().getDataHoraTermino());
+            addDate(sheet, 6, i, inscricao.getData());
+            i++;
+        }
+    }
+
+    private void createCabecalhos(WritableSheet sheet) throws WriteException {
+        addCaption(sheet, 0, 0, "E-MAIL");
+        addCaption(sheet, 1, 0, this.tipo.name());
+        addCaption(sheet, 2, 0, "INSCRITO");
+        addCaption(sheet, 3, 0, "TELEFONE");
+        addCaption(sheet, 4, 0, "INICIO EVENTO");
+        addCaption(sheet, 5, 0, "TERMINO EVENTO");
+        addCaption(sheet, 6, 0, "DATA INSCRICAO");
+    }
+
+
+    private void addCaption(WritableSheet sheet, int column, int row, String s)
+            throws RowsExceededException, WriteException {
+        Label label;
+        label = new Label(column, row, s, FONTE_HEADER);
+        sheet.addCell(label);
+    }
+
+    private void addDate(WritableSheet sheet, int column, int row, Date data) throws WriteException, RowsExceededException {
+        sheet.addCell(new DateTime(column, row, data, FONTE_TEXTO));
+    }
+
+    private void addLabel(WritableSheet sheet, int column, int row, String s)
+            throws WriteException, RowsExceededException {
+        Label label;
+        label = new Label(column, row, s, FONTE_TEXTO);
+        sheet.addCell(label);
     }
 }

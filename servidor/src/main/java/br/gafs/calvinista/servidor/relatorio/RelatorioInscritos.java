@@ -48,7 +48,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
     }
 
     @Override
-    public ReportUtil.Exporter generate(final DAOService daoService) {
+    public ReportUtil.ExporterImpl generate(final DAOService daoService) {
         BuscaPaginadaDTO busca;
         List<InscricaoEvento> inscricoes = new ArrayList<InscricaoEvento>();
         FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(1, 30);

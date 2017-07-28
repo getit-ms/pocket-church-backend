@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Created by mirante0 on 01/02/2017.
@@ -80,7 +79,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
         Igreja getIgreja();
         String getTitulo();
         String getFilename();
-        ReportUtil.Exporter generate(DAOService daoService);
+        ReportUtil.Reporter generate(DAOService daoService);
     }
 
 }

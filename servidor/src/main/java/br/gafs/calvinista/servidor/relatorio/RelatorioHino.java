@@ -39,7 +39,7 @@ public class RelatorioHino implements ProcessamentoRelatorioCache.Relatorio {
     }
 
     @Override
-    public ReportUtil.Exporter generate(final DAOService daoService) {
+    public ReportUtil.ExporterImpl generate(final DAOService daoService) {
         return ReportUtil.igreja(
                 "report/hino.jasper",
                 getTitulo(),
