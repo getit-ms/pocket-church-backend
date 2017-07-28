@@ -59,12 +59,13 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
     @Override
     public String getFilename() {
-        return "inscritos_" + tipo.name().toLowerCase() + "_" + igreja.getChave();
+        return "Inscritos em " + tipo.name() + " em " + igreja.getNome();
     }
 
     @Override
     public ReportUtil.Reporter generate(final DAOService daoService) {
-        final List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_EVENTOS_ATIVOS.create(igreja.getChave()));
+        final List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.
+                INSCRICOES_EVENTOS_ATIVOS.create(tipo, igreja.getChave()));
 
         return new ReportUtil.Reporter(){
 
@@ -106,12 +107,12 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
     private void createCabecalhos(WritableSheet sheet) throws WriteException {
         addCaption(sheet, 0, 0, "E-MAIL");
-        addCaption(sheet, 1, 0, this.tipo.name());
-        addCaption(sheet, 2, 0, "INSCRITO");
+        addCaption(sheet, 1, 0, TipoEvento.EBD.equals(this.tipo) ? "CURSO" : "EVENTO");
+        addCaption(sheet, 2, 0, "NOME");
         addCaption(sheet, 3, 0, "TELEFONE");
-        addCaption(sheet, 4, 0, "INICIO EVENTO");
-        addCaption(sheet, 5, 0, "TERMINO EVENTO");
-        addCaption(sheet, 6, 0, "DATA INSCRICAO");
+        addCaption(sheet, 4, 0, "INICIO");
+        addCaption(sheet, 5, 0, "TERMINO");
+        addCaption(sheet, 6, 0, "INSCRICAO");
     }
 
 
