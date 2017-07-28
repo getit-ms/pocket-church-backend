@@ -251,7 +251,12 @@ public enum QueryAdmin {
     DIA_PLANO("DiaLeituraBiblica.findByPlanoAndData", "chaveIgreja", "idPlano", "data"), 
     REMOVE_OPCAO_PLANO("OpcaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano"),
     REMOVE_MARCACAO_PLANO("MarcacaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano"),
-    INSCRICOES_EVENTOS_ATIVOS("InscricaoEvento.findAtivosByIgreja", "chaveIgreja");
+    INSCRICOES_EVENTOS_ATIVOS("InscricaoEvento.findAtivosByIgreja", "chaveIgreja"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("statusInscricao", StatusInscricaoEvento.CONFIRMADA).set("statusEvento", StatusEvento.ATIVO);
+        }
+    };
     
     private final String query;
     private final String[] parameters;
