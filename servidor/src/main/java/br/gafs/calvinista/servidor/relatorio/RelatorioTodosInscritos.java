@@ -9,6 +9,7 @@ import br.gafs.calvinista.util.ReportUtil;
 import br.gafs.dao.DAOService;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.biff.DisplayFormat;
 import jxl.write.*;
 import jxl.write.Number;
 import jxl.write.biff.RowsExceededException;
@@ -34,6 +35,9 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
                     10, WritableFont.BOLD, false));
     private final static WritableCellFormat FONTE_TEXTO = new WritableCellFormat(
             new WritableFont(WritableFont.TIMES, 10));
+    private final static WritableCellFormat FONTE_DATA = new WritableCellFormat(
+            new WritableFont(WritableFont.TIMES, 10),
+            new DateFormat("dd/MM/yyyy HH:mm"));
 
     private Igreja igreja;
     private TipoEvento tipo;
@@ -87,7 +91,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
     }
 
     private void createLinhas(WritableSheet sheet, List<InscricaoEvento> inscricoes) throws WriteException {
-        int i = 0;
+        int i = 1;
         for (InscricaoEvento inscricao : inscricoes) {
             addLabel(sheet, 0, i, inscricao.getEmailInscrito());
             addLabel(sheet, 1, i, inscricao.getEvento().getNome());
@@ -119,7 +123,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
     }
 
     private void addDate(WritableSheet sheet, int column, int row, Date data) throws WriteException, RowsExceededException {
-        sheet.addCell(new DateTime(column, row, data, FONTE_TEXTO));
+        sheet.addCell(new DateTime(column, row, data, FONTE_DATA));
     }
 
     private void addLabel(WritableSheet sheet, int column, int row, String s)
