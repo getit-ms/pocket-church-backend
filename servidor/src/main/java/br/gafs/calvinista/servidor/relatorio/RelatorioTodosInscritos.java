@@ -49,8 +49,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
     @Override
     public ReportUtil.Exporter generate(final DAOService daoService) {
-        return ReportUtil.basic(
-                "report/inscritos_igreja.jasper").bean(daoService.findWith(QueryAdmin.
-                INSCRICOES_EVENTOS_ATIVOS.create(igreja.getChave()))).arg("TIPO", tipo).build();
+        List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_EVENTOS_ATIVOS.create(igreja.getChave()));
+        return ReportUtil.basic("report/inscritos_igreja.jasper").collection(inscricoes).arg("TIPO", tipo).build();
     }
 }
