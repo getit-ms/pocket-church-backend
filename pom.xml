@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.gafs.getit.calvinista</groupId>
     <artifactId>calvinista</artifactId>
-    <version>3.2.0</version>
+    <version>3.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -223,7 +223,7 @@
                 <configuration>
                     <arguments>-Dmaven.deploy.skip=true</arguments>
                     <username>gafsel</username>
-                    <password>cubomagico04</password>
+                    <password>discador01</password>
                 </configuration>
             </plugin>
             <plugin>
