@@ -105,6 +105,25 @@ public class EventoController {
     }
 
     @GET
+    @Path("inscricoes/{tipo}.xls")
+    @Produces({"application/xls", MediaType.APPLICATION_JSON})
+    public Response exportaInscricoes(@PathParam("tipo") TipoEvento tipo) throws IOException, InterruptedException {
+        File file = relatorioService.exportaInscritos(tipo);
+
+        if (file.getName().startsWith("inscritos.xls")){
+            response.addHeader("Content-Type", "application/xls");
+            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=\""+ file.getName() + "\"");
+            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+
+            return Response.noContent().build();
+        }
+
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @GET
     @Path("{evento}/inscricoes/minhas")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaMinhasInscricoes(

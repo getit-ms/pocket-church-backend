@@ -250,7 +250,8 @@ public enum QueryAdmin {
     MARCACAO_LEITURA_DIA("MarcacaoLeituraBiblica.findByMembroAndDia", "chaveIgreja", "idMembro", "idDia"), 
     DIA_PLANO("DiaLeituraBiblica.findByPlanoAndData", "chaveIgreja", "idPlano", "data"), 
     REMOVE_OPCAO_PLANO("OpcaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano"),
-    REMOVE_MARCACAO_PLANO("MarcacaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano");
+    REMOVE_MARCACAO_PLANO("MarcacaoLeituraBiblica.removeByPlano", "chaveIgreja", "idPlano"),
+    INSCRICOES_EVENTOS_ATIVOS("InscricaoEvento.findAtivosByIgreja", "chaveIgreja");
     
     private final String query;
     private final String[] parameters;

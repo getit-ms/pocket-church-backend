@@ -1458,6 +1458,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> inscricoes) {
         if (!inscricoes.isEmpty()) {
@@ -1474,8 +1475,13 @@ public class AppServiceImpl implements AppService {
                 inscricao.setMembro(membro);
                 cadastradas.add(daoService.create(inscricao));
             }
-            
-            if (evento.isComPagamento()) {
+
+            if (sessaoBean.isAdmin()){
+                for (InscricaoEvento inscricao : cadastradas) {
+                    inscricao.confirmada();
+                    daoService.update(inscricao);
+                }
+            } else if (evento.isComPagamento()) {
                 BigDecimal valorTotal = BigDecimal.ZERO;
                 
                 for (InscricaoEvento inscricao : cadastradas) {

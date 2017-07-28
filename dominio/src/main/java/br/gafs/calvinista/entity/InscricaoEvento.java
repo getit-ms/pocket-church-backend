@@ -53,7 +53,8 @@ import org.hibernate.validator.constraints.NotEmpty;
     @NamedQuery(name = "InscricaoEvento.quantidadeInscricoesEvento", query = "select count(ie.id) from InscricaoEvento ie where ie.evento.id = :idEvento and ie.status in :status"),
     @NamedQuery(name = "InscricaoEvento.findByReferencia", query = "select ie from InscricaoEvento ie where ie.referenciaCheckout = :referencia"),
     @NamedQuery(name = "InscricaoEvento.findReferenciasByStatusAndIgreja", query = "select ie.referenciaCheckout from InscricaoEvento ie where ie.membro.igreja.chave = :igreja and ie.status = :status group by ie.referenciaCheckout"),
-    @NamedQuery(name = "InscricaoEvento.findMaxDataByEvento", query = "select max(ie.data) from InscricaoEvento ie where ie.evento.id = :evento and ie.evento.chaveIgreja = :igreja")
+    @NamedQuery(name = "InscricaoEvento.findMaxDataByEvento", query = "select max(ie.data) from InscricaoEvento ie where ie.evento.id = :evento and ie.evento.chaveIgreja = :igreja"),
+    @NamedQuery(name = "InscricaoEvento.findAtivosByIgreja", query = "select ie from InscricaoEvento ie where ie.chaveIgreja = :chaveIgreja and ie.evento.dataHoraTermino >= CURRENT_TIMESTAMP order by ie.data")
 })
 public class InscricaoEvento implements IEntity {
     @Id
