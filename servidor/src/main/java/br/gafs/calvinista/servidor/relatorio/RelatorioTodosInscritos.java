@@ -30,14 +30,8 @@ import java.util.Locale;
 @NoArgsConstructor
 public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Relatorio {
 
-    private final static WritableCellFormat FONTE_HEADER =
-            new WritableCellFormat(new WritableFont(WritableFont.TIMES,
-                    10, WritableFont.BOLD, false));
     private final static WritableCellFormat FONTE_TEXTO = new WritableCellFormat(
             new WritableFont(WritableFont.TIMES, 10));
-    private final static WritableCellFormat FONTE_DATA = new WritableCellFormat(
-            new WritableFont(WritableFont.TIMES, 10),
-            new DateFormat("dd/MM/yyyy HH:mm"));
 
     private Igreja igreja;
     private TipoEvento tipo;
@@ -79,7 +73,6 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
                     WritableSheet excelSheet = workbook.createSheet("Inscritos " + RelatorioTodosInscritos.this.tipo.name(), 0);
 
-                    createCabecalhos(excelSheet);
                     createLinhas(excelSheet, inscricoes);
 
                     workbook.write();
@@ -98,31 +91,8 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
             addLabel(sheet, 1, i, inscricao.getEvento().getNome());
             addLabel(sheet, 2, i, inscricao.getNomeInscrito());
             addLabel(sheet, 3, i, inscricao.getTelefoneInscrito());
-            addDate(sheet, 4, i, inscricao.getEvento().getDataHoraInicio());
-            addDate(sheet, 5, i, inscricao.getEvento().getDataHoraTermino());
-            addDate(sheet, 6, i, inscricao.getData());
             i++;
         }
-    }
-
-    private void createCabecalhos(WritableSheet sheet) throws WriteException {
-        addCaption(sheet, 0, 0, "E-MAIL");
-        addCaption(sheet, 1, 0, TipoEvento.EBD.equals(this.tipo) ? "CURSO" : "EVENTO");
-        addCaption(sheet, 2, 0, "NOME");
-        addCaption(sheet, 3, 0, "TELEFONE");
-        addCaption(sheet, 4, 0, "INICIO");
-        addCaption(sheet, 5, 0, "TERMINO");
-        addCaption(sheet, 6, 0, "INSCRICAO");
-    }
-
-
-    private void addCaption(WritableSheet sheet, int column, int row, String s)
-            throws RowsExceededException, WriteException {
-        sheet.addCell(new Label(column, row, s, FONTE_HEADER));
-    }
-
-    private void addDate(WritableSheet sheet, int column, int row, Date data) throws WriteException, RowsExceededException {
-        sheet.addCell(new DateTime(column, row, data, FONTE_DATA));
     }
 
     private void addLabel(WritableSheet sheet, int column, int row, String s)
