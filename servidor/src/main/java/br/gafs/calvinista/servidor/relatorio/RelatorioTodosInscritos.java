@@ -85,7 +85,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
     }
 
     private void createLinhas(WritableSheet sheet, List<InscricaoEvento> inscricoes) throws WriteException {
-        int i = 1;
+        int i = 0;
         for (InscricaoEvento inscricao : inscricoes) {
             addLabel(sheet, 0, i, inscricao.getEmailInscrito());
             addLabel(sheet, 1, i, inscricao.getEvento().getNome());
