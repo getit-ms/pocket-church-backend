@@ -1976,19 +1976,24 @@ public class AppServiceImpl implements AppService {
     public void enviaNotificacoesBoletins() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR.create());
         for (Igreja igreja : igrejas) {
-            String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_BOLETIM);
-            if (StringUtil.isEmpty(titulo)){
-                titulo = MensagemUtil.getMensagem("push.boletim.title", igreja.getLocale());
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= 10 && horaAtual <= 20) {
+                String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_BOLETIM);
+                if (StringUtil.isEmpty(titulo)){
+                    titulo = MensagemUtil.getMensagem("push.boletim.title", igreja.getLocale());
+                }
+
+                String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_BOLETIM);
+                if (StringUtil.isEmpty(texto)){
+                    texto = MensagemUtil.getMensagem("push.boletim.message", igreja.getLocale(), igreja.getNome());
+                }
+
+                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.BOLETIM, false);
+
+                daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
             }
-            
-            String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_BOLETIM);
-            if (StringUtil.isEmpty(texto)){
-                texto = MensagemUtil.getMensagem("push.boletim.message", igreja.getLocale(), igreja.getNome());
-            }
-            
-            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.BOLETIM, false);
-            
-            daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
     
@@ -1996,19 +2001,24 @@ public class AppServiceImpl implements AppService {
     public void enviaNotificacoesEstudos() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR.create());
         for (Igreja igreja : igrejas) {
-            String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ESTUDO);
-            if (StringUtil.isEmpty(titulo)){
-                titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= 10 && horaAtual <= 20) {
+                String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ESTUDO);
+                if (StringUtil.isEmpty(titulo)){
+                    titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
+                }
+
+                String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ESTUDO);
+                if (StringUtil.isEmpty(texto)){
+                    texto = MensagemUtil.getMensagem("push.estudo.message", igreja.getLocale(), igreja.getNome());
+                }
+
+                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
+
+                daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
             }
-            
-            String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ESTUDO);
-            if (StringUtil.isEmpty(texto)){
-                texto = MensagemUtil.getMensagem("push.estudo.message", igreja.getLocale(), igreja.getNome());
-            }
-            
-            enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
-            
-            daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
         }
     }
     
@@ -2044,7 +2054,7 @@ public class AppServiceImpl implements AppService {
                         }
                     }
                 }catch(Exception e){
-                    e.printStackTrace();
+                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + igreja.getChave(), e);
                 }
             }
         }
@@ -2094,7 +2104,7 @@ public class AppServiceImpl implements AppService {
                         }
                     }
                 }catch(Exception e){
-                    e.printStackTrace();
+                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos agendados para " + igreja.getChave(), e);
                 }
             }
         }

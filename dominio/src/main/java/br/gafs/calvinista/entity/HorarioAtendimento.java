@@ -7,6 +7,7 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.DiaSemana;
+import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -78,16 +79,14 @@ public class HorarioAtendimento implements IEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_cadastro", nullable = false)
     private Date dataCadastro = new Date();
-    
-    @Setter
-    @Temporal(TemporalType.TIME)
+
+    @JsonIgnore
     @Column(name = "hora_inicio", nullable = false)
-    private Date horaInicio;
-    
-    @Setter
-    @Temporal(TemporalType.TIME)
+    private String horaInicio;
+
+    @JsonIgnore
     @Column(name = "hora_fim", nullable = false)
-    private Date horaFim;
+    private String horaFim;
     
     @Setter
     @Temporal(TemporalType.DATE)
@@ -101,6 +100,40 @@ public class HorarioAtendimento implements IEntity {
 
     public HorarioAtendimento(CalendarioAtendimento calendario) {
         this.calendario = calendario;
+    }
+
+    @JsonProperty
+    @View.JsonTemporal(View.JsonTemporalType.TIME)
+    public Date getHoraInicio() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(horaInicio.substring(0, 2)));
+        cal.set(Calendar.MINUTE, Integer.parseInt(horaInicio.substring(3, 5)));
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    @JsonProperty
+    @View.JsonTemporal(View.JsonTemporalType.TIME)
+    public Date getHoraFim() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(horaFim.substring(0, 2)));
+        cal.set(Calendar.MINUTE, Integer.parseInt(horaFim.substring(3, 5)));
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    public void setHoraFim(Date data) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(data);
+        this.horaFim = String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+    }
+
+    public void setHoraInicio(Date data) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(data);
+        this.horaInicio = String.format("%02d:%02d", cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
     }
     
     public Date getInicio(TimeZone timeZone, Date dataMerge){
@@ -121,36 +154,16 @@ public class HorarioAtendimento implements IEntity {
         return copy;
     }
     
-    private Date dataOriginal(Date time){
-        Calendar dateCal = Calendar.getInstance();
-        dateCal.setTime(dataCadastro);
-        
-        Calendar timeCal = Calendar.getInstance();
-        timeCal.setTime(time);
-        
-        // Extract the time of the "time" object to the "date"
-        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-        dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
-        dateCal.set(Calendar.MILLISECOND, 0);
-        
-        // Get the time value!
-        return dateCal.getTime();
-    }
-
-    private Date merge(TimeZone timeZone, Date date, Date time) {
+    private Date merge(TimeZone timeZone, Date date, String time) {
         Calendar dateCal = Calendar.getInstance(timeZone);
         dateCal.setTime(date);
         
-        Calendar timeCal = Calendar.getInstance(timeZone);
-        timeCal.setTime(dataOriginal(time));
-        
         // Extract the time of the "time" object to the "date"
-        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-        dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+        dateCal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(time.substring(0, 2)));
+        dateCal.set(Calendar.MINUTE, Integer.parseInt(time.substring(3, 5)));
+        dateCal.set(Calendar.SECOND, 0);
         dateCal.set(Calendar.MILLISECOND, 0);
-        
+
         // Get the time value!
         return dateCal.getTime();
     }

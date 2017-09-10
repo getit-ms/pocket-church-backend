@@ -62,24 +62,24 @@ public class GoogleService {
     private ParametroService paramService;
     
     
-    private GoogleAuthorizationCodeFlow flow(String chaveIgreja, Collection<String> scopes) throws IOException{
+    private GoogleAuthorizationCodeFlow.Builder flow(String chaveIgreja, Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
                 (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
                 (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
                 scopes).addRefreshListener(new DataStoreCredentialRefreshListener(chaveIgreja, DATA_STORE_FACTORY)).
-                setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline").build();
+                setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline");
     }
     
     public String getURLAutorizacaoYouTube(String chaveIgreja) throws IOException {
-        return flow(chaveIgreja, YOUTUBE_SCOPES).newAuthorizationUrl().
+        return flow(chaveIgreja, YOUTUBE_SCOPES).setApprovalPrompt("force").build().newAuthorizationUrl().
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
                         getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), chaveIgreja)).
                 setState(chaveIgreja).build();
     }
 
     public Credential saveCredentialsYouTube(String chaveIgreja, String code) throws IOException {
-        GoogleAuthorizationCodeFlow flow = flow(chaveIgreja, YOUTUBE_SCOPES);
+        GoogleAuthorizationCodeFlow flow = flow(chaveIgreja, YOUTUBE_SCOPES).build();
         
         TokenResponse resp = flow.newTokenRequest(code).
                 setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
@@ -89,7 +89,7 @@ public class GoogleService {
     }
 
     private synchronized Credential loadCredentialsYouTube(String chaveIgreja) throws IOException {
-        Credential credential = flow(chaveIgreja, YOUTUBE_SCOPES).loadCredential(chaveIgreja);
+        Credential credential = flow(chaveIgreja, YOUTUBE_SCOPES).build().loadCredential(chaveIgreja);
 
         if (credential.getExpiresInSeconds() < 15){
             credential.refreshToken();

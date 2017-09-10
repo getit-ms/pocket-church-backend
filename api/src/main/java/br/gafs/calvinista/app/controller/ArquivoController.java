@@ -64,7 +64,7 @@ public class ArquivoController {
             @PathParam("filename") String filename) throws IOException {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
         
-        if (arquivo != null && (StringUtil.isEmpty(filename) || 
+        if (arquivo != null && (StringUtil.isEmpty(filename) ||
                 arquivo.getFilename().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
             

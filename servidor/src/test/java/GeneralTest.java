@@ -7,10 +7,7 @@
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
-import br.gafs.calvinista.entity.HorarioAtendimento;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Institucional;
-import br.gafs.calvinista.entity.Membro;
+import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
@@ -181,10 +178,21 @@ public class GeneralTest {
 
         json = "{\"horaInicio\":\"2017-02-06T12:00:00.000-0500\"}";
         
-        TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("GMT-3:00"));
-        System.out.println(mapper.readValue(json, HorarioAtendimento.class).getHoraInicio() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
-        
-        TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("America/Sao_Paulo"));
-        System.out.println(mapper.readValue(json, HorarioAtendimento.class).getHoraInicio() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
+        HorarioAtendimento hora = mapper.readValue(json, HorarioAtendimento.class);
+        hora.setCalendario(new CalendarioAtendimento());
+        hora.getCalendario().setIgreja(new Igreja());
+        hora.getCalendario().getIgreja().setTimezone("GMT-3:00");
+        System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getIgreja().getTimezone()).getID());
+
+        hora = mapper.readValue(json, HorarioAtendimento.class);
+        hora.setCalendario(new CalendarioAtendimento());
+        hora.getCalendario().setIgreja(new Igreja());
+        hora.getCalendario().getIgreja().setTimezone("GMT-5:00");
+
+        hora = mapper.readValue(json, HorarioAtendimento.class);
+        hora.setCalendario(new CalendarioAtendimento());
+        hora.getCalendario().setIgreja(new Igreja());
+        hora.getCalendario().getIgreja().setTimezone("America/Sao_Paulo");
+        System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getIgreja().getTimezone()).getID());
     }
 }

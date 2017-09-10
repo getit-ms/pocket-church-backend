@@ -93,7 +93,8 @@ public class Igreja implements IEntity {
     @Column(name = "locale")
     @JsonView(View.Detalhado.class)
     private String locale;
-    
+
+    @Setter
     @Column(name = "timezone")
     @JsonView(View.Detalhado.class)
     private String timezone;
