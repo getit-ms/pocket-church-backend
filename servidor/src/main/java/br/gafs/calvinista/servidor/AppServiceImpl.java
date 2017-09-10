@@ -66,6 +66,8 @@ import java.util.logging.Logger;
 public class AppServiceImpl implements AppService {
 
     public static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
+    private static final Integer HORA_MINIMA_NOTIFICACAO = 8;
+    private static final Integer HORA_MAXIMA_NOTIFICACAO = 20;
     @EJB
     private DAOService daoService;
     
@@ -1979,7 +1981,7 @@ public class AppServiceImpl implements AppService {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
-            if (horaAtual >= 10 && horaAtual <= 20) {
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_BOLETIM);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.boletim.title", igreja.getLocale());
@@ -2004,7 +2006,7 @@ public class AppServiceImpl implements AppService {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
-            if (horaAtual >= 10 && horaAtual <= 20) {
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ESTUDO);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
@@ -2077,7 +2079,7 @@ public class AppServiceImpl implements AppService {
                         if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
                                 DateUtil.equalsSemHoras(DateUtil.getDataAtual(), video.getAgendamento()) &&
                                 // Verifica se está em horário útil para fazer a notificação
-                                horaAtual >= 8 && horaAtual <= 20 ){
+                                horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO){
                             
                             Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
                             
