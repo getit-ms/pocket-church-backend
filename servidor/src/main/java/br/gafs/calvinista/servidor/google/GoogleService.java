@@ -119,41 +119,45 @@ public class GoogleService {
         if (StringUtil.isEmpty(channelId)){
             return Collections.emptyList();
         }
-        
-        YouTube connection = connect(chave);
-        SearchListResponse response = connection.search().list("id,snippet").
-                setChannelId(channelId).
-                setMaxResults(30L).setType("video").setOrder("date").execute();
-        
+
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
-        
-        for (SearchResult result : response.getItems()){
-            VideoDTO video = new VideoDTO(
-                    result.getId().getVideoId(), 
-                    result.getSnippet().getTitle(),
-                    result.getSnippet().getDescription(),
-                    new Date(result.getSnippet().getPublishedAt().getValue()));
-            
-            video.setThumbnail(result.getSnippet().getThumbnails().getDefault().getUrl());
-            
-            switch (result.getSnippet().getLiveBroadcastContent()){
-                case "live":
-                    video.setAoVivo(true);
-                    video.setThumbnail(result.getSnippet().getThumbnails().getHigh().getUrl());
-                    break;
-                case "upcoming":
-                    LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();
-                    
-                    if (!liveResponse.isEmpty()){
-                        video.setAgendamento(new Date(liveResponse.getItems().get(0).getSnippet().getScheduledStartTime().getValue()));
-                    }
-                    
-                    break;
+
+        try {
+            YouTube connection = connect(chave);
+            SearchListResponse response = connection.search().list("id,snippet").
+                    setChannelId(channelId).
+                    setMaxResults(30L).setType("video").setOrder("date").execute();
+
+            for (SearchResult result : response.getItems()){
+                VideoDTO video = new VideoDTO(
+                        result.getId().getVideoId(),
+                        result.getSnippet().getTitle(),
+                        result.getSnippet().getDescription(),
+                        new Date(result.getSnippet().getPublishedAt().getValue()));
+
+                video.setThumbnail(result.getSnippet().getThumbnails().getDefault().getUrl());
+
+                switch (result.getSnippet().getLiveBroadcastContent()){
+                    case "live":
+                        video.setAoVivo(true);
+                        video.setThumbnail(result.getSnippet().getThumbnails().getHigh().getUrl());
+                        break;
+                    case "upcoming":
+                        LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();
+
+                        if (!liveResponse.isEmpty()){
+                            video.setAgendamento(new Date(liveResponse.getItems().get(0).getSnippet().getScheduledStartTime().getValue()));
+                        }
+
+                        break;
+                }
+
+                videos.add(video);
             }
-            
-            videos.add(video);
+        }catch (Exception ex) {
+            Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
         }
-        
+
         return videos;
     }
 

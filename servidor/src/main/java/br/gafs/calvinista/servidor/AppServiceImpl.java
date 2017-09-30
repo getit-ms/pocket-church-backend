@@ -67,7 +67,7 @@ public class AppServiceImpl implements AppService {
 
     public static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
     private static final Integer HORA_MINIMA_NOTIFICACAO = 8;
-    private static final Integer HORA_MAXIMA_NOTIFICACAO = 20;
+    private static final Integer HORA_MAXIMA_NOTIFICACAO = 0;
     @EJB
     private DAOService daoService;
     
