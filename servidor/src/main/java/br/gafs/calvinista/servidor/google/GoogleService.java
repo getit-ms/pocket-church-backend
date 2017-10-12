@@ -145,7 +145,7 @@ public class GoogleService {
                     case "upcoming":
                         LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();
 
-                        if (!liveResponse.isEmpty()){
+                        if (!liveResponse.isEmpty() && !liveResponse.getItems().isEmpty()){
                             video.setAgendamento(new Date(liveResponse.getItems().get(0).getSnippet().getScheduledStartTime().getValue()));
                         }
 

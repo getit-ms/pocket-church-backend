@@ -265,7 +265,12 @@ public class AcessoServiceImpl implements AcessoService {
             throw new ServiceException("mensagens.MSG-037");
         }
         
-        String jwt = JWTManager.writer().map("igreja", membro.getIgreja().getId()).map("membro", membro.getId()).build();
+        String jwt = JWTManager.writer().map("igreja", membro.getIgreja().getId()).map("membro", membro.getId()).build()
+                .replace("/", "%2F")
+                .replace("-", "%2D")
+                .replace(".", "%2E")
+                .replace("=", "%3D")
+                .replace("_", "%5F");
         
         String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", membro.getIgreja().getLocale());
             String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", membro.getIgreja().getLocale(), 
