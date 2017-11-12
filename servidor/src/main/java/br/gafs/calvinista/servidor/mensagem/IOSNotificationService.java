@@ -14,7 +14,10 @@ import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.ApnsServiceBuilder;
 import com.notnoop.apns.PayloadBuilder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import java.io.ByteArrayInputStream;
@@ -35,36 +38,25 @@ public class IOSNotificationService implements Serializable {
     
     @EJB
     private ParametroService paramService;
-    
-    @Asynchronous
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... to) {
-        pushNotifications(igreja, notification, Arrays.asList(to));
-    }
-    
-    @Asynchronous
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
-        try{
-            ApnsService service = createApnsService(igreja);
-            service.start();
 
-            for (Object[] to : tos) {
-                doSendNotification(notification, (String) to[0], (Long) to[1], service);
-            }
+    @Asynchronous
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Destination> destinations) {
+        ApnsService service = createApnsService(igreja);
+        service.start();
 
-            service.stop();
-        }catch(Exception e){
-            e.printStackTrace();
+        for (Destination destination : destinations) {
+            doSendNotification(notification, destination.getTo(), destination.getBadge(), service);
         }
+
+        service.stop();
     }
     
     private ApnsService createApnsService(Igreja igreja) {
-        ApnsService service = null;
         ApnsServiceBuilder serviceBuilder = APNS.newService().withCert(
                         new ByteArrayInputStream((byte[]) paramService.get(igreja.getChave(), TipoParametro.PUSH_IOS_CERTIFICADO)), 
                         (String) paramService.get(igreja.getChave(), TipoParametro.PUSH_IOS_PASS));
         serviceBuilder.withProductionDestination();
-        service = serviceBuilder.build();
-        return service;
+        return serviceBuilder.build();
     }
     
     private void doSendNotification(MensagemPushDTO notification, String to, Long badge, ApnsService service) {
@@ -89,6 +81,13 @@ public class IOSNotificationService implements Serializable {
         }
 
         service.push(to, builder.build());
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class Destination {
+        private final String to;
+        private final Long badge;
     }
 }
 

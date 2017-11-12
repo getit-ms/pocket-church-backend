@@ -5,6 +5,7 @@
 */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
@@ -42,70 +43,76 @@ import javax.ejb.Singleton;
  */
 @Singleton
 public class MensagemServiceImpl implements MensagemService {
-    
+
     @EJB
     private DAOService daoService;
-    
+
     @EJB
     private EmailService emailService;
-    
+
     @EJB
     private NotificacaoService notificacaoService;
-    
+
     private ObjectMapper om = new ObjectMapper();
-    
+
     @Schedule(minute = "*/5", hour = "*")
     public void enviaPushAgendados(){
         List<NotificationSchedule> notificacoes = daoService.
                 findWith(QueryNotificacao.NOTIFICACOES_A_EXECUTAR.create(NotificationType.PUSH));
-        
+
         for (NotificationSchedule notificacao : notificacoes){
             sendPushNow(notificacao);
         }
     }
-    
+
     @Override
     public void enviarMensagem(ContatoDTO contato) {
         EmailUtil.alertAdm(
-                MensagemUtil.getMensagem("email.contato.message", "pt-br", 
+                MensagemUtil.getMensagem("email.contato.message", "pt-br",
                         contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()),
                 MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()));
     }
-    
+
     private void sendPushNow(final NotificationSchedule notificacao){
         try{
             sendNow(notificacao, FiltroDispositivoNotificacaoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoNotificacaoDTO, MensagemPushDTO>() {
-
                 @Override
                 public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
-                    try{
-                        notificacaoService.enviaNotificacoes(filtro.clone(), t.clone());
-                    }catch(Exception e){
-                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Erro ao enviar notificações: " + e.getMessage(), e);
+                    FiltroDispositivoNotificacao filtroDispositivoNotificacao = new FiltroDispositivoNotificacao(filtro);
+                    Long count = daoService.findWith(filtroDispositivoNotificacao.getCountQuery());
+
+                    for (int i=0;i<count;count+=filtroDispositivoNotificacao.getResultLimit()) {
+                        try {
+                            notificacaoService.enviaNotificacoes(notificacao.getId(), filtro.clone(), t.clone());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        filtro.proxima();
                     }
-                    daoService.execute(new RegisterSentNotifications(notificacao.getId(), filtro));
+
                 }
-                
+
             });
         }catch(Exception e){
             e.printStackTrace();
         }
     }
-    
+
     @Schedule(minute = "*/5", hour = "*")
     public void enviaEmailsAgendados(){
         List<NotificationSchedule> notificacoes = daoService.
                 findWith(QueryNotificacao.NOTIFICACOES_A_EXECUTAR.create(NotificationType.EMAIL));
-        
+
         for (NotificationSchedule notificacao : notificacoes){
             sendEmailNow(notificacao);
         }
     }
-    
+
     private void sendEmailNow(NotificationSchedule notificacao){
         try{
             sendNow(notificacao, FiltroEmailDTO.class, MensagemEmailDTO.class, new Sender<FiltroEmailDTO, MensagemEmailDTO>() {
-                
+
                 @Override
                 public void send(FiltroEmailDTO filtro, MensagemEmailDTO t) throws IOException {
                     BuscaPaginadaDTO<String> emails;
@@ -122,76 +129,76 @@ public class MensagemServiceImpl implements MensagemService {
             e.printStackTrace();
         }
     }
-    
+
     private <F,M> void sendNow(NotificationSchedule notificacao, Class<F> ftype, Class<M> mtype, Sender<F, M> sender) throws IOException {
         M t = om.readValue(notificacao.getNotificacao(), mtype);
         F filtro = om.readValue(notificacao.getTo(), ftype);
-        
+
         sender.send(filtro, t);
-        
+
         notificacao.enviado();
-        
+
         daoService.update(notificacao);
     }
-    
+
     interface Sender<F,M> {
         void send(F filtro, M t) throws IOException;
     }
-    
+
     @Override
     @Asynchronous
     public void sendNow(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro) {
         sendPushNow(sendWhenPossible(notificacao, filtro));
     }
-    
+
     @Override
     @Asynchronous
     public void sendNow(MensagemEmailDTO notificacao, FiltroEmailDTO filtro) {
         sendEmailNow(sendWhenPossible(notificacao, filtro));
     }
-    
+
     @Override
     public NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro) {
         return sendLater(notificacao, filtro, DateUtil.getDataAtual());
     }
-    
+
     @Override
     public NotificationSchedule sendWhenPossible(MensagemEmailDTO notificacao, FiltroEmailDTO filtro) {
         return sendLater(notificacao, filtro, DateUtil.getDataAtual());
     }
-    
+
     @Override
     public NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro, Date dataHora) {
         try {
             ObjectWriter writer = om.writerWithView(Resumido.class);
-            
+
             NotificationSchedule registro = new NotificationSchedule(
-                    NotificationType.PUSH, dataHora, 
+                    NotificationType.PUSH, dataHora,
                     writer.writeValueAsString(notificacao),
                     writer.writeValueAsString(filtro));
-            
+
             return daoService.create(registro);
         } catch (IOException ex) {
             Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
-    
+
     @Override
     public NotificationSchedule sendLater(MensagemEmailDTO notificacao, FiltroEmailDTO filtro, Date dataHora) {
         try {
             ObjectWriter writer = om.writerWithView(Resumido.class);
-            
+
             NotificationSchedule registro = new NotificationSchedule(
-                    NotificationType.EMAIL, dataHora, 
+                    NotificationType.EMAIL, dataHora,
                     writer.writeValueAsString(notificacao),
                     writer.writeValueAsString(filtro));
-            
+
             return daoService.create(registro);
         } catch (IOException ex) {
             Logger.getLogger(MensagemServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
-    
+
 }

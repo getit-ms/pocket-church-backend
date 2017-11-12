@@ -14,10 +14,8 @@ import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
+import lombok.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -39,34 +37,23 @@ import javax.ejb.Asynchronous;
 @Stateless
 public class AndroidNotificationService implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(AndroidNotificationService.class.getName());
-    
+
     @EJB
     private ParametroService paramService;
-    
+
     private ObjectMapper om = new ObjectMapper();
-    
+
     @Asynchronous
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, Object[]... tos) {
-        pushNotifications(igreja, notification, Arrays.asList(tos));
-    }
-    
-    @Asynchronous
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Object[]> tos) {
-        List<String> failures = new ArrayList<String>();
-        try {
-            String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
-            PushAndroidDTO push = new PushAndroidDTO(notification);
-            for (Object[] to : tos) {
-                if (!doSendNotification(push.cloneTo((String) to[0], (Long) to[1]), chave)){
-                    failures.add((String) to[0]);
-                }
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();
-            
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Destination> destinations) throws IOException {
+
+        String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
+
+        PushAndroidDTO push = new PushAndroidDTO(notification);
+        for (Destination destination : destinations) {
+            doSendNotification(push.cloneTo(destination.getTo(), destination.getBadge()), chave);
         }
     }
-    
+
     private boolean doSendNotification(PushAndroidDTO notification, String chave) throws IOException {
         try{
             HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://gcm-http.googleapis.com/gcm/send").openConnection();
@@ -93,11 +80,11 @@ public class AndroidNotificationService implements Serializable {
 
             return "0".equals(response.get("failure").toString());
         }catch(Exception e){
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Erro ao enviar push para " + notification.getTo(), e);
             return false;
         }
     }
-    
+
     @Data
     @AllArgsConstructor
     @RequiredArgsConstructor
@@ -107,12 +94,22 @@ public class AndroidNotificationService implements Serializable {
 
         public PushAndroidDTO(MensagemPushDTO notification) {
             this(new NotificationDTO(
-                    notification.getMessage(), 
-                    notification.getTitle(), 
+                    notification.getMessage(),
+                    notification.getTitle(),
                     notification.getIcon(),
                     notification.getCustomData()));
         }
-        
+
+        public PushAndroidDTO(MensagemPushDTO notification, String to, Long badge) {
+            this(new NotificationDTO(
+                    notification.getMessage(),
+                    notification.getTitle(),
+                    notification.getIcon(),
+                    notification.getCustomData()));
+            this.to = to;
+            this.data.put("badge", badge);
+        }
+
         public PushAndroidDTO cloneTo(String to, Long badge) {
             try {
                 PushAndroidDTO clone = (PushAndroidDTO) this.clone();
@@ -123,7 +120,7 @@ public class AndroidNotificationService implements Serializable {
                 Logger.getLogger(PushAndroidDTO.class.getName()).log(Level.SEVERE, null, ex);
                 return new PushAndroidDTO(to, data);
             }
-            
+
         }
     }
 
@@ -149,6 +146,13 @@ public class AndroidNotificationService implements Serializable {
         private String getMessage() {
             return (String) get("message");
         }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class Destination {
+        private final String to;
+        private final Long badge;
     }
 }
 

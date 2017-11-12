@@ -83,7 +83,7 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
 
                 if (page == 0){
                     Arquivo arquivo = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
-                            replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, 500, 500));
+                            replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, "JPEG", 500, 500));
                     arquivo.used();
                     arquivo = daoService.update(arquivo);
                     pdf.setThumbnail(arquivo);

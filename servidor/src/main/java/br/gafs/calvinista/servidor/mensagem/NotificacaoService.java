@@ -6,14 +6,19 @@
 package br.gafs.calvinista.servidor.mensagem;
 
 import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
+import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
-import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
+import br.gafs.dao.QueryUtil;
+import br.gafs.query.Queries;
+
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -21,7 +26,11 @@ import javax.ejb.Stateless;
  */
 @Stateless
 public class NotificacaoService {
-    
+
+    private static final int TIPO = 0;
+    private static final int INSTALATION_ID = 1;
+    private static final int BADGE = 2;
+
     @EJB
     private DAOService daoService;
     
@@ -32,32 +41,28 @@ public class NotificacaoService {
     private IOSNotificationService iosService;
     
     @Asynchronous
-    public void enviaNotificacoes(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push) throws Exception {
-        enviaAndroid(filtro.clone(), push.clone());
-        enviaIOS(filtro.clone(), push.clone());
-    }
+    public void enviaNotificacoes(Long idNotificacao, FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push) throws Exception {
+        FiltroDispositivoNotificacao filtroDispositivoNotificacao = new FiltroDispositivoNotificacao(filtro);
 
-    private void enviaAndroid(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push){
-        filtro.setTipo(TipoDispositivo.ANDROID);
-        
-        BuscaPaginadaDTO<Object[]> dispositivos;
+        List<Object[]> dispositivos = daoService.findWith(QueryUtil.create(Queries.NativeQuery.class,
+                filtroDispositivoNotificacao.getQuery(),
+                filtroDispositivoNotificacao.getArguments(),
+                filtroDispositivoNotificacao.getResultLimit()));
 
-        do{
-            dispositivos = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
-            androidService.pushNotifications(filtro.getIgreja(), push, dispositivos.getResultados());
-            filtro.proxima();
-        }while(dispositivos.isHasProxima());
-    }
+        List<IOSNotificationService.Destination> destinationIOS = new ArrayList<>();
+        List<AndroidNotificationService.Destination> destinationAndroid = new ArrayList<>();
+        for (Object[] dispositivo : dispositivos) {
+            if (dispositivo[TIPO].equals(TipoDispositivo.ANDROID.ordinal())) {
+                destinationAndroid.add(new AndroidNotificationService.Destination((String) dispositivo[INSTALATION_ID], (Long) dispositivo[BADGE] + 1));
+            }else if (dispositivo[TIPO].equals(TipoDispositivo.IPHONE.ordinal())){
+                destinationIOS.add(new IOSNotificationService.Destination((String) dispositivo[INSTALATION_ID], (Long) dispositivo[BADGE] + 1));
+            }
+        }
 
-    private void enviaIOS(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push){
-        filtro.setTipo(TipoDispositivo.IPHONE);
-        
-        BuscaPaginadaDTO<Object[]> dispositivos;
+        androidService.pushNotifications(filtro.getIgreja(), push, destinationAndroid);
 
-        do{
-            dispositivos = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
-            iosService.pushNotifications(filtro.getIgreja(), push, dispositivos.getResultados());
-            filtro.proxima();
-        }while(dispositivos.isHasProxima());
+        iosService.pushNotifications(filtro.getIgreja(), push, destinationIOS);
+
+        daoService.execute(new RegisterSentNotifications(idNotificacao, filtro));
     }
 }
