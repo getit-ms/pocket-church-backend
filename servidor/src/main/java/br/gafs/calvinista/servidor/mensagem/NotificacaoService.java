@@ -60,12 +60,12 @@ public class NotificacaoService {
             }
         }
 
-        androidService.pushNotifications(filtro.getIgreja(), push, destinationAndroid);
-
-        iosService.pushNotifications(filtro.getIgreja(), push, destinationIOS);
-
         for (Object[] dispositivo : dispositivos) {
             daoService.execute(new RegisterSentNotifications(idNotificacao, (String) dispositivo[INSTALATION_ID]));
         }
+
+        androidService.pushNotifications(filtro.getIgreja(), push, destinationAndroid);
+
+        iosService.pushNotifications(filtro.getIgreja(), push, destinationIOS);
     }
 }

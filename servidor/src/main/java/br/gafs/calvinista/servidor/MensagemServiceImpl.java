@@ -76,7 +76,7 @@ public class MensagemServiceImpl implements MensagemService {
                     FiltroDispositivoNotificacao filtroDispositivoNotificacao = new FiltroDispositivoNotificacao(filtro);
                     Long count = daoService.findWith(filtroDispositivoNotificacao.getCountQuery());
 
-                    for (int i=0;i<count;count+=filtroDispositivoNotificacao.getResultLimit()) {
+                    for (int i=0;i<count;i+=filtroDispositivoNotificacao.getResultLimit()) {
                         try {
                             notificacaoService.enviaNotificacoes(notificacao.getId(), filtro.clone(), t.clone());
                         } catch (Exception e) {
