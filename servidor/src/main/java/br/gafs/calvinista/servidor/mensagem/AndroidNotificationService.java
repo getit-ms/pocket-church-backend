@@ -114,6 +114,7 @@ public class AndroidNotificationService implements Serializable {
         private NotificationDTO(NotificationDTO copyFrom, Long badge) {
             this.putAll(copyFrom);
             put("badge", badge.toString());
+            put("badgeCount", badge.toString());
         }
 
         private NotificationDTO(String message, String title, String icon, Map<String, Object> customData) {
