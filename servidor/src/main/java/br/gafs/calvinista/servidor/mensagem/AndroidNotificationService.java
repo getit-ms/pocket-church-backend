@@ -44,7 +44,7 @@ public class AndroidNotificationService implements Serializable {
     private ObjectMapper om = new ObjectMapper();
 
     @Asynchronous
-    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Destination> destinations) throws IOException {
+    public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Destination> destinations) {
 
         String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
 
@@ -54,7 +54,7 @@ public class AndroidNotificationService implements Serializable {
         }
     }
 
-    private boolean doSendNotification(PushAndroidDTO notification, String chave) throws IOException {
+    private boolean doSendNotification(PushAndroidDTO notification, String chave) {
         try{
             HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://gcm-http.googleapis.com/gcm/send").openConnection();
 

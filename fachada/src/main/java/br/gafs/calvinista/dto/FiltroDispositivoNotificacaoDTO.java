@@ -82,8 +82,13 @@ public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     }
 
     @Override
-    public FiltroDispositivoNotificacaoDTO clone() throws CloneNotSupportedException {
-        return (FiltroDispositivoNotificacaoDTO) super.clone(); 
+    public FiltroDispositivoNotificacaoDTO clone()  {
+        try {
+            return (FiltroDispositivoNotificacaoDTO) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return this;
+        }
     }
     
     

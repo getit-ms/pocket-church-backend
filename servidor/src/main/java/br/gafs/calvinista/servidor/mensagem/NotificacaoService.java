@@ -42,7 +42,7 @@ public class NotificacaoService {
     private IOSNotificationService iosService;
     
     @Asynchronous
-    public void enviaNotificacoes(Long idNotificacao, FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push) throws Exception {
+    public void enviaNotificacoes(Long idNotificacao, FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push) {
         FiltroDispositivoNotificacao filtroDispositivoNotificacao = new FiltroDispositivoNotificacao(filtro);
 
         List<Object[]> dispositivos = daoService.findWith(QueryUtil.create(Queries.NativeQuery.class,

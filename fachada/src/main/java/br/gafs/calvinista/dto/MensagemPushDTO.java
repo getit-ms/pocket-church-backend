@@ -28,8 +28,13 @@ public class MensagemPushDTO implements DTO, Cloneable {
     private Map<String, Object> customData = new HashMap<String, Object>();
 
     @Override
-    public MensagemPushDTO clone() throws CloneNotSupportedException {
-        return (MensagemPushDTO) super.clone(); 
+    public MensagemPushDTO clone() {
+        try {
+            return (MensagemPushDTO) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return this;
+        }
     }
     
     
