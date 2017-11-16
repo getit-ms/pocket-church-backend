@@ -9,6 +9,7 @@ import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
+import br.gafs.calvinista.entity.SentNotification;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.dao.DAOService;
 import br.gafs.dao.QueryUtil;
@@ -63,6 +64,8 @@ public class NotificacaoService {
 
         iosService.pushNotifications(filtro.getIgreja(), push, destinationIOS);
 
-        daoService.execute(new RegisterSentNotifications(idNotificacao, filtro));
+        for (Object[] dispositivo : dispositivos) {
+            daoService.execute(new RegisterSentNotifications(idNotificacao, (String) dispositivo[INSTALATION_ID]));
+        }
     }
 }
