@@ -105,6 +105,7 @@ public class AndroidNotificationService implements Serializable {
                 PushAndroidDTO clone = (PushAndroidDTO) this.clone();
                 clone.setTo(to);
                 clone.data.put("badge", badge);
+                clone.data.put("badgeCount", badge);
                 return clone;
             } catch (CloneNotSupportedException ex) {
                 Logger.getLogger(PushAndroidDTO.class.getName()).log(Level.SEVERE, null, ex);
@@ -123,13 +124,14 @@ public class AndroidNotificationService implements Serializable {
                 put("title", title);
             }
             if (!StringUtil.isEmpty(message)){
-                put("message", message);
+                put("body", message);
             }
             if (!StringUtil.isEmpty(icon)){
                 put("icon", icon);
             }
             put("style", "inbox");
             put("content-available", 1);
+            put("summaryText", "%n% notificações");
             putAll(customData);
         }
 
