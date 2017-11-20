@@ -35,7 +35,7 @@ public class RegisterSentNotifications extends AbstractQuery implements NativeQu
         where.append(") and not exists (select sn.chave_dispositivo from tb_sent_notification sn where sn.chave_dispositivo = d.chave and sn.id_notificacao_schedule = ").append(notification).append(")");
 
         setQuery(new StringBuilder(" insert into tb_sent_notification(chave_dispositivo, id_membro, chave_igreja, id_notificacao_schedule, lido) select d.chave, d.id_membro, d.chave_igreja, ").
-                append(notification).append(", false ").append(from).append(where).append(") group by d.chave, d.id_membro, d.chave_igreja").toString());
+                append(notification).append(", false ").append(from).append(where).append(" group by d.chave, d.id_membro, d.chave_igreja").toString());
     }
     
 }
