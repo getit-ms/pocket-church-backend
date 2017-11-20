@@ -48,7 +48,8 @@ public class NotificacaoService {
         List<Object[]> dispositivos = daoService.findWith(QueryUtil.create(Queries.NativeQuery.class,
                 filtroDispositivoNotificacao.getQuery(),
                 filtroDispositivoNotificacao.getArguments(),
-                filtroDispositivoNotificacao.getResultLimit()));
+                filtroDispositivoNotificacao.getResultLimit(),
+                filtroDispositivoNotificacao.getPage()));
 
         List<IOSNotificationService.Destination> destinationIOS = new ArrayList<>();
         List<AndroidNotificationService.Destination> destinationAndroid = new ArrayList<>();
@@ -60,9 +61,12 @@ public class NotificacaoService {
             }
         }
 
+        List<String> ids = new ArrayList<>();
         for (Object[] dispositivo : dispositivos) {
-            daoService.execute(new RegisterSentNotifications(idNotificacao, (String) dispositivo[INSTALATION_ID]));
+            ids.add((String) dispositivo[INSTALATION_ID]);
         }
+
+        daoService.execute(new RegisterSentNotifications(idNotificacao, ids));
 
         androidService.pushNotifications(filtro.getIgreja(), push, destinationAndroid);
 
