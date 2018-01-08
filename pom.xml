@@ -16,7 +16,7 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gafs.base.version>2.20</gafs.base.version>
+        <gafs.base.version>2.21</gafs.base.version>
         <version.jersey>2.22.1</version.jersey>
     </properties>
     
