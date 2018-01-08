@@ -680,6 +680,7 @@ public class AppServiceImpl implements AppService {
                 
                 List<Arquivo> pages = new ArrayList<Arquivo>(old.getPaginas());
                 old.getPaginas().clear();
+                pdf.getPaginas().clear();
                 for (Arquivo arq : pages) {
                     arquivoService.registraDesuso(arq.getId());
                 }
