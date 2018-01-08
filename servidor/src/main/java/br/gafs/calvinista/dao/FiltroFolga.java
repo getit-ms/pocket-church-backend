@@ -25,7 +25,6 @@ public class FiltroFolga extends AbstractPaginatedFiltro<FiltroFolgaDTO> {
         Map<String, Object> args = new QueryParameters("idCalendario", calendario).set("chaveIgreja", igreja.getChave());
         
         setArguments(args);
-        setCountArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select fa ").append(query).toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, new StringBuilder("select count(fa) ").

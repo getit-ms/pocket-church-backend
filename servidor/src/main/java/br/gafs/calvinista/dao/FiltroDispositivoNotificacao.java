@@ -86,11 +86,6 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
     }
 
     @Override
-    public Map<String, Object> getCountArguments() {
-        return null;
-    }
-
-    @Override
     public Map<String, Object> getArguments() {
         return null;
     }
