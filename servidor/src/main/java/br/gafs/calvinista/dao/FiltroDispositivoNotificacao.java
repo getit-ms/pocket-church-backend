@@ -28,10 +28,10 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
 
     public static StringBuilder query(FiltroDispositivoNotificacaoDTO filtro, StringBuilder from){
         StringBuilder where = new StringBuilder(" where d.chave_igreja = '").append(filtro.getIgreja().getChave()).append("' and d.pushkey <> 'unknown'");
-        
+
         if (filtro.getMinisterios() != null && !filtro.getMinisterios().isEmpty()){
             from.append(" inner join rl_preferencias_ministerios mi on mi.chave_igreja = d.chave_igreja and mi.chave_dispositivo = d.chave");
-            
+
             StringBuilder mins = new StringBuilder("(").append(filtro.getMinisterios().get(0));
             for (int i=1;i<filtro.getMinisterios().size();i++){
                 mins.append(",").append(filtro.getMinisterios().get(i));
@@ -43,11 +43,11 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         if (filtro.isApenasMembros()){
             where.append(" and d.id_membro is not null");
         }
-        
+
         if (filtro.isDesejaReceberNotificacoesVideos()){
             where.append(" and p.deseja_receber_notificacoes_videos = true");
         }
-        
+
         if (filtro.getHora() != null){
             if (filtro.getIdPlanoLeiuraBiblica() != null){
                 from.append(" inner join tb_opcao_leitura_biblica olb on olb.id_membro = d.id_membro and olb.chave_igreja = d.chave_igreja and olb.termino is null");
@@ -58,7 +58,7 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
                 where.append(" and p.deseja_receber_versiculos_diarios = true and p.hora_versiculo_diario = ").append(filtro.getHora().ordinal());
             }
         }
-        
+
         if (filtro.getMembro() != null){
             from.append(" inner join tb_membro m on m.id_membro = d.id_membro and m.chave_igreja = d.chave_igreja");
             where.append(" and m.id_membro = ").append(filtro.getMembro()).append(" and m.status in (0, 1)");
@@ -68,21 +68,21 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
             from.append(" inner join vw_aniversario_membro am on am.id_membro = d.id_membro and am.chave_igreja = d.chave_igreja");
             where.append(" and am.dia = ").append(DateUtil.getDia(filtro.getAniversario())).append(" and am.mes = ").append(DateUtil.getMes(filtro.getAniversario()));
         }
-        
+
         return where;
     }
-    
+
     public FiltroDispositivoNotificacao(FiltroDispositivoNotificacaoDTO filtro) {
-        StringBuilder from = new StringBuilder(" from tb_dispositivo d inner join tb_preferencias p on d.chave = p.chave_dispositivo left join tb_sent_notification sn on sn.chave_igreja = d.chave_igreja and ((d.chave = sn.chave_dispositivo and sn.id_membro is null) or sn.id_membro = d.id_membro) and sn.lido = false");
+        StringBuilder from = new StringBuilder(" from tb_dispositivo d inner join tb_preferencias p on d.chave = p.chave_dispositivo ");
         StringBuilder where = query(filtro, from);
-        
+
         if (filtro.getTipo() != null){
             where.append(" and d.tipo = ").append(filtro.getTipo().ordinal());
         }
-        
+
         page = filtro.getPagina();
-        query = new StringBuilder("select d.tipo, d.pushkey, count(distinct sn.id_notificacao_schedule) ").append(from).append(where).append(" group by d.tipo, d.pushkey order by d.pushkey").toString();
-        countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(distinct d.pushkey) ").append(from).append(where).toString());
+        query = new StringBuilder("select min(d.tipo), d.pushkey, max(d.chave), max(d.id_membro) ").append(from).append(where).append(" group by d.pushkey order by d.pushkey").toString();
+        countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(d.pushkey) ").append(from).append(where).toString());
     }
 
     @Override
@@ -94,7 +94,7 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
     public Map<String, Object> getArguments() {
         return null;
     }
-    
+
 }
 
 

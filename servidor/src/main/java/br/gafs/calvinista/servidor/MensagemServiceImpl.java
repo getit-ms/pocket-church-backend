@@ -73,15 +73,7 @@ public class MensagemServiceImpl implements MensagemService {
             sendNow(notificacao, FiltroDispositivoNotificacaoDTO.class, MensagemPushDTO.class, new Sender<FiltroDispositivoNotificacaoDTO, MensagemPushDTO>() {
                 @Override
                 public void send(FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO t) throws IOException {
-                    FiltroDispositivoNotificacao filtroDispositivoNotificacao = new FiltroDispositivoNotificacao(filtro);
-                    Long count = daoService.findWith(filtroDispositivoNotificacao.getCountQuery());
-
-                    for (int i=0;i<count;i+=filtroDispositivoNotificacao.getResultLimit()) {
-                        notificacaoService.enviaNotificacoes(notificacao.getId(), filtro.clone(), t.clone());
-
-                        filtro.proxima();
-                    }
-
+                    notificacaoService.enviaNotificacoes(notificacao.getId(), filtro.clone(), t.clone());
                 }
 
             });

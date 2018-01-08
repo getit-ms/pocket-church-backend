@@ -67,7 +67,7 @@ public class AppServiceImpl implements AppService {
 
     public static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
     private static final Integer HORA_MINIMA_NOTIFICACAO = 8;
-    private static final Integer HORA_MAXIMA_NOTIFICACAO = 0;
+    private static final Integer HORA_MAXIMA_NOTIFICACAO = 22;
     @EJB
     private DAOService daoService;
     
@@ -133,23 +133,25 @@ public class AppServiceImpl implements AppService {
     
     @Override
     public Long countNotificacoesNaoLidas() {
-        synchronized (DISPOSITIVOS_LIDOS){
-            if (DISPOSITIVOS_LIDOS.contains(sessaoBean.getChaveDispositivo())){
-                return 0l;
-            }
-        }
-        
+
         if (sessaoBean.getIdMembro() != null){
             synchronized (MEMBROS_LIDOS){
                 if (MEMBROS_LIDOS.contains(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))){
                     return 0l;
                 }
             }
+            return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_MEMBRO.
+                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
         }
-        
-        return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS.
-                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(),
-                        sessaoBean.getIdMembro() == null ? 0 : sessaoBean.getIdMembro()));
+
+        synchronized (DISPOSITIVOS_LIDOS){
+            if (DISPOSITIVOS_LIDOS.contains(sessaoBean.getChaveDispositivo())){
+                return 0l;
+            }
+        }
+
+        return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
+                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
     }
     
     @Override
@@ -1946,12 +1948,19 @@ public class AppServiceImpl implements AppService {
     
     @Schedule(hour = "*")
     public void enviaParabensAniversario() {
+        LOGGER.info("Iniciando envio de notificações de aniversário.");
+
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+
+        LOGGER.info(igrejas.size() + " igrejas encontradas para envio de notificações de aniversário.");
+
         for (Igreja igreja : igrejas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
             
             if (hora.equals(12)){
+                LOGGER.info("Prepara envio de notificações de aniversário para " + igreja.getChave());
+
                 List<Membro> aniversariantes = daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(igreja.getChave()));
                 
                 for (Membro membro : aniversariantes){
@@ -1970,18 +1979,27 @@ public class AppServiceImpl implements AppService {
                     
                     enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, membro.getId()), titulo, texto, TipoNotificacao.ANIVERSARIO, false);
                 }
+            } else {
+                LOGGER.info(igreja.getChave() + " fora do horário para envio de notificações de aniversário");
             }
         }
     }
-    
-    @Schedule(hour = "*")
+
+    @Schedule(hour = "*", minute = "*/10")
     public void enviaNotificacoesBoletins() {
+        LOGGER.info("Iniciando envio de notificações de boletins.");
+
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR.create());
+
+        LOGGER.info(igrejas.size() + " igrejas encontradas para envio de notificações de boletins.");
+
         for (Igreja igreja : igrejas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                LOGGER.info("Preparando envio de notificações de boletins para " + igreja.getChave());
+
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_BOLETIM);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.boletim.title", igreja.getLocale());
@@ -1995,18 +2013,27 @@ public class AppServiceImpl implements AppService {
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.BOLETIM, false);
 
                 daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
+            } else {
+                LOGGER.info("Hora fora do limite de envio de notificações de boletins para " + igreja.getChave());
             }
         }
     }
     
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", minute = "*/10")
     public void enviaNotificacoesEstudos() {
+        LOGGER.info("Iniciando envio de notificações de estudos.");
+
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR.create());
+
+        LOGGER.info(igrejas.size() +" igrejas encontrada para notificação de estudos.");
+
         for (Igreja igreja : igrejas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                LOGGER.info("Preparando envio de notificações de estudo para " + igreja.getChave());
+
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ESTUDO);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
@@ -2020,6 +2047,8 @@ public class AppServiceImpl implements AppService {
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
 
                 daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
+            } else {
+                LOGGER.info(igreja.getChave() + " fora do horário para envio de notiicações de estudos.");
             }
         }
     }

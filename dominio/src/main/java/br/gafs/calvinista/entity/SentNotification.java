@@ -38,7 +38,8 @@ import lombok.Getter;
     @NamedQuery(name = "SentNotification.findNotificacaoMembro", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.membro.id = :membro"),
     @NamedQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select sn from SentNotification sn left join sn.membro m where sn.dispositivo.chave = :dispositivo and m.id is null"),
     @NamedQuery(name = "SentNotification.findNaoLidasMembro", query = "select sn from SentNotification sn where sn.igreja.chave = :igreja and sn.membro.id = :membro"),
-    @NamedQuery(name = "SentNotification.countNaoLidos", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where sn.lido = false and i.chave = :igreja and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)")
+    @NamedQuery(name = "SentNotification.countNaoLidosDispositivo", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where sn.lido = false and i.chave = :igreja and d.chave = :dispositivo and m.id is null"),
+    @NamedQuery(name = "SentNotification.countNaoLidosMembro", query = "select count(distinct sn.notification.id) from SentNotification sn inner join sn.igreja i inner join sn.dispositivo d left join sn.membro m where sn.lido = false and i.chave = :igreja and m.id = :membro")
 })
 public class SentNotification implements IEntity {
     @Id

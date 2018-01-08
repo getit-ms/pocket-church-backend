@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.*;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
-import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +42,6 @@ public class ProcessamentoService {
     @Resource
     private SessionContext sctx;
 
-    @Context
     @Resource
     private UserTransaction ut;
 

@@ -74,7 +74,7 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
         final int offset = pdf.getPaginas().size();
 
         return PDFToImageConverterUtil.convert(EntityFileManager.
-                get(pdf.getPDF(), "dados")).forEachPage(new PDFToImageConverterUtil.PageHandler() {
+                get(pdf.getPDF(), "dados"), offset, limitePaginas).forEachPage(new PDFToImageConverterUtil.PageHandler() {
             @Override
             public void handle(int page, byte[] dados) throws IOException {
                 if (page < offset || (limitePaginas > 0 && page >= (offset + limitePaginas))){
@@ -83,7 +83,7 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
 
                 if (page == 0){
                     Arquivo arquivo = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
-                            replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", ImageUtil.redimensionaImagem(dados, "JPEG", 500, 500));
+                            replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", dados);
                     arquivo.used();
                     arquivo = daoService.update(arquivo);
                     pdf.setThumbnail(arquivo);

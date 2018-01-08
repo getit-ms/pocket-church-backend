@@ -92,10 +92,20 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ghost4j</groupId>
+            <artifactId>ghost4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jna</groupId>
+            <artifactId>jna</artifactId>
         </dependency>
 
         <dependency>

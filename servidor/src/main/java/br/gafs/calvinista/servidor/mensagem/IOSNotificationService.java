@@ -17,22 +17,19 @@ import com.notnoop.apns.PayloadBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.Asynchronous;
 
 /**
  *
  * @author Gabriel
  */
 @Stateless
+@TransactionAttribute(TransactionAttributeType.NEVER)
 public class IOSNotificationService implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(IOSNotificationService.class.getName());
     

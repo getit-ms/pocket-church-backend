@@ -17,8 +17,7 @@ import java.io.BufferedOutputStream;
 
 import lombok.*;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,13 +27,13 @@ import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.Asynchronous;
 
 /**
  *
  * @author Gabriel
  */
 @Stateless
+@TransactionAttribute(TransactionAttributeType.NEVER)
 public class AndroidNotificationService implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(AndroidNotificationService.class.getName());
 

@@ -7,6 +7,7 @@ package br.gafs.calvinista.dto;
 
 import br.gafs.calvinista.entity.DiaLeituraBiblica;
 import br.gafs.calvinista.entity.MarcacaoLeituraBiblica;
+import br.gafs.calvinista.view.View;
 import br.gafs.dto.DTO;
 import java.util.Date;
 import lombok.Data;
