@@ -126,6 +126,6 @@ public class NotificacaoDispatcherService {
 
     private void enviaNotificacao(Long idNotificacao, FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push, Object[] dispositivo)
             throws SystemException, HeuristicRollbackException, RollbackException, NotSupportedException, HeuristicMixedException {
-        enviaNotificacoesPagina(idNotificacao, filtro, push, (List<Object[]>) Arrays.asList(dispositivo));
+        enviaNotificacoesPagina(idNotificacao, filtro, push, (List<Object[]>) Arrays.asList((Object) dispositivo));
     }
 }
