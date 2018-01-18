@@ -36,6 +36,8 @@ public class NotificacaoService {
 
         Long quantidade = daoService.findWith(new FiltroDispositivoNotificacao(filtro).getCountQuery());
 
+        LOGGER.log(Level.SEVERE, "Quantidade total de dispositivos a enviar: " + idNotificacao);
+
         for (int i=0;i<quantidade;i+=FiltroDispositivoNotificacao.RESLTA_LIMIT) {
 
             filtro = filtro.clone();

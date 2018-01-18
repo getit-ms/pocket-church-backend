@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Getter
 @NoArgsConstructor
-public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuery {
+public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
     public static int RESLTA_LIMIT = 500;
 
     private String query;

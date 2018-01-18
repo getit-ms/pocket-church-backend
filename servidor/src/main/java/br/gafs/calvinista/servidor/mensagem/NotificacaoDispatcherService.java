@@ -6,7 +6,6 @@ import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
-import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 
 import javax.annotation.Resource;
@@ -49,15 +48,15 @@ public class NotificacaoDispatcherService {
 
         LOGGER.info("Buscando registro para envio do push: " + idNotificacao + " página " + filtro.getPagina());
 
-        BuscaPaginadaDTO<Object[]> pagina = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
+        List<Object[]> pagina = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
 
-        if (pagina.getResultados().isEmpty()) {
+        if (pagina.isEmpty()) {
             LOGGER.info("Nenhum registro encontrado para envio de push.");
         } else {
             try {
-                LOGGER.info("Enviando push: " + idNotificacao + " para " + pagina.getResultados().size() + " dispositivos.");
+                LOGGER.info("Enviando push: " + idNotificacao + " para " + pagina.size() + " dispositivos.");
 
-                enviaNotificacoesPagina(idNotificacao, filtro, push, pagina.getResultados());
+                enviaNotificacoesPagina(idNotificacao, filtro, push, pagina);
             } catch (Exception e) {
 
                 LOGGER.warning("Erro ao enviar página de notificações: " + idNotificacao);
