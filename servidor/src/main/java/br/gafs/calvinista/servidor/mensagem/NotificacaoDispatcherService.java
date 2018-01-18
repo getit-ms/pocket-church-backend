@@ -10,6 +10,9 @@ import br.gafs.dao.DAOService;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,9 @@ public class NotificacaoDispatcherService {
     @EJB
     private DAOService daoService;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @EJB
     private AndroidNotificationService androidService;
 
@@ -48,7 +54,12 @@ public class NotificacaoDispatcherService {
 
         LOGGER.info("Buscando registro para envio do push: " + idNotificacao + " página " + filtro.getPagina());
 
-        List<Object[]> pagina = daoService.findWith(new FiltroDispositivoNotificacao(filtro));
+        FiltroDispositivoNotificacao fquery = new FiltroDispositivoNotificacao(filtro);
+
+        List<Object[]> pagina = em.createNativeQuery(fquery.getQuery())
+                .setFirstResult(fquery.getResultLimit() * (fquery.getPage() - 1))
+                .setMaxResults(fquery.getResultLimit())
+                .getResultList();
 
         if (pagina.isEmpty()) {
             LOGGER.info("Nenhum registro encontrado para envio de push.");
