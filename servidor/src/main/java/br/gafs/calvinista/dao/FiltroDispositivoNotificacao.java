@@ -21,10 +21,11 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuery {
+    public static int RESLTA_LIMIT = 500;
+
     private String query;
     private Queries.SingleNativeQuery countQuery;
     private int page;
-    private int resultLimit = 500;
 
     public static StringBuilder query(FiltroDispositivoNotificacaoDTO filtro, StringBuilder from){
         StringBuilder where = new StringBuilder(" where d.chave_igreja = '").append(filtro.getIgreja().getChave()).append("' and d.pushkey <> 'unknown'");
@@ -82,7 +83,7 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
 
         page = filtro.getPagina();
         query = new StringBuilder("select min(d.tipo), d.pushkey, max(d.chave), max(d.id_membro) ").append(from).append(where).append(" group by d.pushkey order by d.pushkey").toString();
-        countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(d.pushkey) ").append(from).append(where).toString());
+        countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(distinct d.pushkey) ").append(from).append(where).toString());
     }
 
     @Override
@@ -90,6 +91,10 @@ public class FiltroDispositivoNotificacao implements Queries.PaginatedNativeQuer
         return null;
     }
 
+    @Override
+    public int getResultLimit() {
+        return RESLTA_LIMIT;
+    }
 }
 
 
