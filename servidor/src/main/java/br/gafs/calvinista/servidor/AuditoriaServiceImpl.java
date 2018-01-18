@@ -39,7 +39,7 @@ public class AuditoriaServiceImpl implements AuditoriaService {
     private final ObjectMapper om = new ObjectMapper();
 
     private final static List<RegistroAuditoria> lote = new ArrayList<RegistroAuditoria>();
-    
+
     @Override
     @Asynchronous
     public void registra(RegistroAuditoria auditoria, Object request, Object response, StatusRegistroAuditoria status) {
@@ -60,21 +60,21 @@ public class AuditoriaServiceImpl implements AuditoriaService {
                 Logger.getLogger(AuditoriaServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+
         synchronized(lote){
             lote.add(auditoria);
         }
     }
-    
+
     @Schedule(hour = "*", minute = "*")
     public void flushAuditoria(){
         List<RegistroAuditoria> audit = new ArrayList<RegistroAuditoria>();
-        
+
         synchronized(lote){
             audit.addAll(lote);
             lote.clear();
         }
-        
+
         for (RegistroAuditoria auditoria : audit){
             daoService.create(auditoria);
         }

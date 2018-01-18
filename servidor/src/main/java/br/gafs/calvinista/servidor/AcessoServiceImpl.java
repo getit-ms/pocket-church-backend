@@ -80,9 +80,7 @@ public class AcessoServiceImpl implements AcessoService {
     @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        synchronized (REGISTER_DEVICES){
-            REGISTER_DEVICES.add(new RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
-        }
+        REGISTER_DEVICES.add(new RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
     }
     
     @Getter

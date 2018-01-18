@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.transaction.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -125,8 +126,6 @@ public class NotificacaoDispatcherService {
 
     private void enviaNotificacao(Long idNotificacao, FiltroDispositivoNotificacaoDTO filtro, MensagemPushDTO push, Object[] dispositivo)
             throws SystemException, HeuristicRollbackException, RollbackException, NotSupportedException, HeuristicMixedException {
-        List<Object[]> dispositivos = new ArrayList<>();
-        dispositivos.add(dispositivo);
-        enviaNotificacoesPagina(idNotificacao, filtro, push, dispositivos);
+        enviaNotificacoesPagina(idNotificacao, filtro, push, (List<Object[]>) Arrays.asList(dispositivo));
     }
 }
