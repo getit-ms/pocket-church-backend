@@ -9,15 +9,9 @@ import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.file.Attachment;
 import br.gafs.file.EntityFileManager;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+
+import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +22,7 @@ import lombok.Setter;
  */
 @Getter
 @Entity
+@Cacheable
 @NoArgsConstructor
 @IdClass(ParametroId.class)
 @Table(name = "tb_parametro")

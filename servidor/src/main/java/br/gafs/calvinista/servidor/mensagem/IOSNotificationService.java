@@ -77,7 +77,7 @@ public class IOSNotificationService implements Serializable {
             builder.alertTitle(notification.getTitle());
         }
 
-        service.push(to, builder.build());
+        service.push(to, builder.build()).;
     }
 
     @Getter

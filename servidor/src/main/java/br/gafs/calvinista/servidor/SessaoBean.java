@@ -81,6 +81,16 @@ public class SessaoBean implements Serializable {
                 throw new ServiceException("mensagens.MSG-403");
             }
         }
+
+        Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
+
+        if (igreja.isInativa()) {
+            throw new ServiceException("O aplicativo foi desativado. Entre em contato com a igreja para mais detalhes");
+        }
+
+        if (igreja.isBloqueada() && admin) {
+            throw new ServiceException("O aplicativo está bloqueado. Entre em contato com a GET IT para mais detalhes.");
+        }
         
         String uuid = getUUID();
         if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
