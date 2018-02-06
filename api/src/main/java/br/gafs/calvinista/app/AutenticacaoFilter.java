@@ -39,7 +39,7 @@ public class AutenticacaoFilter implements Filter {
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.addHeader("Access-Control-Allow-Methods", req.getHeader("Access-Control-Request-Method"));
         resp.addHeader("Access-Control-Allow-Headers", "igreja, dispositivo, authorization, set-authorization, " + req.getHeader("Access-Control-Request-Headers"));
-        resp.addHeader("Access-Control-Expose-Headers", "igreja, dispositivo, authorization, set-authorization");
+        resp.addHeader("Access-Control-Expose-Headers", "igreja, dispositivo, authorization, set-authorization, force-register, force-reset");
         
         request.setAttribute(SessionDataManager.class.getSimpleName(), new SessionDataManager() {
             @Override
