@@ -6,8 +6,11 @@
 package br.gafs.calvinista.dto;
 
 import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.domain.TipoBoletim;
 import br.gafs.dto.DTO;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 public class FiltroBoletimDTO implements DTO {
     private Date dataInicio;
     private Date dataTermino;
+    @JsonIgnore
+    private TipoBoletim tipo;
     private Integer pagina = 1;
     private Integer total = 10;
 }

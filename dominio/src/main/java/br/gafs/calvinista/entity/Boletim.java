@@ -6,6 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.calvinista.entity.domain.StatusBoletim;
+import br.gafs.calvinista.entity.domain.TipoBoletim;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -36,8 +37,8 @@ import java.util.Map;
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
-    @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :statusIgreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.divulgado = false group by i"),
-    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja"),
+    @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :statusIgreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
+    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja and b.tipo = :tipo"),
     @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
     @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.igreja.chave = :igreja")
 })
@@ -94,6 +95,13 @@ public class Boletim implements ArquivoPDF {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_alteracao")
     private Date ultimaAlteracao = DateUtil.getDataAtual();
+
+    @Setter
+    @NotNull
+    @Column(name = "tipo")
+    @JsonView(Resumido.class)
+    @Enumerated(EnumType.ORDINAL)
+    private TipoBoletim tipo = TipoBoletim.BOLETIM;
 
     @JsonView(Detalhado.class)
     @Column(name = "divulgado", nullable = false)

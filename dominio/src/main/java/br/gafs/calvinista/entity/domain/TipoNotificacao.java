@@ -12,6 +12,7 @@ package br.gafs.calvinista.entity.domain;
 public enum TipoNotificacao {
     NOTIFICACAO,
     BOLETIM,
+    PUBLICACAO,
     ESTUDO,
     VERSICULO,
     ACONSELHAMENTO,

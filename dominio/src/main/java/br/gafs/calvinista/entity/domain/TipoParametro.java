@@ -37,6 +37,8 @@ public enum TipoParametro {
     TITULO_LEMBRETE_LEITURA_BIBLICA(TipoValor.VALOR, String.class, null),
     TITULO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
     TEXTO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
+    TITULO_PUBLICACAO(TipoValor.VALOR, String.class, null),
+    TEXTO_PUBLICACAO(TipoValor.VALOR, String.class, null),
     TITULO_BOLETIM(TipoValor.VALOR, String.class, null),
     TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
     TITULO_ESTUDO(TipoValor.VALOR, String.class, null),

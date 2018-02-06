@@ -43,6 +43,7 @@ import javax.interceptor.Interceptors;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -52,7 +53,8 @@ import lombok.Getter;
 @Local(AcessoService.class)
 @Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class})
 public class AcessoServiceImpl implements AcessoService {
-    
+
+    public static final Logger LOGGER = Logger.getLogger(AcessoServiceImpl.class);
     @EJB
     private DAOService daoService;
     
@@ -93,24 +95,36 @@ public class AcessoServiceImpl implements AcessoService {
         private String version;
     }
     
-    @Schedule(hour = "*", minute = "0/5")
+    @Schedule(hour = "*", minute = "*")
     public void doRegisterPush(){
         List<RegisterPushDTO> register = new ArrayList<RegisterPushDTO>();
         synchronized (REGISTER_DEVICES){
             register.addAll(REGISTER_DEVICES);
         }
+        while (register.size() > 10) {
+            register.remove(register.size() - 1);
+        }
+
         Iterator<RegisterPushDTO> iterator = register.iterator();
         
         while (iterator.hasNext()){
             RegisterPushDTO dto = iterator.next();
-            
+
+            LOGGER.info("Registro push para " + dto.getDispositivo());
+
             Dispositivo dispositivo = daoService.find(Dispositivo.class, dto.getDispositivo());
 
             if (dispositivo != null){
+                LOGGER.info("Dispositivo " + dto.getDispositivo() + " existe. Registrando push " + dto.getTipo() + "  - " + dto.getPushkey() + " = " + dto.getVersion());
+
                 dispositivo.registerToken(dto.getTipo(), dto.getPushkey(), dto.getVersion());
+
                 dispositivo = daoService.update(dispositivo);
+
                 daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
             }else{
+                LOGGER.info("Dispositivo não existe. Adiando registro.");
+
                 iterator.remove();
             }
         }

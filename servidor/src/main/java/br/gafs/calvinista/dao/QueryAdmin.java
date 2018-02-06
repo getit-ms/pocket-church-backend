@@ -188,9 +188,21 @@ public enum QueryAdmin {
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
-            return super.extractArguments(args).set("data", DateUtil.getDataAtual());
+            return super.extractArguments(args)
+                    .set("data", DateUtil.getDataAtual())
+                    .set("tipo", TipoBoletim.BOLETIM);
         }
         
+    },
+    UPDATE_PUBLICACOES_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("data", DateUtil.getDataAtual())
+                    .set("tipo", TipoBoletim.PUBLICACAO);
+        }
+
     },
     UPDATE_ESTUDOS_NAO_DIVULGADOS("Estudo.updateNaoDivulgadosByIgreja", "igreja"){
 
@@ -207,10 +219,23 @@ public enum QueryAdmin {
             return super.extractArguments(args).
                     set("statusIgreja", StatusIgreja.ATIVO).
                     set("statusBoletim", StatusBoletim.PUBLICADO).
+                    set("tipo", TipoBoletim.BOLETIM).
                     set("data", DateUtil.getDataAtual());
         }
         
-    }, 
+    },
+    IGREJAS_ATIVAS_COM_PUBLICACOES_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("statusIgreja", StatusIgreja.ATIVO).
+                    set("statusBoletim", StatusBoletim.PUBLICADO).
+                    set("tipo", TipoBoletim.PUBLICACAO).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    },
     IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR("Estudo.findIgrejaByStatusAndDataPublicacao"){
 
         @Override

@@ -608,7 +608,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
+    @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public Boletim cadastra(Boletim boletim) throws IOException {
         boletim.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
@@ -696,7 +696,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
+    @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public Boletim atualiza(Boletim boletim) throws IOException {
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
         boletim.setUltimaAlteracao(DateUtil.getDataAtual());
@@ -729,7 +729,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
+    @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public void removeBoletim(Long boletim) {
         Boletim entidade = buscaBoletim(boletim);
         
@@ -764,7 +764,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_BOLETINS)
+    @AllowAdmin({Funcionalidade.MANTER_BOLETINS, Funcionalidade.MANTER_BOLETINS})
     public BuscaPaginadaDTO<Boletim> buscaTodos(FiltroBoletimDTO filtro) {
         return daoService.findWith(new FiltroBoletim(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
     }
@@ -1982,6 +1982,40 @@ public class AppServiceImpl implements AppService {
                 }
             } else {
                 LOGGER.info(igreja.getChave() + " fora do horário para envio de notificações de aniversário");
+            }
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/10")
+    public void enviaNotificacoesPublicacoes() {
+        LOGGER.info("Iniciando envio de notificações de publicações.");
+
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_PUBLICACOES_A_DIVULGAR.create());
+
+        LOGGER.info(igrejas.size() + " igrejas encontradas para envio de notificações de publicações.");
+
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                LOGGER.info("Preparando envio de notificações de publicações para " + igreja.getChave());
+
+                String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_PUBLICACAO);
+                if (StringUtil.isEmpty(titulo)){
+                    titulo = MensagemUtil.getMensagem("push.publicacao.title", igreja.getLocale());
+                }
+
+                String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_PUBLICACAO);
+                if (StringUtil.isEmpty(texto)){
+                    texto = MensagemUtil.getMensagem("push.publicacao.message", igreja.getLocale(), igreja.getNome());
+                }
+
+                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.PUBLICACAO, false);
+
+                daoService.execute(QueryAdmin.UPDATE_PUBLICACOES_NAO_DIVULGADOS.create(igreja.getChave()));
+            } else {
+                LOGGER.info("Hora fora do limite de envio de notificações de publicações para " + igreja.getChave());
             }
         }
     }

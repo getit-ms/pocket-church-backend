@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.dto;
 
+import br.gafs.calvinista.entity.domain.TipoBoletim;
 import br.gafs.util.date.DateUtil;
 
 /**
@@ -13,8 +14,8 @@ import br.gafs.util.date.DateUtil;
  */
 public class FiltroBoletimPublicadoDTO extends FiltroBoletimDTO {
 
-    public FiltroBoletimPublicadoDTO(Integer pagina, Integer total) {
-        super(null, DateUtil.getDataAtual(), pagina, total);
+    public FiltroBoletimPublicadoDTO(TipoBoletim tipo, Integer pagina, Integer total) {
+        super(null, DateUtil.getDataAtual(), tipo, pagina, total);
     }
     
 }
