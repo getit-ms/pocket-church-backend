@@ -89,16 +89,20 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Schedule(hour = "*", minute = "0/5")
     public void doRegisterPush(){
+        LOGGER.info("Iniciando flush de registros de push");
+
         List<SessaoBean.RegisterPushDTO> register = new ArrayList<SessaoBean.RegisterPushDTO>();
         synchronized (SessaoBean.REGISTER_DEVICES){
             register.addAll(SessaoBean.REGISTER_DEVICES);
         }
+
         while (register.size() > 30) {
             register.remove(register.size() - 1);
         }
 
         Iterator<SessaoBean.RegisterPushDTO> iterator = register.iterator();
-        
+
+        LOGGER.info("Processando " + register.size() + " registros de push.");
         while (iterator.hasNext()){
             SessaoBean.RegisterPushDTO dto = iterator.next();
 
@@ -120,9 +124,13 @@ public class AcessoServiceImpl implements AcessoService {
                 iterator.remove();
             }
         }
+
         synchronized (SessaoBean.REGISTER_DEVICES){
             SessaoBean.REGISTER_DEVICES.removeAll(register);
+
+            LOGGER.info("Registros de push concluídos. " + SessaoBean.REGISTER_DEVICES.size() + " restantes.");
         }
+
     }
     
     private Dispositivo dispositivo() {

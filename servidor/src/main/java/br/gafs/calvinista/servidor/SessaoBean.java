@@ -159,7 +159,7 @@ public class SessaoBean implements Serializable {
         } else {
             Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
 
-            if (dispositivo != null && StringUtil.isEmpty(dispositivo.getPushkey())) {
+            if (dispositivo != null && !dispositivo.isRegistrado()) {
                 boolean found = false;
 
                 synchronized (REGISTER_DEVICES) {
