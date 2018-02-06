@@ -77,38 +77,28 @@ public class AcessoServiceImpl implements AcessoService {
         throw new ServiceException("mensagens.MSG-600");
     }
 
-    private final static List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
-    
     @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        REGISTER_DEVICES.add(new RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
-    }
-    
-    @Getter
-    @AllArgsConstructor
-    @EqualsAndHashCode(of = "dispositivo")
-    static class RegisterPushDTO implements DTO {
-        private String dispositivo;
-        private TipoDispositivo tipo;
-        private String pushkey;
-        private String version;
-    }
-    
-    @Schedule(hour = "*", minute = "*")
-    public void doRegisterPush(){
-        List<RegisterPushDTO> register = new ArrayList<RegisterPushDTO>();
-        synchronized (REGISTER_DEVICES){
-            register.addAll(REGISTER_DEVICES);
+        synchronized(SessaoBean.REGISTER_DEVICES) {
+            SessaoBean.REGISTER_DEVICES.add(new SessaoBean.RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
         }
-        while (register.size() > 10) {
+    }
+
+    @Schedule(hour = "*", minute = "0/5")
+    public void doRegisterPush(){
+        List<SessaoBean.RegisterPushDTO> register = new ArrayList<SessaoBean.RegisterPushDTO>();
+        synchronized (SessaoBean.REGISTER_DEVICES){
+            register.addAll(SessaoBean.REGISTER_DEVICES);
+        }
+        while (register.size() > 30) {
             register.remove(register.size() - 1);
         }
 
-        Iterator<RegisterPushDTO> iterator = register.iterator();
+        Iterator<SessaoBean.RegisterPushDTO> iterator = register.iterator();
         
         while (iterator.hasNext()){
-            RegisterPushDTO dto = iterator.next();
+            SessaoBean.RegisterPushDTO dto = iterator.next();
 
             LOGGER.info("Registro push para " + dto.getDispositivo());
 
@@ -128,8 +118,8 @@ public class AcessoServiceImpl implements AcessoService {
                 iterator.remove();
             }
         }
-        synchronized (REGISTER_DEVICES){
-            REGISTER_DEVICES.removeAll(register);
+        synchronized (SessaoBean.REGISTER_DEVICES){
+            SessaoBean.REGISTER_DEVICES.removeAll(register);
         }
     }
     

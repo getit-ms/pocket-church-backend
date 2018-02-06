@@ -14,9 +14,13 @@ import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.dao.DAOService;
+import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -53,7 +57,8 @@ public class SessaoBean implements Serializable {
     private List<Integer> funcionalidades;
     
     private boolean loaded;
-    
+
+    public final static List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
     private static final Set<String> DISPOSITIVOS_REGISTRANDO = new HashSet<String>();
     
     public void load(String authorization){
@@ -118,6 +123,23 @@ public class SessaoBean implements Serializable {
                 chaveDispositivo = newCD;
                 synchronized (DISPOSITIVOS_REGISTRANDO){
                     DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
+                }
+
+                if (StringUtil.isEmpty(dispositivo.getPushkey())) {
+                    boolean found = false;
+
+                    synchronized (REGISTER_DEVICES) {
+                        for (RegisterPushDTO dto : REGISTER_DEVICES) {
+                            if (dto.getDispositivo().equals(dispositivo.getChave())) {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!found) {
+                        manager.header("Force-Register", "true");
+                    }
                 }
             }
             
@@ -305,5 +327,14 @@ public class SessaoBean implements Serializable {
     public String getUUID() {
         return get("Dispositivo");
     }
-    
+
+    @Getter
+    @AllArgsConstructor
+    @EqualsAndHashCode(of = "dispositivo")
+    static class RegisterPushDTO implements DTO {
+        private String dispositivo;
+        private TipoDispositivo tipo;
+        private String pushkey;
+        private String version;
+    }
 }
