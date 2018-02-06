@@ -80,6 +80,8 @@ public class AcessoServiceImpl implements AcessoService {
     @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
+        LOGGER.info("Chamada para registro de dispositivo " + tipoDispositivo + " - " + pushKey + " - " + version);
+
         synchronized(SessaoBean.REGISTER_DEVICES) {
             SessaoBean.REGISTER_DEVICES.add(new SessaoBean.RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
         }

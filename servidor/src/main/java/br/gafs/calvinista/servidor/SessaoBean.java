@@ -124,23 +124,6 @@ public class SessaoBean implements Serializable {
                 synchronized (DISPOSITIVOS_REGISTRANDO){
                     DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
                 }
-
-                if (StringUtil.isEmpty(dispositivo.getPushkey())) {
-                    boolean found = false;
-
-                    synchronized (REGISTER_DEVICES) {
-                        for (RegisterPushDTO dto : REGISTER_DEVICES) {
-                            if (dto.getDispositivo().equals(dispositivo.getChave())) {
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!found) {
-                        manager.header("Force-Register", "true");
-                    }
-                }
             }
             
             if (!StringUtil.isEmpty(oldCD)){
@@ -173,6 +156,25 @@ public class SessaoBean implements Serializable {
             }
         }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
             createDispositivo(UUID.randomUUID().toString());
+        } else {
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+
+            if (dispositivo != null && StringUtil.isEmpty(dispositivo.getPushkey())) {
+                boolean found = false;
+
+                synchronized (REGISTER_DEVICES) {
+                    for (RegisterPushDTO dto : REGISTER_DEVICES) {
+                        if (dto.getDispositivo().equals(dispositivo.getChave())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    manager.header("Force-Register", "true");
+                }
+            }
         }
         
         boolean deprecated = creation == null ||
