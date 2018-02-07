@@ -54,13 +54,15 @@ import org.apache.log4j.Logger;
 @Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class})
 public class AcessoServiceImpl implements AcessoService {
 
-    public static final Logger LOGGER = Logger.getLogger(AcessoServiceImpl.class);
     @EJB
     private DAOService daoService;
     
     @EJB
     private MensagemService mensagemService;
-    
+
+    @EJB
+    private DispositivoService dispositivoService;
+
     @Inject
     private SessaoBean sessaoBean;
 
@@ -80,59 +82,9 @@ public class AcessoServiceImpl implements AcessoService {
     @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        LOGGER.info("Chamada para registro de dispositivo " + tipoDispositivo + " - " + pushKey + " - " + version);
-
-        synchronized(SessaoBean.REGISTER_DEVICES) {
-            SessaoBean.REGISTER_DEVICES.add(new SessaoBean.RegisterPushDTO(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version));
-        }
+        dispositivoService.register(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version);
     }
 
-    @Schedule(hour = "*", minute = "0/5")
-    public void doRegisterPush(){
-        LOGGER.info("Iniciando flush de registros de push");
-
-        List<SessaoBean.RegisterPushDTO> register = new ArrayList<SessaoBean.RegisterPushDTO>();
-        synchronized (SessaoBean.REGISTER_DEVICES){
-            register.addAll(SessaoBean.REGISTER_DEVICES);
-        }
-
-        while (register.size() > 30) {
-            register.remove(register.size() - 1);
-        }
-
-        Iterator<SessaoBean.RegisterPushDTO> iterator = register.iterator();
-
-        LOGGER.info("Processando " + register.size() + " registros de push.");
-        while (iterator.hasNext()){
-            SessaoBean.RegisterPushDTO dto = iterator.next();
-
-            LOGGER.info("Registro push para " + dto.getDispositivo());
-
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, dto.getDispositivo());
-
-            if (dispositivo != null){
-                LOGGER.info("Dispositivo " + dto.getDispositivo() + " existe. Registrando push " + dto.getTipo() + "  - " + dto.getPushkey() + " = " + dto.getVersion());
-
-                dispositivo.registerToken(dto.getTipo(), dto.getPushkey(), dto.getVersion());
-
-                dispositivo = daoService.update(dispositivo);
-
-                daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
-            }else{
-                LOGGER.info("Dispositivo não existe. Adiando registro.");
-
-                iterator.remove();
-            }
-        }
-
-        synchronized (SessaoBean.REGISTER_DEVICES){
-            SessaoBean.REGISTER_DEVICES.removeAll(register);
-
-            LOGGER.info("Registros de push concluídos. " + SessaoBean.REGISTER_DEVICES.size() + " restantes.");
-        }
-
-    }
-    
     private Dispositivo dispositivo() {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
 

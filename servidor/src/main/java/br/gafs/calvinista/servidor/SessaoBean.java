@@ -10,28 +10,19 @@ import br.gafs.calvinista.entity.Dispositivo;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
-import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.dao.DAOService;
-import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  *
@@ -45,10 +36,13 @@ public class SessaoBean implements Serializable {
     
     @Inject
     private SessionDataManager manager;
-    
+
+    @EJB
+    private DispositivoService dispositivoService;
+
     @EJB
     private DAOService daoService;
-    
+
     private String chaveIgreja;
     private String chaveDispositivo;
     private Long idMembro;
@@ -58,7 +52,6 @@ public class SessaoBean implements Serializable {
     
     private boolean loaded;
 
-    public final static List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
     private static final Set<String> DISPOSITIVOS_REGISTRANDO = new HashSet<String>();
     
     public void load(String authorization){
@@ -156,25 +149,10 @@ public class SessaoBean implements Serializable {
             }
         }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
             createDispositivo(UUID.randomUUID().toString());
-        } else {
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+        } else if (dispositivoService.shouldForceRegister(chaveDispositivo)){
 
-            if (dispositivo != null && !dispositivo.isRegistrado()) {
-                boolean found = false;
+            manager.header("Force-Register", "true");
 
-                synchronized (REGISTER_DEVICES) {
-                    for (RegisterPushDTO dto : REGISTER_DEVICES) {
-                        if (dto.getDispositivo().equals(dispositivo.getChave())) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!found) {
-                    manager.header("Force-Register", "true");
-                }
-            }
         }
         
         boolean deprecated = creation == null ||
@@ -328,15 +306,5 @@ public class SessaoBean implements Serializable {
     
     public String getUUID() {
         return get("Dispositivo");
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @EqualsAndHashCode(of = "dispositivo")
-    static class RegisterPushDTO implements DTO {
-        private String dispositivo;
-        private TipoDispositivo tipo;
-        private String pushkey;
-        private String version;
     }
 }
