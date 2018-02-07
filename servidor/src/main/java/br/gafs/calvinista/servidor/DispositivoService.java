@@ -152,17 +152,6 @@ public class DispositivoService {
 
         if (dispositivo != null && !dispositivo.isRegistrado()) {
 
-            List<RegisterPushDTO> lista = new ArrayList<>();
-            synchronized (REGISTER_DEVICES) {
-                lista.addAll(REGISTER_DEVICES);
-            }
-            
-            for (RegisterPushDTO dto : lista) {
-                if (dto.getDispositivo().equals(dispositivo.getChave())) {
-                    return false;
-                }
-            }
-
             LOGGER.info("Dispositivo "+ chaveDispositivo + " não registrado. Solicitando registro.");
 
             return true;
