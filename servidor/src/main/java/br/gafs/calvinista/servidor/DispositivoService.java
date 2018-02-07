@@ -9,9 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.transaction.*;
-import javax.ws.rs.core.Context;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +32,7 @@ public class DispositivoService {
     @EJB
     private DAOService daoService;
 
-    @Context
+    @Resource
     private UserTransaction userTransaction;
 
     @Asynchronous
