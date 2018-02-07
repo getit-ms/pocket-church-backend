@@ -136,7 +136,7 @@ public class SessaoBean implements Serializable {
                     }
 
                     set();
-                }else{
+                } else {
                     chaveDispositivo = oldCD;
                 }
             }else{
@@ -147,12 +147,10 @@ public class SessaoBean implements Serializable {
                 admin = dispositivo.isAdministrativo();
                 set();
             }
-        }else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)){
+        } else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)) {
             createDispositivo(UUID.randomUUID().toString());
-        } else if (dispositivoService.shouldForceRegister(chaveDispositivo)){
-
+        } else if (!admin && dispositivoService.shouldForceRegister(chaveDispositivo)) {
             manager.header("Force-Register", "true");
-
         }
         
         boolean deprecated = creation == null ||

@@ -29,6 +29,8 @@ public class DispositivoService {
 
     public final List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
 
+    private final List<String> verificados = new ArrayList<>();
+
     @EJB
     private DAOService daoService;
 
@@ -42,6 +44,12 @@ public class DispositivoService {
         synchronized(REGISTER_DEVICES) {
             REGISTER_DEVICES.add(new RegisterPushDTO(chaveDispositivo, tipoDispositivo, pushKey, version));
         }
+    }
+
+
+    @Schedule(hour = "*", minute = "0/5")
+    public void clearVerificados() {
+        verificados.clear();
     }
 
     @Schedule(hour = "*", minute = "*")
@@ -148,15 +156,19 @@ public class DispositivoService {
     }
 
     public boolean shouldForceRegister(String chaveDispositivo) {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+        if (!verificados.contains(chaveDispositivo)) {
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
 
-        if (dispositivo != null && !dispositivo.isRegistrado()) {
+            if (dispositivo != null && !dispositivo.isRegistrado()) {
 
-            LOGGER.info("Dispositivo "+ chaveDispositivo + " não registrado. Solicitando registro.");
+                LOGGER.info("Dispositivo "+ chaveDispositivo + " não registrado. Solicitando registro.");
 
-            return true;
+                return true;
+            }
+
+            verificados.add(chaveDispositivo);
         }
-        
+
         return false;
     }
 
