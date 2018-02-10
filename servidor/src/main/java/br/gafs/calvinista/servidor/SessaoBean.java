@@ -149,8 +149,15 @@ public class SessaoBean implements Serializable {
             }
         } else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)) {
             createDispositivo(UUID.randomUUID().toString());
-        } else if (!admin && dispositivoService.shouldForceRegister(chaveDispositivo)) {
-            manager.header("Force-Register", "true");
+        } else if (!admin) {
+            switch (dispositivoService.verificaContingencia(chaveDispositivo)) {
+                case FORCE_REGISTER:
+                    manager.header("Force-Register", "true");
+                    break;
+                case FULL_RESET:
+                    manager.header("Force-Reset", "true");
+                    break;
+            }
         }
         
         boolean deprecated = creation == null ||

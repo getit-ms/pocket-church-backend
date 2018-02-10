@@ -12,6 +12,8 @@ import lombok.Getter;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.transaction.*;
+import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +31,9 @@ public class DispositivoService {
 
     public final List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
 
-    private final List<String> verificados = new ArrayList<>();
+    private static final File CONTINGENCIA_DIR = new File("/calvin/contingencia");
+    private static final String FORCE_REGISTER_MASK = "force_register_{0}";
+    private static final String FULL_RESET_MASK = "full_reset_{0}";
 
     @EJB
     private DAOService daoService;
@@ -46,12 +50,6 @@ public class DispositivoService {
         }
     }
 
-
-    @Schedule(hour = "*", minute = "0/5")
-    public void clearVerificados() {
-        verificados.clear();
-    }
-
     @Schedule(hour = "*", minute = "*")
     public void doRegisterPush(){
         LOGGER.info("Iniciando flush de registros de push");
@@ -59,6 +57,11 @@ public class DispositivoService {
         List<RegisterPushDTO> register = new ArrayList<RegisterPushDTO>();
         synchronized (REGISTER_DEVICES){
             register.addAll(REGISTER_DEVICES);
+        }
+
+        if (register.isEmpty()) {
+            LOGGER.info("Nenhum dispositivo a ser registrado.");
+            return;
         }
 
         while (register.size() > 30) {
@@ -155,21 +158,32 @@ public class DispositivoService {
         }
     }
 
-    public boolean shouldForceRegister(String chaveDispositivo) {
-        if (!verificados.contains(chaveDispositivo)) {
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+    public TipoAcaoContigencia verificaContingencia(String chaveDispositivo) {
+        File fullReset = new File(CONTINGENCIA_DIR, MessageFormat.format(FULL_RESET_MASK, chaveDispositivo));
+        if (fullReset.exists()) {
+            fullReset.delete();
 
-            if (dispositivo != null && !dispositivo.isRegistrado()) {
+            LOGGER.info("Envio de FULL RESET para dispositivo " + chaveDispositivo);
 
-                LOGGER.info("Dispositivo "+ chaveDispositivo + " não registrado. Solicitando registro.");
-
-                return true;
-            }
-
-            verificados.add(chaveDispositivo);
+            return TipoAcaoContigencia.FULL_RESET;
         }
 
-        return false;
+        File forcePush = new File(CONTINGENCIA_DIR, MessageFormat.format(FORCE_REGISTER_MASK, chaveDispositivo));
+        if (forcePush.exists()) {
+            forcePush.delete();
+
+            LOGGER.info("Envio de FORCE REGISTER para dispositivo " + chaveDispositivo);
+
+            return TipoAcaoContigencia.FULL_RESET;
+        }
+
+        return TipoAcaoContigencia.NENHUMA;
+    }
+
+    public enum TipoAcaoContigencia {
+        FULL_RESET,
+        FORCE_REGISTER,
+        NENHUMA
     }
 
     @Getter
