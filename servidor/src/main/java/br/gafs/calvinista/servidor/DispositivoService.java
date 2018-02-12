@@ -174,7 +174,7 @@ public class DispositivoService {
 
             LOGGER.info("Envio de FORCE REGISTER para dispositivo " + chaveDispositivo);
 
-            return TipoAcaoContigencia.FULL_RESET;
+            return TipoAcaoContigencia.FORCE_REGISTER;
         }
 
         return TipoAcaoContigencia.NENHUMA;
