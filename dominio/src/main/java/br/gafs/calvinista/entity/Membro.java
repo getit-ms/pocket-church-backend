@@ -177,6 +177,13 @@ public class Membro implements IEntity {
     @Column(name = "deseja_disponibilizar_dados", nullable = false)
     private boolean desejaDisponibilizarDados = true;
 
+    @Setter
+    @OneToOne
+    @JsonView(Resumido.class)
+    @JoinColumn(name = "id_foto")
+    @View.MergeViews(View.Edicao.class)
+    private Arquivo foto;
+
     @Transient
     @View.MergeViews(View.AlterarSenha.class)
     private String novaSenha;

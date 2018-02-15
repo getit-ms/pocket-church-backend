@@ -1,0 +1,1 @@
+alter table tb_membro add column id_foto bigint;
