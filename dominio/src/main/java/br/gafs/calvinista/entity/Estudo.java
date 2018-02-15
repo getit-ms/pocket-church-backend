@@ -7,6 +7,7 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusEstudo;
+import br.gafs.calvinista.entity.dominio.TipoEstudo;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -19,7 +20,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.*;
 
 /**
  *
@@ -33,10 +34,34 @@ import java.util.Date;
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
-    @NamedQuery(name = "Estudo.findIgrejaByStatusAndDataPublicacao", query = "select i from Estudo e inner join e.igreja i where e.igreja.status = :statusIgreja and e.status = :statusEstudo and e.dataPublicacao <= :data group by i"),
-    @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.status = :status where e.igreja.chave = :igreja")
+    @NamedQuery(name = "Estudo.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Estudo e inner join e.igreja i where e.igreja.status = :statusIgreja and e.divulgado = false and e.dataPublicacao <= :data group by i"),
+    @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divultado = true where e.igreja.chave = :igreja"),
+    @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao")
 })
-public class Estudo implements IEntity {
+public class Estudo implements IEntity, ArquivoPDF {
+
+    private static final Map<RegistroIgrejaId, Integer> locks = new HashMap<RegistroIgrejaId, Integer>();
+
+    public synchronized static boolean locked(RegistroIgrejaId id){
+        return locks.containsKey(id);
+    }
+
+    public synchronized static int lock(RegistroIgrejaId id){
+        return locks.get(id);
+    }
+
+    public synchronized static void lock(RegistroIgrejaId id, int percent){
+        locks.put(id, percent);
+    }
+
+    public synchronized static void unlock(RegistroIgrejaId id){
+        locks.remove(id);
+    }
+
+    public synchronized static int locked(){
+        return locks.size();
+    }
+
     @Id
     @JsonView(Resumido.class)
     @Column(name = "id_estudo")
@@ -53,10 +78,9 @@ public class Estudo implements IEntity {
     private String titulo;
     
     @Setter
-    @NotEmpty
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
-    @Column(name = "texto", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "texto", columnDefinition = "TEXT")
     private String texto;
     
     @JsonView(Resumido.class)
@@ -70,11 +94,37 @@ public class Estudo implements IEntity {
     @Column(name = "data_publicacao")
     @View.MergeViews(View.Edicao.class)
     private Date dataPublicacao;
-    
+
+    @Setter
+    @OneToOne
+    @JsonView(Detalhado.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumn(name = "id_pdf")
+    private Arquivo pdf;
+
+    @Setter
+    @OneToOne
+    @JsonView(Detalhado.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumn(name = "id_thumbnail")
+    private Arquivo thumbnail;
+
+    @Setter
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "rl_estudo_paginas", joinColumns = {
+            @JoinColumn(name = "id_estudo", referencedColumnName = "id_estudo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
+    }, inverseJoinColumns = {
+            @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private List<Arquivo> paginas = new ArrayList<Arquivo>();
+
     @JsonView(Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
-    private StatusEstudo status = StatusEstudo.NAO_NOTIFICADO;
+    private StatusEstudo status = StatusEstudo.PROCESSANDO;
     
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
@@ -84,6 +134,10 @@ public class Estudo implements IEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "ultima_alteracao")
     private Date ultimaAlteracao = new Date();
+
+    @JsonView(Detalhado.class)
+    @Column(name = "divulgado", nullable = false)
+    private boolean divulgado;
     
     @ManyToOne
     @Setter(onMethod = @_(@JsonIgnore))
@@ -125,10 +179,27 @@ public class Estudo implements IEntity {
     }
 
     public void notificado(){
-        status = StatusEstudo.NOTIFICADO;
+        divulgado = true;
     }
 
     public void alterado(){
         ultimaAlteracao = new Date();
+    }
+
+    public void processando() {
+        status = StatusEstudo.PROCESSANDO;
+    }
+
+    @Override
+    public Arquivo getPDF() {
+        return pdf;
+    }
+
+    public TipoEstudo getTipo() {
+        if (pdf == null) {
+            return TipoEstudo.TEXTO;
+        } else {
+            return TipoEstudo.PDF;
+        }
     }
 }

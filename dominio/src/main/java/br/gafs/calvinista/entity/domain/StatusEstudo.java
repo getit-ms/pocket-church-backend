@@ -10,6 +10,7 @@ package br.gafs.calvinista.entity.domain;
  * @author Gabriel
  */
 public enum StatusEstudo {
-    NAO_NOTIFICADO,
-    NOTIFICADO
+    PROCESSANDO,
+    PUBLICADO,
+    REJEITADO
 }

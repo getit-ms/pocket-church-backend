@@ -19,6 +19,7 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoBoletim;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoEstudo;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
 import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
@@ -68,57 +69,58 @@ public class AppServiceImpl implements AppService {
     public static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
     private static final Integer HORA_MINIMA_NOTIFICACAO = 8;
     private static final Integer HORA_MAXIMA_NOTIFICACAO = 22;
+
     @EJB
     private DAOService daoService;
     
-    @Inject
-    private SessaoBean sessaoBean;
-    
     @EJB
     private ArquivoService arquivoService;
-    
+
     @EJB
     private MensagemService notificacaoService;
-    
+
     @EJB
     private PagSeguroService pagSeguroService;
-    
+
     @EJB
     private GoogleService googleService;
-    
+
     @EJB
     private ParametroService  paramService;
-    
+
     @EJB
     private ProcessamentoService processamentoService;
-    
+
+    @Inject
+    private SessaoBean sessaoBean;
+
     @Override
     @AllowAdmin
     public StatusAdminDTO buscaStatus(){
         StatusAdminDTO status = new StatusAdminDTO();
         status.setVersiculoDiario(buscaVersiculoDiario());
-        
+
         if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)){
             Number pedidos = daoService.findWith(new FiltroPedidoOracao(null, sessaoBean.getChaveIgreja(),
                     new FiltroPedidoOracaoDTO(null, null, Arrays.asList(StatusPedidoOracao.PENDENTE), 1, 10)).getCountQuery());
-            
+
             if (pedidos.intValue() > 0){
                 status.addNotificacao("mensagens.MSG-036",
                         new QueryParameters("quantidade", pedidos));
             }
         }
-        
+
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
             // TODO verificar a quantidade de inscrições pendentes em eventos
         }
-        
+
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)){
             // TODO verificar a quantidade de inscrições pendentes em cursos EBD
         }
-        
+
         return status;
     }
-    
+
     @Override
     public BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
         BuscaPaginadaDTO<NotificationSchedule> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(),
@@ -311,6 +313,9 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro cadastra(Membro membro) {
         membro.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        if (membro.getFoto() != null) {
+            membro.setFoto(arquivoService.buscaArquivo(membro.getFoto().getId()));
+        }
         return daoService.create(membro);
     }
     
@@ -492,6 +497,9 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro atualiza(Membro membro) {
+        if (membro.getFoto() != null) {
+            membro.setFoto(arquivoService.buscaArquivo(membro.getFoto().getId()));
+        }
         return daoService.update(membro);
     }
     
@@ -599,6 +607,29 @@ public class AppServiceImpl implements AppService {
                     }
                 }catch(Exception e){
                     LOGGER.log(Level.SEVERE, "Erro ao tentar processar boletim " + boletim.getId(), e);
+                }
+            }
+        }else{
+            LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/5")
+    public void processaEstudos() {
+        LOGGER.info("Iniciando processamento de estudos (PDF)");
+        if (Estudo.locked() < 15){
+            List<Estudo> estudos = daoService.findWith(QueryAdmin.ESTUDOS_PROCESSANDO.create());
+            LOGGER.info("Quantidade de estudos a processar: " + estudos.size());
+            for (Estudo estudo : estudos){
+                try{
+                    if (!Estudo.locked(new RegistroIgrejaId(estudo.getChaveIgreja(), estudo.getId()))){
+                        LOGGER.info("Agendando processamento do estudo " + estudo.getId());
+                        processamentoService.schedule(new ProcessamentoEstudo(estudo));
+                    }else{
+                        LOGGER.info("Estudo já encontra-se em processamento: " + estudo.getId());
+                    }
+                }catch(Exception e){
+                    LOGGER.log(Level.SEVERE, "Erro ao tentar processar estudo " + estudo.getId(), e);
                 }
             }
         }else{
@@ -808,6 +839,14 @@ public class AppServiceImpl implements AppService {
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
         estudo = daoService.create(estudo);
         scheduleRelatorioEstudo(estudo);
+
+        if (estudo.getPDF() != null) {
+            estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
+            if (trataTrocaPDF(estudo)){
+                estudo.processando();
+            }
+        }
+
         return estudo;
     }
     
@@ -828,6 +867,14 @@ public class AppServiceImpl implements AppService {
         estudo.alterado();
         estudo = daoService.update(estudo);
         scheduleRelatorioEstudo(estudo);
+
+        if (estudo.getPDF() != null) {
+            estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
+            if (trataTrocaPDF(estudo)){
+                estudo.processando();
+            }
+        }
+
         return estudo;
     }
     

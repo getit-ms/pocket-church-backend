@@ -204,14 +204,7 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_ESTUDOS_NAO_DIVULGADOS("Estudo.updateNaoDivulgadosByIgreja", "igreja"){
-
-        @Override
-        protected QueryParameters extractArguments(Object... args) {
-            return super.extractArguments(args).set("status", StatusEstudo.NOTIFICADO);
-        }
-
-    },
+    UPDATE_ESTUDOS_NAO_DIVULGADOS("Estudo.updateNaoDivulgadosByIgreja", "igreja"),
     IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
 
         @Override
@@ -236,13 +229,12 @@ public enum QueryAdmin {
         }
 
     },
-    IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR("Estudo.findIgrejaByStatusAndDataPublicacao"){
+    IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR("Estudo.findIgrejaNaoDivultadosByDataPublicacao"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
                     set("statusIgreja", StatusIgreja.ATIVO).
-                    set("statusEstudo", StatusEstudo.NAO_NOTIFICADO).
                     set("data", DateUtil.getDataAtual());
         }
 
@@ -261,7 +253,20 @@ public enum QueryAdmin {
         }
         
     }, 
-    UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status"), 
+    ESTUDOS_PROCESSANDO("Estudo.findPDFByStatus"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusEstudo.PROCESSANDO);
+        }
+
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return 5;
+        }
+
+    },
+    UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status"),
     COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveIgreja", "idMembro", "ultimaAlteracao"),
     LEITURA_SELECIONADA("MarcacaoLeituraBiblica.findLeituraSelecionada", COUNT_LEITURA_SELECIONADA, "chaveIgreja", "idMembro", "ultimaAlteracao"){
 
