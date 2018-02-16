@@ -850,6 +850,8 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo cadastra(Estudo estudo) {
         estudo.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        estudo.setCategoria(daoService.find(CategoriaEstudo.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), estudo.getCategoria().getId())));
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
 
         if (estudo.getPDF() != null) {
@@ -879,6 +881,9 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo atualiza(Estudo estudo) {
+        estudo.setCategoria(daoService.find(CategoriaEstudo.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), estudo.getCategoria().getId())));
+
         estudo.alterado();
 
         if (estudo.getPDF() != null) {
