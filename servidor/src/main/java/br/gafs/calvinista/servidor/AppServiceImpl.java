@@ -830,15 +830,27 @@ public class AppServiceImpl implements AppService {
         }
         return institucional;
     }
-    
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
+    public CategoriaEstudo cadastra(CategoriaEstudo categoria) {
+        categoria.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        return daoService.create(categoria);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
+    public List<CategoriaEstudo> buscaCategoriasEstudo() {
+        return daoService.findWith(QueryAdmin.CATEGORIA_ESTUDO.create(sessaoBean.getChaveIgreja()));
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo cadastra(Estudo estudo) {
         estudo.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
-        estudo = daoService.create(estudo);
-        scheduleRelatorioEstudo(estudo);
 
         if (estudo.getPDF() != null) {
             estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
@@ -846,6 +858,9 @@ public class AppServiceImpl implements AppService {
                 estudo.processando();
             }
         }
+
+        estudo = daoService.create(estudo);
+        scheduleRelatorioEstudo(estudo);
 
         return estudo;
     }
@@ -865,8 +880,6 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo atualiza(Estudo estudo) {
         estudo.alterado();
-        estudo = daoService.update(estudo);
-        scheduleRelatorioEstudo(estudo);
 
         if (estudo.getPDF() != null) {
             estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
@@ -874,6 +887,9 @@ public class AppServiceImpl implements AppService {
                 estudo.processando();
             }
         }
+
+        estudo = daoService.update(estudo);
+        scheduleRelatorioEstudo(estudo);
 
         return estudo;
     }

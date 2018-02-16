@@ -72,7 +72,9 @@ public interface AppService extends Serializable {
     
     Institucional recuperaInstitucional();
     Institucional atualiza(Institucional institucional);
-    
+
+    List<CategoriaEstudo> buscaCategoriasEstudo();
+    CategoriaEstudo cadastra(CategoriaEstudo categoria);
     Estudo cadastra(Estudo estudo);
     Estudo atualiza(Estudo estudo);
     void removeEstudo(Long estudo);

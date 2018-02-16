@@ -9,6 +9,7 @@ import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroEstudoDTO;
 import br.gafs.calvinista.dto.FiltroEstudoPublicadoDTO;
+import br.gafs.calvinista.entity.CategoriaEstudo;
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
@@ -59,7 +60,15 @@ public class EstudoController {
     public Response busca(
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaTodos(new FiltroEstudoDTO(null, null, pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaTodos(new FiltroEstudoDTO(null, null, null, pagina, total))).build();
+    }
+
+    @GET
+    @Path("categoria")
+    @JsonView(Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaCategorias(){
+        return Response.status(Response.Status.OK).entity(appService.buscaCategoriasEstudo()).build();
     }
 
     @GET
@@ -67,9 +76,10 @@ public class EstudoController {
     @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaPublicados(
+            @QueryParam("categoria") final Long categoria,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaPublicados(new FiltroEstudoPublicadoDTO(pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaPublicados(new FiltroEstudoPublicadoDTO(categoria, pagina, total))).build();
     }
     
     @GET
@@ -115,6 +125,14 @@ public class EstudoController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response cadastra(final Estudo estudo){
         return Response.status(Response.Status.OK).entity(appService.cadastra(estudo)).build();
+    }
+
+    @POST
+    @Path("categoria")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response cadastra(final CategoriaEstudo categoria){
+        return Response.status(Response.Status.OK).entity(appService.cadastra(categoria)).build();
     }
     
     @PUT

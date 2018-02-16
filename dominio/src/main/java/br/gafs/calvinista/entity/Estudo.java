@@ -20,6 +20,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
@@ -35,7 +36,7 @@ import java.util.*;
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
     @NamedQuery(name = "Estudo.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Estudo e inner join e.igreja i where e.igreja.status = :statusIgreja and e.divulgado = false and e.dataPublicacao <= :data group by i"),
-    @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divultado = true where e.igreja.chave = :igreja"),
+    @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divulgado = true where e.igreja.chave = :igreja"),
     @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao")
 })
 public class Estudo implements IEntity, ArquivoPDF {
@@ -99,15 +100,31 @@ public class Estudo implements IEntity, ArquivoPDF {
     @OneToOne
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
-    @JoinColumn(name = "id_pdf")
+    @JoinColumns({
+            @JoinColumn(name = "id_pdf", referencedColumnName = "id_arquivo"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
     private Arquivo pdf;
 
     @Setter
     @OneToOne
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
-    @JoinColumn(name = "id_thumbnail")
+    @JoinColumns({
+            @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
     private Arquivo thumbnail;
+
+    @Setter
+    @ManyToOne
+    @JsonView(Detalhado.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria_estudo"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private CategoriaEstudo categoria;
 
     @Setter
     @ManyToMany

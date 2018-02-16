@@ -286,7 +286,9 @@ public enum QueryAdmin {
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("statusInscricao", StatusInscricaoEvento.CONFIRMADA).set("statusEvento", StatusEvento.ATIVO);
         }
-    };
+    },
+    CATEGORIA_ESTUDO_POR_IGREJA_NOME("CategoriaEstudo.findByIgrejaAndNome", "igreja", "nome"),
+    CATEGORIA_ESTUDO("CategoriaEstudo.findByIgreja", "igreja");
     
     private final String query;
     private final String[] parameters;

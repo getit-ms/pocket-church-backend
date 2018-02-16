@@ -13,8 +13,8 @@ import br.gafs.util.date.DateUtil;
  */
 public class FiltroEstudoPublicadoDTO extends FiltroEstudoDTO {
 
-    public FiltroEstudoPublicadoDTO(Integer pagina, Integer total) {
-        super(null, DateUtil.getDataAtual(), pagina, total);
+    public FiltroEstudoPublicadoDTO(Long categoria, Integer pagina, Integer total) {
+        super(null, DateUtil.getDataAtual(), categoria, pagina, total);
     }
     
 }

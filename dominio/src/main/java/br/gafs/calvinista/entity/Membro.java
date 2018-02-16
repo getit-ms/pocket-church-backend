@@ -180,8 +180,11 @@ public class Membro implements IEntity {
     @Setter
     @OneToOne
     @JsonView(Resumido.class)
-    @JoinColumn(name = "id_foto")
     @View.MergeViews(View.Edicao.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_foto", referencedColumnName = "id_arquivo"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
     private Arquivo foto;
 
     @Transient

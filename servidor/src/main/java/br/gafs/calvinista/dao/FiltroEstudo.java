@@ -29,6 +29,11 @@ public class FiltroEstudo extends AbstractPaginatedFiltro<FiltroEstudoDTO>{
             query.append(" and e.dataPublicacao <= :dataCorte");
             args.put("dataCorte", DateUtil.getDataAtual());
         }
+
+        if (filtro.getCategoria() != null) {
+            query.append(" and e.categoria.id = :categoria");
+            args.put("categoria", filtro.getCategoria());
+        }
         
         setArguments(args);
         setPage(filtro.getPagina());
