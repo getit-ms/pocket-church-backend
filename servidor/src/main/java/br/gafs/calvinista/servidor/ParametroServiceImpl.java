@@ -5,10 +5,7 @@
  */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
-import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
-import br.gafs.calvinista.dto.ParametrosGlobaisDTO;
-import br.gafs.calvinista.dto.ParametrosIgrejaDTO;
+import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.ParametroId;
@@ -65,13 +62,25 @@ public class ParametroServiceImpl implements ParametroService {
     }
 
     @Override
+    public ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar(String igreja) {
+        return build(ConfiguracaoCalendarIgrejaDTO.class, igreja);
+    }
+
+    @Override
     public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube(String igreja) {
         return build(ConfiguracaoYouTubeIgrejaDTO.class, igreja);
     }
 
     @Audit
     @Override
-    @AllowMembro
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public void salvaConfiguracaoCalendar(ConfiguracaoCalendarIgrejaDTO params, String igreja) {
+        extract(params, igreja);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }

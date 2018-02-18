@@ -5,10 +5,7 @@
  */
 package br.gafs.calvinista.service;
 
-import br.gafs.calvinista.dto.ConfiguracaoIgrejaDTO;
-import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
-import br.gafs.calvinista.dto.ParametrosGlobaisDTO;
-import br.gafs.calvinista.dto.ParametrosIgrejaDTO;
+import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import java.io.Serializable;
 
@@ -17,16 +14,19 @@ import java.io.Serializable;
  * @author Gabriel
  */
 public interface ParametroService extends Serializable {
-    public ParametrosGlobaisDTO buscaParametrosGlobais();
-    public ParametrosIgrejaDTO buscaParametros(String igreja);
-    public ConfiguracaoIgrejaDTO buscaConfiguracao(String igreja);
-    public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube(String igreja);
+    ParametrosGlobaisDTO buscaParametrosGlobais();
+    ParametrosIgrejaDTO buscaParametros(String igreja);
+    ConfiguracaoIgrejaDTO buscaConfiguracao(String igreja);
+    ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube(String igreja);
+    ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar(String chaveIgreja);
     
-    public void salvaParametrosGlobais(ParametrosGlobaisDTO params);
-    public void salvaParametros(ParametrosIgrejaDTO params, String igreja);
-    public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja);
-    public void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja);
-    
+    void salvaParametrosGlobais(ParametrosGlobaisDTO params);
+    void salvaParametros(ParametrosIgrejaDTO params, String igreja);
+    void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja);
+    void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja);
+    void salvaConfiguracaoCalendar(ConfiguracaoCalendarIgrejaDTO params, String igreja);
+
     <T> T get(String grupo, TipoParametro param);
+
     <T> void set(String grupo, TipoParametro param, T value);
 }

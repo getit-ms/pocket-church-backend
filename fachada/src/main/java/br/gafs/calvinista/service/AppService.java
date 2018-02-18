@@ -47,11 +47,7 @@ public interface AppService extends Serializable {
     Chamado solicita(Chamado chamado);
     Chamado buscaChamado(Long chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
-    
-    ConfiguracaoIgrejaDTO buscaConfiguracao();
-    ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao);
-    ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao);
-    
+
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);
     void removeMembro(Long membro);
@@ -168,28 +164,41 @@ public interface AppService extends Serializable {
     Long countNotificacoesNaoLidas();
     void removeNotificacao(Long notificacao);
     BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);
-    
+
+    ConfiguracaoIgrejaDTO atualiza(ConfiguracaoIgrejaDTO configuracao);
+
     String buscaURLAutenticacaoYouTube() throws IOException;
     void iniciaConfiguracaoYouTube(String code);
     List<VideoDTO> buscaVideos();
     ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube();
-    
+    void desvinculaYouTube();
+    ConfiguracaoIgrejaDTO buscaConfiguracao();
+    ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao);
+
+    String buscaURLAutenticacaoCalendar() throws IOException;
+    void iniciaConfiguracaoCalendar(String code);
+    BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total);
+    ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar();
+    void desvinculaCalendar();
+    ConfiguracaoCalendarIgrejaDTO atualiza(ConfiguracaoCalendarIgrejaDTO configuracao);
+
     BuscaPaginadaDTO<PlanoLeituraBiblica> buscaTodos(FiltroPlanoLeituraBiblicaDTO filtro);
     PlanoLeituraBiblica buscaPlanoLeitura(Long idPlano);
     PlanoLeituraBiblica cadastra(PlanoLeituraBiblica plano);
+
     PlanoLeituraBiblica atualiza(PlanoLeituraBiblica plano);
+
     void removePlanoLeitura(Long idPlano);
-    
-    void desvinculaYouTube();
-    
+
     BuscaPaginadaDTO<LeituraBibliaDTO> selecionaPlano(Long plano);
-    
+
     void desselecionaPlano();
-    
+
     LeituraBibliaDTO marcaLeitura(Long dia);
-    
     LeituraBibliaDTO desmarcaLeitura(Long dia);
-    
+
     PlanoLeituraBiblica buscaPlanoSelecionado();
+
     BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total);
+
 }

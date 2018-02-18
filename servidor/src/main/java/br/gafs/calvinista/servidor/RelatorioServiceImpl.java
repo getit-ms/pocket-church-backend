@@ -12,10 +12,7 @@ import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
-import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
-import br.gafs.calvinista.servidor.relatorio.RelatorioHino;
-import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
-import br.gafs.calvinista.servidor.relatorio.RelatorioTodosInscritos;
+import br.gafs.calvinista.servidor.relatorio.*;
 import br.gafs.dao.DAOService;
 import br.gafs.logger.ServiceLoggerInterceptor;
 
@@ -69,6 +66,12 @@ public class RelatorioServiceImpl implements RelatorioService {
     @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS})
     public File exportaInscritos(TipoEvento tipo) throws IOException, InterruptedException {
         return export(new RelatorioTodosInscritos(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), tipo), "xls");
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
+    public File exportaContatos() throws IOException, InterruptedException {
+        return export(new RelatorioContatos(daoService.find(Igreja.class, sessaoBean.getChaveIgreja())), "xls");
     }
 
     @Override

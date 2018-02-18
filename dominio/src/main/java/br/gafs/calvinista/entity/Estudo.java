@@ -37,7 +37,8 @@ import java.util.*;
 @NamedQueries({
     @NamedQuery(name = "Estudo.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Estudo e inner join e.igreja i where e.igreja.status = :statusIgreja and e.divulgado = false and e.dataPublicacao <= :data group by i"),
     @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divulgado = true where e.igreja.chave = :igreja"),
-    @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao")
+    @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
+    @NamedQuery(name = "Estudo.updateStatus", query = "update Estudo e set e.status = :status where e.id = :estudo and e.igreja.chave = :igreja")
 })
 public class Estudo implements IEntity, ArquivoPDF {
 
@@ -98,7 +99,7 @@ public class Estudo implements IEntity, ArquivoPDF {
 
     @Setter
     @OneToOne
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @JoinColumns({
             @JoinColumn(name = "id_pdf", referencedColumnName = "id_arquivo"),
@@ -108,8 +109,7 @@ public class Estudo implements IEntity, ArquivoPDF {
 
     @Setter
     @OneToOne
-    @JsonView(Detalhado.class)
-    @View.MergeViews(View.Edicao.class)
+    @JsonView(Resumido.class)
     @JoinColumns({
             @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo"),
             @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
@@ -122,7 +122,7 @@ public class Estudo implements IEntity, ArquivoPDF {
     @View.MergeViews(View.Edicao.class)
     @JoinColumns({
             @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria_estudo"),
-            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "CHAVE_IGREJA", insertable = false, updatable = false)
     })
     private CategoriaEstudo categoria;
 

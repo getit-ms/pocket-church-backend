@@ -56,7 +56,8 @@ public enum TipoParametro {
     GOOGLE_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     GOOGLE_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
     YOUTUBE_CHANNEL_ID(TipoValor.VALOR, String.class, null),
-            
+    GOOGLE_CALENDAR_ID(TipoValor.VALOR, String.class, null),
+
     ;
     
     private final TipoValor tipoValor;

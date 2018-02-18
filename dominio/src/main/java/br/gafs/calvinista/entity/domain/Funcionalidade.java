@@ -40,6 +40,7 @@ public enum Funcionalidade {
     CONFIGURAR_YOUTUBE(Tipo.ADMIN, 30),
     MANTER_PLANOS_LEITURA_BIBLICA(Tipo.ADMIN, 33),
     MANTER_PUBLICACOES(Tipo.ADMIN, 35),
+    CONFIGURAR_GOOGLE_CALENDAR(Tipo.ADMIN, 36),
 
     // Membro
     CONSULTAR_CONTATOS_IGREJA(Tipo.MEMBRO, 19),
@@ -56,7 +57,9 @@ public enum Funcionalidade {
     CONSULTAR_HINARIO(Tipo.PUBLICA, 26),
     CONSULTAR_CIFRAS(Tipo.PUBLICA, 27),
     YOUTUBE(Tipo.PUBLICA, 31),
-    BIBLIA(Tipo.PUBLICA, 32)
+    BIBLIA(Tipo.PUBLICA, 32),
+    AGENDA(Tipo.PUBLICA, 37),
+    LISTAR_PUBLICACOES(Tipo.PUBLICA, 38),
     ;
     
     public final static List<Funcionalidade> FUNCIONALIDADES_APLICATIVO = new ArrayList<Funcionalidade>();

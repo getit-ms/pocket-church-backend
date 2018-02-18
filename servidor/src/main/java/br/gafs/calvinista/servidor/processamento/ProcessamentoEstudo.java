@@ -53,7 +53,7 @@ public class ProcessamentoEstudo implements ProcessamentoService.Processamento {
     public void finished(ProcessamentoService.ProcessamentoTool tool) throws Exception {
         Estudo.unlock(bid);
         LOGGER.info("Finalizando processamento de estudo " + estudo.getId() + ".");
-        tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
+        tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_ESTUDO.
                 create(estudo.getChaveIgreja(), estudo.getId(), StatusEstudo.PUBLICADO));
     }
 
@@ -61,7 +61,7 @@ public class ProcessamentoEstudo implements ProcessamentoService.Processamento {
     public void dropped(ProcessamentoService.ProcessamentoTool tool) {
         Estudo.unlock(bid);
         LOGGER.severe("Abandonando processamento de estudo " + estudo.getId() + ".");
-        tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
+        tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_ESTUDO.
                 create(estudo.getChaveIgreja(), estudo.getId(), StatusEstudo.REJEITADO));
     }
 

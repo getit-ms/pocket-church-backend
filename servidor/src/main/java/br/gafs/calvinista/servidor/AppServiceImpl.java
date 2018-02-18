@@ -795,7 +795,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_BOLETINS, Funcionalidade.MANTER_BOLETINS})
+    @AllowAdmin({Funcionalidade.MANTER_BOLETINS, Funcionalidade.MANTER_PUBLICACOES})
     public BuscaPaginadaDTO<Boletim> buscaTodos(FiltroBoletimDTO filtro) {
         return daoService.findWith(new FiltroBoletim(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
     }
@@ -1665,16 +1665,32 @@ public class AppServiceImpl implements AppService {
         ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveIgreja());
         atualizaSituacaoPagSeguro(pagSeguroService.buscaReferenciaIdTransacao(transactionId, configuracao), configuracao);
     }
-    
+
     @Override
-    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public String buscaURLAutenticacaoCalendar() throws IOException {
+        return googleService.getURLAutorizacao(sessaoBean.getChaveIgreja(),
+                ResourceBundleUtil._default().getPropriedade("OAUTH_CALENDAR_REDIRECT_URL"));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public String buscaURLAutenticacaoYouTube() throws IOException {
-        return googleService.getURLAutorizacaoYouTube(sessaoBean.getChaveIgreja());
+        return googleService.getURLAutorizacao(sessaoBean.getChaveIgreja(),
+                ResourceBundleUtil._default().getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"));
     }
 
     @Audit
     @Override
-    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public ConfiguracaoCalendarIgrejaDTO atualiza(ConfiguracaoCalendarIgrejaDTO configuracao) {
+        paramService.salvaConfiguracaoCalendar(configuracao, sessaoBean.getChaveIgreja());
+        return paramService.buscaConfiguracaoCalendar(sessaoBean.getChaveIgreja());
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao) {
         paramService.salvaConfiguracaoYouTube(configuracao, sessaoBean.getChaveIgreja());
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
@@ -1682,13 +1698,31 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public void iniciaConfiguracaoCalendar(String code) {
+        try {
+            googleService.saveCredentials(sessaoBean.getChaveIgreja(),
+                    ResourceBundleUtil._default().getPropriedade("OAUTH_CALENDAR_REDIRECT_URL"), code);
+
+            ConfiguracaoCalendarIgrejaDTO config = paramService.buscaConfiguracaoCalendar(sessaoBean.getChaveIgreja());
+            config.setIdCalendario(googleService.buscaIdCalendar(sessaoBean.getChaveIgreja()));
+            paramService.salvaConfiguracaoCalendar(config, sessaoBean.getChaveIgreja());
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+            throw new ServiceException("mensagens.MSG-049");
+        }
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void iniciaConfiguracaoYouTube(String code) {
         try {
-            googleService.saveCredentialsYouTube(sessaoBean.getChaveIgreja(),code);
+            googleService.saveCredentials(sessaoBean.getChaveIgreja(),
+                    ResourceBundleUtil._default().getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), code);
             
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
-            config.setIdCanal(googleService.buscaIdCanal(sessaoBean.getChaveIgreja()));
+            config.setIdCanal(googleService.buscaIdCanalYouTube(sessaoBean.getChaveIgreja()));
             paramService.salvaConfiguracaoYouTube(config, sessaoBean.getChaveIgreja());
             
             Institucional institucional = recuperaInstitucional();
@@ -1704,24 +1738,47 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public void desvinculaCalendar() {
+        paramService.set(sessaoBean.getChaveIgreja(),
+                TipoParametro.GOOGLE_CALENDAR_ID, null);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void desvinculaYouTube() {
         paramService.set(sessaoBean.getChaveIgreja(),
                 TipoParametro.YOUTUBE_CHANNEL_ID, null);
     }
 
     @Override
+    public BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total) {try {
+        return googleService.buscaEventosCalendar(sessaoBean.getChaveIgreja(), pagina, total);
+    } catch (IOException ex) {
+        LOGGER.log(Level.SEVERE, null, ex);
+        return new BuscaPaginadaEventosCalendarioDTO(Collections.EMPTY_LIST, null);
+    }
+    }
+
+    @Override
     public List<VideoDTO> buscaVideos() {
         try {
-            return googleService.buscaVideos(sessaoBean.getChaveIgreja());
+            return googleService.buscaVideosYouTube(sessaoBean.getChaveIgreja());
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
             return Collections.emptyList();
         }
     }
-    
+
     @Override
-    @AllowMembro(Funcionalidade.CONFIGURAR_YOUTUBE)
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar() {
+        return paramService.buscaConfiguracaoCalendar(sessaoBean.getChaveIgreja());
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube() {
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
     }
@@ -2163,7 +2220,7 @@ public class AppServiceImpl implements AppService {
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
             if (config.isConfigurado()){
                 try{
-                    List<VideoDTO> streamings = googleService.buscaStreamingsAtivos(igreja.getChave());
+                    List<VideoDTO> streamings = googleService.buscaStreamsAtivosYouTube(igreja.getChave());
                     
                     for (VideoDTO video : streamings){
                         if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()){
@@ -2205,7 +2262,7 @@ public class AppServiceImpl implements AppService {
             
             if (config.isConfigurado()){
                 try{
-                    List<VideoDTO> streamings = googleService.buscaStreamingsAgendados(igreja.getChave());
+                    List<VideoDTO> streamings = googleService.buscaStreamsAgendadosYouTube(igreja.getChave());
                     
                     for (VideoDTO video : streamings){
                         if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&

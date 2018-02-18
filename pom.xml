@@ -232,6 +232,12 @@
                 <version>v3-rev181-1.22.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-calendar</artifactId>
+                <version>v3-rev181-1.22.0</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

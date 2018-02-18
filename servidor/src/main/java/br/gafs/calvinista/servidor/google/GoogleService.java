@@ -6,9 +6,12 @@
 package br.gafs.calvinista.servidor.google;
 
 import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.calvinista.dto.BuscaPaginadaEventosCalendarioDTO;
+import br.gafs.calvinista.dto.EventoCalendarioDTO;
 import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
@@ -17,12 +20,18 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.*;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.LiveBroadcastListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.calendar.Calendar;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -40,9 +49,9 @@ import java.util.logging.Logger;
 @Stateless
 public class GoogleService {
     
-    public static List<String> YOUTUBE_SCOPES = Arrays.asList(ResourceBundleUtil.
-            _default().getPropriedade("YOUTUBE_SCOPES").split("\\s*,\\s*"));
-    
+    public static List<String> GOOGLE_SCOPES = Arrays.asList(ResourceBundleUtil.
+            _default().getPropriedade("GOOGLE_SCOPES").split("\\s*,\\s*"));
+
     private static final File GOOGLE_STORE_DIR = new File(ResourceBundleUtil._default().getPropriedade("GOOGLE_STORE_DIR"));
     
     private static FileDataStoreFactory DATA_STORE_FACTORY;
@@ -60,8 +69,7 @@ public class GoogleService {
     
     @EJB
     private ParametroService paramService;
-    
-    
+
     private GoogleAuthorizationCodeFlow.Builder flow(String chaveIgreja, Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
@@ -71,25 +79,23 @@ public class GoogleService {
                 setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline");
     }
     
-    public String getURLAutorizacaoYouTube(String chaveIgreja) throws IOException {
-        return flow(chaveIgreja, YOUTUBE_SCOPES).setApprovalPrompt("force").build().newAuthorizationUrl().
-                setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
-                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), chaveIgreja)).
+    public String getURLAutorizacao(String chaveIgreja, String urlCallback) throws IOException {
+        return flow(chaveIgreja, GOOGLE_SCOPES).setApprovalPrompt("force").build().newAuthorizationUrl().
+                setRedirectUri(MessageFormat.format(urlCallback, chaveIgreja)).
                 setState(chaveIgreja).build();
     }
 
-    public Credential saveCredentialsYouTube(String chaveIgreja, String code) throws IOException {
-        GoogleAuthorizationCodeFlow flow = flow(chaveIgreja, YOUTUBE_SCOPES).build();
+    public Credential saveCredentials(String chaveIgreja, String callbackURL, String code) throws IOException {
+        GoogleAuthorizationCodeFlow flow = flow(chaveIgreja, GOOGLE_SCOPES).build();
         
         TokenResponse resp = flow.newTokenRequest(code).
-                setRedirectUri(MessageFormat.format(ResourceBundleUtil._default().
-                        getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), chaveIgreja)).execute();
+                setRedirectUri(MessageFormat.format(callbackURL, chaveIgreja)).execute();
 
         return flow.createAndStoreCredential(resp, chaveIgreja);
     }
 
-    private synchronized Credential loadCredentialsYouTube(String chaveIgreja) throws IOException {
-        Credential credential = flow(chaveIgreja, YOUTUBE_SCOPES).build().loadCredential(chaveIgreja);
+    private synchronized Credential loadCredentials(String chaveIgreja) throws IOException {
+        Credential credential = flow(chaveIgreja, GOOGLE_SCOPES).build().loadCredential(chaveIgreja);
 
         if (credential.getExpiresInSeconds() < 15){
             credential.refreshToken();
@@ -97,9 +103,19 @@ public class GoogleService {
 
         return credential;
     }
+
+    public String buscaIdCalendar(String chaveIgreja) throws IOException {
+        CalendarList response = connectCalendar(chaveIgreja).calendarList().list().execute();
+
+        if (!response.isEmpty()) {
+            return response.getItems().get(0).getId();
+        }
+
+        return null;
+    }
     
-    public String buscaIdCanal(String chaveIgreja) throws IOException {
-        ChannelListResponse response = connect(chaveIgreja).channels().list("id").setMine(true).execute();
+    public String buscaIdCanalYouTube(String chaveIgreja) throws IOException {
+        ChannelListResponse response = connectYouTube(chaveIgreja).channels().list("id").setMine(true).execute();
         
         if (!response.isEmpty()){
             return response.getItems().get(0).getId();
@@ -107,13 +123,48 @@ public class GoogleService {
         
         return null;
     }
-    
-    private YouTube connect(String igreja) throws IOException {
+
+    private Calendar connectCalendar(String igreja) throws IOException {
+        return new Calendar.Builder(new ApacheHttpTransport(), new JacksonFactory(),
+                loadCredentials(igreja)).setApplicationName("Pocket Church").build();
+    }
+
+    private YouTube connectYouTube(String igreja) throws IOException {
         return new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), 
-                loadCredentialsYouTube(igreja)).setApplicationName("Pocket Church").build();
+                loadCredentials(igreja)).setApplicationName("Pocket Church").build();
+
+    }
+    public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String pageToken, Integer tamanho) throws IOException {
+        String calendarId = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
+
+        List<EventoCalendarioDTO> eventos = new ArrayList<EventoCalendarioDTO>();
+
+        try {
+            Events response = connectCalendar(chave).events().list(calendarId)
+                    .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1)
+                    .setPageToken(pageToken).execute();
+
+            for (Event event : response.getItems()) {
+                EventoCalendarioDTO evento = new EventoCalendarioDTO();
+
+                evento.setId(event.getId());
+                evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                evento.setTermino(new Date(event.getStart().getDateTime().getValue()));
+                evento.setDescricao(event.getDescription());
+                evento.setLocal(event.getLocation());
+
+                eventos.add(evento);
+            }
+
+            return new BuscaPaginadaEventosCalendarioDTO(eventos, response.getNextPageToken());
+        } catch (Exception ex) {
+            Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
+        }
+
+        return new BuscaPaginadaEventosCalendarioDTO(eventos, null);
     }
     
-    public List<VideoDTO> buscaVideos(String chave) throws IOException {
+    public List<VideoDTO> buscaVideosYouTube(String chave) throws IOException {
         String channelId = paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
         
         if (StringUtil.isEmpty(channelId)){
@@ -123,7 +174,7 @@ public class GoogleService {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
 
         try {
-            YouTube connection = connect(chave);
+            YouTube connection = connectYouTube(chave);
             SearchListResponse response = connection.search().list("id,snippet").
                     setChannelId(channelId).
                     setMaxResults(30L).setType("video").setOrder("date").execute();
@@ -161,10 +212,10 @@ public class GoogleService {
         return videos;
     }
 
-    public List<VideoDTO> buscaStreamingsAtivos(String chave) throws IOException {
+    public List<VideoDTO> buscaStreamsAtivosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
         
-        for (VideoDTO video : buscaVideos(chave)){
+        for (VideoDTO video : buscaVideosYouTube(chave)){
             if (video.isAoVivo()){
                 videos.add(video);
             }
@@ -173,10 +224,10 @@ public class GoogleService {
         return videos;
     }
 
-    public List<VideoDTO> buscaStreamingsAgendados(String chave) throws IOException {
+    public List<VideoDTO> buscaStreamsAgendadosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
         
-        for (VideoDTO video : buscaVideos(chave)){
+        for (VideoDTO video : buscaVideosYouTube(chave)){
             if (video.isAgendado()){
                 videos.add(video);
             }

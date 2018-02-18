@@ -267,6 +267,7 @@ public enum QueryAdmin {
 
     },
     UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "igreja", "boletim", "status"),
+    UPDATE_STATUS_ESTUDO("Estudo.updateStatus", "igreja", "estudo", "status"),
     COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveIgreja", "idMembro", "ultimaAlteracao"),
     LEITURA_SELECIONADA("MarcacaoLeituraBiblica.findLeituraSelecionada", COUNT_LEITURA_SELECIONADA, "chaveIgreja", "idMembro", "ultimaAlteracao"){
 
