@@ -11,6 +11,7 @@ import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -108,6 +109,16 @@ public class Evento implements IEntity {
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
+
+    @NotNull
+    @OneToOne
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_banner", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private Arquivo banner;
     
     @ManyToOne
     @JoinColumn(name = "chave_igreja")

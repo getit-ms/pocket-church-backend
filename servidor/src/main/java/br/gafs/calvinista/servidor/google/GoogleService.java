@@ -142,7 +142,7 @@ public class GoogleService {
         try {
             Events response = connectCalendar(chave).events().list(calendarId)
                     .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1)
-                    .setPageToken(pageToken).execute();
+                    .setPageToken(pageToken).setSingleEvents(true).execute();
 
             for (Event event : response.getItems()) {
                 EventoCalendarioDTO evento = new EventoCalendarioDTO();
@@ -150,7 +150,7 @@ public class GoogleService {
                 evento.setId(event.getId());
                 evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
                 evento.setTermino(new Date(event.getStart().getDateTime().getValue()));
-                evento.setDescricao(event.getDescription());
+                evento.setDescricao(event.getSummary());
                 evento.setLocal(event.getLocation());
 
                 eventos.add(evento);

@@ -314,6 +314,7 @@ public class AppServiceImpl implements AppService {
     public Membro cadastra(Membro membro) {
         membro.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         if (membro.getFoto() != null) {
+            arquivoService.registraUso(membro.getFoto().getId());
             membro.setFoto(arquivoService.buscaArquivo(membro.getFoto().getId()));
         }
         return daoService.create(membro);
@@ -498,6 +499,7 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro atualiza(Membro membro) {
         if (membro.getFoto() != null) {
+            arquivoService.registraUso(membro.getFoto().getId());
             membro.setFoto(arquivoService.buscaArquivo(membro.getFoto().getId()));
         }
         return daoService.update(membro);
@@ -1373,6 +1375,12 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento cadastra(Evento evento) {
         evento.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
+        if (evento.getBanner() != null) {
+            arquivoService.registraUso(evento.getBanner().getId());
+            evento.setBanner(arquivoService.buscaArquivo(evento.getBanner().getId()));
+        }
+
         evento = daoService.create(evento);
         scheduleRelatoriosInscritos(evento);
         return evento;
@@ -1393,6 +1401,13 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public Evento atualiza(Evento evento) {
         evento.alterado();
+
+        if (evento.getBanner() != null) {
+            arquivoService.registraUso(evento.getBanner().getId());
+            evento.setBanner(arquivoService.buscaArquivo(evento.getBanner().getId()));
+
+        }
+
         evento = daoService.update(evento);
         scheduleRelatoriosInscritos(evento);
         return evento;
