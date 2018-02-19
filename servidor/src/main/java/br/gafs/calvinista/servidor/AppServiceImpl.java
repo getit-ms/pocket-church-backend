@@ -842,7 +842,6 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public List<CategoriaEstudo> buscaCategoriasEstudo() {
         return daoService.findWith(QueryAdmin.CATEGORIA_ESTUDO.create(sessaoBean.getChaveIgreja()));
     }
