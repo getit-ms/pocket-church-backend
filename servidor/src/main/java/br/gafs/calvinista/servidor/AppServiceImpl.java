@@ -851,8 +851,12 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
     public Estudo cadastra(Estudo estudo) {
         estudo.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
-        estudo.setCategoria(daoService.find(CategoriaEstudo.class,
-                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), estudo.getCategoria().getId())));
+
+        if (estudo.getCategoria() != null) {
+            estudo.setCategoria(daoService.find(CategoriaEstudo.class,
+                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), estudo.getCategoria().getId())));
+        }
+
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
 
         if (estudo.getPDF() != null) {

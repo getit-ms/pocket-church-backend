@@ -110,7 +110,6 @@ public class Evento implements IEntity {
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
 
-    @NotNull
     @OneToOne
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
