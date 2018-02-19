@@ -1404,7 +1404,6 @@ public class AppServiceImpl implements AppService {
         if (evento.getBanner() != null) {
             arquivoService.registraUso(evento.getBanner().getId());
             evento.setBanner(arquivoService.buscaArquivo(evento.getBanner().getId()));
-
         }
 
         evento = daoService.update(evento);
