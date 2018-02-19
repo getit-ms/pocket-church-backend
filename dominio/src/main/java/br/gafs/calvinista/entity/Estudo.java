@@ -207,6 +207,13 @@ public class Estudo implements IEntity, ArquivoPDF {
         status = StatusEstudo.PROCESSANDO;
     }
 
+    @JsonProperty
+    @JsonView(Resumido.class)
+    public List<Arquivo> getPaginas() {
+        Collections.sort(paginas);
+        return paginas;
+    }
+
     @Override
     public Arquivo getPDF() {
         return pdf;
