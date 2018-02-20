@@ -919,12 +919,22 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ESTUDOS)
-    public BuscaPaginadaDTO<Estudo> buscaTodos(FiltroEstudoDTO filtro) {
-        return daoService.findWith(new FiltroEstudo(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+    public BuscaPaginadaEstudoDTO buscaTodos(FiltroEstudoDTO filtro) {
+        BuscaPaginadaDTO<Estudo> resultado = daoService.findWith(new FiltroEstudo(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+
+        BuscaPaginadaEstudoDTO estudos = new BuscaPaginadaEstudoDTO(resultado.getResultados(),
+                resultado.getTotalResultados(), filtro.getPagina(), filtro.getTotal());
+
+        if (filtro.getCategoria() != null) {
+            estudos.setCategoria(daoService.find(CategoriaEstudo.class,
+                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), filtro.getCategoria())));
+        }
+
+        return estudos;
     }
     
     @Override
-    public BuscaPaginadaDTO<Estudo> buscaPublicados(FiltroEstudoPublicadoDTO filtro) {
+    public BuscaPaginadaEstudoDTO buscaPublicados(FiltroEstudoPublicadoDTO filtro) {
         return buscaTodos(filtro);
     }
     

@@ -149,7 +149,7 @@ public class GoogleService {
 
                 evento.setId(event.getId());
                 evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                evento.setTermino(new Date(event.getStart().getDateTime().getValue()));
+                evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
                 evento.setDescricao(event.getSummary());
                 evento.setLocal(event.getLocation());
 
