@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.app.dto;
 
+import br.gafs.calvinista.dto.MenuDTO;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Usuario;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
@@ -27,11 +28,13 @@ public class AcessoDTO implements DTO {
     private Integer tipoDispositivo;
     private String version;
     private String auth;
+    private MenuDTO menu;
 
-    public AcessoDTO(Membro membro, List<Funcionalidade> funcionalidades, String auth) {
+    public AcessoDTO(Membro membro, List<Funcionalidade> funcionalidades, String auth, MenuDTO menu) {
         this.membro = membro;
         this.funcionalidades = funcionalidades;
         this.auth = auth;
+        this.menu = menu;
     }
 
     public AcessoDTO(Usuario usuario) {

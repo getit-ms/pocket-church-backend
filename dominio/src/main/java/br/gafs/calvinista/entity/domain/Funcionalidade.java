@@ -60,20 +60,28 @@ public enum Funcionalidade {
     BIBLIA(Tipo.PUBLICA, 32),
     AGENDA(Tipo.PUBLICA, 37),
     LISTAR_PUBLICACOES(Tipo.PUBLICA, 38),
+
+    INICIO_APLICATIVO(Tipo.FIXA, 39),
+    NOTIFICACOES(Tipo.FIXA, 40),
+    CHAMADOS(Tipo.FIXA, 41),
+    PREFERENCIAS(Tipo.FIXA, 42),
     ;
     
     public final static List<Funcionalidade> FUNCIONALIDADES_APLICATIVO = new ArrayList<Funcionalidade>();
     public final static List<Funcionalidade> FUNCIONALIDADES_PUBLICAS = new ArrayList<Funcionalidade>();
     public final static List<Funcionalidade> FUNCIONALIDADES_ADMINISTRATIVO = new ArrayList<Funcionalidade>();
-    
+    public final static List<Funcionalidade> FUNCIONALIDADES_FIXAS = new ArrayList<Funcionalidade>();
+
     static {
         for (Funcionalidade func : values()){
             if (func.isAdmin()){
                 FUNCIONALIDADES_ADMINISTRATIVO.add(func);
             }else if (func.isMembro()){
                 FUNCIONALIDADES_APLICATIVO.add(func);
-            }else{
+            }else if (func.isPublica()){
                 FUNCIONALIDADES_PUBLICAS.add(func);
+            }else{
+                FUNCIONALIDADES_FIXAS.add(func);
             }
         }
     }
@@ -103,7 +111,8 @@ public enum Funcionalidade {
     enum Tipo {
         ADMIN,
         MEMBRO,
-        PUBLICA
+        PUBLICA,
+        FIXA
     }
     
 }

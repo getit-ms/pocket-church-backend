@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.service;
 
+import br.gafs.calvinista.dto.MenuDTO;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Preferencias;
@@ -40,5 +41,6 @@ public interface AcessoService extends Serializable {
     Membro redefineSenha(String jwt);
 
     List<Funcionalidade> buscaFuncionalidadesPublicas();
-    
+
+    MenuDTO buscaMenu();
 }

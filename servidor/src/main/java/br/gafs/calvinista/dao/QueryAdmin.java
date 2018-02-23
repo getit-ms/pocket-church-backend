@@ -289,7 +289,8 @@ public enum QueryAdmin {
         }
     },
     CATEGORIA_ESTUDO_POR_IGREJA_NOME("CategoriaEstudo.findByIgrejaAndNome", "igreja", "nome"),
-    CATEGORIA_ESTUDO("CategoriaEstudo.findByIgreja", "igreja");
+    CATEGORIA_ESTUDO("CategoriaEstudo.findByIgreja", "igreja"),
+    MENUS_IGREJA_FUNCIONALIDADES("Menu.findByIgrejaAndFuncionalidades", "igreja", "funcionalidades");
     
     private final String query;
     private final String[] parameters;

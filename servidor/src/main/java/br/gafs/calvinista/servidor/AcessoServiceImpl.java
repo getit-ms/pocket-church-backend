@@ -9,15 +9,9 @@ import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
+import br.gafs.calvinista.dto.MenuDTO;
+import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
-import br.gafs.calvinista.entity.Dispositivo;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Institucional;
-import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.Ministerio;
-import br.gafs.calvinista.entity.Preferencias;
-import br.gafs.calvinista.entity.RegistroIgrejaId;
-import br.gafs.calvinista.entity.Usuario;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.security.Audit;
 import br.gafs.calvinista.security.AuditoriaInterceptor;
@@ -30,10 +24,8 @@ import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.senha.SenhaUtil;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Schedule;
@@ -114,7 +106,46 @@ public class AcessoServiceImpl implements AcessoService {
         return daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja()));
     }
 
-    
+    @Override
+    public MenuDTO buscaMenu() {
+        List<Funcionalidade> funcionalidades = new ArrayList<Funcionalidade>();
+
+        funcionalidades.addAll(Funcionalidade.FUNCIONALIDADES_FIXAS);
+
+        funcionalidades.addAll(buscaFuncionalidadesPublicas());
+
+        if (sessaoBean.getIdMembro() != null) {
+            funcionalidades.addAll(getFuncionalidadesMembro());
+        }
+
+        MenuDTO root = new MenuDTO();
+
+        Map<Long, MenuDTO> menuMap = new HashMap<Long, MenuDTO>();
+
+        List<Menu> menus = daoService.findWith(QueryAdmin.MENUS_IGREJA_FUNCIONALIDADES.create(sessaoBean.getChaveIgreja(), funcionalidades));
+
+        for (Menu menu : menus) {
+            MenuDTO dto = new MenuDTO(menu.getNome(), menu.getIcone(), menu.getLink(), menu.getFuncionalidade(), new ArrayList<MenuDTO>());
+
+            if (menu.getMenuPai() == null) {
+                menuMap.put(menu.getId(), dto);
+                root.getSubmenus().add(dto);
+            } else {
+                if (!menuMap.containsKey(menu.getMenuPai().getId())) {
+                    MenuDTO dtoPai = new MenuDTO(menu.getMenuPai().getNome(),
+                            menu.getMenuPai().getIcone(), menu.getMenuPai().getLink(),
+                            menu.getMenuPai().getFuncionalidade(), new ArrayList<MenuDTO>());
+                    menuMap.put(menu.getMenuPai().getId(), dtoPai);
+                    root.getSubmenus().add(dtoPai);
+                }
+
+                menuMap.get(menu.getMenuPai().getId()).getSubmenus().add(dto);
+            }
+        }
+
+        return root;
+    }
+
     @Audit
     @Override
     public Preferencias salva(Preferencias preferencias) {

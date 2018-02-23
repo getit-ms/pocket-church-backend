@@ -17,10 +17,13 @@ import com.notnoop.apns.PayloadBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.PreDestroy;
 import javax.ejb.*;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +31,7 @@ import java.util.logging.Logger;
  *
  * @author Gabriel
  */
-@Stateless
+@Singleton
 @TransactionAttribute(TransactionAttributeType.NEVER)
 public class IOSNotificationService implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(IOSNotificationService.class.getName());
@@ -36,27 +39,60 @@ public class IOSNotificationService implements Serializable {
     @EJB
     private ParametroService paramService;
 
+    private Map<String, ApnsService> services = new HashMap<String, ApnsService>();
+
     @Asynchronous
     public void pushNotifications(Igreja igreja, MensagemPushDTO notification, List<Destination> destinations) {
-        ApnsService service = createApnsService(igreja);
-        service.start();
-
+        Map<String, String> requests = new HashMap<String, String>();
         for (Destination destination : destinations) {
-            doSendNotification(notification, destination.getTo(), destination.getBadge(), service);
+            prepareRequests(requests, notification, destination.getTo(), destination.getBadge());
         }
 
-        service.stop();
+        ApnsService service = getApnsService(igreja);
+
+        synchronized (service) {
+            for (Map.Entry<String, String> entry : requests.entrySet()) {
+                try {
+                    service.push(entry.getKey(), entry.getValue());
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, "Erro o enviar push iOS para " + entry.getKey(), ex);
+                }
+            }
+        }
+    }
+
+    @PreDestroy
+    @Schedule(hour = "0")
+    public synchronized void finalizaServicos() {
+        LOGGER.log(Level.INFO, "Encerrando serviços ativos e push iOS: " + services.size());
+
+        for (ApnsService service : services.values()) {
+            synchronized (service) {
+                service.stop();
+            }
+        }
+
+        services.clear();
+    }
+
+    private synchronized ApnsService getApnsService(Igreja igreja) {
+        if (!services.containsKey(igreja.getChave())) {
+            ApnsServiceBuilder serviceBuilder = APNS.newService().withCert(
+                    new ByteArrayInputStream((byte[]) paramService.get(igreja.getChave(), TipoParametro.PUSH_IOS_CERTIFICADO)),
+                    (String) paramService.get(igreja.getChave(), TipoParametro.PUSH_IOS_PASS));
+            serviceBuilder.withProductionDestination();
+
+            ApnsService service = serviceBuilder.build();
+
+            service.start();
+
+            services.put(igreja.getChave(), service);
+        }
+
+        return services.get(igreja.getChave());
     }
     
-    private ApnsService createApnsService(Igreja igreja) {
-        ApnsServiceBuilder serviceBuilder = APNS.newService().withCert(
-                        new ByteArrayInputStream((byte[]) paramService.get(igreja.getChave(), TipoParametro.PUSH_IOS_CERTIFICADO)), 
-                        (String) paramService.get(igreja.getChave(), TipoParametro.PUSH_IOS_PASS));
-        serviceBuilder.withProductionDestination();
-        return serviceBuilder.build();
-    }
-    
-    private void doSendNotification(MensagemPushDTO notification, String to, Long badge, ApnsService service) {
+    private void prepareRequests(Map<String, String> requests, MensagemPushDTO notification, String to, Long badge) {
         PayloadBuilder builder = APNS.newPayload();
         
         if (!StringUtil.isEmpty(notification.getSound())){
@@ -77,7 +113,7 @@ public class IOSNotificationService implements Serializable {
             builder.alertTitle(notification.getTitle());
         }
 
-        service.push(to, builder.build());
+        requests.put(to, builder.build());
     }
 
     @Getter

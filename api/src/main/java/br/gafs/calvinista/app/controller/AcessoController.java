@@ -165,6 +165,14 @@ public class AcessoController {
     public Response buscaHorariosLembretesLeitura(){
         return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
     }
+
+    @GET
+    @Path("menu")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaMenu(){
+        return Response.status(Response.Status.OK).entity(acessoService.buscaMenu()).build();
+    }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -173,6 +181,7 @@ public class AcessoController {
     }
     
     private AcessoDTO acesso(Membro membro){
-        return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(), response.getHeader("Set-Authorization"));
+        return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(),
+                response.getHeader("Set-Authorization"), acessoService.buscaMenu());
     }
 }
