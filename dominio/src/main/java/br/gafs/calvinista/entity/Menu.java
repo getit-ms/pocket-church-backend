@@ -17,7 +17,7 @@ import javax.persistence.*;
 @IdClass(RegistroIgrejaId.class)
 @EqualsAndHashCode(of = {"id", "chave_igreja"})
 @NamedQueries({
-        @NamedQuery(name = "Menu.findByIgrejaAndFuncionalidades", query = "select m from Menu m left join m.menuPai mp where m.funcionalidade in :funcionalidades and m.igreja.chave = :igreja order by mp.chaveIgreja desc, m.ordem, mp.ordem")
+        @NamedQuery(name = "Menu.findByIgrejaAndFuncionalidades", query = "select m from Menu m left join m.menuPai mp where m.funcionalidade in :funcionalidades and m.igreja.chave = :igreja")
 })
 public class Menu implements IEntity {
     @Id

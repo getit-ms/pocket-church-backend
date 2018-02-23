@@ -125,7 +125,8 @@ public class AcessoServiceImpl implements AcessoService {
         List<Menu> menus = daoService.findWith(QueryAdmin.MENUS_IGREJA_FUNCIONALIDADES.create(sessaoBean.getChaveIgreja(), funcionalidades));
 
         for (Menu menu : menus) {
-            MenuDTO dto = new MenuDTO(menu.getNome(), menu.getIcone(), menu.getLink(), menu.getFuncionalidade(), new ArrayList<MenuDTO>());
+            MenuDTO dto = new MenuDTO(menu.getNome(), menu.getIcone(), menu.getOrdem(),
+                    menu.getLink(), menu.getFuncionalidade(), new ArrayList<MenuDTO>());
 
             if (menu.getMenuPai() == null) {
                 menuMap.put(menu.getId(), dto);
@@ -133,7 +134,7 @@ public class AcessoServiceImpl implements AcessoService {
             } else {
                 if (!menuMap.containsKey(menu.getMenuPai().getId())) {
                     MenuDTO dtoPai = new MenuDTO(menu.getMenuPai().getNome(),
-                            menu.getMenuPai().getIcone(), menu.getMenuPai().getLink(),
+                            menu.getMenuPai().getIcone(), menu.getMenuPai().getOrdem(), menu.getMenuPai().getLink(),
                             menu.getMenuPai().getFuncionalidade(), new ArrayList<MenuDTO>());
                     menuMap.put(menu.getMenuPai().getId(), dtoPai);
                     root.getSubmenus().add(dtoPai);
@@ -141,6 +142,12 @@ public class AcessoServiceImpl implements AcessoService {
 
                 menuMap.get(menu.getMenuPai().getId()).getSubmenus().add(dto);
             }
+        }
+
+        Collections.sort(root.getSubmenus());
+
+        for (MenuDTO mnu : root.getSubmenus()) {
+            Collections.sort(mnu.getSubmenus());
         }
 
         return root;
