@@ -64,7 +64,7 @@ public class IOSNotificationService implements Serializable {
     @PreDestroy
     @Schedule(hour = "0")
     public synchronized void finalizaServicos() {
-        LOGGER.log(Level.INFO, "Encerrando serviços ativos e push iOS: " + services.size());
+        LOGGER.log(Level.INFO, "Encerrando servicos ativos e push iOS: " + services.size());
 
         for (ApnsService service : services.values()) {
             synchronized (service) {
