@@ -61,6 +61,7 @@ public enum Funcionalidade {
     AGENDA(Tipo.PUBLICA, 37),
     LISTAR_PUBLICACOES(Tipo.PUBLICA, 38),
 
+    INSTITUCIONAL(Tipo.FIXA, 43),
     INICIO_APLICATIVO(Tipo.FIXA, 39),
     NOTIFICACOES(Tipo.FIXA, 40),
     CHAMADOS(Tipo.FIXA, 41),
