@@ -58,7 +58,7 @@ public enum TipoParametro {
     GOOGLE_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     GOOGLE_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
     YOUTUBE_CHANNEL_ID(TipoValor.VALOR, String.class, null),
-    GOOGLE_CALENDAR_ID(TipoValor.ANEXO, List.class, new ArrayList<>()),
+    GOOGLE_CALENDAR_ID(TipoValor.ANEXO, List.class, null),
 
     ;
     
@@ -261,7 +261,7 @@ public enum TipoParametro {
             @Override
             public byte[] targetToSource(Object target) {
                 try{
-                    om.writeValueAsBytes(new Writable(target.getClass().getName(), om.writeValueAsString(target)));
+                    return om.writeValueAsBytes(new Writable(target.getClass().getName(), om.writeValueAsString(target)));
                 }catch(Exception e){
                     e.printStackTrace();
                 }

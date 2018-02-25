@@ -88,11 +88,11 @@ public class GoogleService {
     }
     
     public String getURLAutorizacaoYouTube(String chaveIgreja, String urlCallback) throws IOException {
-        return getURLAutorizacao(YOUTUBE_CHAVE, chaveIgreja, GOOGLE_CALENDAR_SCOPES, urlCallback);
+        return getURLAutorizacao(YOUTUBE_CHAVE, chaveIgreja, YOUTUBE_SCOPES, urlCallback);
     }
 
     public String getURLAutorizacaoCalendar(String chaveIgreja, String urlCallback) throws IOException {
-        return getURLAutorizacao(GOOGLE_CALENDAR_CHAVE, chaveIgreja, YOUTUBE_SCOPES, urlCallback);
+        return getURLAutorizacao(GOOGLE_CALENDAR_CHAVE, chaveIgreja, GOOGLE_CALENDAR_SCOPES, urlCallback);
     }
 
     private String getURLAutorizacao(String store, String chaveIgreja, Collection<String> scopes, String urlCallback) throws IOException {
