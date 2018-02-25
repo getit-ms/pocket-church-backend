@@ -184,8 +184,19 @@ public class GoogleService {
                         EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
                         evento.setId(event.getId());
-                        evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                        evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+
+                        if (event.getStart().getDateTime() != null) {
+                            evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                        } else {
+                            evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                        }
+
+                        if (event.getEnd().getDateTime() != null) {
+                            evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                        } else {
+                            evento.setTermino(new Date(event.getEnd().getDate().getValue()));
+                        }
+
                         evento.setDescricao(event.getSummary());
                         evento.setLocal(event.getLocation());
 
