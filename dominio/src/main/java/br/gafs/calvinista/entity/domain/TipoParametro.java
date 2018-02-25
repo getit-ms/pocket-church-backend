@@ -7,9 +7,7 @@ package br.gafs.calvinista.entity.domain;
 
 import br.gafs.calvinista.entity.Parametro;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -240,13 +238,7 @@ public enum TipoParametro {
         },
         ANEXO(byte[].class, new Converter<byte[], Object>() {
             private ObjectMapper om = new ObjectMapper();
-            
-            @AllArgsConstructor
-            class Writable {
-                String classname;
-                String content;
-            }
-            
+
             @Override
             public Object sourceToTarget(byte[] source) {
                 try{
@@ -257,7 +249,7 @@ public enum TipoParametro {
                 }
                 return null;
             }
-            
+
             @Override
             public byte[] targetToSource(Object target) {
                 try{
@@ -291,5 +283,13 @@ public enum TipoParametro {
             return cvrt;
         }
         
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Writable {
+        String classname;
+        String content;
     }
 }
