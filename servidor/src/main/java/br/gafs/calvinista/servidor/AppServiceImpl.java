@@ -1696,14 +1696,14 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
     public String buscaURLAutenticacaoCalendar() throws IOException {
-        return googleService.getURLAutorizacao(sessaoBean.getChaveIgreja(),
+        return googleService.getURLAutorizacaoCalendar(sessaoBean.getChaveIgreja(),
                 ResourceBundleUtil._default().getPropriedade("OAUTH_CALENDAR_REDIRECT_URL"));
     }
 
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public String buscaURLAutenticacaoYouTube() throws IOException {
-        return googleService.getURLAutorizacao(sessaoBean.getChaveIgreja(),
+        return googleService.getURLAutorizacaoYouTube(sessaoBean.getChaveIgreja(),
                 ResourceBundleUtil._default().getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"));
     }
 
@@ -1728,11 +1728,11 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
     public void iniciaConfiguracaoCalendar(String code) {
         try {
-            googleService.saveCredentials(sessaoBean.getChaveIgreja(),
+            googleService.saveCredentialsGoogleCalendar(sessaoBean.getChaveIgreja(),
                     ResourceBundleUtil._default().getPropriedade("OAUTH_CALENDAR_REDIRECT_URL"), code);
 
             ConfiguracaoCalendarIgrejaDTO config = paramService.buscaConfiguracaoCalendar(sessaoBean.getChaveIgreja());
-            config.setIdCalendario(googleService.buscaIdCalendar(sessaoBean.getChaveIgreja()));
+            config.setIdCalendario(googleService.buscaIdsCalendar(sessaoBean.getChaveIgreja()));
             paramService.salvaConfiguracaoCalendar(config, sessaoBean.getChaveIgreja());
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
@@ -1745,7 +1745,7 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void iniciaConfiguracaoYouTube(String code) {
         try {
-            googleService.saveCredentials(sessaoBean.getChaveIgreja(),
+            googleService.saveCredentialsYouTube(sessaoBean.getChaveIgreja(),
                     ResourceBundleUtil._default().getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), code);
             
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());

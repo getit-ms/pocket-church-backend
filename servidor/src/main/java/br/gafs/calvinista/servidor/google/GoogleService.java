@@ -11,7 +11,6 @@ import br.gafs.calvinista.dto.EventoCalendarioDTO;
 import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
@@ -21,9 +20,11 @@ import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
+import com.google.api.client.util.StringUtils;
 import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.calendar.*;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import com.google.api.services.youtube.YouTube;
@@ -31,7 +32,6 @@ import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.LiveBroadcastListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.calendar.Calendar;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -41,6 +41,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -49,19 +50,26 @@ import java.util.logging.Logger;
 @Stateless
 public class GoogleService {
     
-    public static List<String> GOOGLE_SCOPES = Arrays.asList(ResourceBundleUtil.
-            _default().getPropriedade("GOOGLE_SCOPES").split("\\s*,\\s*"));
+    public static List<String> YOUTUBE_SCOPES = Arrays.asList(ResourceBundleUtil.
+            _default().getPropriedade("YOUTUBE_SCOPES").split("\\s*,\\s*"));
+
+    public static List<String> GOOGLE_CALENDAR_SCOPES = Arrays.asList(ResourceBundleUtil.
+            _default().getPropriedade("GOOGLE_CALENDAR_SCOPES").split("\\s*,\\s*"));
 
     private static final File GOOGLE_STORE_DIR = new File(ResourceBundleUtil._default().getPropriedade("GOOGLE_STORE_DIR"));
     
-    private static FileDataStoreFactory DATA_STORE_FACTORY;
-    
+    private static Map<String, FileDataStoreFactory> DATA_STORE_FACTORY = new HashMap<>();
+
+    private static final String GOOGLE_CALENDAR_CHAVE = "CAL";
+    private static final String YOUTUBE_CHAVE = "YTB";
+
     static {
         if (!GOOGLE_STORE_DIR.exists()){
             GOOGLE_STORE_DIR.mkdirs();
         }
         try {
-            DATA_STORE_FACTORY = new FileDataStoreFactory(new File(GOOGLE_STORE_DIR, "store"));
+            DATA_STORE_FACTORY.put(GOOGLE_CALENDAR_CHAVE, new FileDataStoreFactory(new File(GOOGLE_STORE_DIR, GOOGLE_CALENDAR_CHAVE + "store")));
+            DATA_STORE_FACTORY.put(YOUTUBE_CHAVE, new FileDataStoreFactory(new File(GOOGLE_STORE_DIR, YOUTUBE_CHAVE + "store")));
         } catch (IOException ex) {
             Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -70,23 +78,39 @@ public class GoogleService {
     @EJB
     private ParametroService paramService;
 
-    private GoogleAuthorizationCodeFlow.Builder flow(String chaveIgreja, Collection<String> scopes) throws IOException{
+    private GoogleAuthorizationCodeFlow.Builder flow(String store, String chaveIgreja, Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
                 (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
                 (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
-                scopes).addRefreshListener(new DataStoreCredentialRefreshListener(chaveIgreja, DATA_STORE_FACTORY)).
-                setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline");
+                scopes).addRefreshListener(new DataStoreCredentialRefreshListener(chaveIgreja, DATA_STORE_FACTORY.get(store))).
+                setDataStoreFactory(DATA_STORE_FACTORY.get(store)).setAccessType("offline");
     }
     
-    public String getURLAutorizacao(String chaveIgreja, String urlCallback) throws IOException {
-        return flow(chaveIgreja, GOOGLE_SCOPES).setApprovalPrompt("force").build().newAuthorizationUrl().
+    public String getURLAutorizacaoYouTube(String chaveIgreja, String urlCallback) throws IOException {
+        return getURLAutorizacao(YOUTUBE_CHAVE, chaveIgreja, GOOGLE_CALENDAR_SCOPES, urlCallback);
+    }
+
+    public String getURLAutorizacaoCalendar(String chaveIgreja, String urlCallback) throws IOException {
+        return getURLAutorizacao(GOOGLE_CALENDAR_CHAVE, chaveIgreja, YOUTUBE_SCOPES, urlCallback);
+    }
+
+    private String getURLAutorizacao(String store, String chaveIgreja, Collection<String> scopes, String urlCallback) throws IOException {
+        return flow(store, chaveIgreja, scopes).setApprovalPrompt("force").build().newAuthorizationUrl().
                 setRedirectUri(MessageFormat.format(urlCallback, chaveIgreja)).
                 setState(chaveIgreja).build();
     }
 
-    public Credential saveCredentials(String chaveIgreja, String callbackURL, String code) throws IOException {
-        GoogleAuthorizationCodeFlow flow = flow(chaveIgreja, GOOGLE_SCOPES).build();
+    public Credential saveCredentialsYouTube(String chaveIgreja, String callbackURL, String code) throws IOException {
+        return saveCredentials(YOUTUBE_CHAVE, chaveIgreja, YOUTUBE_SCOPES, callbackURL, code);
+    }
+
+    public Credential saveCredentialsGoogleCalendar(String chaveIgreja, String callbackURL, String code) throws IOException {
+        return saveCredentials(GOOGLE_CALENDAR_CHAVE, chaveIgreja, GOOGLE_CALENDAR_SCOPES, callbackURL, code);
+    }
+
+    private Credential saveCredentials(String store, String chaveIgreja, Collection<String> scopes, String callbackURL, String code) throws IOException {
+        GoogleAuthorizationCodeFlow flow = flow(store, chaveIgreja, scopes).build();
         
         TokenResponse resp = flow.newTokenRequest(code).
                 setRedirectUri(MessageFormat.format(callbackURL, chaveIgreja)).execute();
@@ -94,8 +118,8 @@ public class GoogleService {
         return flow.createAndStoreCredential(resp, chaveIgreja);
     }
 
-    private synchronized Credential loadCredentials(String chaveIgreja) throws IOException {
-        Credential credential = flow(chaveIgreja, GOOGLE_SCOPES).build().loadCredential(chaveIgreja);
+    private synchronized Credential loadCredentials(String store, String chaveIgreja, Collection<String> scopes) throws IOException {
+        Credential credential = flow(store, chaveIgreja, scopes).build().loadCredential(chaveIgreja);
 
         if (credential.getExpiresInSeconds() < 15){
             credential.refreshToken();
@@ -104,14 +128,18 @@ public class GoogleService {
         return credential;
     }
 
-    public String buscaIdCalendar(String chaveIgreja) throws IOException {
+    public List<String> buscaIdsCalendar(String chaveIgreja) throws IOException {
         CalendarList response = connectCalendar(chaveIgreja).calendarList().list().execute();
 
         if (!response.isEmpty()) {
-            return response.getItems().get(0).getId();
+            List<String> ids = new ArrayList<>();
+            for (CalendarListEntry entry : response.getItems()) {
+                ids.add(entry.getId());
+            }
+            return ids;
         }
 
-        return null;
+        return Collections.emptyList();
     }
     
     public String buscaIdCanalYouTube(String chaveIgreja) throws IOException {
@@ -126,37 +154,47 @@ public class GoogleService {
 
     private Calendar connectCalendar(String igreja) throws IOException {
         return new Calendar.Builder(new ApacheHttpTransport(), new JacksonFactory(),
-                loadCredentials(igreja)).setApplicationName("Pocket Church").build();
+                loadCredentials(GOOGLE_CALENDAR_CHAVE, igreja, GOOGLE_CALENDAR_SCOPES))
+                .setApplicationName("Pocket Church").build();
     }
 
     private YouTube connectYouTube(String igreja) throws IOException {
-        return new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(), 
-                loadCredentials(igreja)).setApplicationName("Pocket Church").build();
+        return new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(),
+                loadCredentials(YOUTUBE_CHAVE, igreja, YOUTUBE_SCOPES))
+                .setApplicationName("Pocket Church").build();
 
     }
     public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String pageToken, Integer tamanho) throws IOException {
-        String calendarId = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
+        List<String> calendarIds = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
 
         List<EventoCalendarioDTO> eventos = new ArrayList<EventoCalendarioDTO>();
+        StringBuilder nextPages = new StringBuilder();
 
         try {
-            Events response = connectCalendar(chave).events().list(calendarId)
-                    .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1)
-                    .setPageToken(pageToken).setSingleEvents(true).setOrderBy("startTime").execute();
+            String[] pageTokens = StringUtil.isEmpty(pageToken) ? pageToken.split(Pattern.quote("(#)")) : new String[0];
 
-            for (Event event : response.getItems()) {
-                EventoCalendarioDTO evento = new EventoCalendarioDTO();
+            int i=0;
+            for (String calendarId : calendarIds) {
+                Events response = connectCalendar(chave).events().list(calendarId)
+                        .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
+                        .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
 
-                evento.setId(event.getId());
-                evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
-                evento.setDescricao(event.getSummary());
-                evento.setLocal(event.getLocation());
+                for (Event event : response.getItems()) {
+                    EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
-                eventos.add(evento);
+                    evento.setId(event.getId());
+                    evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                    evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                    evento.setDescricao(event.getSummary());
+                    evento.setLocal(event.getLocation());
+
+                    eventos.add(evento);
+                }
+
+                nextPages.append(response.getNextPageToken()).append("(#)");
             }
 
-            return new BuscaPaginadaEventosCalendarioDTO(eventos, response.getNextPageToken());
+            return new BuscaPaginadaEventosCalendarioDTO(eventos, nextPages.toString());
         } catch (Exception ex) {
             Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
         }

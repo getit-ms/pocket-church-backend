@@ -9,6 +9,8 @@ import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.util.string.StringUtil;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  *
  * @author Gabriel
@@ -16,10 +18,10 @@ import lombok.Data;
 @Data
 public class ConfiguracaoCalendarIgrejaDTO {
     @TipoParametro.Mapping(TipoParametro.GOOGLE_CALENDAR_ID)
-    private String idCalendario;
+    private List<String> idCalendario;
     
     public boolean isConfigurado(){
-        return !StringUtil.isEmpty(idCalendario);
+        return idCalendario != null && !idCalendario.isEmpty();
     }
     
 }

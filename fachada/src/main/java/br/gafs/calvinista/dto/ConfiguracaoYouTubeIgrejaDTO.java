@@ -9,6 +9,8 @@ import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.util.string.StringUtil;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  *
  * @author Gabriel

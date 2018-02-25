@@ -16,7 +16,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +58,7 @@ public enum TipoParametro {
     GOOGLE_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     GOOGLE_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
     YOUTUBE_CHANNEL_ID(TipoValor.VALOR, String.class, null),
-    GOOGLE_CALENDAR_ID(TipoValor.VALOR, String.class, null),
+    GOOGLE_CALENDAR_ID(TipoValor.ANEXO, List.class, new ArrayList<>()),
 
     ;
     

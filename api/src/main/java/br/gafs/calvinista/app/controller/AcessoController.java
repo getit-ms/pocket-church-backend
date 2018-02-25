@@ -112,7 +112,10 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerPushToken(AcessoDTO dto){
-        acessoService.registerPush(TipoDispositivo.values()[dto.getTipoDispositivo()], dto.getToken(), dto.getVersion());
+        if (dto != null && dto.getTipoDispositivo() != null) {
+            acessoService.registerPush(TipoDispositivo.values()[dto.getTipoDispositivo()], dto.getToken(), dto.getVersion());
+        }
+
         return Response.ok().build();
     }
     
