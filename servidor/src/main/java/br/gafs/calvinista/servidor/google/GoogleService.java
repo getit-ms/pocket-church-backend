@@ -207,6 +207,8 @@ public class GoogleService {
                 nextPages.append(response.getNextPageToken()).append("(#)");
             }
 
+            Collections.sort(eventos);
+
             return new BuscaPaginadaEventosCalendarioDTO(eventos, nextPages.toString());
         } catch (Exception ex) {
             Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);

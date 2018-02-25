@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public class EventoCalendarioDTO {
+public class EventoCalendarioDTO implements Comparable<EventoCalendarioDTO> {
     private String id;
     @View.JsonTemporal(View.JsonTemporalType.TIMESTAMP)
     private Date inicio;
@@ -19,4 +19,9 @@ public class EventoCalendarioDTO {
     private Date termino;
     private String descricao;
     private String local;
+
+    @Override
+    public int compareTo(EventoCalendarioDTO o) {
+        return inicio.compareTo(o.inicio);
+    }
 }
