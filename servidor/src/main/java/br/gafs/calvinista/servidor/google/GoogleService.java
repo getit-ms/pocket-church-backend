@@ -171,7 +171,7 @@ public class GoogleService {
         StringBuilder nextPages = new StringBuilder();
 
         try {
-            String[] pageTokens = StringUtil.isEmpty(pageToken) ? pageToken.split(Pattern.quote("(#)")) : new String[0];
+            String[] pageTokens = !StringUtil.isEmpty(pageToken) ? pageToken.split(Pattern.quote("(#)")) : new String[0];
 
             int i=0;
             for (String calendarId : calendarIds) {
