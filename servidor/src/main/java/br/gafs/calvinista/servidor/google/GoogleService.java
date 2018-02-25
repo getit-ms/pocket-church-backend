@@ -180,15 +180,17 @@ public class GoogleService {
                         .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
 
                 for (Event event : response.getItems()) {
-                    EventoCalendarioDTO evento = new EventoCalendarioDTO();
+                    if (event.getStart() != null && event.getEnd() != null) {
+                        EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
-                    evento.setId(event.getId());
-                    evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                    evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
-                    evento.setDescricao(event.getSummary());
-                    evento.setLocal(event.getLocation());
+                        evento.setId(event.getId());
+                        evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                        evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                        evento.setDescricao(event.getSummary());
+                        evento.setLocal(event.getLocation());
 
-                    eventos.add(evento);
+                        eventos.add(evento);
+                    }
                 }
 
                 nextPages.append(response.getNextPageToken()).append("(#)");
