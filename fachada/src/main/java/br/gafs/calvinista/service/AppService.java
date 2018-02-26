@@ -181,6 +181,7 @@ public interface AppService extends Serializable {
     ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar();
     void desvinculaCalendar();
     ConfiguracaoCalendarIgrejaDTO atualiza(ConfiguracaoCalendarIgrejaDTO configuracao);
+    List<CalendarioGoogleDTO> buscaVisoesCalendar() throws IOException;
 
     BuscaPaginadaDTO<PlanoLeituraBiblica> buscaTodos(FiltroPlanoLeituraBiblicaDTO filtro);
     PlanoLeituraBiblica buscaPlanoLeitura(Long idPlano);
@@ -200,5 +201,4 @@ public interface AppService extends Serializable {
     PlanoLeituraBiblica buscaPlanoSelecionado();
 
     BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total);
-
 }

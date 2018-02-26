@@ -50,7 +50,14 @@ public class CalendarioController {
     public Response buscaConfiguracao(){
         return Response.status(Response.Status.OK).entity(appService.buscaConfiguracaoCalendar()).build();
     }
-    
+
+    @GET
+    @Path("visoes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaVisoes() throws IOException {
+        return Response.status(Response.Status.OK).entity(appService.buscaVisoesCalendar()).build();
+    }
+
     @GET
     @Path("url")
     @Produces(MediaType.APPLICATION_JSON)

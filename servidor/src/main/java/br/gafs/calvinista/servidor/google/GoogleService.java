@@ -7,6 +7,7 @@ package br.gafs.calvinista.servidor.google;
 
 import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dto.BuscaPaginadaEventosCalendarioDTO;
+import br.gafs.calvinista.dto.CalendarioGoogleDTO;
 import br.gafs.calvinista.dto.EventoCalendarioDTO;
 import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
@@ -164,6 +165,21 @@ public class GoogleService {
                 .setApplicationName("Pocket Church").build();
 
     }
+
+    public List<CalendarioGoogleDTO> buscaCalendarios(String chaveIgreja) throws IOException {
+        CalendarList response = connectCalendar(chaveIgreja).calendarList().list().execute();
+
+        if (!response.isEmpty()) {
+            List<CalendarioGoogleDTO> calendarios = new ArrayList<>();
+            for (CalendarListEntry entry : response.getItems()) {
+                calendarios.add(new CalendarioGoogleDTO(entry.getId(), entry.getSummary()));
+            }
+            return calendarios;
+        }
+
+        return Collections.emptyList();
+    }
+
     public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String pageToken, Integer tamanho) throws IOException {
         List<String> calendarIds = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
 

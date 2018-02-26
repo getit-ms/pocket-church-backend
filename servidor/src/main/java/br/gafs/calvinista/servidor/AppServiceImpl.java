@@ -1715,6 +1715,12 @@ public class AppServiceImpl implements AppService {
         return paramService.buscaConfiguracaoCalendar(sessaoBean.getChaveIgreja());
     }
 
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
+    public List<CalendarioGoogleDTO> buscaVisoesCalendar() throws IOException {
+        return googleService.buscaCalendarios(sessaoBean.getChaveIgreja());
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
