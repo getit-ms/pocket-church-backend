@@ -101,12 +101,12 @@ public class CalendarioAtendimento implements IEntity {
         status = StatusCalendario.ATIVO;
     }
     
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     public boolean isAtivo(){
         return StatusCalendario.ATIVO.equals(status);
     }
     
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     public boolean isInativo(){
         return StatusCalendario.INATIVO.equals(status);
     }
