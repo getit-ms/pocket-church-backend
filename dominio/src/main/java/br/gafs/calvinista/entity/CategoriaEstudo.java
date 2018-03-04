@@ -22,6 +22,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(of = {"id", "chaveIgreja"})
 @NamedQueries({
         @NamedQuery(name = "CategoriaEstudo.findByIgreja", query = "select ce from CategoriaEstudo ce where ce.igreja.chave = :igreja order by ce.nome"),
+        @NamedQuery(name = "CategoriaEstudo.findUsadasByIgreja", query = "select ce from Estudo e inner join e.categoria ce where e.igreja.chave = :igreja group by ce order by ce.nome"),
         @NamedQuery(name = "CategoriaEstudo.findByIgrejaAndNome", query = "select ce from CategoriaEstudo ce where ce.igreja.chave = :igreja and lower(ce.nome) = :nome")
 })
 public class CategoriaEstudo implements IEntity  {

@@ -843,7 +843,11 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public List<CategoriaEstudo> buscaCategoriasEstudo() {
-        return daoService.findWith(QueryAdmin.CATEGORIA_ESTUDO.create(sessaoBean.getChaveIgreja()));
+        if (sessaoBean.isAdmin()) {
+            return daoService.findWith(QueryAdmin.CATEGORIA_ESTUDO.create(sessaoBean.getChaveIgreja()));
+        } else {
+            return daoService.findWith(QueryAdmin.CATEGORIA_USADAS_ESTUDO.create(sessaoBean.getChaveIgreja()));
+        }
     }
 
     @Audit

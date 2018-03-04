@@ -119,7 +119,7 @@ public class GoogleService {
         return flow.createAndStoreCredential(resp, chaveIgreja);
     }
 
-    private synchronized Credential loadCredentials(String store, String chaveIgreja, Collection<String> scopes) throws IOException {
+    private Credential loadCredentials(String store, String chaveIgreja, Collection<String> scopes) throws IOException {
         Credential credential = flow(store, chaveIgreja, scopes).build().loadCredential(chaveIgreja);
 
         if (credential.getExpiresInSeconds() < 15){

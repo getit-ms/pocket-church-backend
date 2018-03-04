@@ -18,6 +18,7 @@ import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.senha.SenhaUtil;
+import br.gafs.util.string.StringUtil;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -112,7 +113,7 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerPushToken(AcessoDTO dto){
-        if (dto != null && dto.getTipoDispositivo() != null) {
+        if (dto != null && dto.getTipoDispositivo() != null && !StringUtil.isEmpty(dto.getToken())) {
             acessoService.registerPush(TipoDispositivo.values()[dto.getTipoDispositivo()], dto.getToken(), dto.getVersion());
         }
 
