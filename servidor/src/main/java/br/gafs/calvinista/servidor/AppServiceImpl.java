@@ -706,18 +706,22 @@ public class AppServiceImpl implements AppService {
         if (!pdf.getPDF().isUsed()) {
             if (pdf.getId() != null){
                 ArquivoPDF old = daoService.find(pdf.getClass(), new RegistroIgrejaId(sessaoBean.getChaveIgreja(), pdf.getId()));
-                arquivoService.registraDesuso(old.getPDF().getId());
-                if (old.getThumbnail() != null){
-                    arquivoService.registraDesuso(old.getThumbnail().getId());
-                }
-                
-                List<Arquivo> pages = new ArrayList<Arquivo>(old.getPaginas());
-                old.getPaginas().clear();
-                pdf.getPaginas().clear();
-                for (Arquivo arq : pages) {
-                    arquivoService.registraDesuso(arq.getId());
+                List<Arquivo> pages = new ArrayList<Arquivo>();
+                if (old != null) {
+                    arquivoService.registraDesuso(old.getPDF().getId());
+                    if (old.getThumbnail() != null){
+                        arquivoService.registraDesuso(old.getThumbnail().getId());
+                    }
+
+                    pages.addAll(old.getPaginas());
+                    old.getPaginas().clear();
+                    for (Arquivo arq : pages) {
+                        arquivoService.registraDesuso(arq.getId());
+                    }
                 }
             }
+
+            pdf.getPaginas().clear();
 
             arquivoService.registraUso(pdf.getPDF().getId());
 
