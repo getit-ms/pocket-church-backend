@@ -181,53 +181,56 @@ public class GoogleService {
     }
 
     public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String pageToken, Integer tamanho) throws IOException {
-        List<String> calendarIds = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
-
         List<EventoCalendarioDTO> eventos = new ArrayList<EventoCalendarioDTO>();
-        StringBuilder nextPages = new StringBuilder();
 
-        try {
-            String[] pageTokens = !StringUtil.isEmpty(pageToken) ? pageToken.split(Pattern.quote("(#)")) : new String[0];
+        List<String> calendarIds = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
+        if (calendarIds != null) {
+            StringBuilder nextPages = new StringBuilder();
 
-            int i=0;
-            for (String calendarId : calendarIds) {
-                Events response = connectCalendar(chave).events().list(calendarId)
-                        .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
-                        .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
+            try {
+                String[] pageTokens = !StringUtil.isEmpty(pageToken) ? pageToken.split(Pattern.quote("(#)")) : new String[0];
 
-                for (Event event : response.getItems()) {
-                    if (event.getStart() != null && event.getEnd() != null) {
-                        EventoCalendarioDTO evento = new EventoCalendarioDTO();
+                int i=0;
+                for (String calendarId : calendarIds) {
+                    Events response = connectCalendar(chave).events().list(calendarId)
+                            .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
+                            .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
 
-                        evento.setId(event.getId());
+                    for (Event event : response.getItems()) {
+                        if (event.getStart() != null && event.getEnd() != null) {
+                            EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
-                        if (event.getStart().getDateTime() != null) {
-                            evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                        } else {
-                            evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                            evento.setId(event.getId());
+
+                            if (event.getStart().getDateTime() != null) {
+                                evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                            } else {
+                                evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                            }
+
+                            if (event.getEnd().getDateTime() != null) {
+                                evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                            } else {
+                                evento.setTermino(new Date(event.getEnd().getDate().getValue()));
+                            }
+
+                            evento.setDescricao(event.getSummary());
+                            evento.setLocal(event.getLocation());
+
+                            eventos.add(evento);
                         }
-
-                        if (event.getEnd().getDateTime() != null) {
-                            evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
-                        } else {
-                            evento.setTermino(new Date(event.getEnd().getDate().getValue()));
-                        }
-
-                        evento.setDescricao(event.getSummary());
-                        evento.setLocal(event.getLocation());
-
-                        eventos.add(evento);
                     }
+
+                    nextPages.append(response.getNextPageToken()).append("(#)");
                 }
 
-                nextPages.append(response.getNextPageToken()).append("(#)");
+                Collections.sort(eventos);
+
+                return new BuscaPaginadaEventosCalendarioDTO(eventos, nextPages.toString());
+            } catch (Exception ex) {
+                Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
             }
 
-            Collections.sort(eventos);
-
-            return new BuscaPaginadaEventosCalendarioDTO(eventos, nextPages.toString());
-        } catch (Exception ex) {
-            Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
         }
 
         return new BuscaPaginadaEventosCalendarioDTO(eventos, null);
