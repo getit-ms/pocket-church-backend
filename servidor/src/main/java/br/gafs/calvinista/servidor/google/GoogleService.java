@@ -167,14 +167,16 @@ public class GoogleService {
     }
 
     public List<CalendarioGoogleDTO> buscaCalendarios(String chaveIgreja) throws IOException {
-        CalendarList response = connectCalendar(chaveIgreja).calendarList().list().execute();
+        if (paramService.get(chaveIgreja, TipoParametro.GOOGLE_CALENDAR_ID) != null) {
+            CalendarList response = connectCalendar(chaveIgreja).calendarList().list().execute();
 
-        if (!response.isEmpty()) {
-            List<CalendarioGoogleDTO> calendarios = new ArrayList<>();
-            for (CalendarListEntry entry : response.getItems()) {
-                calendarios.add(new CalendarioGoogleDTO(entry.getId(), entry.getSummary()));
+            if (!response.isEmpty()) {
+                List<CalendarioGoogleDTO> calendarios = new ArrayList<>();
+                for (CalendarListEntry entry : response.getItems()) {
+                    calendarios.add(new CalendarioGoogleDTO(entry.getId(), entry.getSummary()));
+                }
+                return calendarios;
             }
-            return calendarios;
         }
 
         return Collections.emptyList();
