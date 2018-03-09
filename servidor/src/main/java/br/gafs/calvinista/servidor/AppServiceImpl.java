@@ -2152,7 +2152,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*/10")
+    @Schedule(hour = "*")
     public void enviaNotificacoesPublicacoes() {
         LOGGER.info("Iniciando envio de notificações de publicações.");
 
@@ -2186,7 +2186,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*/10")
+    @Schedule(hour = "*")
     public void enviaNotificacoesBoletins() {
         LOGGER.info("Iniciando envio de notificações de boletins.");
 
@@ -2220,7 +2220,7 @@ public class AppServiceImpl implements AppService {
         }
     }
     
-    @Schedule(hour = "*", minute = "*/10")
+    @Schedule(hour = "*")
     public void enviaNotificacoesEstudos() {
         LOGGER.info("Iniciando envio de notificações de estudos.");
 
