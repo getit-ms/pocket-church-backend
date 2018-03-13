@@ -42,5 +42,5 @@ public interface AcessoService extends Serializable {
 
     List<Funcionalidade> buscaFuncionalidadesPublicas();
 
-    MenuDTO buscaMenu();
+    MenuDTO buscaMenu(int versaoMajor, int versaoMinor, int versaoBugfix);
 }

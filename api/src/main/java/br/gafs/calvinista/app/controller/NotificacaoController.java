@@ -10,6 +10,8 @@ import br.gafs.calvinista.dto.QuantidadeDTO;
 import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Notificacao;
 import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.service.MensagemService;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -37,6 +39,9 @@ public class NotificacaoController {
     @EJB
     private AppService appService;
 
+    @EJB
+    private MensagemService mensagemService;
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response envia(final Notificacao notificacao){
@@ -54,7 +59,7 @@ public class NotificacaoController {
     @Path("count")
     @Produces(MediaType.APPLICATION_JSON)
     public Response count(){
-        return Response.status(Response.Status.OK).entity(new QuantidadeDTO(appService.countNotificacoesNaoLidas())).build();
+        return Response.status(Response.Status.OK).entity(new QuantidadeDTO(mensagemService.countNotificacoesNaoLidas())).build();
     }
     
     @DELETE

@@ -205,6 +205,7 @@ public enum QueryAdmin {
 
     },
     UPDATE_ESTUDOS_NAO_DIVULGADOS("Estudo.updateNaoDivulgadosByIgreja", "igreja"),
+    UPDATE_NOTICIAS_NAO_DIVULGADAS("Noticia.updateNaoDivulgadosByIgreja", "igreja"),
     IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
 
         @Override
@@ -230,6 +231,16 @@ public enum QueryAdmin {
 
     },
     IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR("Estudo.findIgrejaNaoDivultadosByDataPublicacao"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("statusIgreja", StatusIgreja.ATIVO).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    },
+    IGREJAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR("Noticia.findIgrejaNaoDivultadosByDataPublicacao"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {

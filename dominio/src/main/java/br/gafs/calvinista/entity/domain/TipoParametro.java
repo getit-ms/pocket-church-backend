@@ -43,6 +43,8 @@ public enum TipoParametro {
     TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
     TITULO_ESTUDO(TipoValor.VALOR, String.class, null),
     TEXTO_ESTUDO(TipoValor.VALOR, String.class, null),
+    TITULO_NOTICIA(TipoValor.VALOR, String.class, null),
+    TEXTO_NOTICIA(TipoValor.VALOR, String.class, null),
     TITULO_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, null),
     TEXTO_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, null),
     TITULO_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, null),

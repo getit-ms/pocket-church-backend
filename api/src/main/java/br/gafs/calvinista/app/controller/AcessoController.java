@@ -8,6 +8,7 @@ package br.gafs.calvinista.app.controller;
 import br.gafs.calvinista.app.dto.AcessoDTO;
 import br.gafs.calvinista.app.dto.acesso.RequisicaoLoginDTO;
 import br.gafs.calvinista.app.util.MergeUtil;
+import br.gafs.calvinista.dto.MenuDTO;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Preferencias;
@@ -54,7 +55,7 @@ public class AcessoController {
     public Response realizaLogin(final RequisicaoLoginDTO req){
         Membro membro = acessoService.login(req.getUsername(), 
                 SenhaUtil.encryptSHA256(req.getPassword()), req.getTipoDispositivo(), req.getVersion());
-        return Response.status(Response.Status.OK).entity(acesso(membro)).build();
+        return Response.status(Response.Status.OK).entity(acesso(membro, req.getVersion())).build();
     }
     
     @PUT
@@ -174,18 +175,30 @@ public class AcessoController {
     @Path("menu")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaMenu(){
-        return Response.status(Response.Status.OK).entity(acessoService.buscaMenu()).build();
+    public Response buscaMenu(
+            @QueryParam("versao") String versao
+    ){
+        return Response.status(Response.Status.OK)
+                .entity(getMenu(versao)).build();
     }
     
     @GET
+    @Deprecated
     @Produces(MediaType.APPLICATION_JSON)
-    public Response renovaAcesso(){
-        return Response.status(Response.Status.OK).entity(acesso(acessoService.refreshLogin())).build();
+    public Response renovaAcesso(
+            @QueryParam("versao") String versao
+    ){
+        return Response.status(Response.Status.OK)
+                .entity(acesso(acessoService.refreshLogin(), versao)).build();
     }
-    
-    private AcessoDTO acesso(Membro membro){
+
+    private AcessoDTO acesso(Membro membro, String versao){
         return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(),
-                response.getHeader("Set-Authorization"), acessoService.buscaMenu());
+                response.getHeader("Set-Authorization"), getMenu(versao));
+    }
+
+    private MenuDTO getMenu(String versao) {
+        String vals[] = (StringUtil.isEmpty(versao) || !versao.matches("\\d+\\.\\d+\\.\\d+") ? "0.0.0" : versao).split("\\.");
+        return acessoService.buscaMenu(Integer.parseInt(vals[0]), Integer.parseInt(vals[1]), Integer.parseInt(vals[2]));
     }
 }

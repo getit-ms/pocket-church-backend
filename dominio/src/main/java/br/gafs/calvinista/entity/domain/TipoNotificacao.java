@@ -14,6 +14,7 @@ public enum TipoNotificacao {
     BOLETIM,
     PUBLICACAO,
     ESTUDO,
+    NOTICIA,
     VERSICULO,
     ACONSELHAMENTO,
     ANIVERSARIO, 

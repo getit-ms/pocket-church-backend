@@ -10,6 +10,8 @@ import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.NotificationSchedule;
+import br.gafs.calvinista.entity.RegistroIgrejaId;
+import br.gafs.calvinista.entity.SentNotification;
 import br.gafs.calvinista.entity.domain.NotificationType;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.servidor.mensagem.EmailService;
@@ -25,9 +27,9 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -48,7 +50,13 @@ public class MensagemServiceImpl implements MensagemService {
     @EJB
     private NotificationScheduleServiceImpl notificationScheduleService;
 
+    @Inject
+    private SessaoBean sessaoBean;
+
     private ObjectMapper om = new ObjectMapper();
+
+    private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
+    private static List<RegistroIgrejaId> MEMBROS_LIDOS = new ArrayList<RegistroIgrejaId>();
 
     @Schedule(minute = "*/5", hour = "*")
     public void enviaPushAgendados(){
@@ -80,6 +88,83 @@ public class MensagemServiceImpl implements MensagemService {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+
+    @Schedule(hour = "*", minute = "0/5")
+    public void flushNotificacoesLidas(){
+        {
+            Set<String> flush = new HashSet<String>();
+            synchronized (DISPOSITIVOS_LIDOS){
+                flush.addAll(DISPOSITIVOS_LIDOS);
+                DISPOSITIVOS_LIDOS.clear();
+            }
+
+
+            for (String dispositivo : flush){
+                List<SentNotification> sns = daoService.findWith(QueryNotificacao.
+                        NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.create(dispositivo));
+                for (SentNotification sn : sns){
+                    sn.lido();
+                    daoService.update(sn);
+                }
+            }
+        }
+
+        {
+            Set<RegistroIgrejaId> flush = new HashSet<RegistroIgrejaId>();
+            synchronized (MEMBROS_LIDOS){
+                flush.addAll(MEMBROS_LIDOS);
+                MEMBROS_LIDOS.clear();
+            }
+
+
+            for (RegistroIgrejaId membro : flush){
+                List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
+                        create(membro.getChaveIgreja(), membro.getId()));
+                for (SentNotification sn : sns){
+                    sn.lido();
+                    daoService.update(sn);
+                }
+            }
+        }
+    }
+
+    @Override
+    @Asynchronous
+    public void marcaNotificacoesComoLidas() {
+        synchronized (DISPOSITIVOS_LIDOS){
+            DISPOSITIVOS_LIDOS.add(sessaoBean.getChaveDispositivo());
+        }
+
+        if (sessaoBean.getIdMembro() != null){
+            synchronized (MEMBROS_LIDOS){
+                MEMBROS_LIDOS.add(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+            }
+        }
+    }
+
+    @Override
+    public Long countNotificacoesNaoLidas() {
+
+        if (sessaoBean.getIdMembro() != null){
+            synchronized (MEMBROS_LIDOS){
+                if (MEMBROS_LIDOS.contains(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))){
+                    return 0l;
+                }
+            }
+            return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_MEMBRO.
+                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+        }
+
+        synchronized (DISPOSITIVOS_LIDOS){
+            if (DISPOSITIVOS_LIDOS.contains(sessaoBean.getChaveDispositivo())){
+                return 0l;
+            }
+        }
+
+        return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
+                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
     }
 
     @Schedule(minute = "*/5", hour = "*")

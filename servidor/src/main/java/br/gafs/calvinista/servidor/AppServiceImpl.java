@@ -127,35 +127,12 @@ public class AppServiceImpl implements AppService {
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
         
         if (filtro.getPagina().equals(1)){
-            marcaNotificacoesComoLidas();
+            notificacaoService.marcaNotificacoesComoLidas();
         }
         
         return busca;
     }
-    
-    @Override
-    public Long countNotificacoesNaoLidas() {
 
-        if (sessaoBean.getIdMembro() != null){
-            synchronized (MEMBROS_LIDOS){
-                if (MEMBROS_LIDOS.contains(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))){
-                    return 0l;
-                }
-            }
-            return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_MEMBRO.
-                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-        }
-
-        synchronized (DISPOSITIVOS_LIDOS){
-            if (DISPOSITIVOS_LIDOS.contains(sessaoBean.getChaveDispositivo())){
-                return 0l;
-            }
-        }
-
-        return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
-                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
-    }
-    
     @Override
     public void clearNotificacoes(){
         if (sessaoBean.getIdMembro() == null){
@@ -182,60 +159,6 @@ public class AppServiceImpl implements AppService {
 
             for (SentNotification sn0 : sns){
                 daoService.delete(SentNotification.class, sn0.getId());
-            }
-        }
-    }
-    
-    private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
-    private static List<RegistroIgrejaId> MEMBROS_LIDOS = new ArrayList<RegistroIgrejaId>();
-    
-    @Schedule(hour = "*", minute = "0/5")
-    public void flushNotificacoesLidas(){
-        {
-            Set<String> flush = new HashSet<String>();
-            synchronized (DISPOSITIVOS_LIDOS){
-                flush.addAll(DISPOSITIVOS_LIDOS);
-                DISPOSITIVOS_LIDOS.clear();
-            }
-            
-
-            for (String dispositivo : flush){
-                List<SentNotification> sns = daoService.findWith(QueryNotificacao.
-                        NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.create(dispositivo));
-                for (SentNotification sn : sns){
-                    sn.lido();
-                    daoService.update(sn);
-                }
-            }
-        }
-        
-        {
-            Set<RegistroIgrejaId> flush = new HashSet<RegistroIgrejaId>();
-            synchronized (MEMBROS_LIDOS){
-                flush.addAll(MEMBROS_LIDOS);
-                MEMBROS_LIDOS.clear();
-            }
-            
-
-            for (RegistroIgrejaId membro : flush){
-                List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACOES_NAO_LIDAS_MEMBRO.
-                        create(membro.getChaveIgreja(), membro.getId()));
-                for (SentNotification sn : sns){
-                    sn.lido();
-                    daoService.update(sn);
-                }
-            }
-        }
-    }
-    
-    public void marcaNotificacoesComoLidas() {
-        synchronized (DISPOSITIVOS_LIDOS){
-            DISPOSITIVOS_LIDOS.add(sessaoBean.getChaveDispositivo());
-        }
-        
-        if (sessaoBean.getIdMembro() != null){
-            synchronized (MEMBROS_LIDOS){
-                MEMBROS_LIDOS.add(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
             }
         }
     }
@@ -638,7 +561,7 @@ public class AppServiceImpl implements AppService {
             LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
         }
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
@@ -653,7 +576,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
+    @AllowAdmin({Funcionalidade.MANTER_CIFRAS,Funcionalidade.MANTER_CANTICOS})
     public Cifra cadastra(Cifra cifra) throws IOException {
         cifra.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
@@ -745,7 +668,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
+    @AllowAdmin({Funcionalidade.MANTER_CIFRAS,Funcionalidade.MANTER_CANTICOS})
     public Cifra atualiza(Cifra cifra) throws IOException {
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
         if (trataTrocaPDF(cifra)){
@@ -787,7 +710,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
+    @AllowAdmin({Funcionalidade.MANTER_CIFRAS,Funcionalidade.MANTER_CANTICOS})
     public void removeCifra(Long cifra) {
         Cifra entidade = buscaCifra(cifra);
         
@@ -945,7 +868,76 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaEstudoDTO buscaPublicados(FiltroEstudoPublicadoDTO filtro) {
         return buscaTodos(filtro);
     }
-    
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_NOTICIAS)
+    public Noticia cadastra(Noticia noticia) {
+        noticia.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        noticia.setAutor(buscaMembro(sessaoBean.getIdMembro()));
+
+        if (noticia.getIlustracao() != null) {
+            Arquivo ilustracao = daoService.find(Arquivo.class,
+                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), noticia.getIlustracao().getId()));
+            ilustracao.used();
+            noticia.setIlustracao(daoService.update(ilustracao));
+        }
+
+        preparaResumo(noticia);
+        return daoService.create(noticia);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_NOTICIAS)
+    public Noticia atualiza(Noticia noticia) {
+
+        if (noticia.getIlustracao() != null) {
+            Arquivo ilustracao = daoService.find(Arquivo.class,
+                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), noticia.getIlustracao().getId()));
+
+            if (!ilustracao.isUsed()) {
+                ilustracao.used();
+                noticia.setIlustracao(daoService.update(ilustracao));
+            }
+        }
+
+        preparaResumo(noticia);
+        return daoService.update(noticia);
+    }
+
+    private void preparaResumo(Noticia noticia) {
+        String resumo = noticia.getTexto().replaceAll("<[^>]+>", " ").replaceAll("\\s+", " ");
+
+        if (resumo.length() > 500) {
+            noticia.setResumo(resumo.substring(0, 497) + "...");
+        }
+    }
+
+    @Override
+    public Noticia buscaNoticia(Long noticia) {
+        return daoService.find(Noticia.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), noticia));
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_NOTICIAS)
+    public void removeNoticia(Long noticia) {
+        Noticia entidade = buscaNoticia(noticia);
+        daoService.delete(Noticia.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_NOTICIAS)
+    public BuscaPaginadaDTO<Noticia> buscaTodos(FiltroNoticiaDTO filtro) {
+        return daoService.findWith(new FiltroNoticia(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+    }
+
+    @Override
+    public BuscaPaginadaDTO<Noticia> buscaPublicados(FiltroNoticiaPublicadaDTO filtro) {
+        return buscaTodos(filtro);
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.ENVIAR_NOTIFICACOES)
@@ -2250,6 +2242,40 @@ public class AppServiceImpl implements AppService {
                 daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
             } else {
                 LOGGER.info(igreja.getChave() + " fora do horário para envio de notiicações de estudos.");
+            }
+        }
+    }
+
+    @Schedule(hour = "*")
+    public void enviaNotificacoesNoticias() {
+        LOGGER.info("Iniciando envio de notificações de notícia.");
+
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create());
+
+        LOGGER.info(igrejas.size() +" igrejas encontrada para notificação de notícias.");
+
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                LOGGER.info("Preparando envio de notificações de notícia para " + igreja.getChave());
+
+                String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_NOTICIA);
+                if (StringUtil.isEmpty(titulo)){
+                    titulo = MensagemUtil.getMensagem("push.noticia.title", igreja.getLocale());
+                }
+
+                String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_NOTICIA);
+                if (StringUtil.isEmpty(texto)){
+                    texto = MensagemUtil.getMensagem("push.noticia.message", igreja.getLocale(), igreja.getNome());
+                }
+
+                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.NOTICIA, false);
+
+                daoService.execute(QueryAdmin.UPDATE_NOTICIAS_NAO_DIVULGADAS.create(igreja.getChave()));
+            } else {
+                LOGGER.info(igreja.getChave() + " fora do horário para envio de notiicações de notícias.");
             }
         }
     }

@@ -35,7 +35,7 @@ public class FiltroBoletim extends AbstractPaginatedFiltro<FiltroBoletimDTO> {
 
         String orderBy;
         if (filtro.getTipo() == TipoBoletim.BOLETIM) {
-            orderBy = "b.dataPublicacao desc";
+            orderBy = "b.data desc, b.dataPublicacao desc, b.titulo";
         } else {
             orderBy = "b.titulo";
         }

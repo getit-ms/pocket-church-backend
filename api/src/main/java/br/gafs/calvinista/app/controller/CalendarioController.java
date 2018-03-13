@@ -76,8 +76,9 @@ public class CalendarioController {
 
     @GET
     @Path("integracao")
-    public void redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
+    public Response redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
         response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_CALENDAR_REDIRECT_URL"), state, code));
+        return Response.status(Response.Status.OK).build();
     }
     
     @PUT

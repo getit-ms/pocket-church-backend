@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.entity.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +17,7 @@ import java.util.List;
  * @author Gabriel
  */
 @Getter
+@AllArgsConstructor
 @RequiredArgsConstructor
 public enum Funcionalidade {
     // Administrador
@@ -35,6 +37,8 @@ public enum Funcionalidade {
     ENVIAR_NOTIFICACOES(Tipo.ADMIN, true, 13),
     MANTER_VERSICULOS_DIARIOS(Tipo.ADMIN, 14),
     MANTER_CIFRAS(Tipo.ADMIN, 15),
+    MANTER_CANTICOS(Tipo.ADMIN, 45),
+    MANTER_NOTICIAS(Tipo.ADMIN, 47),
     CONFIGURAR(Tipo.ADMIN, 16),
     ABERTURA_CHAMADO_SUPORTE(Tipo.ADMIN, 18),
     CONFIGURAR_YOUTUBE(Tipo.ADMIN, 30),
@@ -44,7 +48,7 @@ public enum Funcionalidade {
 
     // Membro
     CONSULTAR_CONTATOS_IGREJA(Tipo.MEMBRO, 19),
-    REALIZAR_VOTACAO(Tipo.MEMBRO, 20),
+    REALIZAR_VOTACAO(Tipo.MEMBRO, false, 20, 4, 2, 0),
     PEDIR_ORACAO(Tipo.MEMBRO, 21),
     AGENDAR_ACONSELHAMENTO(Tipo.MEMBRO, 22),
     REALIZAR_INSCRICAO_EVENTO(Tipo.MEMBRO, 23),
@@ -60,12 +64,16 @@ public enum Funcionalidade {
     BIBLIA(Tipo.PUBLICA, 32),
     AGENDA(Tipo.PUBLICA, 37),
     LISTAR_PUBLICACOES(Tipo.PUBLICA, 38),
+    NOTICIAS(Tipo.PUBLICA, false, 44, 4, 2, 0),
+    CONSULTAR_CANTICOS(Tipo.PUBLICA, false, 46, 4, 2, 0),
+
 
     INSTITUCIONAL(Tipo.FIXA, 43),
     INICIO_APLICATIVO(Tipo.FIXA, 39),
     NOTIFICACOES(Tipo.FIXA, 40),
     CHAMADOS(Tipo.FIXA, 41),
     PREFERENCIAS(Tipo.FIXA, 42),
+
     ;
     
     public final static List<Funcionalidade> FUNCIONALIDADES_APLICATIVO = new ArrayList<Funcionalidade>();
@@ -90,6 +98,9 @@ public enum Funcionalidade {
     private final Tipo tipo;
     private final boolean associaMinisterios;
     private final int codigo;
+    private int versaoMajor = 0;
+    private int versaoMinor = 0;
+    private int versaoBugfix = 0;
 
     private final String chave = name().toLowerCase().replace("[^a-z]", ".");
 

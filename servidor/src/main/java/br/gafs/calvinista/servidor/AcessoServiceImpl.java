@@ -7,6 +7,7 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.dao.QueryAdmin;
+import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MenuDTO;
@@ -107,7 +108,44 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     @Override
-    public MenuDTO buscaMenu() {
+    public MenuDTO buscaMenu(int versaoMajor, int versaoMinor, int versaoBugfix) {
+        List<Funcionalidade> funcionalidades = getFuncionalidadesCompativeis(versaoMajor, versaoMinor, versaoBugfix);
+
+        MenuDTO root = new MenuDTO();
+
+        Map<Long, MenuDTO> menuMap = new HashMap<Long, MenuDTO>();
+
+        List<Menu> menus = daoService.findWith(QueryAdmin.MENUS_IGREJA_FUNCIONALIDADES
+                .create(sessaoBean.getChaveIgreja(), funcionalidades));
+
+        for (Menu menu : menus) {
+            MenuDTO dto = new MenuDTO(menu.getNome(), menu.getIcone(), menu.getOrdem(),
+                    menu.getLink(), 0, menu.getFuncionalidade(), new ArrayList<MenuDTO>());
+
+            if (menu.getFuncionalidade() == Funcionalidade.NOTIFICACOES) {
+                dto.setNotificacoes(mensagemService.countNotificacoesNaoLidas());
+            }
+
+            if (menu.getMenuPai() == null) {
+                menuMap.put(menu.getId(), dto);
+                root.add(dto);
+            } else {
+                if (!menuMap.containsKey(menu.getMenuPai().getId())) {
+                    MenuDTO dtoPai = new MenuDTO(menu.getMenuPai().getNome(),
+                            menu.getMenuPai().getIcone(), menu.getMenuPai().getOrdem(), menu.getMenuPai().getLink(), 0,
+                            menu.getMenuPai().getFuncionalidade(), new ArrayList<MenuDTO>());
+                    menuMap.put(menu.getMenuPai().getId(), dtoPai);
+                    root.add(dtoPai);
+                }
+
+                menuMap.get(menu.getMenuPai().getId()).add(dto);
+            }
+        }
+
+        return root;
+    }
+
+    private List<Funcionalidade> getFuncionalidadesCompativeis(int versaoMajor, int versaoMinor, int versaoBugfix) {
         List<Funcionalidade> funcionalidades = new ArrayList<Funcionalidade>();
 
         funcionalidades.addAll(Funcionalidade.FUNCIONALIDADES_FIXAS);
@@ -118,40 +156,21 @@ public class AcessoServiceImpl implements AcessoService {
             funcionalidades.addAll(getFuncionalidadesMembro());
         }
 
-        MenuDTO root = new MenuDTO();
+        int versaoApp = versaoMajor * 10000 + versaoMinor * 100 + versaoBugfix;
 
-        Map<Long, MenuDTO> menuMap = new HashMap<Long, MenuDTO>();
+        Iterator<Funcionalidade> iterator = funcionalidades.iterator();
+        while (iterator.hasNext()) {
+            Funcionalidade func = iterator.next();
 
-        List<Menu> menus = daoService.findWith(QueryAdmin.MENUS_IGREJA_FUNCIONALIDADES.create(sessaoBean.getChaveIgreja(), funcionalidades));
-
-        for (Menu menu : menus) {
-            MenuDTO dto = new MenuDTO(menu.getNome(), menu.getIcone(), menu.getOrdem(),
-                    menu.getLink(), menu.getFuncionalidade(), new ArrayList<MenuDTO>());
-
-            if (menu.getMenuPai() == null) {
-                menuMap.put(menu.getId(), dto);
-                root.getSubmenus().add(dto);
-            } else {
-                if (!menuMap.containsKey(menu.getMenuPai().getId())) {
-                    MenuDTO dtoPai = new MenuDTO(menu.getMenuPai().getNome(),
-                            menu.getMenuPai().getIcone(), menu.getMenuPai().getOrdem(), menu.getMenuPai().getLink(),
-                            menu.getMenuPai().getFuncionalidade(), new ArrayList<MenuDTO>());
-                    menuMap.put(menu.getMenuPai().getId(), dtoPai);
-                    root.getSubmenus().add(dtoPai);
-                }
-
-                menuMap.get(menu.getMenuPai().getId()).getSubmenus().add(dto);
+            int versaoMinima = func.getVersaoMajor() * 10000 + func.getVersaoMinor() * 100 + func.getVersaoBugfix();
+            if (versaoMinima > versaoApp) {
+                iterator.remove();
             }
         }
 
-        Collections.sort(root.getSubmenus());
-
-        for (MenuDTO mnu : root.getSubmenus()) {
-            Collections.sort(mnu.getSubmenus());
-        }
-
-        return root;
+        return funcionalidades;
     }
+
 
     @Audit
     @Override

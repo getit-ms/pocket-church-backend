@@ -69,7 +69,7 @@ public class Votacao implements IEntity {
     
     @NotEmpty
     @Length(max = 500)
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "descricao", length = 500, nullable = false)
     private String descricao;

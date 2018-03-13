@@ -77,6 +77,13 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<Estudo> buscaTodos(FiltroEstudoDTO filtro);
     BuscaPaginadaDTO<Estudo> buscaPublicados(FiltroEstudoPublicadoDTO filtro);
     Estudo buscaEstudo(Long estudo);
+
+    Noticia cadastra(Noticia noticia);
+    Noticia atualiza(Noticia noticia);
+    void removeNoticia(Long noticia);
+    BuscaPaginadaDTO<Noticia> buscaTodos(FiltroNoticiaDTO filtro);
+    BuscaPaginadaDTO<Noticia> buscaPublicados(FiltroNoticiaPublicadaDTO filtro);
+    Noticia buscaNoticia(Long noticia);
     
     void enviar(Notificacao notificacao);
     
@@ -161,7 +168,6 @@ public interface AppService extends Serializable {
     File buscaAjuda(String path);
     
     void clearNotificacoes();
-    Long countNotificacoesNaoLidas();
     void removeNotificacao(Long notificacao);
     BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);
 

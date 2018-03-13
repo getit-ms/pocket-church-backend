@@ -1,10 +1,13 @@
 package br.gafs.calvinista.entity;
 
-import br.gafs.bean.IEntity;
+import br.gafs.calvinista.entity.domain.TipoCifra;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -39,6 +42,12 @@ public class Cifra implements ArquivoPDF {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "letra", nullable = false, columnDefinition = "TEXT")
     private String letra;
+
+    @Column(name = "tipo")
+    @Enumerated(EnumType.ORDINAL)
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    private TipoCifra tipo = TipoCifra.CIFRA;
 
     @NotNull
     @OneToOne

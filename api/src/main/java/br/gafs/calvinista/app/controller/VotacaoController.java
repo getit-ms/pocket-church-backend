@@ -8,35 +8,20 @@ package br.gafs.calvinista.app.controller;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
 import br.gafs.calvinista.dto.FiltroVotacaoDTO;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Questao;
-import br.gafs.calvinista.entity.RespostaOpcao;
-import br.gafs.calvinista.entity.RespostaQuestao;
-import br.gafs.calvinista.entity.RespostaVotacao;
-import br.gafs.calvinista.entity.Votacao;
-import br.gafs.calvinista.service.AcessoService;
+import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.service.AppService;
-import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -48,12 +33,6 @@ public class VotacaoController {
     
     @EJB
     private AppService appService;
-    
-    @EJB
-    private AcessoService acessoService;
-    
-    @EJB
-    private ParametroService paramService;
 
     @GET
     @JsonView(Resumido.class)

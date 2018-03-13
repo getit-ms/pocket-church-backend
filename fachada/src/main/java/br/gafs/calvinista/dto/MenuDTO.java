@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,8 +23,16 @@ public class MenuDTO implements Comparable<MenuDTO> {
     @JsonIgnore
     private Integer ordem;
     private String link;
+    @Setter
+    private long notificacoes;
     private Funcionalidade funcionalidade;
     private List<MenuDTO> submenus = new ArrayList<>();
+
+    public void add(MenuDTO submenu) {
+        submenus.add(submenu);
+        Collections.sort(submenus);
+        this.notificacoes += submenu.getNotificacoes();
+    }
 
     @Override
     public int compareTo(MenuDTO o) {

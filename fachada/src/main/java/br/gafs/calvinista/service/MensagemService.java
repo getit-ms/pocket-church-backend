@@ -21,6 +21,8 @@ import java.util.List;
  * @author Gabriel
  */
 public interface MensagemService extends Serializable {
+    Long countNotificacoesNaoLidas();
+
     void sendNow(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro);
     NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro);
     NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro, Date dataHora);
@@ -30,4 +32,6 @@ public interface MensagemService extends Serializable {
     NotificationSchedule sendLater(MensagemEmailDTO notificacao, FiltroEmailDTO filtro, Date dataHora);
     
     void enviarMensagem(ContatoDTO contato);
+
+    void marcaNotificacoesComoLidas();
 }

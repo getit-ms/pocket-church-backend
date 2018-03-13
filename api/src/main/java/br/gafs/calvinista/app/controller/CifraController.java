@@ -8,6 +8,7 @@ package br.gafs.calvinista.app.controller;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroCifraDTO;
 import br.gafs.calvinista.entity.Cifra;
+import br.gafs.calvinista.entity.domain.TipoCifra;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
@@ -40,10 +41,11 @@ public class CifraController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaTodos(
             @QueryParam("filtro") @DefaultValue("") final String filtro,
+            @QueryParam("tipo") @DefaultValue("CIFRA") final TipoCifra tipo,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                busca(new FiltroCifraDTO(filtro, pagina, total))).build();
+                busca(new FiltroCifraDTO(filtro, tipo, pagina, total))).build();
     }
     
     @GET

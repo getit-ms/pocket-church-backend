@@ -19,8 +19,8 @@ public class FiltroCifra extends AbstractPaginatedFiltro<FiltroCifraDTO> {
     public FiltroCifra(String igreja, FiltroCifraDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Cifra c where c.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
+        StringBuilder query = new StringBuilder("from Cifra c where c.igreja.chave = :chaveIgreja and c.tipo = :tipo");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).set("tipo", filtro.getTipo());
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
             query.append(" and lower(concat(c.titulo, c.autor, c.letra)) like :filtro");

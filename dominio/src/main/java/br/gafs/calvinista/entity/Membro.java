@@ -66,8 +66,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 @NoArgsConstructor
 @ToString(of = "id")
 @Table(name = "tb_membro")
-@EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
+@EqualsAndHashCode(of = {"id", "igreja"})
 @NamedQueries({
     @NamedQuery(name = "Membro.autentica", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and upper(m.senha) = upper(:senha) and m.status in :status"),
     @NamedQuery(name = "Membro.findPastor", query = "select m from Membro m where m.pastor = true and m.igreja.chave = :chaveIgreja and m.status in :status and m.id not in (select ca.pastor.id from CalendarioAtendimento ca where ca.igreja.chave = :chaveIgreja and ca.status = :statusCalendario) order by m.nome"),
