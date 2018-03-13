@@ -21,17 +21,17 @@ import java.util.List;
  * @author Gabriel
  */
 public interface MensagemService extends Serializable {
-    Long countNotificacoesNaoLidas();
-
     void sendNow(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro);
+
     NotificationSchedule sendWhenPossible(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro);
     NotificationSchedule sendLater(MensagemPushDTO notificacao, FiltroDispositivoNotificacaoDTO filtro, Date dataHora);
-    
     void sendNow(MensagemEmailDTO notificacao, FiltroEmailDTO filtro);
+
     NotificationSchedule sendWhenPossible(MensagemEmailDTO notificacao, FiltroEmailDTO filtro);
     NotificationSchedule sendLater(MensagemEmailDTO notificacao, FiltroEmailDTO filtro, Date dataHora);
-    
     void enviarMensagem(ContatoDTO contato);
 
-    void marcaNotificacoesComoLidas();
+    Long countNotificacoesNaoLidas();
+    Long countNotificacoesNaoLidas(String chaveIgreja, String chaveDispositivo, Long idMembro);
+    void marcaNotificacoesComoLidas(String chaveIgreja, String chaveDispositivo, Long idMembro);
 }

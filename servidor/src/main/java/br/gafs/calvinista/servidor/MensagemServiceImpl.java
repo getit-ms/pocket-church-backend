@@ -5,7 +5,6 @@
 */
 package br.gafs.calvinista.servidor;
 
-import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dto.*;
@@ -132,39 +131,48 @@ public class MensagemServiceImpl implements MensagemService {
 
     @Override
     @Asynchronous
-    public void marcaNotificacoesComoLidas() {
+    public void marcaNotificacoesComoLidas(String chaveIgreja, String chaveDispositivo, Long idMembro) {
         synchronized (DISPOSITIVOS_LIDOS){
-            DISPOSITIVOS_LIDOS.add(sessaoBean.getChaveDispositivo());
+            DISPOSITIVOS_LIDOS.add(chaveDispositivo);
         }
 
-        if (sessaoBean.getIdMembro() != null){
+        if (idMembro != null){
             synchronized (MEMBROS_LIDOS){
-                MEMBROS_LIDOS.add(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+                MEMBROS_LIDOS.add(new RegistroIgrejaId(chaveIgreja, idMembro));
             }
         }
     }
 
     @Override
     public Long countNotificacoesNaoLidas() {
+        return countNotificacoesNaoLidas(
+                sessaoBean.getChaveIgreja(),
+                sessaoBean.getChaveDispositivo(),
+                sessaoBean.getIdMembro()
+        );
+    }
 
-        if (sessaoBean.getIdMembro() != null){
+    @Override
+    public Long countNotificacoesNaoLidas(String chaveIgreja, String chaveDispositivo, Long idMembro) {
+
+        if (idMembro != null){
             synchronized (MEMBROS_LIDOS){
-                if (MEMBROS_LIDOS.contains(new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))){
+                if (MEMBROS_LIDOS.contains(new RegistroIgrejaId(chaveIgreja, idMembro))){
                     return 0l;
                 }
             }
             return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_MEMBRO.
-                    createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+                    createSingle(chaveIgreja, idMembro));
         }
 
         synchronized (DISPOSITIVOS_LIDOS){
-            if (DISPOSITIVOS_LIDOS.contains(sessaoBean.getChaveDispositivo())){
+            if (DISPOSITIVOS_LIDOS.contains(chaveDispositivo)){
                 return 0l;
             }
         }
 
         return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.
-                createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+                createSingle(chaveIgreja, chaveDispositivo));
     }
 
     @Schedule(minute = "*/5", hour = "*")

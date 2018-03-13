@@ -127,7 +127,11 @@ public class AppServiceImpl implements AppService {
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
         
         if (filtro.getPagina().equals(1)){
-            notificacaoService.marcaNotificacoesComoLidas();
+            notificacaoService.marcaNotificacoesComoLidas(
+                    sessaoBean.getChaveIgreja(),
+                    sessaoBean.getChaveDispositivo(),
+                    sessaoBean.getIdMembro()
+            );
         }
         
         return busca;
@@ -911,6 +915,8 @@ public class AppServiceImpl implements AppService {
 
         if (resumo.length() > 500) {
             noticia.setResumo(resumo.substring(0, 497) + "...");
+        } else {
+            noticia.setResumo(resumo);
         }
     }
 

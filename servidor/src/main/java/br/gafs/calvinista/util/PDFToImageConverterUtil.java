@@ -51,7 +51,7 @@ public class PDFToImageConverterUtil {
             SimpleRenderer renderer = new SimpleRenderer();
 
             // set resolution (in DPI)
-            renderer.setResolution(300);
+            renderer.setResolution(220);
 
             // render
             int pageCount;

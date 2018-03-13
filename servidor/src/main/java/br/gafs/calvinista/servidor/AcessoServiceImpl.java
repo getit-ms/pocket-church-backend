@@ -123,7 +123,11 @@ public class AcessoServiceImpl implements AcessoService {
                     menu.getLink(), 0, menu.getFuncionalidade(), new ArrayList<MenuDTO>());
 
             if (menu.getFuncionalidade() == Funcionalidade.NOTIFICACOES) {
-                dto.setNotificacoes(mensagemService.countNotificacoesNaoLidas());
+                dto.setNotificacoes(mensagemService.countNotificacoesNaoLidas(
+                        sessaoBean.getChaveIgreja(),
+                        sessaoBean.getChaveDispositivo(),
+                        sessaoBean.getIdMembro()
+                ));
             }
 
             if (menu.getMenuPai() == null) {
