@@ -6,6 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.calvinista.entity.domain.StatusEstudo;
 import br.gafs.calvinista.entity.dominio.TipoEstudo;
 import br.gafs.calvinista.view.View;
@@ -186,11 +187,6 @@ public class Estudo implements IEntity, ArquivoPDF {
         return dataPublicacao == null || DateUtil.getDataAtual().before(dataPublicacao);
     }
     
-    @JsonView(Detalhado.class)
-    public boolean isPublicado(){
-        return !isEmEdicao();
-    }
-    
     public String getFilename(){
         return titulo.replaceAll("[^a-zA-Z0-9]", "_");
     }
@@ -205,6 +201,37 @@ public class Estudo implements IEntity, ArquivoPDF {
 
     public void processando() {
         status = StatusEstudo.PROCESSANDO;
+    }
+
+    public boolean isAgendado() {
+        return StatusEstudo.PUBLICADO == status
+                && DateUtil.getDataAtual().before(dataPublicacao);
+    }
+
+    public boolean isPublicado() {
+        return !isEmEdicao() && StatusEstudo.PUBLICADO == status
+                && DateUtil.getDataAtual().after(dataPublicacao);
+    }
+
+    public boolean isProcessando() {
+        return StatusEstudo.PROCESSANDO == status;
+    }
+
+    public boolean isRejeitado() {
+        return StatusEstudo.REJEITADO == status;
+    }
+
+    public double getPorcentagemProcessamento(){
+        RegistroIgrejaId riid = new RegistroIgrejaId(chaveIgreja, id);
+        if (isProcessando() && locked(riid)){
+            return lock(riid);
+        }
+
+        if (isPublicado() || isAgendado()){
+            return 1d;
+        }
+
+        return 0d;
     }
 
     @JsonProperty

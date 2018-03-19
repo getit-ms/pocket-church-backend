@@ -881,10 +881,8 @@ public class AppServiceImpl implements AppService {
         noticia.setAutor(buscaMembro(sessaoBean.getIdMembro()));
 
         if (noticia.getIlustracao() != null) {
-            Arquivo ilustracao = daoService.find(Arquivo.class,
-                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), noticia.getIlustracao().getId()));
-            ilustracao.used();
-            noticia.setIlustracao(daoService.update(ilustracao));
+            arquivoService.registraUso(noticia.getIlustracao().getId());
+            noticia.setIlustracao(arquivoService.buscaArquivo(noticia.getIlustracao().getId()));
         }
 
         preparaResumo(noticia);
@@ -901,8 +899,8 @@ public class AppServiceImpl implements AppService {
                     new RegistroIgrejaId(sessaoBean.getChaveIgreja(), noticia.getIlustracao().getId()));
 
             if (!ilustracao.isUsed()) {
-                ilustracao.used();
-                noticia.setIlustracao(daoService.update(ilustracao));
+                arquivoService.registraUso(noticia.getIlustracao().getId());
+                noticia.setIlustracao(arquivoService.buscaArquivo(noticia.getIlustracao().getId()));
             }
         }
 

@@ -7,6 +7,7 @@ package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroEstudoDTO;
 import br.gafs.calvinista.entity.Dispositivo;
+import br.gafs.calvinista.entity.domain.StatusEstudo;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
@@ -22,8 +23,8 @@ public class FiltroEstudo extends AbstractPaginatedFiltro<FiltroEstudoDTO>{
     public FiltroEstudo(String igreja, boolean admin, FiltroEstudoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Estudo e where e.igreja.chave = :chaveIgreja");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
+        StringBuilder query = new StringBuilder("from Estudo e where e.igreja.chave = :chaveIgreja and e.status = :status");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).set("status", StatusEstudo.PUBLICADO);
         
         if (!admin){
             query.append(" and e.dataPublicacao <= :dataCorte");
