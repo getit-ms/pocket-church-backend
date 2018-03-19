@@ -799,6 +799,8 @@ public class AppServiceImpl implements AppService {
             if (trataTrocaPDF(estudo)){
                 estudo.processando();
             }
+        } else {
+            estudo.publicado();
         }
 
         estudo = daoService.create(estudo);
@@ -831,6 +833,8 @@ public class AppServiceImpl implements AppService {
             if (trataTrocaPDF(estudo)){
                 estudo.processando();
             }
+        } else {
+            estudo.publicado();
         }
 
         estudo = daoService.update(estudo);

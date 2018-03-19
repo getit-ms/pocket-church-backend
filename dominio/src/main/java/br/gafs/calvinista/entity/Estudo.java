@@ -202,6 +202,10 @@ public class Estudo implements IEntity, ArquivoPDF {
         status = StatusEstudo.PROCESSANDO;
     }
 
+    public void publicado() {
+        status = StatusEstudo.PUBLICADO;
+    }
+
     public boolean isAgendado() {
         return !isEmEdicao() && StatusEstudo.PUBLICADO == status
                 && DateUtil.getDataAtual().before(dataPublicacao);
