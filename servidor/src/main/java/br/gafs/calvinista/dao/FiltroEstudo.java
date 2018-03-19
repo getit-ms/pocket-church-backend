@@ -23,12 +23,13 @@ public class FiltroEstudo extends AbstractPaginatedFiltro<FiltroEstudoDTO>{
     public FiltroEstudo(String igreja, boolean admin, FiltroEstudoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Estudo e where e.igreja.chave = :chaveIgreja and e.status = :status");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).set("status", StatusEstudo.PUBLICADO);
+        StringBuilder query = new StringBuilder("from Estudo e where e.igreja.chave = :chaveIgreja");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
         
         if (!admin){
-            query.append(" and e.dataPublicacao <= :dataCorte");
+            query.append(" and e.dataPublicacao <= :dataCorte and e.status = :status");
             args.put("dataCorte", DateUtil.getDataAtual());
+            args.put("status", StatusEstudo.PUBLICADO);
         }
 
         if (filtro.getCategoria() != null) {
