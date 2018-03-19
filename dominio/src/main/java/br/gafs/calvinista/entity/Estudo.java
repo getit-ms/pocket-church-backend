@@ -182,9 +182,8 @@ public class Estudo implements IEntity, ArquivoPDF {
         this.igreja = membro.getIgreja();
     }
     
-    @JsonView(Detalhado.class)
     public boolean isEmEdicao(){
-        return dataPublicacao == null || DateUtil.getDataAtual().before(dataPublicacao);
+        return dataPublicacao == null;
     }
     
     public String getFilename(){
@@ -204,7 +203,7 @@ public class Estudo implements IEntity, ArquivoPDF {
     }
 
     public boolean isAgendado() {
-        return StatusEstudo.PUBLICADO == status
+        return !isEmEdicao() && StatusEstudo.PUBLICADO == status
                 && DateUtil.getDataAtual().before(dataPublicacao);
     }
 
@@ -214,11 +213,11 @@ public class Estudo implements IEntity, ArquivoPDF {
     }
 
     public boolean isProcessando() {
-        return StatusEstudo.PROCESSANDO == status;
+        return !isEmEdicao() && StatusEstudo.PROCESSANDO == status;
     }
 
     public boolean isRejeitado() {
-        return StatusEstudo.REJEITADO == status;
+        return !isEmEdicao() && StatusEstudo.REJEITADO == status;
     }
 
     public double getPorcentagemProcessamento(){
