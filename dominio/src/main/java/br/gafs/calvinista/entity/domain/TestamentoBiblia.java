@@ -11,5 +11,6 @@ package br.gafs.calvinista.entity.domain;
  */
 public enum TestamentoBiblia {
     VELHO,
-    NOVO
+    NOVO,
+    EXCLUIDO
 }
