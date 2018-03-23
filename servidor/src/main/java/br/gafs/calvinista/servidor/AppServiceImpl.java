@@ -139,14 +139,13 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public void clearNotificacoes(){
-        if (sessaoBean.getIdMembro() == null){
-            daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_DISPOSITIVO.
-                    create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
-        }else{
-            
+        if (sessaoBean.getIdMembro() != null){
             daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
         }
+
+        daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_DISPOSITIVO.
+                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
     }
     
     @Override
@@ -337,7 +336,33 @@ public class AppServiceImpl implements AppService {
             daoService.update(entidade);
         }
     }
-    
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
+    public void redefinirSenha(Long membro) {
+        Membro entidade = buscaMembro(membro);
+
+        if (entidade.isMembro()){
+            String senha = SenhaUtil.geraSenha(8);
+
+            entidade.setSenha(SenhaUtil.encryptSHA256(senha));
+            daoService.update(entidade);
+
+            String subject = MensagemUtil.getMensagem("email.nova_senha.subject",
+                    entidade.getIgreja().getLocale());
+            String title = MensagemUtil.getMensagem("email.nova_senha.message.title",
+                    entidade.getIgreja().getLocale(), entidade.getNome());
+            String text = MensagemUtil.getMensagem("email.nova_senha.message.text",
+                    entidade.getIgreja().getLocale(), entidade.getIgreja().getNome());
+
+            notificacaoService.sendNow(
+                    MensagemUtil.email(daoService.find(Institucional.class, entidade.getIgreja().getChave()), subject,
+                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "", senha), Collections.EMPTY_LIST)),
+                    new FiltroEmailDTO(entidade.getIgreja(), entidade.getId()));
+        }
+    }
+
     @Override
     public BuscaPaginadaDTO<Hino> busca(FiltroHinoDTO filtro) {
         return daoService.findWith(new FiltroHino(sessaoBean.getChaveIgreja(), filtro));

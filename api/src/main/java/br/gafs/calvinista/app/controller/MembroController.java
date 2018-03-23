@@ -94,6 +94,14 @@ public class MembroController {
     public Response getAcessoAdmin(@PathParam("membro") final Long membro){
         return Response.status(Response.Status.OK).entity(appService.buscaAcessoAdmin(membro)).build();
     }
+
+    @PUT
+    @Path("{membro}/redefine-senha")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response redefineSenha(@PathParam("membro") final Long membro){
+        appService.redefinirSenha(membro);
+        return Response.status(Response.Status.OK).build();
+    }
     
     @PUT
     @Path("{membro}/acesso")

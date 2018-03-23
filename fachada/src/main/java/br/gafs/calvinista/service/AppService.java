@@ -51,6 +51,7 @@ public interface AppService extends Serializable {
     Membro cadastra(Membro membro);
     Membro atualiza(Membro membro);
     void removeMembro(Long membro);
+    void redefinirSenha(Long membro);
     BuscaPaginadaDTO<Membro> busca(FiltroMembroDTO filtro);
     Membro buscaMembro(Long membro);
     
