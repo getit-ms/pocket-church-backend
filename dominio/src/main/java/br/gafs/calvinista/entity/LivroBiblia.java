@@ -12,21 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -37,15 +24,21 @@ import lombok.ToString;
  */
 @Getter
 @Entity
-@ToString(of = "id")
-@EqualsAndHashCode(of = "id")
+@IdClass(LivroBibliaId.class)
 @Table(name = "tb_livro_biblia")
+@ToString(of = {"id", "idBiblia"})
+@EqualsAndHashCode(of = {"id", "idBiblia"})
 public class LivroBiblia implements IEntity {
     @Id
     @Column(name = "id_livro_biblia")
     @SequenceGenerator(name = "seq_livro_biblia", sequenceName = "seq_livro_biblia")
     @GeneratedValue(generator = "seq_livro_biblia", strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @Id
+    @JsonIgnore
+    @Column(name = "id_biblia", insertable = false, updatable = false)
+    private Long idBiblia;
     
     @Column(name = "nome", length = 50)
     private String nome;
@@ -71,6 +64,9 @@ public class LivroBiblia implements IEntity {
     
     @OneToMany
     @OrderBy("capitulo, versiculo")
-    @JoinColumn(name = "id_livro_biblia")
+    @JoinColumns({
+            @JoinColumn(name = "id_livro_biblia", referencedColumnName = "id_livro_biblia"),
+            @JoinColumn(name = "id_biblia", referencedColumnName = "id_biblia")
+    })
     private List<VersiculoBiblia> versiculos = new ArrayList<VersiculoBiblia>();
 }
