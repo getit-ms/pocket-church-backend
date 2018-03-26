@@ -34,3 +34,5 @@ insert into tb_versiculo_biblia(id_versiculo_biblia, capitulo, versiculo, texto,
 
 update tb_livro_biblia set ultima_atualizacao = now();
 
+drop table tb_versiculo_biblia_old;
+drop table tb_livro_biblia_old;
