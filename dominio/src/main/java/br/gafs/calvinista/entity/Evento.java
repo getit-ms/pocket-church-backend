@@ -166,5 +166,8 @@ public class Evento implements IEntity {
     public void inativo(){
         status = StatusEvento.INATIVO;
     }
-    
+
+    public boolean isEBD() {
+        return TipoEvento.EBD.equals(tipo);
+    }
 }

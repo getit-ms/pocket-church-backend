@@ -14,6 +14,7 @@ import br.gafs.calvinista.dto.MenuDTO;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.Audit;
 import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.service.AcessoService;
@@ -105,6 +106,25 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public List<Ministerio> buscaMinisterios(){
         return daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja()));
+    }
+
+    @Override
+    @AllowMembro
+    public void trocaFoto(Arquivo arquivo) {
+        Arquivo entidade = daoService.find(Arquivo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), arquivo.getId()));
+
+        if (!entidade.isUsed()) {
+
+            entidade.used();
+
+            Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
+
+            membro.setFoto(entidade);
+
+            daoService.update(membro);
+        } else {
+            throw new ServiceException("mensagens.MSG-403");
+        }
     }
 
     @Override

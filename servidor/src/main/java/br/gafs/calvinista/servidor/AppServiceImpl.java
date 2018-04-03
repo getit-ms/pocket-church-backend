@@ -459,14 +459,20 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
-    @AllowMembro(Funcionalidade.CONSULTAR_CONTATOS_IGREJA)
+    @AllowMembro({
+            Funcionalidade.CONSULTAR_CONTATOS_IGREJA,
+            Funcionalidade.REALIZAR_INSCRICAO_EBD
+    })
     public Membro buscaMembro(Long membro) {
         return daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), membro));
     }
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
-    @AllowMembro(Funcionalidade.CONSULTAR_CONTATOS_IGREJA)
+    @AllowMembro({
+            Funcionalidade.CONSULTAR_CONTATOS_IGREJA,
+            Funcionalidade.REALIZAR_INSCRICAO_EBD
+    })
     public BuscaPaginadaDTO<Membro> busca(FiltroMembroDTO filtro) {
         return daoService.findWith(new FiltroMembro(sessaoBean.isAdmin(), sessaoBean.getChaveIgreja(), filtro));
     }

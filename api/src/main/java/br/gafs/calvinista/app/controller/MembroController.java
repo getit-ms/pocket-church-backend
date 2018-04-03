@@ -102,7 +102,7 @@ public class MembroController {
         appService.redefinirSenha(membro);
         return Response.status(Response.Status.OK).build();
     }
-    
+
     @PUT
     @Path("{membro}/acesso")
     @Produces(MediaType.APPLICATION_JSON)

@@ -10,6 +10,8 @@ import br.gafs.calvinista.entity.Arquivo;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.file.EntityFileManager;
 import br.gafs.util.string.StringUtil;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -48,7 +50,15 @@ public class ArquivoController {
             @FormDataParam("file") FormDataContentDisposition fileDetail) {
         return Response.status(Status.OK).entity(arquivoService.upload(fileDetail.getFileName(), read(uploadedInputStream))).build();
     }
-    
+
+    @POST
+    @Path("/upload/base64")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadFile(UploadArquivoDTO upload) throws Base64DecodingException {
+        return Response.status(Status.OK).entity(arquivoService.upload(upload.getFileName(), Base64.decode(upload.getData()))).build();
+    }
+
     @GET
     @Path("/download/{arquivo}") 
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})

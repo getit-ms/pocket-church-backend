@@ -9,6 +9,7 @@ import br.gafs.calvinista.app.dto.AcessoDTO;
 import br.gafs.calvinista.app.dto.acesso.RequisicaoLoginDTO;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.MenuDTO;
+import br.gafs.calvinista.entity.Arquivo;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Ministerio;
 import br.gafs.calvinista.entity.Preferencias;
@@ -108,7 +109,16 @@ public class AcessoController {
         
         return Response.status(Response.Status.OK).entity(acessoService.salva(entidade)).build();
     }
-    
+
+    @PUT
+    @Path("foto")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response trocaFoto(Arquivo arquivo){
+        acessoService.trocaFoto(arquivo);
+        return Response.status(Response.Status.OK).build();
+    }
+
     @POST
     @Path("registerPush")
     @Consumes(MediaType.APPLICATION_JSON)

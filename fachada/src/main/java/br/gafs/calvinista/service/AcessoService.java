@@ -6,10 +6,7 @@
 package br.gafs.calvinista.service;
 
 import br.gafs.calvinista.dto.MenuDTO;
-import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.Ministerio;
-import br.gafs.calvinista.entity.Preferencias;
-import br.gafs.calvinista.entity.Usuario;
+import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import java.io.Serializable;
@@ -43,4 +40,6 @@ public interface AcessoService extends Serializable {
     List<Funcionalidade> buscaFuncionalidadesPublicas();
 
     MenuDTO buscaMenu(int versaoMajor, int versaoMinor, int versaoBugfix);
+
+    void trocaFoto(Arquivo arquivo);
 }

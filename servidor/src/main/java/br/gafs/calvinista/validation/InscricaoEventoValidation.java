@@ -40,6 +40,10 @@ public class InscricaoEventoValidation implements ValidadorServico<InscricaoEven
                 throw new ServiceException("mensagens.MSG-028");
             }
         }
+
+        if (evento.isEBD()) {
+
+        }
         
         validation.validate();
     }
