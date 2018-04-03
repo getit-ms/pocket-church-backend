@@ -10,8 +10,6 @@ import br.gafs.calvinista.entity.Arquivo;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.file.EntityFileManager;
 import br.gafs.util.string.StringUtil;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -23,7 +21,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.util.Base64;
 import java.util.logging.Logger;
 
 /**
@@ -55,8 +55,8 @@ public class ArquivoController {
     @Path("/upload/base64")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response uploadFile(UploadArquivoDTO upload) throws Base64DecodingException {
-        return Response.status(Status.OK).entity(arquivoService.upload(upload.getFileName(), Base64.decode(upload.getData()))).build();
+    public Response uploadFile(UploadArquivoDTO upload) {
+        return Response.status(Status.OK).entity(arquivoService.upload(upload.getFileName(), DatatypeConverter.parseBase64Binary(upload.getData()))).build();
     }
 
     @GET
