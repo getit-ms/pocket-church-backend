@@ -117,7 +117,7 @@ public class AcessoServiceImpl implements AcessoService {
 
             entidade.used();
 
-            Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
+            Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
             membro.setFoto(entidade);
 
