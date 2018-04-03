@@ -54,7 +54,7 @@ public class ArquivoController {
     @POST
     @Path("/upload/base64")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response uploadFile(UploadArquivoDTO upload) throws Base64DecodingException {
         return Response.status(Status.OK).entity(arquivoService.upload(upload.getFileName(), Base64.decode(upload.getData()))).build();
     }
