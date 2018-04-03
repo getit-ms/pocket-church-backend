@@ -10,10 +10,7 @@ import br.gafs.calvinista.entity.Arquivo;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
-import br.gafs.calvinista.security.AllowAdmin;
-import br.gafs.calvinista.security.Audit;
-import br.gafs.calvinista.security.AuditoriaInterceptor;
-import br.gafs.calvinista.security.SecurityInterceptor;
+import br.gafs.calvinista.security.*;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.dao.DAOService;
@@ -48,6 +45,7 @@ public class ArquivoServiceImpl implements ArquivoService {
 
     @Audit
     @Override
+    @AllowMembro
     @AllowAdmin({
             Funcionalidade.MANTER_MEMBROS,
             Funcionalidade.MANTER_BOLETINS,
