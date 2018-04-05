@@ -9,6 +9,7 @@ import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.exception.ValidationException;
 import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
@@ -17,6 +18,7 @@ import br.gafs.validation.ValidadorNegocial;
 import br.gafs.validation.ValidadorServico;
 import javax.ejb.EJB;
 import javax.inject.Named;
+import java.util.List;
 
 /**
  *
@@ -42,7 +44,14 @@ public class InscricaoEventoValidation implements ValidadorServico<InscricaoEven
         }
 
         if (evento.isEBD()) {
+            List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.BUSCA_NSCRICOES_EMAIL
+                    .create(TipoEvento.EBD, entidade.getChaveIgreja(),
+                            entidade.getEmailInscrito().toLowerCase()));
 
+            if (!inscricoes.isEmpty()) {
+                throw new ServiceException("O e-mail " + entidade.getEmailInscrito() + " já está matriculado em " +
+                        inscricoes.get(0).getEvento().getNome()+". Por favor, procure nossa equipe no estande EBD, aos domingos.");
+            }
         }
         
         validation.validate();

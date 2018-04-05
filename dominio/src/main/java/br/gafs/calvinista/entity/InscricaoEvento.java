@@ -54,7 +54,8 @@ import org.hibernate.validator.constraints.NotEmpty;
     @NamedQuery(name = "InscricaoEvento.findByReferencia", query = "select ie from InscricaoEvento ie where ie.referenciaCheckout = :referencia"),
     @NamedQuery(name = "InscricaoEvento.findReferenciasByStatusAndIgreja", query = "select ie.referenciaCheckout from InscricaoEvento ie where ie.membro.igreja.chave = :igreja and ie.status = :status group by ie.referenciaCheckout"),
     @NamedQuery(name = "InscricaoEvento.findMaxDataByEvento", query = "select max(ie.data) from InscricaoEvento ie where ie.evento.id = :evento and ie.evento.chaveIgreja = :igreja"),
-    @NamedQuery(name = "InscricaoEvento.findAtivosByIgreja", query = "select ie from InscricaoEvento ie where ie.evento.tipo = :tipo and ie.chaveIgreja = :chaveIgreja and ie.evento.dataHoraTermino >= CURRENT_TIMESTAMP and ie.evento.status = :statusEvento and ie.status = :statusInscricao order by ie.data desc")
+    @NamedQuery(name = "InscricaoEvento.findAtivosByIgreja", query = "select ie from InscricaoEvento ie where ie.evento.tipo = :tipo and ie.chaveIgreja = :chaveIgreja and ie.evento.dataHoraTermino >= CURRENT_TIMESTAMP and ie.evento.status = :statusEvento and ie.status = :statusInscricao order by ie.data desc"),
+    @NamedQuery(name = "InscricaoEvento.findInscricoesMembro", query = "select ie from InscricaoEvento ie where ie.evento.tipo = :tipo and ie.chaveIgreja = :igreja and lower(ie.emailInscrito) = :email and ie.evento.status = :statusEvento and ie.status in :statusInscricao")
 })
 public class InscricaoEvento implements IEntity {
     @Id

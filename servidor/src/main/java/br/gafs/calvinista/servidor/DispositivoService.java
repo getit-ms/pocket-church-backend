@@ -15,6 +15,7 @@ import javax.transaction.*;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,6 +35,7 @@ public class DispositivoService {
     private static final File CONTINGENCIA_DIR = new File("/calvin/contingencia");
     private static final String FORCE_REGISTER_MASK = "force_register_{0}";
     private static final String FULL_RESET_MASK = "full_reset_{0}";
+    private static final String BIBLIA_RESET = "bible_reset_{0}";
 
     @EJB
     private DAOService daoService;
@@ -158,7 +160,18 @@ public class DispositivoService {
         }
     }
 
-    public TipoAcaoContigencia verificaContingencia(String chaveDispositivo) {
+    public static boolean shouldResetaBiblia(String chaveDispositivo) {
+        return new File(CONTINGENCIA_DIR, MessageFormat.format(BIBLIA_RESET, chaveDispositivo)).exists();
+    }
+
+    public static void flagResetBibliaConcluido(String chaveDispositivo) {
+        File flag = new File(CONTINGENCIA_DIR, MessageFormat.format(BIBLIA_RESET, chaveDispositivo));
+        if (flag.exists()) {
+            flag.delete();
+        }
+    }
+
+    public static  TipoAcaoContigencia verificaContingencia(String chaveDispositivo) {
         File fullReset = new File(CONTINGENCIA_DIR, MessageFormat.format(FULL_RESET_MASK, chaveDispositivo));
         if (fullReset.exists()) {
             fullReset.delete();

@@ -375,7 +375,17 @@ public class AppServiceImpl implements AppService {
     
     @Override
     public BuscaPaginadaDTO<LivroBiblia> busca(FiltroLivroBibliaDTO filtro) {
-        return daoService.findWith(new FiltroLivroBiblia(sessaoBean.getChaveIgreja(), filtro));
+        if (DispositivoService.shouldResetaBiblia(sessaoBean.getChaveDispositivo())) {
+            filtro.setUltimaAtualizacao(null);
+        }
+
+        BuscaPaginadaDTO pagina = daoService.findWith(new FiltroLivroBiblia(sessaoBean.getChaveIgreja(), filtro));
+
+        if (!pagina.isHasProxima()) {
+            DispositivoService.flagResetBibliaConcluido(sessaoBean.getChaveDispositivo());
+        }
+
+        return pagina;
     }
     
     @Override

@@ -117,6 +117,8 @@ public class AcessoServiceImpl implements AcessoService {
 
             entidade.used();
 
+            entidade = daoService.update(entidade);
+
             Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
             membro.setFoto(entidade);
