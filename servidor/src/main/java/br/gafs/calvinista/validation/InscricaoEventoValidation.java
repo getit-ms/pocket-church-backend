@@ -45,10 +45,9 @@ public class InscricaoEventoValidation implements ValidadorServico<InscricaoEven
 
         if (evento.isEBD()) {
             List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.BUSCA_NSCRICOES_EMAIL
-                    .create(TipoEvento.EBD, entidade.getChaveIgreja(),
-                            entidade.getEmailInscrito().toLowerCase()));
+                    .create(TipoEvento.EBD, evento.getChaveIgreja(), entidade.getEmailInscrito().toLowerCase()));
 
-            if (!inscricoes.isEmpty()) {
+            if (!inscricoes.isEmpty() && !inscricoes.contains(entidade)) {
                 throw new ServiceException("O e-mail " + entidade.getEmailInscrito() + " já está matriculado em " +
                         inscricoes.get(0).getEvento().getNome()+". Por favor, procure nossa equipe no estande EBD, aos domingos.");
             }
