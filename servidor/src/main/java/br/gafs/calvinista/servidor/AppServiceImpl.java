@@ -1621,6 +1621,17 @@ public class AppServiceImpl implements AppService {
             
             List<InscricaoEvento> cadastradas = new ArrayList<InscricaoEvento>();
             for (InscricaoEvento inscricao : inscricoes) {
+
+                if (evento.isEBD()) {
+                    List<InscricaoEvento> outrasInscricoes = daoService.findWith(QueryAdmin.BUSCA_NSCRICOES_EMAIL
+                            .create(TipoEvento.EBD, evento.getChaveIgreja(), inscricao.getEmailInscrito().toLowerCase()));
+
+                    if (!outrasInscricoes.isEmpty() && !outrasInscricoes.contains(inscricao)) {
+                        throw new ServiceException("O e-mail " + inscricao.getEmailInscrito() + " já está matriculado em " +
+                                outrasInscricoes.get(0).getEvento().getNome()+". Por favor, procure nossa equipe no estande EBD, aos domingos.");
+                    }
+                }
+
                 inscricao.setMembro(membro);
                 cadastradas.add(daoService.create(inscricao));
             }
