@@ -955,7 +955,7 @@ public class AppServiceImpl implements AppService {
     }
 
     private void preparaResumo(Noticia noticia) {
-        String resumo = StringEscapeUtils.escapeHtml(noticia.getTexto()
+        String resumo = StringEscapeUtils.unescapeHtml(noticia.getTexto()
                 .replaceAll("<[^>]+>", " ").replaceAll("\\s+", " "));
 
         if (resumo.length() > 500) {
