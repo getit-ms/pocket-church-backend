@@ -941,13 +941,13 @@ public class AppServiceImpl implements AppService {
     public Noticia atualiza(Noticia noticia) {
 
         if (noticia.getIlustracao() != null) {
-            Arquivo ilustracao = daoService.find(Arquivo.class,
-                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), noticia.getIlustracao().getId()));
+            Arquivo ilustracao = arquivoService.buscaArquivo(noticia.getIlustracao().getId());
 
             if (!ilustracao.isUsed()) {
                 arquivoService.registraUso(noticia.getIlustracao().getId());
-                noticia.setIlustracao(arquivoService.buscaArquivo(noticia.getIlustracao().getId()));
             }
+
+            noticia.setIlustracao(ilustracao);
         }
 
         preparaResumo(noticia);
