@@ -38,6 +38,7 @@ import br.gafs.util.string.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
@@ -954,7 +955,8 @@ public class AppServiceImpl implements AppService {
     }
 
     private void preparaResumo(Noticia noticia) {
-        String resumo = noticia.getTexto().replaceAll("<[^>]+>", " ").replaceAll("\\s+", " ");
+        String resumo = StringEscapeUtils.escapeHtml(noticia.getTexto()
+                .replaceAll("<[^>]+>", " ").replaceAll("\\s+", " "));
 
         if (resumo.length() > 500) {
             noticia.setResumo(resumo.substring(0, 497) + "...");
