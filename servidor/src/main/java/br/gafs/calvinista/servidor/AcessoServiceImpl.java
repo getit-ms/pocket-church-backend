@@ -7,37 +7,31 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.dao.QueryAdmin;
-import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MenuDTO;
 import br.gafs.calvinista.entity.*;
-import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.Audit;
 import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.service.AcessoService;
+import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.dao.DAOService;
-import br.gafs.dto.DTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.senha.SenhaUtil;
 
-import java.util.*;
 import javax.ejb.EJB;
 import javax.ejb.Local;
-import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.apache.log4j.Logger;
+import java.util.*;
 
 /**
  *
@@ -56,6 +50,9 @@ public class AcessoServiceImpl implements AcessoService {
 
     @EJB
     private DispositivoService dispositivoService;
+
+    @EJB
+    private ArquivoService arquivoService;
 
     @Inject
     private SessaoBean sessaoBean;
@@ -115,9 +112,7 @@ public class AcessoServiceImpl implements AcessoService {
 
         if (!entidade.isUsed()) {
 
-            entidade.used();
-
-            entidade = daoService.update(entidade);
+            arquivoService.registraUso(arquivo.getId());
 
             Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
