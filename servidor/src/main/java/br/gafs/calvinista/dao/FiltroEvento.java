@@ -25,35 +25,35 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
         super(filtro);
 
         String fromCount = "from tb_evento e";
-        String from = fromCount + " left join tb_inscricao_evento ie on e.id_evento = ie.id_evento and e.chave_igreja = ie.chave_igreja and ie.status in (#statusInscricaoConfirmada, #statusInscricaoPendente)";
+        String from = fromCount + " left join tb_inscricao_evento ie on e.id_evento = ie.id_evento and e.chave_igreja = ie.chave_igreja and ie.status in (:statusInscricaoConfirmada, :statusInscricaoPendente)";
 
-        StringBuilder where = new StringBuilder(" where e.chave_igreja = #chaveIgreja and e.status = #status");
+        StringBuilder where = new StringBuilder(" where e.chave_igreja = :chaveIgreja and e.status = :status");
         Map<String, Object> argsCount = new QueryParameters("chaveIgreja", igreja).set("status", StatusEvento.ATIVO.ordinal());
         Map<String, Object> args = new QueryParameters("statusInscricaoPendente", StatusInscricaoEvento.PENDENTE).set("statusInscricaoConfirmada", StatusInscricaoEvento.CONFIRMADA);
 
         if (filtro.getTipo() != null){
-            where.append(" and e.tipo = #tipo");
+            where.append(" and e.tipo = :tipo");
             argsCount.put("tipo", filtro.getTipo().ordinal());
         }
         
         if (admin){
             if (filtro.getDataInicio() != null){
-                where.append(" and e.data_hora_inicio >= #dataHoraInicio");
+                where.append(" and e.data_hora_inicio >= :dataHoraInicio");
                 argsCount.put("dataHoraInicio", filtro.getDataInicio());
             }
 
             if (filtro.getDataTermino()!= null){
-                where.append(" and e.data_hora_termino >= #dataHoraTermino");
+                where.append(" and e.data_hora_termino >= :dataHoraTermino");
                 argsCount.put("dataHoraTermino", filtro.getDataTermino());
             }
         }else{
-            where.append(" and e.data_hora_termino >= #dataHoraTermino");
+            where.append(" and e.data_hora_termino >= :dataHoraTermino");
             argsCount.put("dataHoraTermino", DateUtil.getDataAtual());
         }
 
         args.putAll(argsCount);
 
-        StringBuilder select = new StringBuilder("select e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_termino_inscricao, e.limite_inscricoes, count(*)");
+        StringBuilder select = new StringBuilder("select e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_termino_inscricao, e.limite_inscricoes, count(*) ");
         String groupBy = " group by e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_termino_inscricao, e.limite_inscricoes";
 
         setArguments(args);
