@@ -12,6 +12,8 @@ import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -19,37 +21,42 @@ import java.util.Map;
  *
  * @author Gabriel
  */
-public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
+@Getter
+@Setter
+public class FiltroEvento implements Queries.PaginatedNativeQuery {
+    private String query;
+    private Queries.SingleNativeQuery countQuery;
+    private Map<String, Object> arguments;
+    private int page;
+    private int resultLimit;
 
     public FiltroEvento(String igreja, boolean admin, FiltroEventoDTO filtro) {
-        super(filtro);
-
         String fromCount = "from tb_evento e";
-        String from = fromCount + " left join tb_inscricao_evento ie on e.id_evento = ie.id_evento and e.chave_igreja = ie.chave_igreja and ie.status in (:statusInscricaoConfirmada, :statusInscricaoPendente)";
+        String from = fromCount + " left join tb_inscricao_evento ie on e.id_evento = ie.id_evento and e.chave_igreja = ie.chave_igreja and ie.status in (#statusInscricaoConfirmada, #statusInscricaoPendente)";
 
-        StringBuilder where = new StringBuilder(" where e.chave_igreja = :chaveIgreja and e.status = :status");
+        StringBuilder where = new StringBuilder(" where e.chave_igreja = #chaveIgreja and e.status = #status");
         Map<String, Object> argsCount = new QueryParameters("chaveIgreja", igreja).set("status", StatusEvento.ATIVO.ordinal());
         Map<String, Object> args = new QueryParameters()
                 .set("statusInscricaoPendente", StatusInscricaoEvento.PENDENTE.ordinal())
                 .set("statusInscricaoConfirmada", StatusInscricaoEvento.CONFIRMADA.ordinal());
 
         if (filtro.getTipo() != null){
-            where.append(" and e.tipo = :tipo");
+            where.append(" and e.tipo = #tipo");
             argsCount.put("tipo", filtro.getTipo().ordinal());
         }
         
         if (admin){
             if (filtro.getDataInicio() != null){
-                where.append(" and e.data_hora_inicio >= :dataHoraInicio");
+                where.append(" and e.data_hora_inicio >= #dataHoraInicio");
                 argsCount.put("dataHoraInicio", filtro.getDataInicio());
             }
 
             if (filtro.getDataTermino()!= null){
-                where.append(" and e.data_hora_termino >= :dataHoraTermino");
+                where.append(" and e.data_hora_termino >= #dataHoraTermino");
                 argsCount.put("dataHoraTermino", filtro.getDataTermino());
             }
         }else{
-            where.append(" and e.data_hora_termino >= :dataHoraTermino");
+            where.append(" and e.data_hora_termino >= #dataHoraTermino");
             argsCount.put("dataHoraTermino", DateUtil.getDataAtual());
         }
 
@@ -61,7 +68,7 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(select.append(from).append(where).append(groupBy).append(" order by e.nome, e.data_hora_inicio").toString());
-        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, new StringBuilder("select count(*) ").append(fromCount).append(where).toString(), argsCount));
+        setCountQuery(QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(*) ").append(fromCount).append(where).toString(), argsCount));
         setResultLimit(filtro.getTotal());
     }
     
