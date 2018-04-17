@@ -17,11 +17,14 @@ import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.view.View;
+import br.gafs.exceptions.ServiceException;
+import br.gafs.util.string.StringUtil;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -155,10 +158,16 @@ public class EventoController {
     @Path("{evento}/inscricao")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response realizaInscricao(@PathParam("evento") Long evento, List<InscricaoEvento> inscricoes){
+    public Response realizaInscricao(@PathParam("evento") Long evento, @Valid List<InscricaoEvento> inscricoes){
         Evento entidade = appService.buscaEvento(evento);
         List<InscricaoEvento> merged = new ArrayList<InscricaoEvento>();
         for (InscricaoEvento inscricao : inscricoes){
+            if (StringUtil.isEmpty(inscricao.getNomeInscrito()) ||
+                    StringUtil.isEmpty(inscricao.getEmailInscrito()) ||
+                    StringUtil.isEmpty(inscricao.getTelefoneInscrito())) {
+                throw new ServiceException("mensagens.MSG-002");
+            }
+
             InscricaoEvento insc = new InscricaoEvento(entidade);
             MergeUtil.merge(inscricao, View.Edicao.class).into(insc);
             merged.add(insc);

@@ -1500,13 +1500,29 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     public BuscaPaginadaDTO<Evento> buscaTodos(FiltroEventoDTO filtro) {
-        return daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+        BuscaPaginadaDTO<Object[]> dados = daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+
+        List<Evento> eventos = new ArrayList<>();
+        for (Object[] tupla : dados) {
+            Evento evento = new Evento();
+            evento.setId(((Number) tupla[0]).longValue());
+            evento.setNome((String) tupla[1]);
+            evento.setDataHoraInicio((Date) tupla[2]);
+            evento.setDataHoraTermino((Date) tupla[3]);
+            evento.setDataInicioInscricao((Date) tupla[4]);
+            evento.setDataTerminoInscricao((Date) tupla[5]);
+            evento.setLimiteInscricoes(((Number) tupla[6]).intValue());
+            evento.setVagasRestantes(evento.getLimiteInscricoes() - ((Number) tupla[7]).intValue());
+            eventos.add(evento);
+        }
+
+        return new BuscaPaginadaDTO<>(eventos, dados.getTotalResultados(), dados.getPagina(), filtro.getTotal());
     }
     
     @Override
     @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public BuscaPaginadaDTO<Evento> buscaFuturos(FiltroEventoFuturoDTO filtro) {
-        return daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+        return buscaTodos(filtro);
     }
     
     @Override
@@ -1518,7 +1534,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
     public BuscaPaginadaDTO<InscricaoEvento> buscaMinhas(Long evento, FiltroMinhasInscricoesDTO filtro) {
-        return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
+        return buscaTodas(evento, filtro);
     }
     
     @Audit
