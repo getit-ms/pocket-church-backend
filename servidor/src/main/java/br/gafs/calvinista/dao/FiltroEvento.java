@@ -29,7 +29,9 @@ public class FiltroEvento extends AbstractPaginatedFiltro<FiltroEventoDTO> {
 
         StringBuilder where = new StringBuilder(" where e.chave_igreja = :chaveIgreja and e.status = :status");
         Map<String, Object> argsCount = new QueryParameters("chaveIgreja", igreja).set("status", StatusEvento.ATIVO.ordinal());
-        Map<String, Object> args = new QueryParameters("statusInscricaoPendente", StatusInscricaoEvento.PENDENTE).set("statusInscricaoConfirmada", StatusInscricaoEvento.CONFIRMADA);
+        Map<String, Object> args = new QueryParameters()
+                .set("statusInscricaoPendente", StatusInscricaoEvento.PENDENTE.ordinal())
+                .set("statusInscricaoConfirmada", StatusInscricaoEvento.CONFIRMADA.ordinal());
 
         if (filtro.getTipo() != null){
             where.append(" and e.tipo = :tipo");
