@@ -62,8 +62,8 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
 
         args.putAll(argsCount);
 
-        StringBuilder select = new StringBuilder("select e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_termino_inscricao, e.limite_inscricoes, count(*) ");
-        String groupBy = " group by e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_termino_inscricao, e.limite_inscricoes";
+        StringBuilder select = new StringBuilder("select e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_fim_inscricao, e.limite_inscricoes, count(*) ");
+        String groupBy = " group by e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_fim_inscricao, e.limite_inscricoes";
 
         setArguments(args);
         setPage(filtro.getPagina());
