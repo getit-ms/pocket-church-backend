@@ -277,7 +277,7 @@ public class AppServiceImpl implements AppService {
             
             notificacaoService.sendNow(
                     MensagemUtil.email(recuperaInstitucional(), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "", senha), Collections.EMPTY_LIST)),
+                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", senha), Collections.EMPTY_LIST)),
                     new FiltroEmailDTO(entidade.getIgreja(), entidade.getId()));
         }
         
@@ -359,7 +359,7 @@ public class AppServiceImpl implements AppService {
 
             notificacaoService.sendNow(
                     MensagemUtil.email(daoService.find(Institucional.class, entidade.getIgreja().getChave()), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "", senha), Collections.EMPTY_LIST)),
+                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", senha), Collections.EMPTY_LIST)),
                     new FiltroEmailDTO(entidade.getIgreja(), entidade.getId()));
         }
     }

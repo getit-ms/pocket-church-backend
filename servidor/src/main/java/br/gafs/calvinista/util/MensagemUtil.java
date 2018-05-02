@@ -72,9 +72,6 @@ public class MensagemUtil {
         args.put("texto", manchete.getTexto());
         args.put("link.url", manchete.getLinkURL());
         args.put("link.texto", manchete.getLinkTexto());
-        args.put("img_fundo", "cid:attachment" + attachments.size());
-        attachments.add(new MensagemEmailDTO.Anexo(ResourceUtil.mensagem(institucional.getIgreja().getChave(), "/email/img_fundo.png"), MensagemEmailDTO.TipoAnexo.ARQUIVO));
-        attachNames.add("img_fundo.png");
         return load(institucional.getIgreja(), "/email/titulo-manchete.html", args);
     }
     

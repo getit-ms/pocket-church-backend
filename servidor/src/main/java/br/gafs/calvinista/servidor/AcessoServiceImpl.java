@@ -350,7 +350,7 @@ public class AcessoServiceImpl implements AcessoService {
             
             mensagemService.sendNow(
                     MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "", novaSenha), Collections.EMPTY_LIST)), 
+                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", novaSenha), Collections.EMPTY_LIST)),
                     new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
         }
         
