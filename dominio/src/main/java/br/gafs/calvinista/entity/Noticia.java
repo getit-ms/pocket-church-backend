@@ -24,7 +24,7 @@ import java.util.Date;
 @EqualsAndHashCode(of = {"igreja", "id"})
 @NamedQueries({
         @NamedQuery(name = "Noticia.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Noticia n inner join n.igreja i where i.status = :statusIgreja and n.divulgado = false and n.dataPublicacao <= :data group by i"),
-        @NamedQuery(name = "Noticia.updateNaoDivulgadosByIgreja", query = "update Noticia n set n.divulgado = true where n.igreja.chave = :igreja"),
+        @NamedQuery(name = "Noticia.updateNaoDivulgadosByIgreja", query = "update Noticia n set n.divulgado = true where n.igreja.chave = :igreja and n.dataPublicacao <= :data"),
 })
 public class Noticia implements IEntity {
     @Id
