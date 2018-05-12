@@ -5,6 +5,7 @@
 */
 package br.gafs.calvinista.util;
 
+import br.gafs.util.image.ImageUtil;
 import lombok.AllArgsConstructor;
 import org.ghost4j.document.DocumentException;
 import org.ghost4j.document.PDFDocument;
@@ -12,16 +13,12 @@ import org.ghost4j.renderer.RendererException;
 import org.ghost4j.renderer.SimpleRenderer;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.PixelGrabber;
 import java.awt.image.RenderedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 
 /**
@@ -29,6 +26,8 @@ import java.util.List;
  * @author Gabriel
  */
 public class PDFToImageConverterUtil {
+    private static final int LIMIT_HEIGHT = 900;
+    private static final int LIMIT_WIDTH = 900;
 
     public static PDFConverter convert(File pdf, int index, int limit){
         return new PDFConverter(pdf, index, limit);
@@ -46,7 +45,6 @@ public class PDFToImageConverterUtil {
 
             document.load(pdf);
 
-
             // create renderer
             SimpleRenderer renderer = new SimpleRenderer();
 
@@ -54,23 +52,35 @@ public class PDFToImageConverterUtil {
             renderer.setResolution(220);
 
             // render
+
             int pageCount;
-            List<Image> images;
             try {
                 pageCount = document.getPageCount();
-                images = renderer.render(document, index, limit > 0 ? Math.min(pageCount, index + limit) : pageCount);
+
+                int total = limit > 0 ? Math.min(pageCount, index + limit) : pageCount;
+
+                for (int i=index;i<total;i++) {
+                    BufferedImage image = getBufferedImage(document, renderer, i);
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    ImageIO.write(image, "png", baos);
+
+                    handler.handle(index + i, baos.toByteArray());
+                }
             } catch (RendererException | DocumentException e) {
                 throw new IOException(e);
             }
 
-            // write images to files to disk as PNG
-            for (int i = 0; i < images.size(); i++) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write((RenderedImage) images.get(i), "png", baos);
-                handler.handle(index + i, baos.toByteArray());
-            }
-
             return pageCount;
+        }
+
+        private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int i) throws IOException, RendererException, DocumentException {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            ImageIO.write((RenderedImage) renderer.render(document, i, i).get(i), "png", baos);
+
+            return ImageIO.read(new ByteArrayInputStream(ImageUtil.redimensionaImagem(baos.toByteArray(), "png", LIMIT_HEIGHT, LIMIT_WIDTH)));
         }
     }
 

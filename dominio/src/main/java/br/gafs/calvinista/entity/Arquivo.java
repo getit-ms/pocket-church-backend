@@ -16,10 +16,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Date;
 import javax.persistence.*;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 /**
  *
@@ -41,6 +38,7 @@ import lombok.ToString;
 })
 public class Arquivo implements IEntity, Comparable<Arquivo> {
     @Id
+    @Setter
     @JsonView(Resumido.class)
     @Column(name = "id_arquivo")
     @SequenceGenerator(name = "seq_arquivo", sequenceName = "seq_arquivo")
