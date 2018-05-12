@@ -78,7 +78,7 @@ public class PDFToImageConverterUtil {
         private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int index, int i) throws IOException, RendererException, DocumentException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            ImageIO.write((RenderedImage) renderer.render(document, i, i - index).get(i), "png", baos);
+            ImageIO.write((RenderedImage) renderer.render(document, i, i).get(i-index), "png", baos);
 
             return ImageIO.read(new ByteArrayInputStream(ImageUtil.redimensionaImagem(baos.toByteArray(), "png", LIMIT_HEIGHT, LIMIT_WIDTH)));
         }
