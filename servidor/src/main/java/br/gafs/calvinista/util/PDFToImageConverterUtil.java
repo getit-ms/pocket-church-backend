@@ -60,7 +60,7 @@ public class PDFToImageConverterUtil {
                 int total = limit > 0 ? Math.min(pageCount, index + limit) : pageCount;
 
                 for (int i=index;i<total;i++) {
-                    BufferedImage image = getBufferedImage(document, renderer, index, i);
+                    BufferedImage image = getBufferedImage(document, renderer, i);
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -75,10 +75,10 @@ public class PDFToImageConverterUtil {
             return pageCount;
         }
 
-        private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int index, int i) throws IOException, RendererException, DocumentException {
+        private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int i) throws IOException, RendererException, DocumentException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            ImageIO.write((RenderedImage) renderer.render(document, i, i).get(i-index), "png", baos);
+            ImageIO.write((RenderedImage) renderer.render(document, i, i).get(0), "png", baos);
 
             return ImageIO.read(new ByteArrayInputStream(ImageUtil.redimensionaImagem(baos.toByteArray(), "png", LIMIT_HEIGHT, LIMIT_WIDTH)));
         }
