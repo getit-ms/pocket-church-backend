@@ -5,14 +5,12 @@
  */
 package br.gafs.calvinista.dto;
 
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.dto.DTO;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+
+import java.util.Date;
 
 /**
  *

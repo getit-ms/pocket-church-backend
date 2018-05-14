@@ -11,6 +11,9 @@ import br.gafs.calvinista.entity.Membro;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
+import br.gafs.util.date.DateUtil;
+
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,22 +27,24 @@ public class FiltroVotacao extends AbstractPaginatedFiltro<FiltroVotacaoDTO> {
         
         StringBuilder query = new StringBuilder("from Votacao v where v.igreja.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
-        
-        if (filtro instanceof FiltroVotacaoAtivaDTO){
-            query.append(" and not exists (select vv from Voto vv where vv.igreja.chave = :chaveIgreja and vv.votacao.id = v.id and vv.membro.id = :membro)");
-            args.put("membro", membro);
+
+        if (filtro instanceof FiltroVotacaoAtivaDTO) {
+            query.append(" and v.dataInicio <= :data and (v.dataTermino < :data or v.dataTermino >= :dataLimite)");
+            args.put("data", filtro.getData());
+            args.put("dataLimite", DateUtil.incrementaDias(filtro.getData(), 30));
+        } else if (filtro.getData() != null){
+            query.append(" and v.dataInicio <= :data and v.dataTermino >= :data");
+            args.put("data", filtro.getData());
         }
         
-        if (filtro.getData() != null){
-            query.append(" and v.dataInicio <= :dataVotacao and v.dataTermino >= :dataVotacao");
-            args.put("dataVotacao", filtro.getData());
-        }
-        
-        setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select v ").append(query).append(" order by v.dataInicio desc, v.nome").toString());
-        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
+        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(v) ").append(query).toString(), args));
+
+        Map<String, Object> selectArgs = new HashMap<>(args);
+        setQuery(new StringBuilder("select v, exists (select vo from Voto vo where vo.membro.id = :membro and vo.votacao = v)").append(query).append(" order by v.dataInicio desc, v.nome").toString());
+        selectArgs.put("membro", membro);
+        setArguments(selectArgs);
         setResultLimit(filtro.getTotal());
     }
     

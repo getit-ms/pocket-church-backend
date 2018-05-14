@@ -1012,10 +1012,17 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin({
+            Funcionalidade.MANTER_VOTACOES,
+            Funcionalidade.REALIZAR_VOTACAO
+    })
     public ResultadoVotacaoDTO buscaResultado(Long votacao) {
         Votacao entidade = buscaVotacao(votacao);
-        
+
+        if (!entidade.isEncerrado() && !sessaoBean.isAdmin()) {
+            throw new ServiceException("mensagens.MSG-053");
+        }
+
         ResultadoVotacaoDTO dto = new ResultadoVotacaoDTO(entidade);
         for (Questao questao : entidade.getQuestoes()) {
             ResultadoVotacaoDTO.ResultadoQuestaoDTO rq = dto.init(questao);
@@ -1096,7 +1103,17 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
     public BuscaPaginadaDTO<Votacao> buscaTodas(FiltroVotacaoDTO filtro) {
-        return daoService.findWith(new FiltroVotacao(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
+        BuscaPaginadaDTO<Object[]> busca = daoService.findWith(new FiltroVotacao(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
+
+        List<Votacao> votacoes = new ArrayList<>();
+
+        for (Object[] os : busca) {
+            Votacao votacao = (Votacao) os[0];
+            votacao.setRespondido((Boolean) os[1]);
+            votacoes.add(votacao);
+        }
+
+        return new BuscaPaginadaDTO<>(votacoes, busca.getTotalResultados(), busca.getPagina(), filtro.getTotal());
     }
     
     @Override
