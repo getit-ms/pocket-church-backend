@@ -2069,11 +2069,11 @@ public class AppServiceImpl implements AppService {
         Calendar dateCal = Calendar.getInstance(timeZone);
         dateCal.setTime(new Date());
 
-        int inicio = dateCal.get(Calendar.MONTH) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
+        int inicio = (dateCal.get(Calendar.MONTH) + 1) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
 
         dateCal.add(Calendar.DAY_OF_MONTH, 30);
 
-        int fim = dateCal.get(Calendar.MONTH) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
+        int fim = (dateCal.get(Calendar.MONTH) + 1) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
 
         return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), inicio, fim));
     }
