@@ -2063,7 +2063,19 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowMembro(Funcionalidade.ANIVERSARIANTES)
     public List<Membro> buscaProximosAniversariantes() {
-        return daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(sessaoBean.getChaveIgreja()));
+        Igreja igreja = daoService.find(Igreja.class, sessaoBean.getChaveIgreja());
+
+        TimeZone timeZone = TimeZone.getTimeZone(igreja.getTimezone());
+        Calendar dateCal = Calendar.getInstance(timeZone);
+        dateCal.setTime(new Date());
+
+        int inicio = dateCal.get(Calendar.MONTH) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
+
+        dateCal.add(Calendar.DAY_OF_MONTH, 30);
+
+        int fim = dateCal.get(Calendar.MONTH) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
+
+        return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), inicio, fim));
     }
 
     @Schedule(hour = "*", minute = "0/15")
