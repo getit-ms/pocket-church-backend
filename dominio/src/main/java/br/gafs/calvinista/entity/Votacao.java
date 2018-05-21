@@ -107,15 +107,15 @@ public class Votacao implements IEntity {
     
     @JsonView(Detalhado.class)
     public StatusVotacao getStatusEfetivo(){
-        if (StatusVotacao.PUBLICADO.equals(status)){
-            if (DateUtil.getDataAtual().before(dataInicio)){
-                if (dataTermino != null && DateUtil.getDataAtual().after(dataTermino)){
-                    return StatusVotacao.ENCERRADO;
-                }
-                return StatusVotacao.AGENDADO;
-            }
+        if (DateUtil.getDataAtual().before(dataInicio)){
+            return StatusVotacao.AGENDADO;
         }
-        return status;
+
+        if (dataTermino != null && DateUtil.getDataAtual().after(dataTermino)){
+            return StatusVotacao.ENCERRADO;
+        }
+
+        return StatusVotacao.PUBLICADO;
     }
     
     @JsonView(Detalhado.class)
