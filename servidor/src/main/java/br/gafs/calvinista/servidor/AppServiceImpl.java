@@ -1012,10 +1012,8 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin({
-            Funcionalidade.MANTER_VOTACOES,
-            Funcionalidade.REALIZAR_VOTACAO
-    })
+    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowMembro(Funcionalidade.REALIZAR_VOTACAO)
     public ResultadoVotacaoDTO buscaResultado(Long votacao) {
         Votacao entidade = buscaVotacao(votacao);
 
