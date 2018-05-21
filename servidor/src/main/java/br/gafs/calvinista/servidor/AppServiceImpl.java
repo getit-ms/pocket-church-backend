@@ -1025,7 +1025,7 @@ public class AppServiceImpl implements AppService {
 
         ResultadoVotacaoDTO dto = new ResultadoVotacaoDTO(entidade);
         for (Questao questao : entidade.getQuestoes()) {
-            ResultadoVotacaoDTO.ResultadoQuestaoDTO rq = dto.init(questao);
+            ResultadoQuestaoDTO rq = dto.init(questao);
             
             for (Opcao o : questao.getOpcoes()) {
                 List<Long> counts = daoService.findWith(QueryAdmin.RESULTADOS_OPCAO.create(o.getId()));
