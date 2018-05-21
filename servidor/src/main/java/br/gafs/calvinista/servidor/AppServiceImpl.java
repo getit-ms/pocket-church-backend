@@ -1109,7 +1109,7 @@ public class AppServiceImpl implements AppService {
 
         for (Object[] os : busca) {
             Votacao votacao = (Votacao) os[0];
-            votacao.setRespondido((Boolean) os[1]);
+            votacao.setRespondido(((Number) os[1]).intValue() > 0);
             votacoes.add(votacao);
         }
 
@@ -2059,8 +2059,13 @@ public class AppServiceImpl implements AppService {
         
         return null;
     }
-    
-    
+
+    @Override
+    @AllowMembro(Funcionalidade.ANIVERSARIANTES)
+    public List<Membro> buscaProximosAniversariantes() {
+        return daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(sessaoBean.getChaveIgreja()));
+    }
+
     @Schedule(hour = "*", minute = "0/15")
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
@@ -2075,7 +2080,7 @@ public class AppServiceImpl implements AppService {
             }
         }
     }
-    
+
     public void atualizaSituacaoPagSeguro(String referencia, ConfiguracaoIgrejaDTO configuracao){
         switch (pagSeguroService.getStatusPagamento(referencia, configuracao)){
             case PAGO:
@@ -2199,7 +2204,7 @@ public class AppServiceImpl implements AppService {
             }
         }
     }
-    
+
     @Schedule(hour = "*")
     public void enviaParabensAniversario() {
         LOGGER.info("Iniciando envio de notificações de aniversário.");

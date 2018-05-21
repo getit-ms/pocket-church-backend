@@ -87,4 +87,10 @@ public class RelatorioServiceImpl implements RelatorioService {
         Estudo entidade = appService.buscaEstudo(estudo);
         return export(new RelatorioEstudo(entidade), tipo);
     }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    public File exportaResultadosVotacao(Long votacao, String tipo) throws IOException, InterruptedException {
+        return export(new RelatorioResultadoVotacao(appService.buscaResultado(votacao)), tipo);
+    }
 }

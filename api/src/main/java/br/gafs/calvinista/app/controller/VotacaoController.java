@@ -5,11 +5,13 @@
  */
 package br.gafs.calvinista.app.controller;
 
+import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.app.util.MergeUtil;
 import br.gafs.calvinista.dto.FiltroVotacaoAtivaDTO;
 import br.gafs.calvinista.dto.FiltroVotacaoDTO;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.service.AppService;
+import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -17,9 +19,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +41,12 @@ public class VotacaoController {
     
     @EJB
     private AppService appService;
+
+    @EJB
+    private RelatorioService relatorioService;
+
+    @Context
+    private HttpServletResponse response;
 
     @GET
     @JsonView(Resumido.class)
@@ -59,6 +73,34 @@ public class VotacaoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("votacao") Long votacao){
         return Response.status(Response.Status.OK).entity(appService.buscaVotacao(votacao)).build();
+    }
+
+    @GET
+    @Path("{votacao}/resultado")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getResultado(@PathParam("votacao") Long votacao){
+        return Response.status(Response.Status.OK).entity(appService.buscaResultado(votacao)).build();
+    }
+
+    @GET
+    @Path("{votacao}/resultado/{filename}.{tipo}")
+    @Produces({"application/pdf", "application/docx", "application/xls", MediaType.APPLICATION_JSON})
+    public Response getResultado(@PathParam("votacao") Long votacao,
+                                 @PathParam("tipo") String tipo,
+                                 @PathParam("filename") String filename) throws IOException, InterruptedException {
+        File file = relatorioService.exportaResultadosVotacao(votacao, tipo);
+
+        if (file.getName().startsWith(filename)){
+            response.addHeader("Content-Type", "application/" + tipo);
+            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=\""+ file.getName() + "\"");
+            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+
+            return Response.noContent().build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
     
     @DELETE

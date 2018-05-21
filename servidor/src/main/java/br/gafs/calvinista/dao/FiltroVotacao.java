@@ -25,7 +25,7 @@ public class FiltroVotacao extends AbstractPaginatedFiltro<FiltroVotacaoDTO> {
     public FiltroVotacao(String igreja, Long membro, FiltroVotacaoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Votacao v where v.igreja.chave = :chaveIgreja");
+        StringBuilder query = new StringBuilder(" from Votacao v where v.igreja.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
 
         if (filtro instanceof FiltroVotacaoAtivaDTO) {
@@ -42,7 +42,7 @@ public class FiltroVotacao extends AbstractPaginatedFiltro<FiltroVotacaoDTO> {
                 new StringBuilder("select count(v) ").append(query).toString(), args));
 
         Map<String, Object> selectArgs = new HashMap<>(args);
-        setQuery(new StringBuilder("select v, exists (select vo from Voto vo where vo.membro.id = :membro and vo.votacao = v)").append(query).append(" order by v.dataInicio desc, v.nome").toString());
+        setQuery(new StringBuilder("select v, (select count(vo) from Voto vo where vo.membro.id = :membro and vo.votacao = v)").append(query).append(" order by v.dataInicio desc, v.nome").toString());
         selectArgs.put("membro", membro);
         setArguments(selectArgs);
         setResultLimit(filtro.getTotal());

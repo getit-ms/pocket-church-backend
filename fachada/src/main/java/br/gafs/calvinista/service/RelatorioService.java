@@ -16,4 +16,5 @@ public interface RelatorioService extends Serializable {
     File exportaContatos() throws IOException, InterruptedException;
     File exportaHino(Long hino, String tipo) throws IOException, InterruptedException;
     File exportaEstudo(Long estudo, String tipo) throws IOException, InterruptedException;
+    File exportaResultadosVotacao(Long votacao, String tipo) throws IOException, InterruptedException;
 }

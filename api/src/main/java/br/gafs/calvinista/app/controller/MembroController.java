@@ -95,6 +95,14 @@ public class MembroController {
         return Response.status(Response.Status.OK).entity(appService.buscaAcessoAdmin(membro)).build();
     }
 
+    @GET
+    @Path("aniversariantes")
+    @JsonView(Membro.Aniversariante.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAniversariantes(){
+        return Response.status(Response.Status.OK).entity(appService.buscaProximosAniversariantes()).build();
+    }
+
     @PUT
     @Path("{membro}/redefine-senha")
     @Produces(MediaType.APPLICATION_JSON)

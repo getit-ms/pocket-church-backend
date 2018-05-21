@@ -11,6 +11,7 @@ import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.exceptions.ServiceException;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -116,7 +117,7 @@ public class Membro implements IEntity {
     private Date dataNascimento;
     
     @ElementCollection
-    @JsonView(Detalhado.class)
+    @JsonView({Detalhado.class,Aniversariante.class})
     @Column(name = "telefone")
     @View.MergeViews(View.Edicao.class)
     @CollectionTable(name = "rl_telefone_membro",
@@ -288,4 +289,15 @@ public class Membro implements IEntity {
         }
         return false;
     }
+
+    @JsonView(Aniversariante.class)
+    public Integer getDiaAniversario() {
+        if (getDataNascimento() != null) {
+            return Integer.parseInt(DateUtil.formataData(getDataNascimento(), "MMdd"));
+        }
+
+        return null;
+    }
+
+    public interface Aniversariante extends Resumido {}
 }

@@ -208,4 +208,6 @@ public interface AppService extends Serializable {
     PlanoLeituraBiblica buscaPlanoSelecionado();
 
     BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total);
+
+    List<Membro> buscaProximosAniversariantes();
 }

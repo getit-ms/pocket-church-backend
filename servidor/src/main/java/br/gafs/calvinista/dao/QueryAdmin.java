@@ -266,7 +266,18 @@ public enum QueryAdmin {
         }
 
     },
-    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja"),
+    ANIVERSARIANTES("AniversarioMembro.findAniversariantes", "igreja"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusMembro.EXCLUIDO);
+        }
+    },
+    PROXIMOS_ANIVERSARIANTES("AniversarioMembro.findProximosAniversariantes", "igreja", "inicio", "fim"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusMembro.EXCLUIDO);
+        }
+    },
     BOLETINS_PROCESSANDO("Boletim.findByStatus"){
 
         @Override

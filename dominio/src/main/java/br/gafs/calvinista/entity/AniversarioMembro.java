@@ -27,7 +27,8 @@ import lombok.Getter;
 @IdClass(RegistroIgrejaId.class)
 @Table(name = "vw_aniversario_membro")
 @NamedQueries({
-    @NamedQuery(name = "AniversarioMembro.findAniversariantes", query = "select m from AniversarioMembro am, Membro m where m.id = am.id and m.igreja = am.igreja and am.aniversariante = true and am.igreja.chave = :igreja")
+    @NamedQuery(name = "AniversarioMembro.findAniversariantes", query = "select m from AniversarioMembro am, Membro m where m.status <> :status and m.id = am.id and m.igreja = am.igreja and am.aniversariante = true and am.igreja.chave = :igreja"),
+    @NamedQuery(name = "AniversarioMembro.findProximosAniversariantes", query = "select m from AniversarioMembro am, Membro m where m.status <> :status and m.id = am.id and m.igreja = am.igreja and m.desejaDisponibilizarDados = true and m.dadosDisponiveis = true and am.igreja.chave = :igreja and (am.mes * 100 + am.dia) between :inicio and :fim order by am.mes, am.dia, m.nome")
 })
 public class AniversarioMembro implements IEntity {
     @Id

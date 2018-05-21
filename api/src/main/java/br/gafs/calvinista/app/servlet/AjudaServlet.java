@@ -55,6 +55,7 @@ public class AjudaServlet extends HttpServlet {
             byte[] cache = new byte[5000];
             while ((size = is.read(cache)) > 0){
                 os.write(cache, 0, size);
+                os.flush();
             }
 
             is.close();
