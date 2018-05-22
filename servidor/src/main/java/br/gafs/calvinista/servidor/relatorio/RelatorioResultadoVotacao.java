@@ -53,7 +53,7 @@ public class RelatorioResultadoVotacao implements ProcessamentoRelatorioCache.Re
         return ReportUtil.igreja(
                 "report/resultado_votacao.jasper",
                 resultado.getNome(),
-                resultado.getIgreja())
+                igreja)
                 .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                 .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
                 .collection(resultado.getQuestoes()).build();

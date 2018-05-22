@@ -13,18 +13,19 @@ import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -107,6 +108,10 @@ public class Votacao implements IEntity {
     
     @JsonView(Detalhado.class)
     public StatusVotacao getStatusEfetivo(){
+        if (dataInicio == null) {
+            return StatusVotacao.EM_EDICAO;
+        }
+
         if (DateUtil.getDataAtual().before(dataInicio)){
             return StatusVotacao.AGENDADO;
         }
@@ -116,11 +121,6 @@ public class Votacao implements IEntity {
         }
 
         return StatusVotacao.PUBLICADO;
-    }
-    
-    @JsonView(Detalhado.class)
-    public boolean isEmEdicao(){
-        return StatusVotacao.EM_EDICAO.equals(getStatusEfetivo());
     }
     
     @JsonView(Detalhado.class)
@@ -137,52 +137,5 @@ public class Votacao implements IEntity {
     public boolean isEncerrado(){
         return StatusVotacao.ENCERRADO.equals(getStatusEfetivo());
     }
-    
-    public void publica(){
-        if (isEmEdicao()){
-            status = StatusVotacao.PUBLICADO;
-            if (DateUtil.getDataAtual().before(dataInicio)){
-                status = StatusVotacao.AGENDADO;
-            }else{
-            }
-        }
-    }
-    
-    public void encerra(){
-        if (isPublicado()){
-            status = StatusVotacao.ENCERRADO;
-            dataTermino = DateUtil.getDataAtual();
-        }
-    }
-    
-    public void cancelaAgendamento(){
-        if (isAgendado()){
-            status = StatusVotacao.EM_EDICAO;
-        }
-    }
 
-    public void setDataInicio(Date dataInicio) {
-        if (isEmEdicao()){
-            this.dataInicio = dataInicio;
-        }
-    }
-
-    public void setDataTermino(Date dataTermino) {
-        if (isEmEdicao()){
-            this.dataTermino = dataTermino;
-        }
-    }
-
-    public void setDescricao(String descricao) {
-        if (isEmEdicao()){
-            this.descricao = descricao;
-        }
-    }
-
-    public void setNome(String nome) {
-        if (isEmEdicao()){
-            this.nome = nome;
-        }
-    }
-    
 }

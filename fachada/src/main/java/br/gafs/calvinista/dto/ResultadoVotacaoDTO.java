@@ -10,6 +10,7 @@ import br.gafs.calvinista.entity.Opcao;
 import br.gafs.calvinista.entity.Questao;
 import br.gafs.calvinista.entity.Votacao;
 import br.gafs.dto.DTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class ResultadoVotacaoDTO implements DTO {
+    @JsonIgnore
     private Igreja igreja;
     private List<ResultadoQuestaoDTO> questoes = new ArrayList<ResultadoQuestaoDTO>();
     private Long id;

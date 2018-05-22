@@ -48,6 +48,7 @@ import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import javax.persistence.NoResultException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -1026,9 +1027,10 @@ public class AppServiceImpl implements AppService {
             ResultadoQuestaoDTO rq = dto.init(questao);
             
             for (Opcao o : questao.getOpcoes()) {
-                List<Long> counts = daoService.findWith(QueryAdmin.RESULTADOS_OPCAO.create(o.getId()));
-                for (Long count : counts) {
-                    rq.resultado(o, count.intValue());
+                try {
+                    rq.resultado(o, ((Number) daoService.findWith(QueryAdmin.RESULTADOS_OPCAO.createSingle(o.getId()))).intValue());
+                } catch (NoResultException ex) {
+                    rq.resultado(o, 0);
                 }
             }
             
