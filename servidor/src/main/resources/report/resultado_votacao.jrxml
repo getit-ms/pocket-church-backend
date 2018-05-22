@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2018-05-20T23:37:22 -->
+<!-- 2018-05-22T17:39:25 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -59,16 +59,16 @@
 		<field name="resultado" class="java.lang.Integer">
 			<fieldDescription><![CDATA[]]></fieldDescription>
 		</field>
-		<field name="totalValidos" class="java.lang.Integer">
-			<fieldDescription><![CDATA[]]></fieldDescription>
-		</field>
 	</subDataset>
 	<parameter name="TIPO" class="java.lang.Object"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
 	<field name="questao" class="java.lang.String"/>
-	<field name="validos" class="java.util.Collection">
+	<field name="opcoes" class="java.util.Collection">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="totalValidos" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<background>
@@ -88,8 +88,11 @@
 			<componentElement>
 				<reportElement stretchType="RelativeToTallestObject" x="0" y="30" width="430" height="254" uuid="15373174-f600-4c71-a42c-f9ebe4382f21"/>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="resultados" uuid="be89ea9f-115e-4218-852c-22406741cd94">
-						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos})]]></dataSourceExpression>
+					<datasetRun subDataset="resultados" uuid="85859c08-b200-43d5-9e67-6c147f1e8faf">
+						<datasetParameter name="TOTAL">
+							<datasetParameterExpression><![CDATA[$F{totalValidos}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{opcoes})]]></dataSourceExpression>
 					</datasetRun>
 					<jr:column width="300" uuid="00979bff-cfbb-416a-b876-179bc7e45cc7">
 						<jr:columnHeader height="30">
@@ -161,10 +164,10 @@
 				<pieDataset>
 					<dataset>
 						<datasetRun subDataset="resultados" uuid="2226bf41-a0f9-4165-9a8c-4d76f089fec8">
-							<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos})]]></dataSourceExpression>
+							<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{opcoes})]]></dataSourceExpression>
 						</datasetRun>
 					</dataset>
-					<keyExpression><![CDATA["Questões"]]></keyExpression>
+					<keyExpression><![CDATA["Votos"]]></keyExpression>
 					<valueExpression><![CDATA[$F{resultado}]]></valueExpression>
 					<labelExpression><![CDATA[$F{opcao}]]></labelExpression>
 				</pieDataset>
