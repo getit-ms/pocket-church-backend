@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2018-05-23T01:58:08 -->
+<!-- 2018-05-23T18:37:09 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="822" orientation="Landscape" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -106,24 +106,23 @@
 						</datasetParameter>
 						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos})]]></dataSourceExpression>
 					</datasetRun>
-					<jr:column width="227" uuid="00979bff-cfbb-416a-b876-179bc7e45cc7">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<jr:column width="187" uuid="00979bff-cfbb-416a-b876-179bc7e45cc7">
 						<jr:columnHeader height="30">
 							<property name="com.jaspersoft.studio.unit.width" value="px"/>
 							<staticText>
-								<reportElement key="" style="Table_CH" x="0" y="0" width="226" height="29" uuid="d2f13d09-020a-4046-af9d-3e195d157f36">
+								<reportElement key="" style="Table_CH" x="0" y="0" width="186" height="30" uuid="d2f13d09-020a-4046-af9d-3e195d157f36">
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement verticalAlignment="Middle">
 									<font size="10" isBold="true"/>
 								</textElement>
-								<text><![CDATA[Questão]]></text>
+								<text><![CDATA[Opção]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:columnFooter height="30">
 							<staticText>
-								<reportElement style="Table_CH" x="0" y="0" width="227" height="30" uuid="80181650-d390-43f4-bf08-8603d3b3864e"/>
+								<reportElement style="Table_CH" x="0" y="0" width="186" height="30" uuid="80181650-d390-43f4-bf08-8603d3b3864e"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font size="10" isBold="true"/>
@@ -133,7 +132,7 @@
 						</jr:columnFooter>
 						<jr:detailCell height="30">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="227" height="30" uuid="e54420f1-c372-474b-a4bd-7e7e1952b0d5">
+								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="186" height="30" uuid="e54420f1-c372-474b-a4bd-7e7e1952b0d5">
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
@@ -142,24 +141,25 @@
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="50" uuid="3e25ec43-8512-4dbe-b9d6-a78a800ab1dd">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<jr:column width="45" uuid="491a8fb3-faab-4c12-8ad9-695a7016bbaf">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<jr:columnHeader height="30">
 							<property name="com.jaspersoft.studio.unit.width" value="px"/>
 							<staticText>
-								<reportElement style="Table_CH" x="0" y="0" width="50" height="29" uuid="fda68020-00ed-4640-ba79-526b8559ab1f">
+								<reportElement style="Table_CH" x="0" y="0" width="45" height="30" uuid="4301ba82-07d2-49ff-851b-8a2c7e832734">
 									<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Right" verticalAlignment="Middle">
 									<font size="10" isBold="true"/>
 								</textElement>
-								<text><![CDATA[Resp.]]></text>
+								<text><![CDATA[Qtde.]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:columnFooter height="30">
 							<textField>
-								<reportElement style="Table_CH" x="0" y="0" width="50" height="30" uuid="b705bf0b-8cda-483d-876e-d26ae4b3fc98">
+								<reportElement style="Table_CH" x="0" y="0" width="45" height="30" uuid="eb7a53be-b4e9-417a-b338-06f436352c5b">
 									<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
@@ -169,14 +169,53 @@
 							</textField>
 						</jr:columnFooter>
 						<jr:detailCell height="30">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="50" height="30" uuid="39ed8f54-9d31-429c-9c05-db98e1722efa">
+								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="45" height="30" uuid="57ae251d-538a-4a40-83da-84071662c41e">
 									<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 								</reportElement>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{resultado}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="45" uuid="3e25ec43-8512-4dbe-b9d6-a78a800ab1dd">
+						<jr:columnHeader height="30">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement style="Table_CH" x="0" y="0" width="45" height="30" uuid="fda68020-00ed-4640-ba79-526b8559ab1f">
+									<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								</reportElement>
+								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font size="10" isBold="true"/>
+								</textElement>
+								<text><![CDATA[%]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter height="30">
+							<textField pattern="#,##0.0#%;(#,##0.0#">
+								<reportElement style="Table_CH" x="0" y="0" width="44" height="30" uuid="b705bf0b-8cda-483d-876e-d26ae4b3fc98">
+									<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								</reportElement>
+								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
+								<textFieldExpression><![CDATA[1]]></textFieldExpression>
+							</textField>
+						</jr:columnFooter>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true" pattern="#,##0.0#%;(#,##0.0#" isBlankWhenNull="true">
+								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="44" height="30" uuid="39ed8f54-9d31-429c-9c05-db98e1722efa">
+									<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								</reportElement>
+								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle"/>
+								<textFieldExpression><![CDATA[$F{resultado}/${TOTAL}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
@@ -187,7 +226,7 @@
 			</line>
 			<subreport>
 				<reportElement stretchType="RelativeToBandHeight" x="277" y="48" width="278" height="152" uuid="1f8c5e9d-8642-435a-86a4-ae3b4ff23fd5"/>
-				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos}) ]]></dataSourceExpression>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos})]]></dataSourceExpression>
 				<subreportExpression><![CDATA[$P{REPORT_CHART}]]></subreportExpression>
 			</subreport>
 		</band>
