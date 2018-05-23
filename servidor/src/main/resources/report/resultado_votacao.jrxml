@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2018-05-23T00:49:59 -->
+<!-- 2018-05-23T01:13:53 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="822" orientation="Landscape" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -78,7 +78,7 @@
 		<band splitType="Stretch"/>
 	</background>
 	<detail>
-		<band height="345" splitType="Stretch">
+		<band height="220" splitType="Stretch">
 			<textField isBlankWhenNull="true">
 				<reportElement x="0" y="0" width="555" height="30" uuid="397ab4e2-b72c-44f4-9360-eb237a070dda">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -95,7 +95,7 @@
 				<textFieldExpression><![CDATA[$F{questao}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement stretchType="RelativeToTallestObject" x="0" y="48" width="277" height="254" uuid="15373174-f600-4c71-a42c-f9ebe4382f21">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="48" width="277" height="152" uuid="15373174-f600-4c71-a42c-f9ebe4382f21">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
@@ -181,33 +181,14 @@
 					</jr:column>
 				</jr:table>
 			</componentElement>
-			<pieChart>
-				<chart evaluationTime="Report">
-					<reportElement stretchType="RelativeToTallestObject" x="277" y="48" width="278" height="254" uuid="f3aad582-d1e8-4e62-b87d-5c12f0ff6c58">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					</reportElement>
-					<chartTitle/>
-					<chartSubtitle/>
-					<chartLegend/>
-				</chart>
-				<pieDataset>
-					<dataset incrementType="Report">
-						<datasetRun subDataset="resultados" uuid="2226bf41-a0f9-4165-9a8c-4d76f089fec8">
-							<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos})]]></dataSourceExpression>
-						</datasetRun>
-					</dataset>
-					<keyExpression><![CDATA[$F{opcao}]]></keyExpression>
-					<valueExpression><![CDATA[$F{resultado}]]></valueExpression>
-					<labelExpression><![CDATA[$F{opcao}]]></labelExpression>
-				</pieDataset>
-				<piePlot>
-					<plot/>
-					<itemLabel/>
-				</piePlot>
-			</pieChart>
 			<line>
-				<reportElement positionType="Float" x="0" y="314" width="555" height="1" uuid="0793ce99-22fb-42e1-924d-b2ef0cf447d5"/>
+				<reportElement positionType="Float" x="0" y="210" width="555" height="1" uuid="0793ce99-22fb-42e1-924d-b2ef0cf447d5"/>
 			</line>
+			<subreport>
+				<reportElement stretchType="RelativeToBandHeight" x="277" y="48" width="278" height="152" uuid="1f8c5e9d-8642-435a-86a4-ae3b4ff23fd5"/>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos}) ]]></dataSourceExpression>
+				<subreportExpression><![CDATA["./resultado_votacao_grafico.jrxml"]]></subreportExpression>
+			</subreport>
 		</band>
 	</detail>
 </jasperReport>
