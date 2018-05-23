@@ -29,9 +29,9 @@ public class FiltroVotacao extends AbstractPaginatedFiltro<FiltroVotacaoDTO> {
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
 
         if (filtro instanceof FiltroVotacaoAtivaDTO) {
-            query.append(" and v.dataInicio <= :data and (v.dataTermino < :data or v.dataTermino >= :dataLimite)");
+            query.append(" and v.dataInicio <= :data and (v.dataTermino >= :data or v.dataTermino >= :dataLimite)");
             args.put("data", filtro.getData());
-            args.put("dataLimite", DateUtil.incrementaDias(filtro.getData(), 30));
+            args.put("dataLimite", DateUtil.incrementaDias(filtro.getData(), -30));
         } else if (filtro.getData() != null){
             query.append(" and v.dataInicio <= :data and v.dataTermino >= :data");
             args.put("data", filtro.getData());

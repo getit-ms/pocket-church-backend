@@ -76,7 +76,7 @@ public class Votacao implements IEntity {
     @JsonView(Detalhado.class)
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)
-    private StatusVotacao status = StatusVotacao.EM_EDICAO;
+    private StatusVotacao status = StatusVotacao.PUBLICADO;
     
     @Id
     @JsonIgnore
