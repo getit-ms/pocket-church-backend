@@ -13,6 +13,8 @@ import br.gafs.dao.DAOService;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -50,12 +52,17 @@ public class RelatorioResultadoVotacao implements ProcessamentoRelatorioCache.Re
 
     @Override
     public ReportUtil.ExporterImpl generate(final DAOService daoService) {
-        return ReportUtil.igreja(
-                "report/resultado_votacao.jasper",
-                resultado.getNome(),
-                igreja)
-                .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
-                .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
-                .collection(resultado.getQuestoes()).build();
+        try {
+            return ReportUtil.igreja(
+                    "report/resultado_votacao.jasper",
+                    resultado.getNome(),
+                    igreja)
+                    .arg("REPORT_CHART", new File(RelatorioResultadoVotacao.class.getResource("/resport/resultado_votacao_grafico.jrxml").toURI()).getAbsoluteFile())
+                    .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
+                    .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
+                    .collection(resultado.getQuestoes()).build();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
