@@ -57,7 +57,7 @@ public class RelatorioResultadoVotacao implements ProcessamentoRelatorioCache.Re
                     "report/resultado_votacao.jasper",
                     resultado.getNome(),
                     igreja)
-                    .arg("REPORT_CHART", new File(RelatorioResultadoVotacao.class.getResource("/resport/resultado_votacao_grafico.jrxml").toURI()).getAbsoluteFile())
+                    .arg("REPORT_CHART", new File(RelatorioResultadoVotacao.class.getResource("/report/resultado_votacao_grafico.jrxml").toURI()).getAbsoluteFile())
                     .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                     .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
                     .collection(resultado.getQuestoes()).build();
