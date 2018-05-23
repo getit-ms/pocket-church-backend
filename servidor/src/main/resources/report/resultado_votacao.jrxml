@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2018-05-23T01:13:53 -->
+<!-- 2018-05-23T01:34:49 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="822" orientation="Landscape" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -187,7 +187,7 @@
 			<subreport>
 				<reportElement stretchType="RelativeToBandHeight" x="277" y="48" width="278" height="152" uuid="1f8c5e9d-8642-435a-86a4-ae3b4ff23fd5"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{validos}) ]]></dataSourceExpression>
-				<subreportExpression><![CDATA["./resultado_votacao_grafico.jrxml"]]></subreportExpression>
+				<subreportExpression><![CDATA["resport/resultado_votacao_grafico.jrxml"]]></subreportExpression>
 			</subreport>
 		</band>
 	</detail>
