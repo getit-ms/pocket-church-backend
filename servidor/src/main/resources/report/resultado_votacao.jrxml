@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2018-05-22T23:54:28 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
+<!-- 2018-05-23T00:17:11 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="822" orientation="Landscape" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -80,7 +80,7 @@
 	<detail>
 		<band height="324" splitType="Stretch">
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="0" width="842" height="30" uuid="397ab4e2-b72c-44f4-9360-eb237a070dda">
+				<reportElement x="0" y="0" width="555" height="30" uuid="397ab4e2-b72c-44f4-9360-eb237a070dda">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -89,7 +89,9 @@
 				<textFieldExpression><![CDATA[$F{questao}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement stretchType="RelativeToTallestObject" x="0" y="30" width="430" height="254" uuid="15373174-f600-4c71-a42c-f9ebe4382f21"/>
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="30" width="277" height="254" uuid="15373174-f600-4c71-a42c-f9ebe4382f21">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
 					<datasetRun subDataset="resultados" uuid="6b58f993-fa64-43d1-b7d0-6262cbb2ee3a">
 						<datasetParameter name="TOTAL">
@@ -100,7 +102,7 @@
 					<jr:column width="300" uuid="00979bff-cfbb-416a-b876-179bc7e45cc7">
 						<jr:columnHeader height="30">
 							<staticText>
-								<reportElement x="0" y="0" width="300" height="29" uuid="d2f13d09-020a-4046-af9d-3e195d157f36"/>
+								<reportElement key="" style="Table_CH" x="0" y="0" width="300" height="29" uuid="d2f13d09-020a-4046-af9d-3e195d157f36"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement verticalAlignment="Middle">
 									<font size="10" isBold="true"/>
@@ -110,7 +112,7 @@
 						</jr:columnHeader>
 						<jr:columnFooter height="30">
 							<staticText>
-								<reportElement x="0" y="0" width="300" height="30" uuid="80181650-d390-43f4-bf08-8603d3b3864e"/>
+								<reportElement style="Table_CH" x="0" y="0" width="300" height="30" uuid="80181650-d390-43f4-bf08-8603d3b3864e"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Left" verticalAlignment="Middle">
 									<font size="10" isBold="true"/>
@@ -120,7 +122,7 @@
 						</jr:columnFooter>
 						<jr:detailCell height="30">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="300" height="30" uuid="e54420f1-c372-474b-a4bd-7e7e1952b0d5"/>
+								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="300" height="30" uuid="e54420f1-c372-474b-a4bd-7e7e1952b0d5"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{opcao}]]></textFieldExpression>
@@ -130,7 +132,7 @@
 					<jr:column width="130" uuid="3e25ec43-8512-4dbe-b9d6-a78a800ab1dd">
 						<jr:columnHeader height="30">
 							<staticText>
-								<reportElement x="0" y="0" width="130" height="29" uuid="fda68020-00ed-4640-ba79-526b8559ab1f"/>
+								<reportElement style="Table_CH" x="0" y="0" width="130" height="29" uuid="fda68020-00ed-4640-ba79-526b8559ab1f"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Right" verticalAlignment="Middle">
 									<font size="10" isBold="true"/>
@@ -140,7 +142,7 @@
 						</jr:columnHeader>
 						<jr:columnFooter height="30">
 							<textField>
-								<reportElement x="0" y="0" width="129" height="30" uuid="b705bf0b-8cda-483d-876e-d26ae4b3fc98"/>
+								<reportElement style="Table_CH" x="0" y="0" width="129" height="30" uuid="b705bf0b-8cda-483d-876e-d26ae4b3fc98"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$P{TOTAL}]]></textFieldExpression>
@@ -148,7 +150,7 @@
 						</jr:columnFooter>
 						<jr:detailCell height="30">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="129" height="30" uuid="39ed8f54-9d31-429c-9c05-db98e1722efa"/>
+								<reportElement style="Table_TD" stretchType="RelativeToBandHeight" x="0" y="0" width="129" height="30" uuid="39ed8f54-9d31-429c-9c05-db98e1722efa"/>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Right" verticalAlignment="Middle"/>
 								<textFieldExpression><![CDATA[$F{resultado}]]></textFieldExpression>
@@ -159,7 +161,9 @@
 			</componentElement>
 			<pieChart>
 				<chart evaluationTime="Report">
-					<reportElement stretchType="RelativeToTallestObject" x="430" y="30" width="402" height="254" uuid="f3aad582-d1e8-4e62-b87d-5c12f0ff6c58"/>
+					<reportElement stretchType="RelativeToTallestObject" x="277" y="30" width="278" height="254" uuid="f3aad582-d1e8-4e62-b87d-5c12f0ff6c58">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
 					<chartTitle/>
 					<chartSubtitle/>
 					<chartLegend/>
