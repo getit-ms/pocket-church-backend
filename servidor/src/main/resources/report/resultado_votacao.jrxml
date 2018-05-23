@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2018-05-23T18:37:09 -->
+<!-- 2018-05-23T18:46:17 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="822" orientation="Landscape" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -215,7 +215,7 @@
 								</reportElement>
 								<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
 								<textElement textAlignment="Right" verticalAlignment="Middle"/>
-								<textFieldExpression><![CDATA[$F{resultado}/${TOTAL}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$F{resultado}.doubleValue() / $P{TOTAL}.doubleValue();]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
