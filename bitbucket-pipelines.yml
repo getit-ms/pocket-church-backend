@@ -17,7 +17,7 @@ pipelines:
             - cd $DIR
             - mvn clean package
             - apt-get update && apt-get install -y sshpass
-            - sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no app/target/calvinista-app.ear "$DEPLOY_USER@$DEPLOY_HOST":/opt/
+            - sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no app/target/calvinista-app.ear "$DEPLOY_USER@$DEPLOY_HOST":/tmp/
             - (sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no config/script/delta-${BITBUCKET_TAG}.sql "$DEPLOY_USER@$DEPLOY_HOST":/tmp/ && sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" "psql -U postgres -d calvinista < /tmp/delta-${BITBUCKET_TAG}.sql") || echo "Não há ou nao foi possível executar o Delta SQL"
             - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" '/opt/glassfish4/glassfish/bin/asadmin deploy --force /tmp/calvinista-app.ear || (tail -n500 /opt/glassfish4/glassfish/domain/domain1/logs/server.log && /opt/glassfish4/glassfish/bin/asadmin deploy ~/calvinista-app.ear && exit 1)'
             - sshpass -p "$DEPLOY_PASS" ssh -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" 'mv -f /tmp/calvinista-app.ear ~/'
