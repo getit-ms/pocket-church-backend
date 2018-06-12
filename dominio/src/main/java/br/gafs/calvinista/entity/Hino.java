@@ -9,6 +9,7 @@ import br.gafs.bean.IEntity;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
+import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -81,7 +82,7 @@ public class Hino implements IEntity {
     }
     
     public String getFilename(){
-        return getNumero() + "_" + getNome().replaceAll("[^a-zA-Z0-9]", "_");
+        return getNumero() + "_" + StringUtil.formataValor(getNome(), true, false);
     }
     
 }

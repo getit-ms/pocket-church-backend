@@ -11,6 +11,7 @@ import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.file.Attachment;
 import br.gafs.file.EntityFileManager;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Date;
@@ -76,7 +77,7 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     }
     
     public String getFilename(){
-        return nome.replaceAll("[^a-zA-Z0-9\\.]", "_");
+        return StringUtil.formataValor(nome, true, false);
     }
     
     public void used(){

@@ -10,6 +10,7 @@ import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
@@ -152,7 +153,7 @@ public class Evento implements IEntity {
     }
     
     public String getFilename(){
-        return nome.replaceAll("[^a-zA-Z0-9]", "_");
+        return StringUtil.formataValor(nome, true, false);
     }
     
     public boolean isComPagamento(){

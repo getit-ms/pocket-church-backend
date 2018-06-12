@@ -13,6 +13,7 @@ import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -187,7 +188,7 @@ public class Estudo implements IEntity, ArquivoPDF {
     }
     
     public String getFilename(){
-        return titulo.replaceAll("[^a-zA-Z0-9]", "_");
+        return StringUtil.formataValor(titulo, true, false);
     }
 
     public void notificado(){
