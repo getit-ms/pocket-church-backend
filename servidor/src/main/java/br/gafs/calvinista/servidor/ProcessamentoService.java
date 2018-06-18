@@ -38,7 +38,7 @@ public class ProcessamentoService {
 
     @EJB
     private DAOService daoService;
-    
+
     @Resource
     private SessionContext sctx;
 
@@ -50,7 +50,7 @@ public class ProcessamentoService {
         for (int i=0;i<PROCESSMENTO_POOL_SIZE;i++){
             new Thread(new ProcessamentoRunnable()).start();
         }
-        
+
         synchronized(this){
             try {
                 for (Processamento processamento : Persister.load(Processamento.class)){
@@ -132,7 +132,7 @@ public class ProcessamentoService {
         public void execute(Processamento processamento) {
             int total = 1;
             int fails = 0;
-            
+
             ProcessamentoTool tool = new ProcessamentoTool(daoService, sctx);
 
             boolean fail;
@@ -140,7 +140,7 @@ public class ProcessamentoService {
                 fail = false;
                 try {
                     LOGGER.log(Level.INFO, "Iniciando step "+ tool.step +" do processamento: " + processamento.getClass() + " - " + processamento.getId());
-                    
+
                     ut.begin();
                     total = processamento.step(tool);
                     ut.commit();
@@ -150,7 +150,7 @@ public class ProcessamentoService {
                     try {
                         ut.rollback();
                     } catch (Exception e1) {}
-                    
+
                     try {
                         fails++;
                         if (fails >= LIMITE_FALHAS){
@@ -183,10 +183,10 @@ public class ProcessamentoService {
                 } catch (Exception ex) {
                     LOGGER.log(Level.SEVERE, null, ex);
                 }
-                
+
                 LOGGER.log(Level.SEVERE, "Erro ao finalizar entity: " + processamento.getId(), e);
             }
-                        
+
             Persister.remove(processamento.getClass(), processamento.getId());
         }
     }
