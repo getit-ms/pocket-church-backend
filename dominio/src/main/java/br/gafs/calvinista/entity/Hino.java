@@ -82,7 +82,7 @@ public class Hino implements IEntity {
     }
     
     public String getFilename(){
-        return getnumero() + "_" + stringutil.formatavalor(getnome(), true, false).replace(" ", "_");
+        return getNumero() + "_" + StringUtil.formataValor(getNome(), true, false).replace(" ", "_");
     }
     
 }
