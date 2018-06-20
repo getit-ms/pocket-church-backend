@@ -94,17 +94,13 @@ public class EventoController {
             @PathParam("filename") String filename) throws IOException, InterruptedException {
         File file = relatorioService.exportaInscritos(id, tipo);
 
-        if (file.getName().startsWith(filename)){
-            response.addHeader("Content-Type", "application/" + tipo);
-            response.addHeader("Content-Length", "" + file.length());
-            response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+ file.getName() + "\"");
-            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+        response.addHeader("Content-Type", "application/" + tipo);
+        response.addHeader("Content-Length", "" + file.length());
+        response.addHeader("Content-Disposition",
+                "attachment; filename=\""+ file.getName() + "\"");
+        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
 
-            return Response.noContent().build();
-        }
-        
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.noContent().build();
     }
 
     @GET

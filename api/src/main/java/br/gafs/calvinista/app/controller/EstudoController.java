@@ -99,17 +99,13 @@ public class EstudoController {
             @PathParam("nome") String nome) throws IOException, InterruptedException {
         File file = relatorioService.exportaEstudo(id, tipo);
 
-        if (file.getName().startsWith(nome)){
-            response.addHeader("Content-Type", "application/" + tipo);
-            response.addHeader("Content-Length", "" + file.length());
-            response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+ file.getName() + "\"");
-            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+        response.addHeader("Content-Type", "application/" + tipo);
+        response.addHeader("Content-Length", "" + file.length());
+        response.addHeader("Content-Disposition",
+                "attachment; filename=\""+ file.getName() + "\"");
+        ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
 
-            return Response.noContent().build();
-        }
-        
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.noContent().build();
     }
     
     @DELETE

@@ -188,7 +188,7 @@ public class Estudo implements IEntity, ArquivoPDF {
     }
     
     public String getFilename(){
-        return StringUtil.formataValor(titulo, true, false);
+        return StringUtil.formataValor(titulo, true, false).replace(" ", "_");
     }
 
     public void notificado(){

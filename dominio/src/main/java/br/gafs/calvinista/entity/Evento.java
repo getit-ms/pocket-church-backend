@@ -153,7 +153,7 @@ public class Evento implements IEntity {
     }
     
     public String getFilename(){
-        return StringUtil.formataValor(nome, true, false);
+        return StringUtil.formataValor(nome, true, false).replace(" ", "_");
     }
     
     public boolean isComPagamento(){
