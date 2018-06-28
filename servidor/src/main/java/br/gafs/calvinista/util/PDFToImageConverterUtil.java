@@ -29,8 +29,8 @@ import java.io.IOException;
  * @author Gabriel
  */
 public class PDFToImageConverterUtil {
-    private static final int LIMIT_HEIGHT = 2500;
-    private static final int LIMIT_WIDTH = 2500;
+    private static final int LIMIT_HEIGHT = 1500;
+    private static final int LIMIT_WIDTH = 1500;
 
     public static PDFConverter convert(File pdf, int index, int limit){
         return new PDFConverter(pdf, index, limit);
@@ -52,7 +52,7 @@ public class PDFToImageConverterUtil {
             SimpleRenderer renderer = new SimpleRenderer();
 
             // set resolution (in DPI)
-            renderer.setResolution(300);
+            renderer.setResolution(220);
 
             // render
 
