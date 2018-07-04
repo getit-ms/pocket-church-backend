@@ -18,4 +18,4 @@ pipelines:
             - mvn clean package
             - apt-get update && apt-get install -y sshpass
             - sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no app/target/calvinista-app.ear "$DEPLOY_USER@$DEPLOY_HOST":/opt/deploy/
-            - (sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no config/script/delta-${BITBUCKET_TAG}.sql "$DEPLOY_USER@$DEPLOY_HOST":/opt/deploy/script/ || echo "Não há ou nao foi possível submeter o Delta SQL"
+            - sshpass -p "$DEPLOY_PASS" scp -o StrictHostKeyChecking=no config/script/delta-${BITBUCKET_TAG}.sql "$DEPLOY_USER@$DEPLOY_HOST":/opt/deploy/script/ || echo "Não há ou nao foi possível submeter o Delta SQL"

@@ -17,7 +17,7 @@ public class PDFToImageConverterUtilTest {
     @Ignore
     public void testConversao() throws IOException, URISyntaxException {
         // load a pdf from a byte buffer
-        File file = new File("teste.pdf");
+        File file = new File("C:\\Users\\Gabriel\\Downloads\\Boletim App 170618.pdf");
 
         PDFToImageConverterUtil.PDFConverter converter = new PDFToImageConverterUtil.PDFConverter(file, 0, 5);
 

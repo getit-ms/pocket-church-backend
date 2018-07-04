@@ -9,6 +9,7 @@ import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.util.MensagemUtil;
+import br.gafs.calvinista.util.PDFToImageConverterUtil;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.string.StringUtil;
@@ -72,7 +73,7 @@ public class GeneralTest {
     @After
     public void tearDown() {
     }
-    
+
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //

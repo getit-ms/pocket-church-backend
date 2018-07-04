@@ -29,8 +29,8 @@ import java.io.IOException;
  * @author Gabriel
  */
 public class PDFToImageConverterUtil {
-    private static final int LIMIT_HEIGHT = 1500;
-    private static final int LIMIT_WIDTH = 1500;
+    private static final double LIMIT_HEIGHT = 1500;
+    private static final double LIMIT_WIDTH = 1500;
 
     public static PDFConverter convert(File pdf, int index, int limit){
         return new PDFConverter(pdf, index, limit);
@@ -81,30 +81,11 @@ public class PDFToImageConverterUtil {
 
             Image image = renderer.render(document, i, i).get(0);
 
-            boolean redimensiona = false;
-            int width = image.getWidth(null);
-            int height = image.getHeight(null);
-
-            if(LIMIT_HEIGHT > 0 && height > LIMIT_HEIGHT) {
-                width = width * LIMIT_HEIGHT / height;
-                height = LIMIT_HEIGHT;
-                redimensiona = true;
-            }
-
-            if(LIMIT_WIDTH > 0 && width > LIMIT_WIDTH) {
-                height = height * LIMIT_WIDTH / width;
-                width = LIMIT_WIDTH;
-                redimensiona = true;
-            }
-
-            renderer.setResolution(300 * width / image.getWidth(null));
+            renderer.setResolution((int) Math.min((10 * LIMIT_WIDTH) / image.getWidth(null), (10 * LIMIT_HEIGHT) / image.getHeight(null)));
 
             image  = renderer.render(document, i, i).get(0);
 
-            return createBufferedImage(
-                    redimensiona ? new ImageIcon(image).getImage()
-                            .getScaledInstance(width, height, Image.SCALE_REPLICATE) : image,
-                    BufferedImage.TYPE_INT_RGB);
+            return createBufferedImage(image, BufferedImage.TYPE_INT_RGB);
         }
 
         private static BufferedImage createBufferedImage(Image imageIn, int imageType) {
