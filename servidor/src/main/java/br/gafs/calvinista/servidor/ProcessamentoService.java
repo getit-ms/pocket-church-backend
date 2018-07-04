@@ -108,13 +108,19 @@ public class ProcessamentoService {
         private int step = 1;
 
         public <T> T transactional(ExecucaoTransacional<T> execucao) {
-            synchronized (ProcessamentoService.this) {
+            synchronized (ut) {
                 try {
+                    LOGGER.info("begin de transação");
+
                     ut.begin();
                     T t = execucao.execute(daoService);
+
+                    LOGGER.info("commit de transação");
                     ut.commit();
                     return t;
                 } catch (Exception ex) {
+                    LOGGER.info("rollback de transação");
+
                     try {
                         ut.rollback();
                     } catch(Exception ex0){}
