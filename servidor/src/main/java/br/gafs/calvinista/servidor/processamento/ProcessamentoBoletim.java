@@ -10,12 +10,10 @@ import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.util.PDFToImageConverterUtil;
 import br.gafs.dao.DAOService;
 import br.gafs.file.EntityFileManager;
-import br.gafs.util.image.ImageUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.logging.Logger;
@@ -44,11 +42,23 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
     }
 
     @Override
-    public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
+    public int step(final ProcessamentoService.ProcessamentoTool tool) throws Exception {
         LOGGER.info("Realizando passo de processamento de boletim " + boletim.getId() + ".");
-        int total = trataPaginasPDF(tool.getDaoService(), boletim, 5);
+        int total = trataPaginasPDF(new TransactionHandler() {
+            @Override
+            public <T> T transactional(ProcessamentoService.ExecucaoTransacional<T> execucaoTransacional) {
+                return tool.transactional(execucaoTransacional);
+            }
+        }, boletim, 5);
         int current = boletim.getPaginas().size();
-        tool.getDaoService().update(boletim);
+
+        tool.transactional(new ProcessamentoService.ExecucaoTransacional<Boletim>() {
+            @Override
+            public Boletim execute(DAOService daoService) {
+                return daoService.update(boletim);
+            }
+        });
+
         Boletim.lock(bid, (100 * current) / total);
         LOGGER.info("Passo de processamento de boletim " + boletim.getId() + " concluído. Andamento do processamento: " + current + " de " + total + ".");
         return tool.getStep() + ((int) Math.ceil((total - current) / 5d));
@@ -58,19 +68,34 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
     public void finished(ProcessamentoService.ProcessamentoTool tool) throws Exception {
         Boletim.unlock(bid);
         LOGGER.info("Finalizando processamento de boletim " + boletim.getId() + ".");
-        tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
-                create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.PUBLICADO));
+
+        tool.transactional(new ProcessamentoService.ExecucaoTransacional<Object>() {
+            @Override
+            public Object execute(DAOService daoService) {
+                daoService.execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
+                        create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.PUBLICADO));
+                return null;
+            }
+        });
     }
 
     @Override
     public void dropped(ProcessamentoService.ProcessamentoTool tool) {
         Boletim.unlock(bid);
         LOGGER.severe("Abandonando processamento de boletim " + boletim.getId() + ".");
-        tool.getDaoService().execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
-                create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.REJEITADO));
+
+        tool.transactional(new ProcessamentoService.ExecucaoTransacional<Object>() {
+            @Override
+            public Object execute(DAOService daoService) {
+                daoService.execute(QueryAdmin.UPDATE_STATUS_BOLETIM.
+                        create(boletim.getChaveIgreja(), boletim.getId(), StatusBoletim.REJEITADO));
+
+                return null;
+            }
+        });
     }
 
-    public static int trataPaginasPDF(final DAOService daoService, final ArquivoPDF pdf, final int limitePaginas) throws IOException {
+    public static int trataPaginasPDF(final TransactionHandler tool, final ArquivoPDF pdf, final int limitePaginas) throws IOException {
         final int offset = pdf.getPaginas().size();
 
         return PDFToImageConverterUtil.convert(EntityFileManager.
@@ -82,22 +107,38 @@ public class ProcessamentoBoletim implements ProcessamentoService.Processamento 
                 }
 
                 if (page == 0){
-                    Arquivo arquivo = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
+                    final Arquivo arquivo = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
                             replaceFirst(".[pP][dD][fF]$", "") + "_thumbnail.png", dados);
                     arquivo.used();
-                    arquivo = daoService.update(arquivo);
-                    pdf.setThumbnail(arquivo);
-                    arquivo.clearDados();
+
+                    Arquivo salvo = tool.transactional(new ProcessamentoService.ExecucaoTransacional<Arquivo>() {
+                        @Override
+                        public Arquivo execute(DAOService daoService) {
+                            return daoService.update(arquivo);
+                        }
+                    });
+                    pdf.setThumbnail(salvo);
+                    salvo.clearDados();
                 }
 
-                Arquivo pagina = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
+                final Arquivo pagina = new Arquivo(pdf.getIgreja(), pdf.getPDF().getNome().
                         replaceFirst(".[pP][dD][fF]$", "") + "_page"
                         + new DecimalFormat("00000").format(page + 1) + ".png", dados);;
                 pagina.used();
-                pagina = daoService.update(pagina);
-                pdf.getPaginas().add(pagina);
-                pagina.clearDados();
+
+                Arquivo paginaSalva = tool.transactional(new ProcessamentoService.ExecucaoTransacional<Arquivo>() {
+                    @Override
+                    public Arquivo execute(DAOService daoService) {
+                        return daoService.update(pagina);
+                    }
+                });
+                pdf.getPaginas().add(paginaSalva);
+                paginaSalva.clearDados();
             }
         });
+    }
+
+    public interface TransactionHandler {
+        <T> T transactional(ProcessamentoService.ExecucaoTransacional<T> execucaoTransacional);
     }
 }

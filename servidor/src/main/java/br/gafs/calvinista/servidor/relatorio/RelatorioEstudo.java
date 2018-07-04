@@ -2,9 +2,9 @@ package br.gafs.calvinista.servidor.relatorio;
 
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
-import br.gafs.dao.DAOService;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -39,7 +39,7 @@ public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
     }
 
     @Override
-    public ReportUtil.ExporterImpl generate(final DAOService daoService) {
+    public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         return ReportUtil.igreja(
                 "report/estudo.jasper",
                 getTitulo(),

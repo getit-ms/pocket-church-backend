@@ -10,7 +10,6 @@ import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.DAOService;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.transaction.UserTransaction;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class ProcessamentoService {
 
     public void execute(final Processamento processamento) throws InterruptedException {
         synchronized (processamento){
-            pool.priority(processamento, new Pool.Watcher() {
+            pool.priority(processamento, new ProcessamentoWatcher() {
                 @Override
                 public void started() {
 
@@ -104,36 +104,59 @@ public class ProcessamentoService {
     @Getter
     @RequiredArgsConstructor
     public class ProcessamentoTool {
-        private final DAOService daoService;
         private final SessionContext sessionContext;
         private int step = 1;
+
+        public <T> T transactional(ExecucaoTransacional<T> execucao) {
+            synchronized (ProcessamentoService.this) {
+                try {
+                    ut.begin();
+                    T t = execucao.execute(daoService);
+                    ut.commit();
+                    return t;
+                } catch (Exception ex) {
+                    try {
+                        ut.rollback();
+                    } catch(Exception ex0){}
+
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
 
         protected boolean next(int total){
             return ++step <= total;
         }
     }
 
+    public interface ExecucaoTransacional<T> {
+        T execute(DAOService daoService);
+    }
+
     private static final int LIMITE_FALHAS = ResourceBundleUtil._default().getPropriedadeAsInteger("LIMITE_FALHAS_PROCESSAMENTO");
 
-    final class ProcessamentoRunnable implements Runnable, Pool.Executor {
+    final class ProcessamentoRunnable implements Runnable {
 
         @Override
         public void run() {
             try {
                 while (true){
-                    pool.next(this);
+                    Pool.Element element = pool.next();
+
+                    element.getWatcher().started();
+                    execute(element.getProcessamento());
+                    element.getWatcher().ended();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        @Override
-        public void execute(Processamento processamento) {
+        private void execute(Processamento processamento) {
             int total = 1;
             int fails = 0;
 
-            ProcessamentoTool tool = new ProcessamentoTool(daoService, sctx);
+            ProcessamentoTool tool = new ProcessamentoTool(sctx);
 
             boolean fail;
             do{
@@ -141,24 +164,16 @@ public class ProcessamentoService {
                 try {
                     LOGGER.log(Level.INFO, "Iniciando step "+ tool.step +" do processamento: " + processamento.getClass() + " - " + processamento.getId());
 
-                    ut.begin();
                     total = processamento.step(tool);
-                    ut.commit();
                 } catch (Exception e) {
                     fail = true;
-
-                    try {
-                        ut.rollback();
-                    } catch (Exception e1) {}
 
                     try {
                         fails++;
                         if (fails >= LIMITE_FALHAS){
                             LOGGER.log(Level.SEVERE, "Processamento descartado por falhas: " + processamento.getClass() + " - " + processamento.getId(), e);
 
-                            ut.begin();
                             processamento.dropped(tool);
-                            ut.commit();
 
                             Persister.remove(processamento.getClass(), processamento.getId());
                             return;
@@ -174,25 +189,25 @@ public class ProcessamentoService {
             }while(fail || tool.next(total));
 
             try{
-                ut.begin();
                 processamento.finished(tool);
-                ut.commit();
             }catch(Exception e){
-                try {
-                    ut.rollback();
-                } catch (Exception ex) {
-                    LOGGER.log(Level.SEVERE, null, ex);
-                }
-
                 LOGGER.log(Level.SEVERE, "Erro ao finalizar entity: " + processamento.getId(), e);
             }
 
             Persister.remove(processamento.getClass(), processamento.getId());
         }
+
+    }
+
+    interface ProcessamentoWatcher {
+        void started();
+        void ended();
     }
 
     static final class Pool {
-        private static final Watcher EMPTY_WATCHER = new Watcher() {
+        private static final List<Processamento> running = new ArrayList<>();
+
+        private static final ProcessamentoWatcher EMPTY_WATCHER = new ProcessamentoWatcher() {
             @Override
             public void started() {}
 
@@ -203,47 +218,72 @@ public class ProcessamentoService {
         private final List<Element> pool = new ArrayList<Element>();
 
         public synchronized void add(Processamento processamento){
-            Element element = new Element(processamento,EMPTY_WATCHER);
+            Element element = new Element(processamento, EMPTY_WATCHER);
 
-            pool.remove(element);
-            pool.add(element);
+            synchronized (running) {
+                if (!pool.contains(element) &&
+                        !running.contains(element.getProcessamento())) {
+                    pool.add(element);
+                }
+            }
+
             notify();
         }
 
-        public synchronized void priority(Processamento processamento, Watcher watcher) throws InterruptedException {
-            Element element = new Element(processamento, watcher);
+        public synchronized void priority(Processamento processamento, ProcessamentoWatcher watcher) throws InterruptedException {
+            Element element = new Element(processamento, new WatcherPool(processamento, watcher));
 
             pool.remove(element);
             pool.add(0, element);
             notify();
         }
 
-        public synchronized void next(Executor executor) throws InterruptedException {
+        public synchronized Element next() throws InterruptedException {
             while (pool.isEmpty()){
                 wait();
             }
 
-            Element element = pool.remove(0);
-            element.getWatcher().started();
-            executor.execute(element.getProcessamento());
-            element.getWatcher().ended();
+            return pool.remove(0);
         }
 
         @Getter
         @AllArgsConstructor
-        @EqualsAndHashCode(of = "entity")
         static class Element {
             private Processamento processamento;
-            private Watcher watcher;
+            private ProcessamentoWatcher watcher;
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj instanceof Element) {
+                    Element other = (Element) obj;
+                    return getProcessamento().equals(other.getProcessamento());
+                }
+
+                return false;
+            }
+
         }
 
-        interface Watcher {
-            void started();
-            void ended();
-        }
+        @RequiredArgsConstructor
+        private class WatcherPool implements ProcessamentoWatcher {
+            private final Processamento processamento;
+            private final ProcessamentoWatcher delegate;
 
-        interface Executor {
-            void execute(Processamento processamento);
+            @Override
+            public void started() {
+                synchronized (running) {
+                    running.add(processamento);
+                }
+                delegate.started();
+            }
+
+            @Override
+            public void ended() {
+                synchronized (running) {
+                    running.remove(processamento);
+                }
+                delegate.ended();
+            }
         }
     }
 

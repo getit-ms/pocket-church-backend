@@ -5,6 +5,7 @@ import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.InscricaoEvento;
+import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -48,13 +49,18 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
     }
 
     @Override
-    public ReportUtil.ExporterImpl generate(final DAOService daoService) {
+    public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         BuscaPaginadaDTO busca;
         List<InscricaoEvento> inscricoes = new ArrayList<InscricaoEvento>();
-        FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(1, 30);
+        final FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(1, 30);
         do{
-            busca = daoService.findWith(new FiltroInscricao(evento.getId(),
-                    igreja.getChave(), null, filtro));
+            busca = tool.transactional(new ProcessamentoService.ExecucaoTransacional<BuscaPaginadaDTO>() {
+                @Override
+                public BuscaPaginadaDTO execute(DAOService daoService) {
+                    return daoService.findWith(new FiltroInscricao(evento.getId(),
+                            igreja.getChave(), null, filtro));
+                }
+            });
             inscricoes.addAll(busca.getResultados());
             filtro.setPagina(filtro.getPagina() + 1);
         }while(busca.isHasProxima());

@@ -7,6 +7,7 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.domain.TipoEvento;
+import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
@@ -56,7 +57,7 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
     }
 
     @Override
-    public ReportUtil.Reporter generate(final DAOService daoService) {
+    public ReportUtil.Reporter generate(final ProcessamentoService.ProcessamentoTool tool) {
         return new ReportUtil.Reporter(){
 
             @Override
@@ -69,7 +70,7 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
 
                     WritableSheet excelSheet = workbook.createSheet("Contatos ", 0);
 
-                    createLinhas(excelSheet, daoService);
+                    createLinhas(excelSheet, tool);
 
                     workbook.write();
                     workbook.close();
@@ -80,13 +81,18 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
         };
     }
 
-    private void createLinhas(WritableSheet sheet, DAOService daoService) throws WriteException {
-        FiltroMembroDTO filtro = new FiltroMembroDTO();
+    private void createLinhas(WritableSheet sheet, ProcessamentoService.ProcessamentoTool tool) throws WriteException {
+        final FiltroMembroDTO filtro = new FiltroMembroDTO();
 
         int i = 0;
         BuscaPaginadaDTO<Membro> resultado;
         do {
-            resultado = daoService.findWith(new FiltroMembro(true, igreja.getChave(), filtro));
+            resultado = tool.transactional(new ProcessamentoService.ExecucaoTransacional<BuscaPaginadaDTO<Membro>>() {
+                @Override
+                public BuscaPaginadaDTO<Membro> execute(DAOService daoService) {
+                    return daoService.findWith(new FiltroMembro(true, igreja.getChave(), filtro));
+                }
+            });
 
             for (Membro membro : resultado.getResultados()) {
                 addLabel(sheet, 0, i, membro.getNome());

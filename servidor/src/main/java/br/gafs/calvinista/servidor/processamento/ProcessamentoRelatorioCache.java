@@ -51,7 +51,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
 
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-        Relatorio report = Persister.load(relatorio, getId());
+        final Relatorio report = Persister.load(relatorio, getId());
 
         File file = file(report, type);
 
@@ -59,7 +59,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
             file.getParentFile().mkdirs();
         }
 
-        report.generate(tool.getDaoService()).export(type, new FileOutputStream(file));
+        report.generate(tool).export(type, new FileOutputStream(file));
 
         return tool.getStep();
     }
@@ -79,7 +79,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
         Igreja getIgreja();
         String getTitulo();
         String getFilename();
-        ReportUtil.Reporter generate(DAOService daoService);
+        ReportUtil.Reporter generate(ProcessamentoService.ProcessamentoTool tool);
     }
 
 }

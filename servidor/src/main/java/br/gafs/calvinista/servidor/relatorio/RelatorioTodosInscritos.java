@@ -4,21 +4,18 @@ import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
+import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
 import br.gafs.dao.DAOService;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-import jxl.biff.DisplayFormat;
 import jxl.write.*;
-import jxl.write.Number;
 import jxl.write.biff.RowsExceededException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -57,9 +54,14 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
     }
 
     @Override
-    public ReportUtil.Reporter generate(final DAOService daoService) {
-        final List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.
-                INSCRICOES_EVENTOS_ATIVOS.create(tipo, igreja.getChave()));
+    public ReportUtil.Reporter generate(final ProcessamentoService.ProcessamentoTool tool) {
+        final List<InscricaoEvento> inscricoes = tool.transactional(new ProcessamentoService.ExecucaoTransacional<List<InscricaoEvento>>() {
+            @Override
+            public List<InscricaoEvento> execute(DAOService daoService) {
+                return daoService.findWith(QueryAdmin.
+                        INSCRICOES_EVENTOS_ATIVOS.create(tipo, igreja.getChave()));
+            }
+        });
 
         return new ReportUtil.Reporter(){
 

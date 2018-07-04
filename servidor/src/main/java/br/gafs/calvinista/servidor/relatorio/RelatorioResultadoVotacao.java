@@ -1,22 +1,15 @@
 package br.gafs.calvinista.servidor.relatorio;
 
-import br.gafs.calvinista.dao.FiltroInscricao;
-import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.dto.ResultadoVotacaoDTO;
-import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.InscricaoEvento;
+import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
-import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.dao.DAOService;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -51,7 +44,7 @@ public class RelatorioResultadoVotacao implements ProcessamentoRelatorioCache.Re
     }
 
     @Override
-    public ReportUtil.ExporterImpl generate(final DAOService daoService) {
+    public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         try {
             return ReportUtil.igreja(
                     "report/resultado_votacao.jasper",

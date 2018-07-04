@@ -51,11 +51,6 @@ public class PDFToImageConverterUtil {
             // create renderer
             SimpleRenderer renderer = new SimpleRenderer();
 
-            // set resolution (in DPI)
-            renderer.setResolution(220);
-
-            // render
-
             int pageCount;
             try {
                 pageCount = document.getPageCount();
@@ -81,6 +76,9 @@ public class PDFToImageConverterUtil {
         private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int i) throws IOException, RendererException, DocumentException {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+            // Small resolution to discover width and height
+            renderer.setResolution(10);
+
             Image image = renderer.render(document, i, i).get(0);
 
             boolean redimensiona = false;
@@ -99,8 +97,13 @@ public class PDFToImageConverterUtil {
                 redimensiona = true;
             }
 
+            renderer.setResolution(300 * width / image.getWidth(null));
+
+            image  = renderer.render(document, i, i).get(0);
+
             return createBufferedImage(
-                    redimensiona ? new ImageIcon(image).getImage().getScaledInstance(width, height, Image.SCALE_REPLICATE) : image,
+                    redimensiona ? new ImageIcon(image).getImage()
+                            .getScaledInstance(width, height, Image.SCALE_REPLICATE) : image,
                     BufferedImage.TYPE_INT_RGB);
         }
 
@@ -108,7 +111,9 @@ public class PDFToImageConverterUtil {
             if(imageIn instanceof BufferedImage) {
                 return (BufferedImage)imageIn;
             } else {
-                BufferedImage bufferedImageOut = new BufferedImage(imageIn.getWidth((ImageObserver)null), imageIn.getHeight((ImageObserver)null), imageType);
+                BufferedImage bufferedImageOut = new BufferedImage(
+                        imageIn.getWidth((ImageObserver)null),
+                        imageIn.getHeight((ImageObserver)null), imageType);
                 Graphics g = bufferedImageOut.getGraphics();
                 g.drawImage(imageIn, 0, 0, (ImageObserver)null);
                 return bufferedImageOut;

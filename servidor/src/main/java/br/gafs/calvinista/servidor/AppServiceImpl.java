@@ -669,7 +669,12 @@ public class AppServiceImpl implements AppService {
     }
     
     private int trataPaginasPDF(ArquivoPDF pdf) throws IOException {
-        return ProcessamentoBoletim.trataPaginasPDF(daoService, pdf, -1);
+        return ProcessamentoBoletim.trataPaginasPDF(new ProcessamentoBoletim.TransactionHandler() {
+            @Override
+            public <T> T transactional(ProcessamentoService.ExecucaoTransacional<T> execucaoTransacional) {
+                return execucaoTransacional.execute(daoService);
+            }
+        }, pdf, -1);
     }
     
     private boolean trataTrocaPDF(final ArquivoPDF pdf) {
