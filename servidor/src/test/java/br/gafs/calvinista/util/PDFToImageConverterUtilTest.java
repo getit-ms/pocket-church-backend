@@ -1,8 +1,13 @@
 package br.gafs.calvinista.util;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +19,23 @@ import java.util.List;
  * Created by Gabriel on 26/11/2017.
  */
 public class PDFToImageConverterUtilTest {
+
+    @Test
+    @Ignore
+    public void testPdfBox() {
+        try (final PDDocument document = PDDocument.load(new File("C:\\Users\\Gabriel\\Downloads\\27.pdf"))){
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+            for (int page = 0; page < document.getNumberOfPages(); ++page)
+            {
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB);
+                String fileName = "image-" + page + ".png";
+                ImageIOUtil.writeImage(bim, fileName, 300);
+            }
+            document.close();
+        } catch (IOException e){
+            System.err.println("Exception while trying to create pdf document - " + e);
+        }
+    }
 
     @Test
     @Ignore

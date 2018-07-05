@@ -64,6 +64,15 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox-tools</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>br.gafs.getit.calvinista</groupId>
             <artifactId>calvinista-dominio</artifactId>
         </dependency>
