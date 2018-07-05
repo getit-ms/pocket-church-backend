@@ -5,23 +5,23 @@
 */
 package br.gafs.calvinista.util;
 
-import br.gafs.util.image.ImageUtil;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.ghost4j.document.DocumentException;
 import org.ghost4j.document.PDFDocument;
 import org.ghost4j.renderer.RendererException;
 import org.ghost4j.renderer.SimpleRenderer;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.awt.image.RenderedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -33,12 +33,13 @@ public class PDFToImageConverterUtil {
     private static final double LIMIT_HEIGHT = 1000;
     private static final double LIMIT_WIDTH = 1000;
 
+    private static final long TIMEOUT = 10000;
+
     private final static Logger LOGGER = Logger.getLogger(PDFToImageConverterUtil.class.getSimpleName());
 
     public static PDFConverter convert(File pdf, int index, int limit){
         return new PDFConverter(pdf, index, limit);
     }
-
     @AllArgsConstructor
     public static class PDFConverter {
         private File pdf;
@@ -47,6 +48,8 @@ public class PDFToImageConverterUtil {
 
 
         public int forEachPage(PageHandler handler) throws IOException {
+            LOGGER.info("Abrindo documento " + pdf.getName());
+
             PDFDocument document = new PDFDocument();
 
             document.load(pdf);
@@ -75,14 +78,14 @@ public class PDFToImageConverterUtil {
 
                     handler.handle(i, baos.toByteArray());
                 }
-            } catch (RendererException | DocumentException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
 
             return pageCount;
         }
 
-        private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int i) throws IOException, RendererException, DocumentException {
+        private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int i) throws Exception {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             // Small resolution to discover width and height
@@ -92,9 +95,52 @@ public class PDFToImageConverterUtil {
 
             renderer.setResolution((int) Math.min((10 * LIMIT_WIDTH) / image.getWidth(null), (10 * LIMIT_HEIGHT) / image.getHeight(null)));
 
-            image  = renderer.render(document, i, i).get(0);
+            LOGGER.info("Preparando para renderizar " + pdf.getName() + " pag " + (i+1) + " a " + renderer.getResolution() + " DPIs");
+
+            image  = renderWithTimeout(new RendererRunnable(document, renderer, i));
 
             return createBufferedImage(image, BufferedImage.TYPE_INT_RGB);
+        }
+
+        private Image renderWithTimeout(RendererRunnable rendererRunnable) throws Exception {
+            Thread t = new Thread(rendererRunnable);
+
+            t.start();
+
+            t.join(TIMEOUT);
+
+            if (t.isAlive()) {
+                t.interrupt();
+                throw new TimeoutException("Tempo de espera para renderização espirou.");
+            } else if (rendererRunnable.getCause() != null) {
+                throw rendererRunnable.getCause();
+            } else if (rendererRunnable.getImage() == null) {
+                throw new RuntimeException("Houve problemas para renderizar o PDF");
+            }
+
+            return rendererRunnable.getImage();
+        }
+
+        @RequiredArgsConstructor
+        class RendererRunnable implements Runnable {
+            private final PDFDocument document;
+            private final SimpleRenderer renderer;
+            private final int i;
+
+            @Getter
+            private Image image;
+
+            @Getter
+            private Exception cause;
+
+            @Override
+            public void run() {
+                try {
+                    this.image = renderer.render(document, i, i).get(0);
+                } catch (Exception e) {
+                    this.cause = e;
+                }
+            }
         }
 
         private static BufferedImage createBufferedImage(Image imageIn, int imageType) {

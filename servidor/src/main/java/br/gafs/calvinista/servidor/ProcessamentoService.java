@@ -224,7 +224,7 @@ public class ProcessamentoService {
         private final List<Element> pool = new ArrayList<Element>();
 
         public synchronized void add(Processamento processamento){
-            Element element = new Element(processamento, EMPTY_WATCHER);
+            Element element = new Element(processamento, new WatcherPool(processamento, EMPTY_WATCHER));
 
             synchronized (running) {
                 if (!pool.contains(element) &&
