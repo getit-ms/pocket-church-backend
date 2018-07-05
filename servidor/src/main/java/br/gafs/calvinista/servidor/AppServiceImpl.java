@@ -617,6 +617,8 @@ public class AppServiceImpl implements AppService {
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
         if (trataTrocaPDF(boletim)){
             boletim.processando();
+
+            processamentoService.schedule(new ProcessamentoBoletim(boletim));
         }
         return daoService.create(boletim);
     }
@@ -714,6 +716,8 @@ public class AppServiceImpl implements AppService {
         boletim.setUltimaAlteracao(DateUtil.getDataAtual());
         if (trataTrocaPDF(boletim)){
             boletim.processando();
+
+            processamentoService.schedule(new ProcessamentoBoletim(boletim));
         }
         return daoService.update(boletim);
     }
@@ -846,6 +850,8 @@ public class AppServiceImpl implements AppService {
             estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
             if (trataTrocaPDF(estudo)){
                 estudo.processando();
+
+                processamentoService.schedule(new ProcessamentoEstudo(estudo));
             }
         } else {
             estudo.publicado();
@@ -880,6 +886,8 @@ public class AppServiceImpl implements AppService {
             estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
             if (trataTrocaPDF(estudo)){
                 estudo.processando();
+
+                processamentoService.schedule(new ProcessamentoEstudo(estudo));
             }
         } else {
             estudo.publicado();

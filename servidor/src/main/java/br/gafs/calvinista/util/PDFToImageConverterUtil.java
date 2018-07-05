@@ -86,20 +86,22 @@ public class PDFToImageConverterUtil {
         }
 
         private BufferedImage getBufferedImage(PDFDocument document, SimpleRenderer renderer, int i) throws Exception {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            synchronized (PDFToImageConverterUtil.class) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            // Small resolution to discover width and height
-            renderer.setResolution(10);
+                // Small resolution to discover width and height
+                renderer.setResolution(10);
 
-            Image image = renderer.render(document, i, i).get(0);
+                Image image = renderer.render(document, i, i).get(0);
 
-            renderer.setResolution((int) Math.min((10 * LIMIT_WIDTH) / image.getWidth(null), (10 * LIMIT_HEIGHT) / image.getHeight(null)));
+                renderer.setResolution((int) Math.min((10 * LIMIT_WIDTH) / image.getWidth(null), (10 * LIMIT_HEIGHT) / image.getHeight(null)));
 
-            LOGGER.info("Preparando para renderizar " + pdf.getName() + " pag " + (i+1) + " a " + renderer.getResolution() + " DPIs");
+                LOGGER.info("Preparando para renderizar " + pdf.getName() + " pag " + (i + 1) + " a " + renderer.getResolution() + " DPIs");
 
-            image  = renderWithTimeout(new RendererRunnable(document, renderer, i));
+                image = renderWithTimeout(new RendererRunnable(document, renderer, i));
 
-            return createBufferedImage(image, BufferedImage.TYPE_INT_RGB);
+                return createBufferedImage(image, BufferedImage.TYPE_INT_RGB);
+            }
         }
 
         private Image renderWithTimeout(RendererRunnable rendererRunnable) throws Exception {
