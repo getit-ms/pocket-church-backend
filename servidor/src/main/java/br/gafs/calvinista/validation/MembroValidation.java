@@ -13,6 +13,7 @@ import br.gafs.calvinista.exception.ValidationException;
 import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.exceptions.ServiceExceptionList;
+import br.gafs.util.string.StringUtil;
 import br.gafs.validation.ValidadorNegocial;
 import br.gafs.validation.ValidadorServico;
 import javax.ejb.EJB;
@@ -31,12 +32,14 @@ public class MembroValidation implements ValidadorServico<Membro> {
 
     @Override
     public void valida(Membro entidade) throws ServiceException, ServiceExceptionList {
-        Membro outro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.
-                createSingle(entidade.getEmail().toLowerCase(), entidade.getIgreja().getChave()));
-        if (outro != null && !outro.getId().equals(entidade.getId())){
-            throw new ServiceException("mensagens.MSG-025");
+        if (!StringUtil.isEmpty(entidade.getEmail())) {
+            Membro outro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.
+                    createSingle(entidade.getEmail().toLowerCase(), entidade.getIgreja().getChave()));
+            if (outro != null && !outro.getId().equals(entidade.getId())){
+                throw new ServiceException("mensagens.MSG-025");
+            }
         }
-        
+
         if (entidade.getId() != null && !entidade.isPastor()){
             CalendarioAtendimento calendario = daoService.findWith(QueryAdmin.
                     CALENDARIO_ATIVO_POR_PASTOR.createSingle(entidade.getIgreja().getChave(), entidade.getId()));
