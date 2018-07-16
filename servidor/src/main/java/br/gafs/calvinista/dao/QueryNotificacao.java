@@ -25,10 +25,10 @@ public enum QueryNotificacao {
     DEVICES_POR_TIPO("Dispositivo.findPorTipoAndIgreja", "igreja", "tipo", "dispositivos"), 
     COUNT_NOTIFICACOES_NAO_LIDAS_DISPOSITIVO("SentNotification.countNaoLidosDispositivo", "igreja", "dispositivo"),
     COUNT_NOTIFICACOES_NAO_LIDAS_MEMBRO("SentNotification.countNaoLidosMembro", "igreja", "membro"),
-    CLEAR_NOTIFICACOES_DISPOSITIVO("SentNotification.clearNotificacoesDispositivo", "igreja", "dispositivo"),
+    CLEAR_NOTIFICACOES_DISPOSITIVO("SentNotification.clearNotificacoesDispositivo", "igreja", "dispositivo", "excecoes"),
     NOTIFICACAO_DISPOSITIVO("SentNotification.findNotificacaoDispositivo", "notificacao", "igreja", "dispositivo"), 
     CLEAR_NOTIFICACOES_MEMBRO("SentNotification.clearNotificacoesMembro", "igreja", "membro", "excecoes"),
-    NOTIFICACAO_MEMBRO("SentNotification.findNotificacaoMembro", "notificacao", "igreja", "membro", "excecoes"),
+    NOTIFICACAO_MEMBRO("SentNotification.findNotificacaoMembro", "notificacao", "igreja", "membro"),
     NOTIFICACOES_NAO_LIDAS_DISPOSITIVO("SentNotification.findNaoLidasDispositivo", "dispositivo"),
     NOTIFICACOES_NAO_LIDAS_MEMBRO("SentNotification.findNaoLidasMembro", "igreja", "membro");
 
