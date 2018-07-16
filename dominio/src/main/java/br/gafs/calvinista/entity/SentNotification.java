@@ -32,7 +32,7 @@ import lombok.Getter;
     @NamedNativeQuery(name = "SentNotification.migraDispositivo", query = "update tb_sent_notification set chave_dispositivo = #newDispositivo where chave_dispositivo = #oldDispositivo"),
 })
 @NamedQueries({
-    @NamedQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.chaveDispositivo = :dispositivo and sn.membro is null and sn.idNotificacoes not in :excecoes"),
+    @NamedQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.chaveDispositivo = :dispositivo and sn.membro is null and sn.idNotificacao not in :excecoes"),
     @NamedQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.membro.id = :membro and sn.idNotificacao not in :excecoes"),
     @NamedQuery(name = "SentNotification.findNotificacaoDispositivo", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.dispositivo.chave = :dispositivo and sn.membro.id is null"),
     @NamedQuery(name = "SentNotification.findNotificacaoMembro", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.membro.id = :membro"),
