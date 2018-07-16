@@ -29,11 +29,11 @@ import lombok.Getter;
 @IdClass(SentNotificationId.class)
 @Table(name = "tb_sent_notification")
 @NamedNativeQueries({
-    @NamedNativeQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.chave_dispositivo = #dispositivo and sn.id_membro is null"),
-    @NamedNativeQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from tb_sent_notification sn where sn.chave_igreja = #igreja and sn.id_membro = #membro"),
     @NamedNativeQuery(name = "SentNotification.migraDispositivo", query = "update tb_sent_notification set chave_dispositivo = #newDispositivo where chave_dispositivo = #oldDispositivo"),
 })
 @NamedQueries({
+    @NamedQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.chaveDispositivo = :dispositivo and sn.membro is null and sn.idNotificacoes not in :excecoes"),
+    @NamedQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.membro.id = :membro and sn.idNotificacao not in :excecoes"),
     @NamedQuery(name = "SentNotification.findNotificacaoDispositivo", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.dispositivo.chave = :dispositivo and sn.membro.id is null"),
     @NamedQuery(name = "SentNotification.findNotificacaoMembro", query = "select sn from SentNotification sn where sn.notification.id = :notificacao and sn.igreja.chave = :igreja and sn.membro.id = :membro"),
     @NamedQuery(name = "SentNotification.findNaoLidasDispositivo", query = "select sn from SentNotification sn left join sn.membro m where sn.dispositivo.chave = :dispositivo and m.id is null"),

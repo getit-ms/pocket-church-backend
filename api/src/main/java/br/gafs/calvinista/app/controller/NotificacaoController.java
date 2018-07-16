@@ -13,6 +13,7 @@ import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.MensagemService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -67,8 +68,8 @@ public class NotificacaoController {
     @DELETE
     @Path("clear")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response clear(){
-        appService.clearNotificacoes();
+    public Response clear(@QueryParam("excecao") List<Long> excecoes){
+        appService.clearNotificacoes(excecoes);
         return Response.status(Response.Status.OK).build();
     }
     

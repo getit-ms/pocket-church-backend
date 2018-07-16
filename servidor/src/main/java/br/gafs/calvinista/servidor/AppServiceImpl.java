@@ -140,14 +140,19 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public void clearNotificacoes(){
+    public void clearNotificacoes(List<Long> excecoes){
+        if (excecoes == null || excecoes.isEmpty()) {
+            // Evita erros de SQL por causa de lista vazia
+            excecoes = Arrays.asList(-1L);
+        }
+
         if (sessaoBean.getIdMembro() != null){
             daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_MEMBRO.
-                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+                    create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), excecoes));
         }
 
         daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_DISPOSITIVO.
-                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo()));
+                create(sessaoBean.getChaveIgreja(), sessaoBean.getChaveDispositivo(), excecoes));
     }
     
     @Override
@@ -321,7 +326,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public Acesso buscaAcessoAdmin(Long membro) {
         return daoService.find(Acesso.class, new AcessoId(new RegistroIgrejaId(
                 sessaoBean.getChaveIgreja(), membro)));
@@ -341,7 +346,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
     public void redefinirSenha(Long membro) {
         Membro entidade = buscaMembro(membro);
 
@@ -470,7 +475,10 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
+    @AllowAdmin({
+            Funcionalidade.MANTER_MEMBROS,
+            Funcionalidade.GERENCIAR_ACESSO_MEMBROS
+    })
     @AllowMembro({
             Funcionalidade.CONSULTAR_CONTATOS_IGREJA,
             Funcionalidade.REALIZAR_INSCRICAO_EBD
@@ -480,7 +488,10 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
+    @AllowAdmin({
+            Funcionalidade.MANTER_MEMBROS,
+            Funcionalidade.GERENCIAR_ACESSO_MEMBROS
+    })
     @AllowMembro({
             Funcionalidade.CONSULTAR_CONTATOS_IGREJA,
             Funcionalidade.REALIZAR_INSCRICAO_EBD
