@@ -45,6 +45,8 @@ public enum Funcionalidade {
     MANTER_PLANOS_LEITURA_BIBLICA(Tipo.ADMIN, 33),
     MANTER_PUBLICACOES(Tipo.ADMIN, 35),
     CONFIGURAR_GOOGLE_CALENDAR(Tipo.ADMIN, 36),
+    MANTER_AUDIOS(Tipo.ADMIN, 49),
+    CONFIGURAR_FLICKR(Tipo.ADMIN, 50),
 
     // Membro
     CONSULTAR_CONTATOS_IGREJA(Tipo.MEMBRO, 19),
@@ -67,6 +69,8 @@ public enum Funcionalidade {
     LISTAR_PUBLICACOES(Tipo.PUBLICA, 38),
     NOTICIAS(Tipo.PUBLICA, false, 44, 4, 2, 0),
     CONSULTAR_CANTICOS(Tipo.PUBLICA, false, 46, 4, 2, 0),
+    AUDIOS(Tipo.PUBLICA, false, 51, 6, 0, 0),
+    GALERIA_FOTOS(Tipo.PUBLICA, false, 52, 6, 0, 0),
 
 
     INSTITUCIONAL(Tipo.FIXA, 43),

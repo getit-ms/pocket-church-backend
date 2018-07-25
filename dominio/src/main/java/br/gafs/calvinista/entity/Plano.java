@@ -65,6 +65,9 @@ public class Plano {
     @Column(name = "data_termino")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataTermino;
+
+    @Column(name = "limite_audios")
+    private long limiteAudios;
     
     @Setter
     @NotNull

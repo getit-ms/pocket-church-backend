@@ -60,6 +60,10 @@ public enum TipoParametro {
     YOUTUBE_CHANNEL_ID(TipoValor.VALOR, String.class, null),
     GOOGLE_CALENDAR_ID(TipoValor.ANEXO, List.class, null),
 
+    FLICKR_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
+    FLICKR_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
+    FLICKR_ID(TipoValor.VALOR, String.class, null),
+
     ;
     
     private final TipoValor tipoValor;

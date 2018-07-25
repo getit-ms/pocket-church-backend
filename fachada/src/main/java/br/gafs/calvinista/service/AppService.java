@@ -79,6 +79,20 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<Estudo> buscaPublicados(FiltroEstudoPublicadoDTO filtro);
     Estudo buscaEstudo(Long estudo);
 
+    List<CategoriaAudio> buscaCategoriasAudio();
+    CategoriaAudio cadastra(CategoriaAudio categoria);
+    Audio cadastra(Audio estudo);
+    Audio atualiza(Audio estudo);
+    void removeAudio(Long audio);
+    BuscaPaginadaDTO<Audio> buscaTodos(FiltroAudioDTO filtro);
+    Audio buscaAudio(Long audio);
+
+    BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina);
+    BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro);
+    String buscaURLAutenticacaoFlickr() throws IOException;
+    void iniciaConfiguracaoFlickr(String code);
+    void desvinculaFlickr();
+
     Noticia cadastra(Noticia noticia);
     Noticia atualiza(Noticia noticia);
     void removeNoticia(Long noticia);

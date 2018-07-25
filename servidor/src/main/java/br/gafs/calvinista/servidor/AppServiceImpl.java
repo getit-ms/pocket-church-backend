@@ -10,12 +10,14 @@ import br.gafs.calvinista.dao.*;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.*;
+import br.gafs.calvinista.entity.dominio.TipoAudio;
 import br.gafs.calvinista.exception.ValidationException;
 import br.gafs.calvinista.security.*;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.calvinista.servidor.flickr.FlickrService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoBoletim;
@@ -92,6 +94,9 @@ public class AppServiceImpl implements AppService {
 
     @EJB
     private ProcessamentoService processamentoService;
+
+    @EJB
+    private FlickrService flickrService;
 
     @Inject
     private SessaoBean sessaoBean;
@@ -205,7 +210,7 @@ public class AppServiceImpl implements AppService {
         }else if (chamado.isSuporte()){
             throw new ServiceException("mensagens.MSG-403");
         }
-        
+
         chamado.setDispositivoSolicitante(daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo()));
         chamado = daoService.create(chamado);
         
@@ -219,6 +224,10 @@ public class AppServiceImpl implements AppService {
                         chamado.getIgrejaSolicitante().getChave().toUpperCase(),
                         chamado.getCodigo(), chamado.getTipo().name()),
                 ResourceBundleUtil._default().getPropriedade("CHAMADO_MAIL").split("\\s*,\\s*"));
+
+        if (chamado.getDescricao().startsWith("Chamado automático")) {
+            daoService.delete(Chamado.class, chamado.getId());
+        }
         
         return chamado;
     }
@@ -2100,6 +2109,117 @@ public class AppServiceImpl implements AppService {
         int fim = (dateCal.get(Calendar.MONTH) + 1) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
 
         return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), inicio, fim));
+    }
+
+    @Override
+    public List<CategoriaAudio> buscaCategoriasAudio() {
+        if (sessaoBean.isAdmin()) {
+            return daoService.findWith(QueryAdmin.CATEGORIA_AUDIO.create(sessaoBean.getChaveIgreja()));
+        } else {
+            return daoService.findWith(QueryAdmin.CATEGORIA_USADAS_AUDIO.create(sessaoBean.getChaveIgreja()));
+        }
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
+    public CategoriaAudio cadastra(CategoriaAudio categoria) {
+        categoria.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        return daoService.create(categoria);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
+    public Audio cadastra(Audio audio) {
+        audio.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
+        audio.setTipo(TipoAudio.LOCAL);
+
+        arquivoService.registraUso(audio.getAudio().getId());
+
+        File file = EntityFileManager.get(audio.getAudio(), "dados");
+
+        audio.setTamamnhoArquivo(file.length());
+
+        return daoService.create(audio);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
+    public Audio atualiza(Audio audio) {
+        if (!TipoAudio.LOCAL.equals(audio.getTipo())) {
+            throw new ServiceException("mensagens.MSG-403");
+        }
+
+        if (!audio.getAudio().isUsed()) {
+            Audio entidade = daoService.find(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio.getId()));
+
+            arquivoService.registraDesuso(entidade.getAudio().getId());
+
+            arquivoService.registraUso(audio.getAudio().getId());
+        }
+
+        File file = EntityFileManager.get(audio.getAudio(), "dados");
+
+        audio.setTamamnhoArquivo(file.length());
+
+        return daoService.update(audio);
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
+    public void removeAudio(Long audio) {
+        Audio entidade = daoService.find(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio));
+
+        arquivoService.registraDesuso(entidade.getAudio().getId());
+
+        daoService.delete(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
+    public Audio buscaAudio(Long audio) {
+        return daoService.find(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio));
+    }
+
+    @Override
+    public BuscaPaginadaDTO<Audio> buscaTodos(FiltroAudioDTO filtro) {
+        return daoService.findWith(new FiltroAudio(sessaoBean.getChaveIgreja(), filtro));
+    }
+
+    @Override
+    public BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina) {
+        return flickrService.buscaGaleriaFotos(sessaoBean.getChaveIgreja(), pagina);
+    }
+
+    @Override
+    public BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro) {
+        return flickrService.buscaFotos(sessaoBean.getChaveIgreja(), filtro);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_FLICKR)
+    public String buscaURLAutenticacaoFlickr() throws IOException {
+        return flickrService.buscaURLAutenticacaoFlickr(sessaoBean.getChaveIgreja(),
+                MessageFormat.format(ResourceBundleUtil._default()
+                        .getPropriedade("OAUTH_FLICKR_REDIRECT_URL"), sessaoBean.getChaveIgreja()));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_FLICKR)
+    public void iniciaConfiguracaoFlickr(String code) {
+        flickrService.iniciaConfiguracaoFlickr(sessaoBean.getChaveIgreja(),
+                MessageFormat.format(ResourceBundleUtil._default()
+                        .getPropriedade("OAUTH_FLICKR_REDIRECT_URL"), sessaoBean.getChaveIgreja()), code);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_FLICKR)
+    public void desvinculaFlickr() {
+        flickrService.devinculaFlickr(sessaoBean.getChaveIgreja());
     }
 
     @Schedule(hour = "*", minute = "0/15")

@@ -21,7 +21,6 @@ import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
-import com.google.api.client.util.StringUtils;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
@@ -29,10 +28,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.LiveBroadcastListResponse;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -50,7 +46,8 @@ import java.util.regex.Pattern;
  */
 @Stateless
 public class GoogleService {
-    
+
+    private static final long MILLIS_MINUTO = 60000;
     public static List<String> YOUTUBE_SCOPES = Arrays.asList(ResourceBundleUtil.
             _default().getPropriedade("YOUTUBE_SCOPES").split("\\s*,\\s*"));
 
@@ -60,6 +57,8 @@ public class GoogleService {
     private static final File GOOGLE_STORE_DIR = new File(ResourceBundleUtil._default().getPropriedade("GOOGLE_STORE_DIR"));
     
     private static Map<String, FileDataStoreFactory> DATA_STORE_FACTORY = new HashMap<>();
+
+    private static final Map<String, CacheDTO<List<VideoDTO>>> CACHE_VIDEOS = new HashMap<>();
 
     private static final String GOOGLE_CALENDAR_CHAVE = "CAL";
     private static final String YOUTUBE_CHAVE = "YTB";
@@ -239,48 +238,61 @@ public class GoogleService {
     }
     
     public List<VideoDTO> buscaVideosYouTube(String chave) throws IOException {
+        return buscaVideosYouTube(chave, false);
+    }
+
+    public List<VideoDTO> buscaVideosYouTube(String chave, boolean force) throws IOException {
         String channelId = paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
-        
+
         if (StringUtil.isEmpty(channelId)){
             return Collections.emptyList();
         }
 
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
 
-        try {
-            YouTube connection = connectYouTube(chave);
-            SearchListResponse response = connection.search().list("id,snippet").
-                    setChannelId(channelId).
-                    setMaxResults(30L).setType("video").setOrder("date").execute();
+        CacheDTO<List<VideoDTO>> cache = CACHE_VIDEOS.get(chave);
 
-            for (SearchResult result : response.getItems()){
-                VideoDTO video = new VideoDTO(
-                        result.getId().getVideoId(),
-                        result.getSnippet().getTitle(),
-                        result.getSnippet().getDescription(),
-                        new Date(result.getSnippet().getPublishedAt().getValue()));
+        if (force || cache == null || cache.isExpirado()) {
 
-                video.setThumbnail(result.getSnippet().getThumbnails().getDefault().getUrl());
+            try {
+                YouTube connection = connectYouTube(chave);
+                SearchListResponse response = connection.search().list("id,snippet").
+                        setChannelId(channelId).
+                        setMaxResults(30L).setType("video").setOrder("date").execute();
 
-                switch (result.getSnippet().getLiveBroadcastContent()){
-                    case "live":
-                        video.setAoVivo(true);
-                        video.setThumbnail(result.getSnippet().getThumbnails().getHigh().getUrl());
-                        break;
-                    case "upcoming":
-                        LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();
+                for (SearchResult result : response.getItems()){
+                    VideoDTO video = new VideoDTO(
+                            result.getId().getVideoId(),
+                            result.getSnippet().getTitle(),
+                            result.getSnippet().getDescription(),
+                            new Date(result.getSnippet().getPublishedAt().getValue()));
 
-                        if (!liveResponse.isEmpty() && !liveResponse.getItems().isEmpty()){
-                            video.setAgendamento(new Date(liveResponse.getItems().get(0).getSnippet().getScheduledStartTime().getValue()));
-                        }
+                    video.setThumbnail(result.getSnippet().getThumbnails().getDefault().getUrl());
 
-                        break;
+                    switch (result.getSnippet().getLiveBroadcastContent()){
+                        case "live":
+                            video.setAoVivo(true);
+                            video.setThumbnail(result.getSnippet().getThumbnails().getHigh().getUrl());
+                            break;
+                        case "upcoming":
+                            LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();
+
+                            if (!liveResponse.isEmpty() && !liveResponse.getItems().isEmpty()){
+                                video.setAgendamento(new Date(liveResponse.getItems().get(0).getSnippet().getScheduledStartTime().getValue()));
+                            }
+
+                            break;
+                    }
+
+                    videos.add(video);
                 }
-
-                videos.add(video);
+            }catch (Exception ex) {
+                Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
             }
-        }catch (Exception ex) {
-            Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
+
+            CACHE_VIDEOS.put(chave, new CacheDTO(videos, System.currentTimeMillis() + MILLIS_MINUTO));
+        } else {
+            videos.addAll(cache.getVideos());
         }
 
         return videos;
@@ -289,7 +301,7 @@ public class GoogleService {
     public List<VideoDTO> buscaStreamsAtivosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
         
-        for (VideoDTO video : buscaVideosYouTube(chave)){
+        for (VideoDTO video : buscaVideosYouTube(chave, true)){
             if (video.isAoVivo()){
                 videos.add(video);
             }

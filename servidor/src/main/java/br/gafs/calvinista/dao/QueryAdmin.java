@@ -328,7 +328,9 @@ public enum QueryAdmin {
     },
     CATEGORIA_ESTUDO_POR_IGREJA_NOME("CategoriaEstudo.findByIgrejaAndNome", "igreja", "nome"),
     CATEGORIA_ESTUDO("CategoriaEstudo.findByIgreja", "igreja"),
+    CATEGORIA_AUDIO("CategoriaAudio.findByIgreja", "igreja"),
     CATEGORIA_USADAS_ESTUDO("CategoriaEstudo.findUsadasByIgreja", "igreja"),
+    CATEGORIA_USADAS_AUDIO("CategoriaAudio.findUsadasByIgreja", "igreja"),
     MENUS_IGREJA_FUNCIONALIDADES("Menu.findByIgrejaAndFuncionalidades", "igreja", "funcionalidades"),
     BUSCA_NSCRICOES_EMAIL("InscricaoEvento.findInscricoesMembro", "tipo", "igreja", "email"){
         @Override

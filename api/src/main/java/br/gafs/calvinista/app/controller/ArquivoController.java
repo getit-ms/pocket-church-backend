@@ -18,12 +18,12 @@ import javax.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
-import java.util.Base64;
 import java.util.logging.Logger;
 
 /**
@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 @Path("/arquivo")
 public class ArquivoController {
     private final static Logger LOGGER = Logger.getLogger(ArquivoController.class.getName());
+    private final int chunk_size = 1024 * 1024 * 2; // 2 MB chunks
     
     @EJB
     private ArquivoService arquivoService;
@@ -65,24 +66,101 @@ public class ArquivoController {
     public Response downloadFile(@PathParam("arquivo") Long identificador) throws IOException {
         return downloadFile(identificador, null);
     }
-    
+
     @GET
-    @Path("/download/{arquivo}/{filename}") 
+    @Path("/download/{arquivo}/{filename}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
     public Response downloadFile(
-            @PathParam("arquivo") Long identificador, 
+            @PathParam("arquivo") Long identificador,
             @PathParam("filename") String filename) throws IOException {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
-        
+
         if (arquivo != null && (StringUtil.isEmpty(filename) ||
                 arquivo.getFilename().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
-            
+
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",
-                            "attachment; filename=\""+arquivo.getNome()+"\"");
+                    "attachment; filename=\""+arquivo.getNome()+"\"");
             ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+            return Response.noContent().build();
+        }
+
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @HEAD
+    @Path("/stram/{arquivo}/{filename}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
+    public Response header(
+            @PathParam("arquivo") Long identificador,
+            @PathParam("filename") String filename) {
+        Arquivo arquivo = arquivoService.buscaArquivo(identificador);
+
+        if (arquivo != null && (StringUtil.isEmpty(filename) ||
+                arquivo.getFilename().equals(filename))) {
+            File file = EntityFileManager.get(arquivo, "dados");
+
+            return Response.ok()
+                    .status(Response.Status.PARTIAL_CONTENT)
+                    .header(HttpHeaders.CONTENT_LENGTH, file.length())
+                    .header("Accept-Ranges", "bytes")
+                    .build();
+        }
+
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @GET
+    @Path("/stram/{arquivo}/{filename}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
+    public Response streamFile(
+            @HeaderParam("Range") String range,
+            @PathParam("arquivo") Long identificador,
+            @PathParam("filename") String filename) throws IOException {
+        if (StringUtil.isEmpty(range)) {
+            return downloadFile(identificador, filename);
+        }
+
+
+        Arquivo arquivo = arquivoService.buscaArquivo(identificador);
+
+        if (arquivo != null && (StringUtil.isEmpty(filename) ||
+                arquivo.getFilename().equals(filename))){
+            File file = EntityFileManager.get(arquivo, "dados");
+
+            String[] ranges = range.split( "=" )[1].split( "-" );
+
+            int from = Integer.parseInt( ranges[0] );
+
+            // Chunk media if the range upper bound is unspecified
+            int to = chunk_size + from;
+
+            if ( to >= file.length() ) {
+                to = (int) ( file.length() - 1 );
+            }
+
+            final String responseRange = String.format( "bytes %d-%d/%d", from, to, file.length() );
+
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+            response.addHeader( "Accept-Ranges", "bytes" );
+            response.addHeader( "Content-Range", responseRange );
+            response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
+            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Disposition",
+                    "attachment; filename=\""+arquivo.getNome()+"\"");
+
+
+            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
+
+            final RandomAccessFile raf = new RandomAccessFile( file, "r" );
+            raf.seek( from );
+
+            final int len = to - from + 1;
+
+            ArquivoUtil.transfer(raf, len, response.getOutputStream());
+
             return Response.noContent().build();
         }
 
