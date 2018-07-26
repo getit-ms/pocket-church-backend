@@ -151,9 +151,6 @@ public class ArquivoController {
             response.addHeader("Content-Disposition",
                     "attachment; filename=\""+arquivo.getNome()+"\"");
 
-
-            ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
-
             final RandomAccessFile raf = new RandomAccessFile( file, "r" );
             raf.seek( from );
 

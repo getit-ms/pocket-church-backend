@@ -90,7 +90,7 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina);
     BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro);
     String buscaURLAutenticacaoFlickr() throws IOException;
-    void iniciaConfiguracaoFlickr(String code);
+    void iniciaConfiguracaoFlickr(String token, String verifier);
     void desvinculaFlickr();
 
     Noticia cadastra(Noticia noticia);

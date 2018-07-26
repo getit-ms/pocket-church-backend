@@ -124,12 +124,12 @@ public class FlickrService {
         return f.getAuthInterface().getAuthorizationUrl(reqToken, Permission.READ);
     }
 
-    public void iniciaConfiguracaoFlickr(String chaveIgreja, String code, String callbackURL) {
+    public void iniciaConfiguracaoFlickr(String chaveIgreja, String token, String verifier) {
         Flickr f = getFlickr(chaveIgreja);
 
-        Token reqToken = f.getAuthInterface().getRequestToken(callbackURL);
-
-        Token accessToken = f.getAuthInterface().getAccessToken(reqToken, new Verifier(code));
+        Token accessToken = f.getAuthInterface().getAccessToken(
+                new Token(token, f.getSharedSecret()),
+                new Verifier(verifier));
 
         try {
             parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID, f.getAuthInterface().checkToken(accessToken).getUser().getId());
