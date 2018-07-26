@@ -130,7 +130,7 @@ public class ArquivoController {
                 arquivo.getFilename().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
 
-            String[] ranges = range.split( "-" );
+            String[] ranges = range.split( "=" )[1].split( "-" );
 
             int from = Integer.parseInt( ranges[0] );
 
