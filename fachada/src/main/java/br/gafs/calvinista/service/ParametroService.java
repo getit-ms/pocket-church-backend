@@ -29,4 +29,6 @@ public interface ParametroService extends Serializable {
     <T> T get(String grupo, TipoParametro param);
 
     <T> void set(String grupo, TipoParametro param, T value);
+
+    ConfiguracaoFlickrIgrejaDTO buscaConfiguracaoFlickr(String igreja);
 }

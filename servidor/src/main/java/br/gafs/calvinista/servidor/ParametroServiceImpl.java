@@ -78,6 +78,11 @@ public class ParametroServiceImpl implements ParametroService {
         extract(params, igreja);
     }
 
+    @Override
+    public ConfiguracaoFlickrIgrejaDTO buscaConfiguracaoFlickr(String igreja) {
+        return build(ConfiguracaoFlickrIgrejaDTO.class, igreja);
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)

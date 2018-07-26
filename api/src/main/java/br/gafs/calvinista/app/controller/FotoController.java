@@ -74,8 +74,16 @@ public class FotoController {
     public Response redirectConfiguracao(@QueryParam("oauth_verifier") String verifier,
                                          @QueryParam("oauth_token") String token,
                                          @PathParam("igreja") String igreja) throws IOException{
-        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_FLICKR_REDIRECT_URL"), igreja, token, verifier));
+        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default()
+                .getPropriedade("USER_FLICKR_REDIRECT_URL"), igreja, token, verifier));
         return Response.status(Response.Status.OK).build();
+    }
+
+    @GET
+    @Path("configuracao")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaConfiguracao(){
+        return Response.status(Response.Status.OK).entity(appService.buscaConfiguracaoFlickr()).build();
     }
 
     @PUT
