@@ -12,6 +12,7 @@ import br.gafs.util.string.StringUtil;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
+import com.flickr4java.flickr.auth.Auth;
 import com.flickr4java.flickr.auth.Permission;
 import com.flickr4java.flickr.galleries.Gallery;
 import com.flickr4java.flickr.galleries.GalleryList;
@@ -73,7 +74,7 @@ public class FlickrService {
         if (!StringUtil.isEmpty(id)) {
 
             try {
-                Flickr f = getFlickr(chaveIgreja);
+                Flickr f = getFlickr(id, (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY));
 
                 GalleryList<Gallery> galeriasFlickr = (GalleryList<Gallery>) f.getGalleriesInterface().getList(id, ITENS_POR_PAGINA, pagina);
 
@@ -109,7 +110,7 @@ public class FlickrService {
 
         if (!StringUtil.isEmpty(id)) {
 
-            Flickr f = getFlickr(chaveIgreja);
+            Flickr f = getFlickr(id, (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY));
 
             try {
                 PhotoList<Photo> photosFlickr = (PhotoList<Photo>) f.getGalleriesInterface()
@@ -138,8 +139,13 @@ public class FlickrService {
     }
 
     private Flickr getFlickr(String chaveIgreja) {
-        String apiKey = parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY);
-        String sharedSecret = parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_SECRET_KEY);
+        return getFlickr(
+                (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY),
+                (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_SECRET_KEY)
+        );
+    }
+
+    private Flickr getFlickr(String apiKey, String sharedSecret) {
         return new Flickr(apiKey, sharedSecret, new REST());
     }
 
@@ -167,8 +173,9 @@ public class FlickrService {
         Token accessToken = f.getAuthInterface().getAccessToken(cacheToken.getDados(), new Verifier(verifier));
 
         try {
-            parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID,
-                    f.getAuthInterface().checkToken(accessToken).getUser().getId());
+            Auth auth = f.getAuthInterface().checkToken(accessToken);
+
+            parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID, auth.getToken());
         } catch (FlickrException e) {
             throw new ServiceException("mensagens.MSG-052", e);
         }
