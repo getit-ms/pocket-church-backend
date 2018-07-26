@@ -2136,6 +2136,12 @@ public class AppServiceImpl implements AppService {
 
         audio.setTipo(TipoAudio.LOCAL);
 
+        audio.setCategoria(daoService.find(CategoriaAudio.class, new RegistroIgrejaId(
+                sessaoBean.getChaveIgreja(), audio.getCategoria().getId()
+        )));
+
+        audio.setAudio(arquivoService.buscaArquivo(audio.getAudio().getId()));
+
         arquivoService.registraUso(audio.getAudio().getId());
 
         File file = EntityFileManager.get(audio.getAudio(), "dados");
@@ -2152,6 +2158,12 @@ public class AppServiceImpl implements AppService {
         if (!TipoAudio.LOCAL.equals(audio.getTipo())) {
             throw new ServiceException("mensagens.MSG-403");
         }
+
+        audio.setCategoria(daoService.find(CategoriaAudio.class, new RegistroIgrejaId(
+                sessaoBean.getChaveIgreja(), audio.getCategoria().getId()
+        )));
+
+        audio.setAudio(arquivoService.buscaArquivo(audio.getAudio().getId()));
 
         if (!audio.getAudio().isUsed()) {
             Audio entidade = daoService.find(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio.getId()));

@@ -84,6 +84,7 @@ public class Audio implements IEntity {
     private long tamamnhoArquivo;
 
     @Setter
+    @NotNull
     @OneToOne
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)

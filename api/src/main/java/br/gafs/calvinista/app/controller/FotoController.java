@@ -37,7 +37,7 @@ public class FotoController {
     private HttpServletResponse response;
 
     @GET
-    @Path("galerias")
+    @Path("galeria")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaGalerias(
             @QueryParam("pagina") @DefaultValue("1") Integer pagina){
@@ -45,7 +45,7 @@ public class FotoController {
     }
 
     @GET
-    @Path("fotos/{galeria}")
+    @Path("galeria/{galeria}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaFuturos(
             @PathParam("galeria") String galeria,
@@ -71,7 +71,7 @@ public class FotoController {
 
     @GET
     @Path("integracao/{igreja}")
-    public Response redirectConfiguracao(@QueryParam("oauth_verifier") String code, @QueryParam("igreja") String igreja) throws IOException{
+    public Response redirectConfiguracao(@QueryParam("oauth_verifier") String code, @PathParam("igreja") String igreja) throws IOException{
         response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_FLICKR_REDIRECT_URL"), igreja, code));
         return Response.status(Response.Status.OK).build();
     }
