@@ -2229,9 +2229,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_FLICKR)
     public void iniciaConfiguracaoFlickr(String token, String verifier) {
-        flickrService.iniciaConfiguracaoFlickr(sessaoBean.getChaveIgreja(),
-                MessageFormat.format(ResourceBundleUtil._default()
-                        .getPropriedade("OAUTH_FLICKR_REDIRECT_URL"), sessaoBean.getChaveIgreja()), verifier);
+        flickrService.iniciaConfiguracaoFlickr(sessaoBean.getChaveIgreja(), token, verifier);
     }
 
     @Override

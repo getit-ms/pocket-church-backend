@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 public class CacheDTO<T> {
-    private final T videos;
+    private final T dados;
     private final long timeout;
 
     public boolean isExpirado() {

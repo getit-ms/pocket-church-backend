@@ -292,7 +292,7 @@ public class GoogleService {
 
             CACHE_VIDEOS.put(chave, new CacheDTO(videos, System.currentTimeMillis() + MILLIS_MINUTO));
         } else {
-            videos.addAll(cache.getVideos());
+            videos.addAll(cache.getDados());
         }
 
         return videos;

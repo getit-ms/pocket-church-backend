@@ -5,6 +5,7 @@ import br.gafs.calvinista.dto.FotoDTO;
 import br.gafs.calvinista.dto.GaleriaDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.calvinista.servidor.google.CacheDTO;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.string.StringUtil;
@@ -20,10 +21,9 @@ import org.scribe.model.Token;
 import org.scribe.model.Verifier;
 
 import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,9 +36,36 @@ public class FlickrService {
     private static final Logger LOGGER = Logger.getLogger(FlickrService.class.getName());
 
     public static final int ITENS_POR_PAGINA = 30;
+    private static final long TIMEOUT_TOKEN = 300000;
 
     @EJB
     private ParametroService parametroService;
+
+    private static final Map<String, CacheDTO<Token>> CACHE_TOKEN = new HashMap<>();
+
+    @Schedule(minute = "*/15", hour = "*")
+    public void clearCache() {
+        List<String> expired = new ArrayList<>();
+
+        LOGGER.info("Realizando limpeza de cache de tokens de Flickr");
+        for (Map.Entry<String, CacheDTO<Token>> entry : CACHE_TOKEN.entrySet()) {
+            if (entry.getValue().isExpirado()) {
+                expired.add(entry.getKey());
+            }
+        }
+
+        if (expired.isEmpty()) {
+            LOGGER.info("Nenhum token Filckr pra ser removido.");
+        } else {
+            LOGGER.info("Removendo " + expired.size() + " tokens Flickr.");
+
+            for (String token : expired) {
+                CACHE_TOKEN.remove(token);
+            }
+
+            LOGGER.info("Remoção de tokens concluída.");
+        }
+    }
 
     public BuscaPaginadaDTO<GaleriaDTO> buscaGaleriaFotos(String chaveIgreja, Integer pagina) {
         String id = parametroService.get(chaveIgreja, TipoParametro.FLICKR_ID);
@@ -121,18 +148,27 @@ public class FlickrService {
 
         Token reqToken = f.getAuthInterface().getRequestToken(callbackURL);
 
+        CACHE_TOKEN.put(reqToken.getToken(), new CacheDTO<Token>(reqToken, System.currentTimeMillis() + TIMEOUT_TOKEN));
+
         return f.getAuthInterface().getAuthorizationUrl(reqToken, Permission.READ);
     }
 
-    public void iniciaConfiguracaoFlickr(String chaveIgreja, String callbackURL, String verifier) {
+    public void iniciaConfiguracaoFlickr(String chaveIgreja, String token, String verifier) {
         Flickr f = getFlickr(chaveIgreja);
 
-        Token accessToken = f.getAuthInterface().getAccessToken(
-                f.getAuthInterface().getRequestToken(callbackURL),
-                new Verifier(verifier));
+        CacheDTO<Token> cacheToken = CACHE_TOKEN.get(token);
+
+        if (cacheToken == null || cacheToken.isExpirado()) {
+            throw new ServiceException("mensagens.MSG-052");
+        }
+
+        CACHE_TOKEN.remove(token);
+
+        Token accessToken = f.getAuthInterface().getAccessToken(cacheToken.getDados(), new Verifier(verifier));
 
         try {
-            parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID, f.getAuthInterface().checkToken(accessToken).getUser().getId());
+            parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID,
+                    f.getAuthInterface().checkToken(accessToken).getUser().getId());
         } catch (FlickrException e) {
             throw new ServiceException("mensagens.MSG-052", e);
         }
