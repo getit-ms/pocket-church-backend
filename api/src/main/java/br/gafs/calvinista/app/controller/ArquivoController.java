@@ -113,7 +113,7 @@ public class ArquivoController {
     }
 
     @GET
-    @Path("/stram/{arquivo}/{filename}")
+    @Path("/stream/{arquivo}/{filename}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
     public Response streamFile(
             @HeaderParam("Range") String range,
@@ -130,7 +130,7 @@ public class ArquivoController {
                 arquivo.getFilename().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
 
-            String[] ranges = range.split( "=" )[1].split( "-" );
+            String[] ranges = range.split( "-" );
 
             int from = Integer.parseInt( ranges[0] );
 
