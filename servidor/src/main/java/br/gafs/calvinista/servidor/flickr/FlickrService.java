@@ -12,14 +12,17 @@ import br.gafs.util.string.StringUtil;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
-import com.flickr4java.flickr.auth.Auth;
+import com.flickr4java.flickr.Response;
 import com.flickr4java.flickr.auth.Permission;
 import com.flickr4java.flickr.galleries.Gallery;
 import com.flickr4java.flickr.galleries.GalleryList;
+import com.flickr4java.flickr.people.User;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import org.scribe.model.Token;
 import org.scribe.model.Verifier;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
@@ -74,9 +77,9 @@ public class FlickrService {
         if (!StringUtil.isEmpty(id)) {
 
             try {
-                Flickr f = getFlickr(id, (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY));
+                Flickr f = getFlickr(chaveIgreja);
 
-                GalleryList<Gallery> galeriasFlickr = (GalleryList<Gallery>) f.getGalleriesInterface().getList(id, ITENS_POR_PAGINA, pagina);
+                GalleryList<Gallery> galeriasFlickr = doGetList(f, id, ITENS_POR_PAGINA, pagina);
 
                 List<GaleriaDTO> galerias = new ArrayList<>();
 
@@ -105,12 +108,59 @@ public class FlickrService {
         return new BuscaPaginadaDTO(Collections.emptyList(), 0, 1, 30);
     }
 
+    private GalleryList<Gallery> doGetList(Flickr flickr, String userId, int perPage, int page) throws FlickrException {
+        Map<String, Object> parameters = new HashMap();
+        parameters.put("method", "flickr.galleries.getList");
+        parameters.put("user_id", userId);
+        if(perPage > 0) {
+            parameters.put("per_page", String.valueOf(perPage));
+        }
+
+        if(page > 0) {
+            parameters.put("page", String.valueOf(page));
+        }
+
+        Response response = flickr.getTransport().get(flickr.getTransport().getPath(), parameters, flickr.getApiKey(), flickr.getSharedSecret());
+        if(response.isError()) {
+            throw new FlickrException(response.getErrorCode(), response.getErrorMessage());
+        } else {
+            Element element = response.getPayload();
+            GalleryList<Gallery> galleries = new GalleryList();
+            galleries.setPage(element.getAttribute("page"));
+            galleries.setPages(element.getAttribute("pages"));
+            galleries.setPerPage(element.getAttribute("per_page"));
+            galleries.setTotal(element.getAttribute("total"));
+            NodeList galleryNodes = element.getElementsByTagName("gallery");
+
+            for(int i = 0; i < galleryNodes.getLength(); ++i) {
+                Element galleryElement = (Element)galleryNodes.item(i);
+                Gallery gallery = new Gallery();
+                gallery.setId(galleryElement.getAttribute("id"));
+                gallery.setUrl(galleryElement.getAttribute("url"));
+                User owner = new User();
+                owner.setId(galleryElement.getAttribute("owner"));
+                gallery.setOwner(owner);
+                gallery.setCreateDate(galleryElement.getAttribute("date_create"));
+                gallery.setUpdateDate(galleryElement.getAttribute("date_update"));
+                gallery.setPrimaryPhotoId(galleryElement.getAttribute("primary_photo_id"));
+                gallery.setPrimaryPhotoServer(galleryElement.getAttribute("primary_photo_server"));
+                gallery.setPrimaryPhotoFarm(galleryElement.getAttribute("primary_photo_farm"));
+                gallery.setPrimaryPhotoSecret(galleryElement.getAttribute("primary_photo_secret"));
+                gallery.setPhotoCount(galleryElement.getAttribute("count_photos"));
+                gallery.setVideoCount(galleryElement.getAttribute("count_videos"));
+                galleries.add(gallery);
+            }
+
+            return galleries;
+        }
+    }
+
     public BuscaPaginadaDTO<FotoDTO> buscaFotos(String chaveIgreja, FiltroFotoDTO filtro) {
         String id = parametroService.get(chaveIgreja, TipoParametro.FLICKR_ID);
 
         if (!StringUtil.isEmpty(id)) {
 
-            Flickr f = getFlickr(id, (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY));
+            Flickr f = getFlickr(chaveIgreja);
 
             try {
                 PhotoList<Photo> photosFlickr = (PhotoList<Photo>) f.getGalleriesInterface()
@@ -139,13 +189,8 @@ public class FlickrService {
     }
 
     private Flickr getFlickr(String chaveIgreja) {
-        return getFlickr(
-                (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY),
-                (String) parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_SECRET_KEY)
-        );
-    }
-
-    private Flickr getFlickr(String apiKey, String sharedSecret) {
+        String apiKey = parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_CLIENT_KEY);
+        String sharedSecret = parametroService.get(chaveIgreja, TipoParametro.FLICKR_OAUTH_SECRET_KEY);
         return new Flickr(apiKey, sharedSecret, new REST());
     }
 
@@ -173,9 +218,8 @@ public class FlickrService {
         Token accessToken = f.getAuthInterface().getAccessToken(cacheToken.getDados(), new Verifier(verifier));
 
         try {
-            Auth auth = f.getAuthInterface().checkToken(accessToken);
-
-            parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID, auth.getToken());
+            parametroService.set(chaveIgreja, TipoParametro.FLICKR_ID,
+                    f.getAuthInterface().checkToken(accessToken).getUser().getId());
         } catch (FlickrException e) {
             throw new ServiceException("mensagens.MSG-052", e);
         }
