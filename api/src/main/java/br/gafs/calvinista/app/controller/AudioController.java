@@ -61,7 +61,7 @@ public class AudioController {
     @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@PathParam("audio") final Long audio){
-        return Response.status(Response.Status.OK).entity(appService.buscaEstudo(audio)).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaAudio(audio)).build();
     }
 
     @DELETE
