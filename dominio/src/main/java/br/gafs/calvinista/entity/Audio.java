@@ -84,6 +84,16 @@ public class Audio implements IEntity {
     private long tamamnhoArquivo;
 
     @Setter
+    @OneToOne
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_arquivo_capa", referencedColumnName = "id_arquivo"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
+    private Arquivo capa;
+
+    @Setter
     @NotNull
     @OneToOne
     @JsonView(View.Resumido.class)

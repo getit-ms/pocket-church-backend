@@ -2144,6 +2144,12 @@ public class AppServiceImpl implements AppService {
 
         arquivoService.registraUso(audio.getAudio().getId());
 
+        if (audio.getCapa() != null) {
+            audio.setCapa(arquivoService.buscaArquivo(audio.getCapa().getId()));
+
+            arquivoService.registraUso(audio.getCapa().getId());
+        }
+
         File file = EntityFileManager.get(audio.getAudio(), "dados");
 
         audio.setTamamnhoArquivo(file.length());
@@ -2163,11 +2169,25 @@ public class AppServiceImpl implements AppService {
                 sessaoBean.getChaveIgreja(), audio.getCategoria().getId()
         )));
 
+        Audio entidade = daoService.find(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio.getId()));
+
+        if (audio.getCapa() != null) {
+            audio.setCapa(arquivoService.buscaArquivo(audio.getCapa().getId()));
+        }
+
+        if (audio.getCapa() != null && !audio.getCapa().isUsed()) {
+            if (entidade.getCapa() != null) {
+                arquivoService.registraDesuso(entidade.getCapa().getId());
+            }
+
+            arquivoService.registraUso(audio.getCapa().getId());
+        } else if (audio.getCapa() == null && entidade.getCapa() != null) {
+            arquivoService.registraDesuso(entidade.getCapa().getId());
+        }
+
         audio.setAudio(arquivoService.buscaArquivo(audio.getAudio().getId()));
 
         if (!audio.getAudio().isUsed()) {
-            Audio entidade = daoService.find(Audio.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), audio.getId()));
-
             arquivoService.registraDesuso(entidade.getAudio().getId());
 
             arquivoService.registraUso(audio.getAudio().getId());
