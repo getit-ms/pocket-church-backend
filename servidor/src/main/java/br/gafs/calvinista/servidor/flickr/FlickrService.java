@@ -81,16 +81,19 @@ public class FlickrService {
 
                 for (Photoset set : photoSets.getPhotosets()) {
                     galerias.add(GaleriaDTO.builder()
+                            .id(set.getId())
+                            .nome(set.getTitle())
                             .descricao(set.getDescription())
+                            .quantidadeFotos(set.getPhotoCount())
+                            .dataAtualizacao(StringUtil.isEmpty(set.getDateUpdate()) ?
+                                    new Date(Long.parseLong(set.getDateCreate())) :
+                                    new Date(Long.parseLong(set.getDateUpdate())))
                             .fotoPrimaria(FotoDTO.builder()
                                     .id(set.getPrimaryPhoto().getId())
                                     .farm(set.getPrimaryPhoto().getFarm())
                                     .secret(set.getPrimaryPhoto().getSecret())
                                     .server(set.getPrimaryPhoto().getServer())
                                     .build())
-                            .id(set.getId())
-                            .nome(set.getTitle())
-                            .quantidadeFotos(set.getPhotoCount())
                             .build());
                 }
 

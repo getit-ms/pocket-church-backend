@@ -47,7 +47,7 @@ public class FotoController {
     @GET
     @Path("galeria/{galeria}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaFuturos(
+    public Response buscaFotos(
             @PathParam("galeria") String galeria,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina){
         return Response.status(Status.OK).entity(appService.buscaFotos(new FiltroFotoDTO(galeria, pagina))).build();
