@@ -91,7 +91,7 @@ public class ArquivoController {
     }
 
     @HEAD
-    @Path("/stram/{arquivo}/{filename}")
+    @Path("/stream/{arquivo}/{filename}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
     public Response header(
             @PathParam("arquivo") Long identificador,
