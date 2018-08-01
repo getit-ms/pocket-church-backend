@@ -1,1 +1,0 @@
-alter table tb_evento add column id_banner bigint;

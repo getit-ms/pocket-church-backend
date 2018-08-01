@@ -2,7 +2,7 @@ image: gafsel/java-postgres-build
 
 pipelines:
   tags:
-    calvinista-*:
+    pocket-corporate-*:
       - step:
           script:
             - export DIR=$(pwd)
