@@ -28,7 +28,7 @@ import java.util.List;
 @NoArgsConstructor
 public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     @JsonView(View.Resumido.class)
-    private List<Long> ministerios = new ArrayList<Long>();
+    private List<Long> lotacoes = new ArrayList<Long>();
     @JsonIgnore
     private Integer pagina = 1;
     @JsonIgnore
@@ -40,13 +40,11 @@ public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     @JsonView(View.Resumido.class)
     private Empresa empresa;
     @JsonView(View.Resumido.class)
-    private boolean apenasColaboradores;
+    private boolean apenasGerentes;
     @JsonView(View.Resumido.class)
     private Date aniversario;
     @JsonView(View.Resumido.class)
     private boolean desejaReceberNotificacoesVideos;
-    @JsonView(View.Resumido.class)
-    private Long idPlanoLeiuraBiblica;
 
     public FiltroDispositivoNotificacaoDTO(Empresa empresa) {
         this.empresa = empresa;
@@ -70,12 +68,6 @@ public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     public FiltroDispositivoNotificacaoDTO(Empresa empresa, HorasEnvioNotificacao hora) {
         this(empresa);
         this.hora = hora;
-    }
-    
-    public FiltroDispositivoNotificacaoDTO(Empresa empresa, HorasEnvioNotificacao hora, Long idPlanoLeiuraBiblica) {
-        this(empresa);
-        this.hora = hora;
-        this.idPlanoLeiuraBiblica = idPlanoLeiuraBiblica;
     }
     
     public void proxima(){

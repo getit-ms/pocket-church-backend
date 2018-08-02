@@ -8,9 +8,7 @@ package br.gafs.pocket.corporate.app.controller;
 import br.gafs.pocket.corporate.app.util.ArquivoUtil;
 import br.gafs.pocket.corporate.app.util.MergeUtil;
 import br.gafs.pocket.corporate.dto.FiltroColaboradorDTO;
-import br.gafs.pocket.corporate.entity.Acesso;
-import br.gafs.pocket.corporate.entity.Colaborador;
-import br.gafs.pocket.corporate.entity.Perfil;
+import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.service.AppService;
 import br.gafs.pocket.corporate.service.RelatorioService;
 import br.gafs.pocket.corporate.view.View;
@@ -61,7 +59,15 @@ public class ColaboradorController {
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Response.Status.OK).entity(appService.busca(new FiltroColaboradorDTO(nome, email, filtro, pagina, total, perfis))).build();
     }
-    
+
+    @GET
+    @Path("lotacao")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaLotacoes(){
+        return Response.status(Response.Status.OK).entity(appService.buscaLotacoesColaborador()).build();
+    }
+
     @GET
     @Path("{colaborador}")
     @JsonView(Detalhado.class)
@@ -134,6 +140,14 @@ public class ColaboradorController {
     public Response retirarAcessoAdmin(@PathParam("colaborador") final Long colaborador){
         appService.retiraAcessoAdmin(colaborador);
         return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Path("lotacao")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response cadastra(final LotacaoColaborador lotacao){
+        return Response.status(Response.Status.OK).entity(appService.cadastra(lotacao)).build();
     }
     
     @PUT

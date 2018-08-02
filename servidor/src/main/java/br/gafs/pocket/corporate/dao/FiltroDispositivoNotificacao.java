@@ -30,39 +30,32 @@ public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
     public static StringBuilder query(FiltroDispositivoNotificacaoDTO filtro, StringBuilder from){
         StringBuilder where = new StringBuilder(" where d.chave_empresa = '").append(filtro.getEmpresa().getChave()).append("' and d.pushkey <> 'unknown' and d.id_colaborador is not null");
 
-        if (filtro.getMinisterios() != null && !filtro.getMinisterios().isEmpty()){
-            from.append(" inner join rl_preferencias_ministerios mi on mi.chave_empresa = d.chave_empresa and mi.chave_dispositivo = d.chave");
+        if (filtro.getLotacoes() != null && !filtro.getLotacoes().isEmpty()){
+            from.append(" inner join rl_lotacao_notificacao ln on ln.chave_empresa = d.chave_empresa and ln.chave_dispositivo = d.chave");
 
-            StringBuilder mins = new StringBuilder("(").append(filtro.getMinisterios().get(0));
-            for (int i=1;i<filtro.getMinisterios().size();i++){
-                mins.append(",").append(filtro.getMinisterios().get(i));
+            StringBuilder mins = new StringBuilder("(").append(filtro.getLotacoes().get(0));
+            for (int i=1;i<filtro.getLotacoes().size();i++){
+                mins.append(",").append(filtro.getLotacoes().get(i));
             }
             mins.append(")");
-            where.append(" and mi.id_ministerio in ").append(mins);
+            where.append(" and ln.id_lotacao in ").append(mins);
         }
 
-        if (filtro.isApenasColaboradores()){
-            where.append(" and d.id_colaborador is not null");
-        }
 
         if (filtro.isDesejaReceberNotificacoesVideos()){
             where.append(" and p.deseja_receber_notificacoes_videos = true");
         }
 
-        if (filtro.getHora() != null){
-            if (filtro.getIdPlanoLeiuraBiblica() != null){
-                from.append(" inner join tb_opcao_leitura_biblica olb on olb.id_colaborador = d.id_colaborador and olb.chave_empresa = d.chave_empresa and olb.termino is null");
-                where.append(" and olb.id_plano_leitura_biblica = ").append(filtro.getIdPlanoLeiuraBiblica()).
-                        append(" and p.deseja_receber_lembretes_leitura_biblica = true").
-                        append(" and p.hora_lembrete_leitura = ").append(filtro.getHora().ordinal());
-            }else{
-                where.append(" and p.deseja_receber_mensagens_dia = true and p.hora_mensagem_dia = ").append(filtro.getHora().ordinal());
-            }
-        }
-
-        if (filtro.getColaborador() != null){
+        if (filtro.getColaborador() != null || filtro.isApenasGerentes()) {
             from.append(" inner join tb_colaborador m on m.id_colaborador = d.id_colaborador and m.chave_empresa = d.chave_empresa");
-            where.append(" and m.id_colaborador = ").append(filtro.getColaborador()).append(" and m.status in (0, 1)");
+
+            if (filtro.getColaborador() != null) {
+                where.append(" and m.id_colaborador = ").append(filtro.getColaborador()).append(" and m.status in (0, 1)");
+            }
+
+            if (filtro.isApenasGerentes()) {
+                where.append(" and m.gerente = true");
+            }
         }
 
         if (filtro.getAniversario() != null){

@@ -157,6 +157,16 @@ public class Colaborador implements IEntity {
     @JsonIgnore
     @JoinColumn(name = "chave_empresa", nullable = false)
     private Empresa empresa;
+
+    @Setter
+    @ManyToOne
+    @JsonView(Detalhado.class)
+    @View.MergeViews(View.Edicao.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_lotacao", referencedColumnName = "id_lotacao_colaborador"),
+            @JoinColumn(name = "chave_empresa", referencedColumnName = "chave_empresa", insertable = false, updatable = false)
+    })
+    private LotacaoColaborador lotacao;
     
     @JsonIgnore
     @OneToOne(mappedBy = "colaborador", cascade = CascadeType.ALL, orphanRemoval = true)

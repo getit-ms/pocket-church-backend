@@ -35,6 +35,8 @@ public interface AppService extends Serializable {
     Chamado buscaChamado(Long chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
 
+    List<LotacaoColaborador> buscaLotacoesColaborador();
+    LotacaoColaborador cadastra(LotacaoColaborador categoria);
     Colaborador cadastra(Colaborador colaborador);
     Colaborador atualiza(Colaborador colaborador);
     void removeColaborador(Long colaborador);

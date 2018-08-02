@@ -253,6 +253,23 @@ public class AppServiceImpl implements AppService {
         }
         return daoService.create(colaborador);
     }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
+    public LotacaoColaborador cadastra(LotacaoColaborador categoria) {
+        categoria.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+        return daoService.create(categoria);
+    }
+
+    @Override
+    @AllowAdmin({
+            Funcionalidade.MANTER_COLABORADORES,
+            Funcionalidade.ENVIAR_NOTIFICACOES
+    })
+    public List<LotacaoColaborador> buscaLotacoesColaborador() {
+        return daoService.findWith(QueryAdmin.LOTACAO_COLABORADOR.create(sessaoBean.getChaveEmpresa()));
+    }
     
     @Audit
     @Override
@@ -882,7 +899,11 @@ public class AppServiceImpl implements AppService {
         notificacao = daoService.create(notificacao);
         
         FiltroDispositivoNotificacaoDTO filtro = new FiltroDispositivoNotificacaoDTO(notificacao.getEmpresa());
-        filtro.setApenasColaboradores(notificacao.isApenasColaboradores());
+        filtro.setApenasGerentes(notificacao.isApenasGerentes());
+
+        for (LotacaoColaborador lotacao : notificacao.getLotacoes()) {
+            filtro.getLotacoes().add(lotacao.getid);
+        }
 
         enviaPush(filtro, notificacao.getTitulo(), notificacao.getMensagem(), TipoNotificacao.NOTIFICACAO, false);
     }
