@@ -154,7 +154,7 @@ public enum QueryAdmin {
             return 10;
         }
     }, 
-    UPDATE_BOLETINS_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByEmpresa", "empresa"){
+    UPDATE_BOLETINS_NAO_DIVULGADOS("BoletimInformativo.updateNaoDivulgadosByEmpresa", "empresa"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -164,7 +164,7 @@ public enum QueryAdmin {
         }
         
     },
-    UPDATE_PUBLICACOES_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByEmpresa", "empresa"){
+    UPDATE_PUBLICACOES_NAO_DIVULGADOS("BoletimInformativo.updateNaoDivulgadosByEmpresa", "empresa"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -192,7 +192,7 @@ public enum QueryAdmin {
         }
 
     },
-    EMPRESAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findEmpresaByStatusAndDataPublicacao"){
+    EMPRESAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("BoletimInformativo.findEmpresaByStatusAndDataPublicacao"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -204,7 +204,7 @@ public enum QueryAdmin {
         }
         
     },
-    EMPRESAS_ATIVAS_COM_PUBLICACOES_A_DIVULGAR("Boletim.findEmpresaByStatusAndDataPublicacao"){
+    EMPRESAS_ATIVAS_COM_PUBLICACOES_A_DIVULGAR("BoletimInformativo.findEmpresaByStatusAndDataPublicacao"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -248,7 +248,7 @@ public enum QueryAdmin {
             return super.extractArguments(args).set("status", StatusColaborador.EXCLUIDO);
         }
     },
-    BOLETINS_PROCESSANDO("Boletim.findByStatus"){
+    BOLETINS_PROCESSANDO("BoletimInformativo.findByStatus"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -274,7 +274,7 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_STATUS_BOLETIM("Boletim.updateStatus", "empresa", "boletim", "status"),
+    UPDATE_STATUS_BOLETIM("BoletimInformativo.updateStatus", "empresa", "boletim", "status"),
     UPDATE_STATUS_DOCUMENTO("Documento.updateStatus", "empresa", "documento", "status"),
     COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveEmpresa", "idColaborador", "ultimaAlteracao"),
     INSCRICOES_EVENTOS_ATIVOS("InscricaoEvento.findAtivosByEmpresa", "tipo", "chaveEmpresa"){

@@ -42,7 +42,7 @@ import lombok.ToString;
 @Getter
 @Entity
 @NoArgsConstructor
-@IdClass(RespostaEnqueteColaboradorId.class)
+@IdClass(RespostaEnqueteId.class)
 @Table(name = "tb_resposta_enquete")
 @ToString(of = {"colaborador", "enquete"})
 @EqualsAndHashCode(of = {"colaborador", "enquete"})

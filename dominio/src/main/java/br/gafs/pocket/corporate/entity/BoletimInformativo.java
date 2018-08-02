@@ -35,10 +35,10 @@ import java.util.Map;
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroEmpresaId.class)
 @NamedQueries({
-    @NamedQuery(name = "Boletim.findEmpresaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.empresa i where i.status = :statusEmpresa and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
-    @NamedQuery(name = "Boletim.updateNaoDivulgadosByEmpresa", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.empresa.chave = :empresa and b.tipo = :tipo"),
-    @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
-    @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.empresa.chave = :empresa")
+    @NamedQuery(name = "BoletimInformativo.findEmpresaByStatusAndDataPublicacao", query = "select i from BoletimInformativo b inner join b.empresa i where i.status = :statusEmpresa and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
+    @NamedQuery(name = "BoletimInformativo.updateNaoDivulgadosByEmpresa", query = "update BoletimInformativo b set b.divulgado = true where b.dataPublicacao <= :data and b.empresa.chave = :empresa and b.tipo = :tipo"),
+    @NamedQuery(name = "BoletimInformativo.findByStatus", query = "select b from BoletimInformativo b where b.status = :status order by b.dataPublicacao"),
+    @NamedQuery(name = "BoletimInformativo.updateStatus", query = "update BoletimInformativo b set b.status = :status where b.id = :boletim and b.empresa.chave = :empresa")
 })
 public class BoletimInformativo implements ArquivoPDF {
 

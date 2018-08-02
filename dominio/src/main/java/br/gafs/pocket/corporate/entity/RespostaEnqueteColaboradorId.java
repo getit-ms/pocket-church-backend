@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = {"enquete", "colaborador"})
+@EqualsAndHashCode(of = {"idEnquete", "idColaborador","chaveEmpresa"})
 public class RespostaEnqueteColaboradorId implements Serializable {
     private Long idEnquete;
     private Long idColaborador;

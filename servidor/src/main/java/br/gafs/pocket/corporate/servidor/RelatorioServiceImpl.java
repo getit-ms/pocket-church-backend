@@ -80,7 +80,7 @@ public class RelatorioServiceImpl implements RelatorioService {
     }
 
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public File exportaResultadosEnquete(Long enquete, String tipo) throws IOException, InterruptedException {
         return export(new RelatorioResultadoEnquete(appService.buscaResultado(enquete)), tipo);
     }

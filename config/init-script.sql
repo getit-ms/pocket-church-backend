@@ -1,10 +1,10 @@
-insert into tb_empresa(chave_empresa, nome, status, id_plano, template, locale, timezone, nome_aplicativo, id_biblia)
-	values('<chave_empresa>', '<nome_empresa>', 0, 1, 1, 'pt-br', 'America/Sao_Paulo', '<nome_aplicativo_empresa>', 1);
+insert into tb_empresa(chave_empresa, nome, status, id_plano, locale, timezone, nome_aplicativo)
+	values('<chave_empresa>', '<nome_empresa>', 0, 1, 'pt-br', 'America/Sao_Paulo', '<nome_aplicativo_empresa>');
 	
 insert into tb_endereco(id_endereco) values(nextval('seq_endereco'));
 
-insert into tb_colaborador(id_colaborador, email, nome, senha, status, chave_empresa, pastor, id_endereco, visitante)	values
-	(nextval('seq_colaborador'), 'getitmobilesolutions@gmail.com', 'GET IT Mobile Solutions', '8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92', 0, '<chave_empresa>', 'f', (select max(id_endereco) from tb_endereco), true);
+insert into tb_colaborador(id_colaborador, email, nome, senha, status, chave_empresa, gerente, id_endereco, visitante, dados_disponiveis, deseja_disponibilizar_dados)	values
+	(nextval('seq_colaborador'), 'getitmobilesolutions@gmail.com', 'GET IT Mobile Solutions', '8D969EEF6ECAD3C29A3A629280E686CF0C3F5D5A86AFF3CA12020C923ADC6C92', 0, '<chave_empresa>', 'f', (select max(id_endereco) from tb_endereco), true, true, true);
 
 insert into tb_acesso(id_colaborador, chave_empresa) values((select max(id_colaborador) from tb_colaborador), '<chave_empresa>');
 

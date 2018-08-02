@@ -512,7 +512,7 @@ public class AppServiceImpl implements AppService {
                         LOGGER.info("Agendando processamento do boletim " + boletimInformativo.getId());
                         processamentoService.schedule(new ProcessamentoBoletim(boletimInformativo));
                     }else{
-                        LOGGER.info("Boletim já encontra-se em processamento: " + boletimInformativo.getId());
+                        LOGGER.info("BoletimInformativo já encontra-se em processamento: " + boletimInformativo.getId());
                     }
                 }catch(Exception e){
                     LOGGER.log(Level.SEVERE, "Erro ao tentar processar boletim " + boletimInformativo.getId(), e);
@@ -888,7 +888,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     @AllowColaborador(Funcionalidade.RESPONDER_ENQUETE)
     public ResultadoEnqueteDTO buscaResultado(Long enquete) {
         Enquete entidade = buscaEnquete(enquete);
@@ -922,7 +922,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public Enquete cadastra(Enquete enquete) {
         enquete.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         preencheRelacionamentos(enquete);
@@ -946,14 +946,14 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public Enquete atualiza(Enquete enquete) {
         preencheRelacionamentos(enquete);
         return daoService.update(enquete);
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     @AllowColaborador(Funcionalidade.RESPONDER_ENQUETE)
     public Enquete buscaEnquete(Long enquete) {
         return daoService.find(Enquete.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), enquete));
@@ -961,7 +961,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public void removeEnquete(Long enquete) {
         Enquete entidade = buscaEnquete(enquete);
         
@@ -976,7 +976,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
+    @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public BuscaPaginadaDTO<Enquete> buscaTodas(FiltroEnqueteDTO filtro) {
         BuscaPaginadaDTO<Object[]> busca = daoService.findWith(new FiltroEnquete(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), filtro));
 
