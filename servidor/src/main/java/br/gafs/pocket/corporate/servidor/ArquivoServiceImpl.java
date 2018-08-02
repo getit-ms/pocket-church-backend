@@ -47,7 +47,7 @@ public class ArquivoServiceImpl implements ArquivoService {
     @Override
     @AllowColaborador
     @AllowAdmin({
-            Funcionalidade.MANTER_COLABORADORS,
+            Funcionalidade.MANTER_COLABORADORES,
             Funcionalidade.MANTER_BOLETINS,
             Funcionalidade.MANTER_PUBLICACOES,
             Funcionalidade.MANTER_DOCUMENTOS,

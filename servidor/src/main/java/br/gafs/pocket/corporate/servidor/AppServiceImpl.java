@@ -244,7 +244,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_COLABORADORS)
+    @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public Colaborador cadastra(Colaborador colaborador) {
         colaborador.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         if (colaborador.getFoto() != null) {
@@ -256,7 +256,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Colaborador darAcessoColaborador(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
         
@@ -314,7 +314,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Colaborador retiraAcessoColaborador(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
         
@@ -327,7 +327,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Acesso buscaAcessoAdmin(Long colaborador) {
         return daoService.find(Acesso.class, new AcessoId(new RegistroEmpresaId(
                 sessaoBean.getChaveEmpresa(), colaborador)));
@@ -335,7 +335,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_COLABORADORS)
+    @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public void removeColaborador(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
         
@@ -347,7 +347,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public void redefinirSenha(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
 
@@ -383,7 +383,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Acesso darAcessoAdmin(Long colaborador, List<Perfil> perfis) {
         Colaborador entidade = buscaColaborador(colaborador);
         
@@ -398,7 +398,7 @@ public class AppServiceImpl implements AppService {
         
         acesso.setPerfis(perfis);
 
-        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)){
+        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)){
             if (entidade.getId().equals(sessaoBean.getIdColaborador())) {
                 throw new ServiceException("mensagens.MSG-015");
             }
@@ -409,7 +409,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORS)
+    @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public void retiraAcessoAdmin(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
         
@@ -429,7 +429,7 @@ public class AppServiceImpl implements AppService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_COLABORADORS)
+    @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public Colaborador atualiza(Colaborador colaborador) {
         if (colaborador.getFoto() != null) {
             arquivoService.registraUso(colaborador.getFoto().getId());
@@ -440,8 +440,8 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin({
-            Funcionalidade.MANTER_COLABORADORS,
-            Funcionalidade.GERENCIAR_ACESSO_COLABORADORS
+            Funcionalidade.MANTER_COLABORADORES,
+            Funcionalidade.GERENCIAR_ACESSO_COLABORADORES
     })
     @AllowColaborador({
             Funcionalidade.CONSULTAR_CONTATOS_EMPRESA
@@ -452,8 +452,8 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin({
-            Funcionalidade.MANTER_COLABORADORS,
-            Funcionalidade.GERENCIAR_ACESSO_COLABORADORS
+            Funcionalidade.MANTER_COLABORADORES,
+            Funcionalidade.GERENCIAR_ACESSO_COLABORADORES
     })
     @AllowColaborador({
             Funcionalidade.CONSULTAR_CONTATOS_EMPRESA
@@ -494,7 +494,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin({
         Funcionalidade.MANTER_PERFIS,
-        Funcionalidade.MANTER_COLABORADORS
+        Funcionalidade.MANTER_COLABORADORES
     })
     public List<Perfil> buscaPerfis() {
         return daoService.findWith(QueryAdmin.PERFIS.create(sessaoBean.getChaveEmpresa()));
@@ -1046,7 +1046,7 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
-    @AllowColaborador(Funcionalidade.AGENDAR_ACONSELHAMENTO)
+    @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public AgendamentoAtendimento agenda(Long colaborador, Long idHorario, Date data) {
         if (!sessaoBean.isAdmin()) {
             return _agenda(buscaColaborador(sessaoBean.getIdColaborador()), idHorario, data);
@@ -1088,7 +1088,7 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
-    @AllowColaborador(Funcionalidade.AGENDAR_ACONSELHAMENTO)
+    @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public AgendamentoAtendimento confirma(Long id) {
         AgendamentoAtendimento agendamento = buscaAgendamento(id);
         
@@ -1121,7 +1121,7 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
-    @AllowColaborador(Funcionalidade.AGENDAR_ACONSELHAMENTO)
+    @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public AgendamentoAtendimento cancela(Long id) {
         AgendamentoAtendimento agendamento = buscaAgendamento(id);
         
@@ -1189,7 +1189,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Override
-    @AllowColaborador(Funcionalidade.AGENDAR_ACONSELHAMENTO)
+    @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public BuscaPaginadaDTO<AgendamentoAtendimento> buscaMeusAgendamentos(FiltroMeusAgendamentoDTO filtro) {
         return daoService.findWith(new FiltroMeusAgendamentos(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), filtro));
     }
@@ -1220,7 +1220,7 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
-    @AllowColaborador(Funcionalidade.AGENDAR_ACONSELHAMENTO)
+    @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public List<CalendarioAtendimento> buscaCalendarios() {
         return daoService.findWith(QueryAdmin.CALENDARIOS.create(sessaoBean.getChaveEmpresa()));
     }
@@ -1293,7 +1293,7 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
-    @AllowColaborador(Funcionalidade.AGENDAR_ACONSELHAMENTO)
+    @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public List<EventoAgendaDTO> buscaAgenda(Long idCalendario, Date dataInicio, Date dataTermino) {
         Date dataAtual = DateUtil.incrementaHoras(DateUtil.getDataAtual(), 3);
         

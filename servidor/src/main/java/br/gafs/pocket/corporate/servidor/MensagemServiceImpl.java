@@ -56,7 +56,7 @@ public class MensagemServiceImpl implements MensagemService {
     private ObjectMapper om = new ObjectMapper();
 
     private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
-    private static List<RegistroEmpresaId> COLABORADORS_LIDOS = new ArrayList<RegistroEmpresaId>();
+    private static List<RegistroEmpresaId> COLABORADORES_LIDOS = new ArrayList<RegistroEmpresaId>();
 
     @Schedule(minute = "*/5", hour = "*")
     public void enviaPushAgendados(){
@@ -113,9 +113,9 @@ public class MensagemServiceImpl implements MensagemService {
 
         {
             Set<RegistroEmpresaId> flush = new HashSet<RegistroEmpresaId>();
-            synchronized (COLABORADORS_LIDOS){
-                flush.addAll(COLABORADORS_LIDOS);
-                COLABORADORS_LIDOS.clear();
+            synchronized (COLABORADORES_LIDOS){
+                flush.addAll(COLABORADORES_LIDOS);
+                COLABORADORES_LIDOS.clear();
             }
 
 
@@ -138,8 +138,8 @@ public class MensagemServiceImpl implements MensagemService {
         }
 
         if (idColaborador != null){
-            synchronized (COLABORADORS_LIDOS){
-                COLABORADORS_LIDOS.add(new RegistroEmpresaId(chaveEmpresa, idColaborador));
+            synchronized (COLABORADORES_LIDOS){
+                COLABORADORES_LIDOS.add(new RegistroEmpresaId(chaveEmpresa, idColaborador));
             }
         }
     }
@@ -157,8 +157,8 @@ public class MensagemServiceImpl implements MensagemService {
     public Long countNotificacoesNaoLidas(String chaveEmpresa, String chaveDispositivo, Long idColaborador) {
 
         if (idColaborador != null){
-            synchronized (COLABORADORS_LIDOS){
-                if (COLABORADORS_LIDOS.contains(new RegistroEmpresaId(chaveEmpresa, idColaborador))){
+            synchronized (COLABORADORES_LIDOS){
+                if (COLABORADORES_LIDOS.contains(new RegistroEmpresaId(chaveEmpresa, idColaborador))){
                     return 0l;
                 }
             }

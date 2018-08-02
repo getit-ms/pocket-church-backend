@@ -23,7 +23,7 @@ public class FiltroBoletim extends AbstractPaginatedFiltro<FiltroBoletimDTO> {
     public FiltroBoletim(String empresa, boolean admin, FiltroBoletimDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Boletim b where b.empresa.chave = :chaveEmpresa and b.tipo = :tipo");
+        StringBuilder query = new StringBuilder("from BoletimInformativo b where b.empresa.chave = :chaveEmpresa and b.tipo = :tipo");
         Map<String, Object> args = new QueryParameters("chaveEmpresa", empresa).set("tipo", filtro.getTipo());
 
         if (!admin){

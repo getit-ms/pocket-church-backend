@@ -41,7 +41,7 @@ public class AdminServiceImpl implements AdminService {
     
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_COLABORADORS)
+    @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public Arquivo upload(String fileName, byte[] fileData) {
         return daoService.update(new Arquivo(null, fileName, fileData));
     }
