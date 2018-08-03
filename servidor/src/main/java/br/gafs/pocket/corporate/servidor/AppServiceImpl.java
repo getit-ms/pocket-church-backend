@@ -902,7 +902,7 @@ public class AppServiceImpl implements AppService {
         filtro.setApenasGerentes(notificacao.isApenasGerentes());
 
         for (LotacaoColaborador lotacao : notificacao.getLotacoes()) {
-            filtro.getLotacoes().add(lotacao.getid);
+            filtro.getLotacoes().add(lotacao.getId());
         }
 
         enviaPush(filtro, notificacao.getTitulo(), notificacao.getMensagem(), TipoNotificacao.NOTIFICACAO, false);
