@@ -1022,15 +1022,15 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaDTO<Enquete> buscaTodas(FiltroEnqueteDTO filtro) {
         BuscaPaginadaDTO<Object[]> busca = daoService.findWith(new FiltroEnquete(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), filtro));
 
-        List<Enquete> votacoes = new ArrayList<>();
+        List<Enquete> enquetes = new ArrayList<>();
 
         for (Object[] os : busca) {
             Enquete enquete = (Enquete) os[0];
             enquete.setRespondido(((Number) os[1]).intValue() > 0);
-            votacoes.add(enquete);
+            enquetes.add(enquete);
         }
 
-        return new BuscaPaginadaDTO<>(votacoes, busca.getTotalResultados(), busca.getPagina(), filtro.getTotal());
+        return new BuscaPaginadaDTO<>(enquetes, busca.getTotalResultados(), busca.getPagina(), filtro.getTotal());
     }
     
     @Override
@@ -1514,8 +1514,8 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
-    public MensagemDia desabilita(Long versiculo) {
-        MensagemDia entidade = buscaVersiculo(versiculo);
+    public MensagemDia desabilita(Long mensagemDia) {
+        MensagemDia entidade = buscaMensagemDia(mensagemDia);
         entidade.desabilitado();
         return daoService.update(entidade);
     }
@@ -1523,8 +1523,8 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
-    public MensagemDia habilita(Long versiculo) {
-        MensagemDia entidade = buscaVersiculo(versiculo);
+    public MensagemDia habilita(Long mensagemDia) {
+        MensagemDia entidade = buscaMensagemDia(mensagemDia);
         entidade.habilitado();
         Number minimo = daoService.findWith(QueryAdmin.MENOR_ENVIO_MENSAGEM_DIAS.createSingle(sessaoBean.getChaveEmpresa()));
         if (minimo != null){
@@ -1535,7 +1535,7 @@ public class AppServiceImpl implements AppService {
     
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
-    public MensagemDia buscaVersiculo(Long mensagemDia) {
+    public MensagemDia buscaMensagemDia(Long mensagemDia) {
         return daoService.find(MensagemDia.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), mensagemDia));
     }
     
@@ -1543,7 +1543,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
     public void removeMensagemDia(Long mensagemDia) {
-        MensagemDia entidade = buscaVersiculo(mensagemDia);
+        MensagemDia entidade = buscaMensagemDia(mensagemDia);
         daoService.delete(MensagemDia.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
     }
     
@@ -2048,7 +2048,7 @@ public class AppServiceImpl implements AppService {
     }
     
     @Schedule(hour = "*")
-    public void enviaVersiculos() {
+    public void enviaMensagensDia() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
@@ -2061,10 +2061,10 @@ public class AppServiceImpl implements AppService {
                     atual = daoService.update(atual);
                 }
                 
-                MensagemDia versiculo = daoService.findWith(QueryAdmin.SORTEIA_MENSAGEM_DIA.createSingle(empresa.getId()));
-                if (versiculo != null){
-                    versiculo.ativo();
-                    atual = daoService.update(versiculo);
+                MensagemDia mensagemDia = daoService.findWith(QueryAdmin.SORTEIA_MENSAGEM_DIA.createSingle(empresa.getId()));
+                if (mensagemDia != null){
+                    mensagemDia.ativo();
+                    atual = daoService.update(mensagemDia);
                 }
             }
             

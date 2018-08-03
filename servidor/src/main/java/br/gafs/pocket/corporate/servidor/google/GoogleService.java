@@ -155,13 +155,13 @@ public class GoogleService {
     private Calendar connectCalendar(String empresa) throws IOException {
         return new Calendar.Builder(new ApacheHttpTransport(), new JacksonFactory(),
                 loadCredentials(GOOGLE_CALENDAR_CHAVE, empresa, GOOGLE_CALENDAR_SCOPES))
-                .setApplicationName("Pocket Church").build();
+                .setApplicationName("Pocket Corporate").build();
     }
 
     private YouTube connectYouTube(String empresa) throws IOException {
         return new YouTube.Builder(new ApacheHttpTransport(), new JacksonFactory(),
                 loadCredentials(YOUTUBE_CHAVE, empresa, YOUTUBE_SCOPES))
-                .setApplicationName("Pocket Church").build();
+                .setApplicationName("Pocket Corporate").build();
 
     }
 

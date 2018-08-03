@@ -147,18 +147,10 @@ public class AcessoController {
     @Path("horariosMensagemDia")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaHorariosVersiculosDiarios(){
+    public Response buscaHorariosMensagensDia(){
         return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
     }
     
-    @GET
-    @Path("horariosLembretesLeitura")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaHorariosLembretesLeitura(){
-        return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
-    }
-
     @GET
     @Path("menu")
     @Consumes(MediaType.APPLICATION_JSON)

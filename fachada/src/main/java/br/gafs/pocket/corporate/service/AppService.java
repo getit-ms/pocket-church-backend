@@ -131,11 +131,11 @@ public interface AppService extends Serializable {
     void cancelaInscricao(Long evento, Long inscricao);
     
     MensagemDia cadastra(MensagemDia mensagemDia);
-    MensagemDia habilita(Long versiculo);
-    MensagemDia desabilita(Long versiculo);
+    MensagemDia habilita(Long mensagemDia);
+    MensagemDia desabilita(Long mensagemDia);
     void removeMensagemDia(Long mensagemDia);
     BuscaPaginadaDTO<MensagemDia> busca(FiltroMensagemDiaDTO filtro);
-    MensagemDia buscaVersiculo(Long mensagemDia);
+    MensagemDia buscaMensagemDia(Long mensagemDia);
     
     Empresa buscaPorChave(String propriedade);
     

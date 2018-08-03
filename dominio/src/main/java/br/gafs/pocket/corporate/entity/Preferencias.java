@@ -61,7 +61,7 @@ public class Preferencias implements IEntity {
     @Setter
     @View.MergeViews(View.Edicao.class)
     @Column(name = "deseja_receber_mensagens_dia")
-    private boolean desejaReceberVersiculosDiarios = true;
+    private boolean desejaReceberMensagensDia = true;
 
     @Setter
     @View.MergeViews(View.Edicao.class)
@@ -104,7 +104,7 @@ public class Preferencias implements IEntity {
     }
 
     public void copia(Preferencias outro){
-        outro.setDesejaReceberVersiculosDiarios(desejaReceberVersiculosDiarios);
+        outro.setDesejaReceberMensagensDia(desejaReceberMensagensDia);
         outro.setDesejaReceberNotificacoesVideos(desejaReceberNotificacoesVideos);
         outro.setDadosDisponiveis(dadosDisponiveis);
         outro.setHoraMensagemDia(horaMensagemDia);
