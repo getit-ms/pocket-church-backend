@@ -56,7 +56,7 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     
     @Transient
     @JsonIgnore
-    @Attachment(load = false, root = "/calvin/files")
+    @Attachment(load = false, root = "/pcorporate/files")
     private byte[] dados;
     
     @Id
