@@ -184,11 +184,9 @@ public class ProcessamentoService {
                             return;
                         }else{
                             LOGGER.log(Level.SEVERE, "Processamento com erro: " + processamento.getClass() + " - " + processamento.getId(), e);
-                            continue;
                         }
                     } catch (Exception e1) {
                         LOGGER.log(Level.SEVERE, null, e1);
-                        continue;
                     }
                 }
             }while(fail || tool.next(total));

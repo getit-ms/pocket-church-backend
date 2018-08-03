@@ -24,8 +24,8 @@ import java.util.Date;
 @IdClass(RegistroEmpresaId.class)
 @EqualsAndHashCode(of = {"empresa", "id"})
 @NamedQueries({
-        @NamedQuery(name = "Noticia.findEmpresaNaoDivultadosByDataPublicacao", query = "select i from Noticia n inner join n.empresa i where i.status = :statusEmpresa and n.divulgado = false and n.dataPublicacao <= :data group by i"),
-        @NamedQuery(name = "Noticia.updateNaoDivulgadosByEmpresa", query = "update Noticia n set n.divulgado = true where n.empresa.chave = :empresa and n.dataPublicacao <= :data"),
+        @NamedQuery(name = "Noticia.findEmpresaNaoDivultadosByDataPublicacao", query = "select i from Noticia n inner join n.empresa i where i.status = :statusEmpresa and n.divulgado = false and n.dataPublicacao <= :data and n.tipo = :tipoNoticia group by i"),
+        @NamedQuery(name = "Noticia.updateNaoDivulgadosByEmpresa", query = "update Noticia n set n.divulgado = true where n.empresa.chave = :empresa and n.dataPublicacao <= :data and n.tipo = :tipoNoticia"),
 })
 public class Noticia implements IEntity {
     @Id

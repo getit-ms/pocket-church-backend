@@ -58,8 +58,8 @@ public class MensagemDia implements IEntity {
     
     @NotEmpty
     @Length(max = 250)
-    @Column(name = "versiculo", nullable = false, length = 250)
-    private String versiculo;
+    @Column(name = "mensagem", nullable = false, length = 250)
+    private String mensagem;
     
     @Enumerated(EnumType.ORDINAL)
     @View.MergeViews(View.Edicao.class)

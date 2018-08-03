@@ -2212,7 +2212,7 @@ public class AppServiceImpl implements AppService {
     public void enviaNotificacoesNoticias() {
         LOGGER.info("Iniciando envio de notificações de notícia.");
 
-        List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create());
+        List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create(TipoNoticia.NOTICIA));
 
         LOGGER.info(empresas.size() +" empresas encontrada para notificação de notícias.");
 
@@ -2235,13 +2235,47 @@ public class AppServiceImpl implements AppService {
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.NOTICIA, false);
 
-                daoService.execute(QueryAdmin.UPDATE_NOTICIAS_NAO_DIVULGADAS.create(empresa.getChave()));
+                daoService.execute(QueryAdmin.UPDATE_NOTICIAS_NAO_DIVULGADAS.create(empresa.getChave(), TipoNoticia.NOTICIA));
             } else {
                 LOGGER.info(empresa.getChave() + " fora do horário para envio de notiicações de notícias.");
             }
         }
     }
-    
+
+    @Schedule(hour = "*")
+    public void enviaNotificacoesClassificados() {
+        LOGGER.info("Iniciando envio de notificações de classificados.");
+
+        List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create(TipoNoticia.CLASSIFICADOS));
+
+        LOGGER.info(empresas.size() +" empresas encontrada para notificação de notícias.");
+
+        for (Empresa empresa : empresas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                LOGGER.info("Preparando envio de notificações de notícia para " + empresa.getChave());
+
+                String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_CLASSIFICADOS);
+                if (StringUtil.isEmpty(titulo)){
+                    titulo = MensagemUtil.getMensagem("push.classificados.title", empresa.getLocale());
+                }
+
+                String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_CLASSIFICADOS);
+                if (StringUtil.isEmpty(texto)){
+                    texto = MensagemUtil.getMensagem("push.classificados.message", empresa.getLocale(), empresa.getNome());
+                }
+
+                enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.CLASSIFICADOS, false);
+
+                daoService.execute(QueryAdmin.UPDATE_NOTICIAS_NAO_DIVULGADAS.create(empresa.getChave(), TipoNoticia.CLASSIFICADOS));
+            } else {
+                LOGGER.info(empresa.getChave() + " fora do horário para envio de notiicações de notícias.");
+            }
+        }
+    }
+
     @Schedule(hour = "*", minute = "*/5")
     public void enviaNotificacoesYouTubeAoVivo() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());

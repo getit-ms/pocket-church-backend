@@ -183,7 +183,7 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_NOTICIAS_NAO_DIVULGADAS("Noticia.updateNaoDivulgadosByEmpresa", "empresa"){
+    UPDATE_NOTICIAS_NAO_DIVULGADAS("Noticia.updateNaoDivulgadosByEmpresa", "empresa", "tipoNoticia"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -226,7 +226,7 @@ public enum QueryAdmin {
         }
 
     },
-    EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR("Noticia.findEmpresaNaoDivultadosByDataPublicacao"){
+    EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR("Noticia.findEmpresaNaoDivultadosByDataPublicacao", "tipoNoticia"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
