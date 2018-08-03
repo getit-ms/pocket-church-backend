@@ -2059,7 +2059,7 @@ public class AppServiceImpl implements AppService {
                 for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
                     if (hev.getHoraInt().equals(hora)){
                         enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, hev),
-                                titulo, atual.getVersiculo(), TipoNotificacao.MENSAGEM_DIA, true);
+                                titulo, atual.getMensagem(), TipoNotificacao.MENSAGEM_DIA, true);
                         break;
                     }
                 }
