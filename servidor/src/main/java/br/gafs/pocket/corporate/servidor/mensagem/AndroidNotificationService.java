@@ -54,7 +54,7 @@ public class AndroidNotificationService implements Serializable {
 
     private boolean doSendNotification(PushAndroidDTO notification, String chave) {
         try{
-            HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://gcm-http.googleapis.com/gcm/send").openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://fcm.googleapis.com/fcm/send").openConnection();
 
             urlConnection.setRequestMethod("POST");
             urlConnection.addRequestProperty("Content-Type", "application/json");
