@@ -284,6 +284,8 @@ public enum QueryAdmin {
         }
     },
     CATEGORIA_DOCUMENTO_POR_EMPRESA_NOME("CategoriaDocumento.findByEmpresaAndNome", "empresa", "nome"),
+    CATEGORIA_AUDIO_POR_EMPRESA_NOME("CategoriaAudio.findByEmpresaAndNome", "empresa", "nome"),
+    LOTACAO_COLABORADOR_POR_EMPRESA_NOME("LotacaoColaborador.findByEmpresaAndNome", "empresa", "nome"),
     LOTACAO_COLABORADOR("LotacaoColaborador.findByEmpresa", "empresa"),
     CATEGORIA_DOCUMENTO("CategoriaDocumento.findByEmpresa", "empresa"),
     CATEGORIA_AUDIO("CategoriaAudio.findByEmpresa", "empresa"),

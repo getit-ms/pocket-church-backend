@@ -27,7 +27,7 @@ public class FiltroMensagemDia extends AbstractPaginatedFiltro<FiltroMensagemDia
         
         
         if (!StringUtil.isEmpty(filtro.getFiltro())){
-            where.append(" and upper(vd.versiculo) like :filtro");
+            where.append(" and upper(vd.mensagem) like :filtro");
             args.put("filtro", "%" + filtro.getFiltro().toUpperCase() + "%");
         }
         
@@ -35,7 +35,7 @@ public class FiltroMensagemDia extends AbstractPaginatedFiltro<FiltroMensagemDia
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select vd ").append(query).append(" order by vd.versiculo").toString());
+        setQuery(new StringBuilder("select vd ").append(query).append(" order by vd.mensagem").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(vd) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());

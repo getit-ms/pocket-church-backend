@@ -247,19 +247,28 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public Colaborador cadastra(Colaborador colaborador) {
         colaborador.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+
         if (colaborador.getFoto() != null) {
             arquivoService.registraUso(colaborador.getFoto().getId());
             colaborador.setFoto(arquivoService.buscaArquivo(colaborador.getFoto().getId()));
         }
+
+        if (colaborador.getLotacao() != null) {
+            colaborador.setLotacao(daoService.find(LotacaoColaborador.class,
+                    new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), colaborador.getLotacao().getId())));
+        } else {
+            colaborador.setLotacao(null);
+        }
+
         return daoService.create(colaborador);
     }
 
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
-    public LotacaoColaborador cadastra(LotacaoColaborador categoria) {
-        categoria.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
-        return daoService.create(categoria);
+    public LotacaoColaborador cadastra(LotacaoColaborador lotacao) {
+        lotacao.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+        return daoService.create(lotacao);
     }
 
     @Override
@@ -448,10 +457,19 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public Colaborador atualiza(Colaborador colaborador) {
+
         if (colaborador.getFoto() != null) {
             arquivoService.registraUso(colaborador.getFoto().getId());
             colaborador.setFoto(arquivoService.buscaArquivo(colaborador.getFoto().getId()));
         }
+
+        if (colaborador.getLotacao() != null) {
+            colaborador.setLotacao(daoService.find(LotacaoColaborador.class,
+                    new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), colaborador.getLotacao().getId())));
+        } else {
+            colaborador.setLotacao(null);
+        }
+
         return daoService.update(colaborador);
     }
     
