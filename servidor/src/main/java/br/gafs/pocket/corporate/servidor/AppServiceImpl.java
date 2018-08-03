@@ -616,14 +616,17 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public BoletimInformativo cadastra(BoletimInformativo boletimInformativo) throws IOException {
+        boletimInformativo.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         boletimInformativo.setBoletim(arquivoService.buscaArquivo(boletimInformativo.getBoletim().getId()));
         boletimInformativo.setUltimaAlteracao(DateUtil.getDataAtual());
+
         if (trataTrocaPDF(boletimInformativo)){
             boletimInformativo.processando();
 
             processamentoService.schedule(new ProcessamentoBoletim(boletimInformativo));
         }
-        return daoService.update(boletimInformativo);
+
+        return daoService.create(boletimInformativo);
     }
 
     @Audit
