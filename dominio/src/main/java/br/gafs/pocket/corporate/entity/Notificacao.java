@@ -56,7 +56,7 @@ public class Notificacao implements IEntity {
                     @JoinColumn(name = "chave_empresa", referencedColumnName = "chave_empresa"),
             },
             inverseJoinColumns = {
-                    @JoinColumn(name = "id_lotacao", referencedColumnName = "id_lotacao_colaboardor"),
+                    @JoinColumn(name = "id_lotacao", referencedColumnName = "id_lotacao_colaborador"),
                     @JoinColumn(name = "chave_empresa", referencedColumnName = "chave_empresa", insertable = false, updatable = false),
             })
     private List<LotacaoColaborador> lotacoes;
