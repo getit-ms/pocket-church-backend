@@ -30,23 +30,13 @@ public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
     public static StringBuilder query(FiltroDispositivoNotificacaoDTO filtro, StringBuilder from){
         StringBuilder where = new StringBuilder(" where d.chave_empresa = '").append(filtro.getEmpresa().getChave()).append("' and d.pushkey <> 'unknown' and d.id_colaborador is not null");
 
-        if (filtro.getLotacoes() != null && !filtro.getLotacoes().isEmpty()){
-            from.append(" inner join rl_lotacao_notificacao ln on ln.chave_empresa = d.chave_empresa and ln.chave_dispositivo = d.chave");
-
-            StringBuilder mins = new StringBuilder("(").append(filtro.getLotacoes().get(0));
-            for (int i=1;i<filtro.getLotacoes().size();i++){
-                mins.append(",").append(filtro.getLotacoes().get(i));
-            }
-            mins.append(")");
-            where.append(" and ln.id_lotacao in ").append(mins);
-        }
-
+        boolean filtraLotacoes = filtro.getLotacoes() != null && !filtro.getLotacoes().isEmpty();
 
         if (filtro.isDesejaReceberNotificacoesVideos()){
             where.append(" and p.deseja_receber_notificacoes_videos = true");
         }
 
-        if (filtro.getColaborador() != null || filtro.isApenasGerentes()) {
+        if (filtro.getColaborador() != null || filtro.isApenasGerentes() || filtraLotacoes) {
             from.append(" inner join tb_colaborador m on m.id_colaborador = d.id_colaborador and m.chave_empresa = d.chave_empresa");
 
             if (filtro.getColaborador() != null) {
@@ -56,6 +46,17 @@ public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
             if (filtro.isApenasGerentes()) {
                 where.append(" and m.gerente = true");
             }
+
+            if (filtraLotacoes){
+                StringBuilder mins = new StringBuilder("(").append(filtro.getLotacoes().get(0));
+                for (int i=1;i<filtro.getLotacoes().size();i++){
+                    mins.append(",").append(filtro.getLotacoes().get(i));
+                }
+                mins.append(")");
+
+                where.append(" and m.id_lotacao in ").append(mins);
+            }
+
         }
 
         if (filtro.getAniversario() != null){
