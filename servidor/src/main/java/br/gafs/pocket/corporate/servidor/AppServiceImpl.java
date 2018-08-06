@@ -306,7 +306,7 @@ public class AppServiceImpl implements AppService {
             String title = MensagemUtil.getMensagem("email.dar_acesso.message.title", entidade.getEmpresa().getLocale(),
                     entidade.getNome());
             String text = MensagemUtil.getMensagem("email.dar_acesso.message.text", entidade.getEmpresa().getLocale(),
-                    entidade.getEmpresa().getNome());
+                    entidade.getEmpresa().getNomeAplicativo());
             
             notificacaoService.sendNow(
                     MensagemUtil.email(recuperaInstitucional(), subject,
@@ -1121,7 +1121,7 @@ public class AppServiceImpl implements AppService {
                             MensagemUtil.formataHora(atendimento.getDataHoraFim(),
                                     atendimento.getEmpresa().getLocale(),
                                     atendimento.getEmpresa().getTimezone())),
-                    TipoNotificacao.ACONSELHAMENTO, false);
+                    TipoNotificacao.AGENDAMENTO, false);
         }
         
         return atendimento;
@@ -1155,7 +1155,7 @@ public class AppServiceImpl implements AppService {
                         MensagemUtil.formataHora(agendamento.getDataHoraFim(),
                                 agendamento.getEmpresa().getLocale(),
                                 agendamento.getEmpresa().getTimezone())),
-                TipoNotificacao.ACONSELHAMENTO, false);
+                TipoNotificacao.AGENDAMENTO, false);
         
         return agendamento;
     }
@@ -1193,7 +1193,7 @@ public class AppServiceImpl implements AppService {
                             MensagemUtil.formataHora(agendamento.getDataHoraFim(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone())),
-                    TipoNotificacao.ACONSELHAMENTO, false);
+                    TipoNotificacao.AGENDAMENTO, false);
         }else{
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getEmpresa(),
                     agendamento.getCalendario().getGerente().getId()),
@@ -1209,7 +1209,7 @@ public class AppServiceImpl implements AppService {
                             MensagemUtil.formataHora(agendamento.getDataHoraFim(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone())),
-                    TipoNotificacao.ACONSELHAMENTO, false);
+                    TipoNotificacao.AGENDAMENTO, false);
         }
         
         return agendamento;

@@ -59,7 +59,7 @@ public enum Funcionalidade {
     LISTAR_PUBLICACOES(Tipo.COLABORADOR, 38),
     NOTICIAS(Tipo.COLABORADOR, false, 44),
     CLASSIFICADOS(Tipo.COLABORADOR, false, 54),
-    AUDIOS(Tipo.COLABORADOR, false, 51),
+    AUDIOS(Tipo.COLABORADOR, false, 51, 7, 1, 0),
 
 
     INSTITUCIONAL(Tipo.FIXA, 43),
