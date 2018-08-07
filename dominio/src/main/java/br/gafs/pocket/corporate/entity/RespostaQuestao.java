@@ -86,7 +86,7 @@ public class RespostaQuestao implements IEntity {
         this.questao = questao;
     }
 
-    public Integer getQuantidadeRespostaEnqueteColaboradors() {
+    public Integer getQuantidadeRespostaEnqueteColaboradores() {
         return brancos + nulos + opcoes.size();
     }
     

@@ -16,8 +16,7 @@ import lombok.Getter;
 @Getter
 public enum HorasEnvioNotificacao {
     _08_00("08:00"),
-    _14_00("14:00"),
-    _20_00("20:00");
+    _14_00("14:00");
     
     private final Date hora;
     private final Integer horaInt;
