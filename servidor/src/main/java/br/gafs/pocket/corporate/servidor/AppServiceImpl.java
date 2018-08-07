@@ -914,6 +914,19 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.ENVIAR_NOTIFICACOES)
     public void enviar(Notificacao notificacao) {
         notificacao.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+
+        for (int i=0;i<notificacao.getLotacoes().size();) {
+            LotacaoColaborador lotacao = daoService.find(LotacaoColaborador.class, new RegistroEmpresaId(
+                    sessaoBean.getChaveEmpresa(), notificacao.getLotacoes().get(i).getId()
+            ));
+
+            if (lotacao == null) {
+                notificacao.getLotacoes().remove(i);
+            } else {
+                notificacao.getLotacoes().set(i, lotacao);
+                i++;
+            }
+        }
         
         if (StringUtil.isEmpty(notificacao.getTitulo())){
             notificacao.setTitulo(MensagemUtil.getMensagem("push.notificacao.title",
