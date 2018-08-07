@@ -1883,9 +1883,12 @@ public class AppServiceImpl implements AppService {
 
         audio.setTamamnhoArquivo(file.length());
 
-        Mp3File mp3 = new Mp3File(file);
-
-        audio.setTempoAudio(mp3.getLengthInSeconds());
+        try {
+            Mp3File mp3 = new Mp3File(file);
+            audio.setTempoAudio(mp3.getLengthInSeconds());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return daoService.create(audio);
     }
@@ -1893,7 +1896,7 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
-    public Audio atualiza(Audio audio) throws InvalidDataException, IOException, UnsupportedTagException {
+    public Audio atualiza(Audio audio) {
         if (!TipoAudio.LOCAL.equals(audio.getTipo())) {
             throw new ServiceException("mensagens.MSG-403");
         }
@@ -1929,11 +1932,14 @@ public class AppServiceImpl implements AppService {
 
             audio.setTamamnhoArquivo(file.length());
 
-            Mp3File mp3 = new Mp3File(file);
+            try {
+                Mp3File mp3 = new Mp3File(file);
+                audio.setTempoAudio(mp3.getLengthInSeconds());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
 
-            audio.setTempoAudio(mp3.getLengthInSeconds());
         }
-
 
         return daoService.update(audio);
     }

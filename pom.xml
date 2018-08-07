@@ -22,7 +22,7 @@
     
     <scm>
         <connection>scm:git:https://bitbucket.org/getit-team/pocket-corporate-backend</connection>
-        <tag>pocket-corporate-4.1.0</tag>
+        <tag>pocket-corporate-1.0.13</tag>
     </scm>
     
     <dependencyManagement>
