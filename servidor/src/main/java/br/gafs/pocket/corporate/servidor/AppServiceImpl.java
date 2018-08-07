@@ -36,6 +36,9 @@ import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -1857,7 +1860,7 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
-    public Audio cadastra(Audio audio) {
+    public Audio cadastra(Audio audio) throws InvalidDataException, IOException, UnsupportedTagException {
         audio.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
 
         audio.setTipo(TipoAudio.LOCAL);
@@ -1880,13 +1883,17 @@ public class AppServiceImpl implements AppService {
 
         audio.setTamamnhoArquivo(file.length());
 
+        Mp3File mp3 = new Mp3File(file);
+
+        audio.setTempoAudio(mp3.getLengthInSeconds());
+
         return daoService.create(audio);
     }
 
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
-    public Audio atualiza(Audio audio) {
+    public Audio atualiza(Audio audio) throws InvalidDataException, IOException, UnsupportedTagException {
         if (!TipoAudio.LOCAL.equals(audio.getTipo())) {
             throw new ServiceException("mensagens.MSG-403");
         }
@@ -1917,11 +1924,16 @@ public class AppServiceImpl implements AppService {
             arquivoService.registraDesuso(entidade.getAudio().getId());
 
             arquivoService.registraUso(audio.getAudio().getId());
+
+            File file = EntityFileManager.get(audio.getAudio(), "dados");
+
+            audio.setTamamnhoArquivo(file.length());
+
+            Mp3File mp3 = new Mp3File(file);
+
+            audio.setTempoAudio(mp3.getLengthInSeconds());
         }
 
-        File file = EntityFileManager.get(audio.getAudio(), "dados");
-
-        audio.setTamamnhoArquivo(file.length());
 
         return daoService.update(audio);
     }

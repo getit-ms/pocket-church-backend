@@ -116,7 +116,11 @@
                 <version>7.0</version>
                 <scope>provided</scope>
             </dependency>
-            
+            <dependency>
+                <groupId>com.mpatric</groupId>
+                <artifactId>mp3agic</artifactId>
+                <version>0.9.1</version>
+            </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>

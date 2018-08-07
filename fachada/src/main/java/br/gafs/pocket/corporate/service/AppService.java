@@ -10,6 +10,8 @@ import br.gafs.pocket.corporate.dto.*;
 import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.TipoVersao;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.UnsupportedTagException;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,8 +67,8 @@ public interface AppService extends Serializable {
 
     List<CategoriaAudio> buscaCategoriasAudio();
     CategoriaAudio cadastra(CategoriaAudio categoria);
-    Audio cadastra(Audio documento);
-    Audio atualiza(Audio documento);
+    Audio cadastra(Audio documento) throws InvalidDataException, IOException, UnsupportedTagException, com.mpatric.mp3agic.InvalidDataException, UnsupportedTagException;
+    Audio atualiza(Audio documento) throws InvalidDataException, IOException, UnsupportedTagException, com.mpatric.mp3agic.InvalidDataException;
     void removeAudio(Long audio);
     BuscaPaginadaDTO<Audio> buscaTodos(FiltroAudioDTO filtro);
     Audio buscaAudio(Long audio);
