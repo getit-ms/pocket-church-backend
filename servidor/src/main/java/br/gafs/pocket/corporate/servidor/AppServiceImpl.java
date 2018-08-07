@@ -388,7 +388,7 @@ public class AppServiceImpl implements AppService {
             String title = MensagemUtil.getMensagem("email.nova_senha.message.title",
                     entidade.getEmpresa().getLocale(), entidade.getNome());
             String text = MensagemUtil.getMensagem("email.nova_senha.message.text",
-                    entidade.getEmpresa().getLocale(), entidade.getEmpresa().getNome());
+                    entidade.getEmpresa().getLocale(), entidade.getEmpresa().getNomeAplicativo());
 
             notificacaoService.sendNow(
                     MensagemUtil.email(daoService.find(Institucional.class, entidade.getEmpresa().getChave()), subject,

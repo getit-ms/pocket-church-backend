@@ -36,6 +36,10 @@ public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
             where.append(" and p.deseja_receber_notificacoes_videos = true");
         }
 
+        if (filtro.getHora() != null) {
+            where.append(" and p.deseja_receber_mensagens_dia = true and p.hora_mensagem_dia = ").append(filtro.getHora().ordinal());
+        }
+
         if (filtro.getColaborador() != null || filtro.isApenasGerentes() || filtraLotacoes) {
             from.append(" inner join tb_colaborador m on m.id_colaborador = d.id_colaborador and m.chave_empresa = d.chave_empresa");
 

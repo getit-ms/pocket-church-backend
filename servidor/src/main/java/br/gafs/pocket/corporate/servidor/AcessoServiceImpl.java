@@ -334,7 +334,7 @@ public class AcessoServiceImpl implements AcessoService {
             String title = MensagemUtil.getMensagem("email.nova_senha.message.title", 
                     colaborador.getEmpresa().getLocale(), colaborador.getNome());
             String text = MensagemUtil.getMensagem("email.nova_senha.message.text", 
-                    colaborador.getEmpresa().getLocale(), colaborador.getEmpresa().getNome());
+                    colaborador.getEmpresa().getLocale(), colaborador.getEmpresa().getNomeAplicativo());
             
             mensagemService.sendNow(
                     MensagemUtil.email(daoService.find(Institucional.class, colaborador.getEmpresa().getChave()), subject,
