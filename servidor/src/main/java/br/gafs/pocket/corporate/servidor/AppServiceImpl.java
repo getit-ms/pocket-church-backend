@@ -1860,7 +1860,7 @@ public class AppServiceImpl implements AppService {
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
-    public Audio cadastra(Audio audio) throws InvalidDataException, IOException, UnsupportedTagException {
+    public Audio cadastra(Audio audio) {
         audio.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
 
         audio.setTipo(TipoAudio.LOCAL);
