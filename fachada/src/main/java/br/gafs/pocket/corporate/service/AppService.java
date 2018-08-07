@@ -65,8 +65,8 @@ public interface AppService extends Serializable {
 
     List<CategoriaAudio> buscaCategoriasAudio();
     CategoriaAudio cadastra(CategoriaAudio categoria);
-    Audio cadastra(Audio documento) throws IOException;
-    Audio atualiza(Audio documento) throws IOException;
+    Audio cadastra(Audio documento);
+    Audio atualiza(Audio documento);
     void removeAudio(Long audio);
     BuscaPaginadaDTO<Audio> buscaTodos(FiltroAudioDTO filtro);
     Audio buscaAudio(Long audio);
