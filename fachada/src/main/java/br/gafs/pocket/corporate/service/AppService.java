@@ -10,7 +10,6 @@ import br.gafs.pocket.corporate.dto.*;
 import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.TipoVersao;
-import com.mpatric.mp3agic.UnsupportedTagException;
 
 import java.io.File;
 import java.io.IOException;
