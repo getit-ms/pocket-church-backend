@@ -84,11 +84,14 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     }
     
     private static String format(String nome){
+        nome = nome.replaceAll(" +", "_");
+
         if (nome.length() > 150){
             String extension = nome.substring(nome.lastIndexOf("."));
             nome = nome.substring(0, 150 - extension.length()) + extension;
         }
-        return nome;
+
+        return StringUtil.formataValor(nome, false, false);
     }
 
     @JsonIgnore
