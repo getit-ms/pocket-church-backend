@@ -1975,8 +1975,19 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public BuscaPaginadaDTO<Audio> buscaTodos(FiltroAudioDTO filtro) {
-        return daoService.findWith(new FiltroAudio(sessaoBean.getChaveEmpresa(), filtro));
+    public BuscaPaginadaAudioDTO buscaTodos(FiltroAudioDTO filtro) {
+        BuscaPaginadaDTO<Audio> resultado = daoService.findWith(new FiltroAudio(sessaoBean.getChaveEmpresa(), filtro));
+
+        BuscaPaginadaAudioDTO busca = new BuscaPaginadaAudioDTO(
+                resultado.getResultados(), resultado.getTotalResultados(),
+                filtro.getPagina(), filtro.getTotal()
+        );
+
+        if (filtro.getCategoria() != null) {
+            busca.setCategoria(daoService.find(CategoriaAudio.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), filtro.getCategoria())));
+        }
+
+        return busca;
     }
 
     @Override

@@ -47,6 +47,12 @@ public class Audio implements IEntity {
     private String autor;
 
     @Setter
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "descricao")
+    private String descricao;
+
+    @Setter
     @NotNull
     @ManyToOne
     @JsonView(View.Detalhado.class)

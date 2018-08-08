@@ -228,7 +228,7 @@ public class AcessoServiceImpl implements AcessoService {
             return colaborador;
         }
         
-        throw new ServiceException("mensagens.MSG-403");
+        throw new SecurityException();
     }
 
     @Audit
@@ -239,8 +239,8 @@ public class AcessoServiceImpl implements AcessoService {
             sessaoBean.admin(usuario.getId());
             return usuario;
         }
-        
-        throw new ServiceException("mensagens.MSG-403");
+
+        throw new SecurityException();
     }
     
     @Audit

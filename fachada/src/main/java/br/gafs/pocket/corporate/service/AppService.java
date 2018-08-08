@@ -68,7 +68,7 @@ public interface AppService extends Serializable {
     Audio cadastra(Audio documento);
     Audio atualiza(Audio documento);
     void removeAudio(Long audio);
-    BuscaPaginadaDTO<Audio> buscaTodos(FiltroAudioDTO filtro);
+    BuscaPaginadaDTO buscaTodos(FiltroAudioDTO filtro);
     Audio buscaAudio(Long audio);
 
     BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina);

@@ -68,7 +68,7 @@ public class SessaoBean implements Serializable {
                 creation = (Number) reader.get("creation");
             }catch(Exception e){
                 e.printStackTrace();
-                throw new ServiceException("mensagens.MSG-403");
+                throw new SecurityException();
             }
         }
 
@@ -76,7 +76,7 @@ public class SessaoBean implements Serializable {
             chaveEmpresa = get("Empresa");
 
             if (StringUtil.isEmpty(chaveEmpresa)){
-                throw new ServiceException("mensagens.MSG-403");
+                throw new SecurityException();
             }
         }
 

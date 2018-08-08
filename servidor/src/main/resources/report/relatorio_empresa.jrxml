@@ -19,7 +19,7 @@
 			<image vAlign="Middle">
 				<reportElement mode="Opaque" x="0" y="0" width="280" height="80" backcolor="#969696" uuid="97380c46-91f1-4ca9-94ba-98d0a7ee0366"/>
 				<box padding="5"/>
-				<imageExpression><![CDATA[$P{LOGO_IGREJA}]]></imageExpression>
+				<imageExpression><![CDATA[$P{LOGO_EMPRESA}]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement mode="Opaque" x="280" y="0" width="276" height="80" forecolor="#FFFFFF" backcolor="#969696" uuid="cabb92da-5233-46fe-bb9d-51cf24cd78eb"/>
