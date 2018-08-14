@@ -4,10 +4,12 @@
 * and open the template in the editor.
 */
 
-import br.gafs.pocket.corporate.dto.CalvinEmailDTO;
-import br.gafs.pocket.corporate.dto.MensagemEmailDTO;
-import br.gafs.pocket.corporate.entity.*;
-import br.gafs.pocket.corporate.util.MensagemUtil;
+import br.gafs.calvinista.dto.CalvinEmailDTO;
+import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
+import br.gafs.calvinista.dto.MensagemEmailDTO;
+import br.gafs.calvinista.entity.*;
+import br.gafs.calvinista.util.MensagemUtil;
+import br.gafs.calvinista.util.PDFToImageConverterUtil;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.string.StringUtil;
@@ -20,28 +22,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import javax.json.stream.JsonParser;
 import static javax.management.Query.value;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.exolab.castor.types.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -80,13 +86,13 @@ public class GeneralTest {
     
 //    @Test
     public void testaJSON() throws IOException, InterruptedException{
-        Empresa empresa = new Empresa();
-        empresa.setChave("tst");
-        empresa.setNome("Empresa Presbiteriana de Tambaú");
-        Institucional institucional = new Institucional(empresa);
+        Igreja igreja = new Igreja();
+        igreja.setChave("tst");
+        igreja.setNome("Igreja Presbiteriana de Tambaú");
+        Institucional institucional = new Institucional(igreja);
         institucional.setSite("https://getitmobilesolutions.com");
-        MensagemEmailDTO email = MensagemUtil.email(institucional, "Empresa Presbiteriana Nacional - Novo Acesso",
-                new CalvinEmailDTO(new CalvinEmailDTO.Manchete("Bem Vindo, Gabriel Silva", "Sua senha para acesso ao aplicativo Empresa Presbiteriana Nacional é 1234asdf. Após realizar o primeiro acesso lembre-se de fazer a troca para uma senha de sua escolha.",
+        MensagemEmailDTO email = MensagemUtil.email(institucional, "Igreja Presbiteriana Nacional - Novo Acesso",
+                new CalvinEmailDTO(new CalvinEmailDTO.Manchete("Bem Vindo, Gabriel Silva", "Sua senha para acesso ao aplicativo Igreja Presbiteriana Nacional é 1234asdf. Após realizar o primeiro acesso lembre-se de fazer a troca para uma senha de sua escolha.",
                         "https://getitmobilesolutions.com", "Projetos Calvin"), Collections.EMPTY_LIST));
         
         EmailUtil.sendMail(email.getMessage(), email.getSubject(), Arrays.asList("gafsel@gmail.com"), email.getDataSources(), email.getAttachmentsNames());
@@ -166,28 +172,28 @@ public class GeneralTest {
         String json = "{\"dataNascimento\":\"2017-02-06T12:00:00.000+0500\"}";
         
         TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("GMT-3:00"));
-        System.out.println(mapper.readValue(json, Colaborador.class).getDataNascimento() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
+        System.out.println(mapper.readValue(json, Membro.class).getDataNascimento() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
         
         TIME_ZONE_THREAD_LOCAL.set(TimeZone.getTimeZone("America/Sao_Paulo"));
-        System.out.println(mapper.readValue(json, Colaborador.class).getDataNascimento() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
+        System.out.println(mapper.readValue(json, Membro.class).getDataNascimento() + " " + TIME_ZONE_THREAD_LOCAL.get().getID());
 
         json = "{\"horaInicio\":\"2017-02-06T12:00:00.000-0500\"}";
         
         HorarioAtendimento hora = mapper.readValue(json, HorarioAtendimento.class);
         hora.setCalendario(new CalendarioAtendimento());
-        hora.getCalendario().setEmpresa(new Empresa());
-        hora.getCalendario().getEmpresa().setTimezone("GMT-3:00");
-        System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getEmpresa().getTimezone()).getID());
+        hora.getCalendario().setIgreja(new Igreja());
+        hora.getCalendario().getIgreja().setTimezone("GMT-3:00");
+        System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getIgreja().getTimezone()).getID());
 
         hora = mapper.readValue(json, HorarioAtendimento.class);
         hora.setCalendario(new CalendarioAtendimento());
-        hora.getCalendario().setEmpresa(new Empresa());
-        hora.getCalendario().getEmpresa().setTimezone("GMT-5:00");
+        hora.getCalendario().setIgreja(new Igreja());
+        hora.getCalendario().getIgreja().setTimezone("GMT-5:00");
 
         hora = mapper.readValue(json, HorarioAtendimento.class);
         hora.setCalendario(new CalendarioAtendimento());
-        hora.getCalendario().setEmpresa(new Empresa());
-        hora.getCalendario().getEmpresa().setTimezone("America/Sao_Paulo");
-        System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getEmpresa().getTimezone()).getID());
+        hora.getCalendario().setIgreja(new Igreja());
+        hora.getCalendario().getIgreja().setTimezone("America/Sao_Paulo");
+        System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getIgreja().getTimezone()).getID());
     }
 }

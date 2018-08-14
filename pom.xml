@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>br.gafs.getit.pocketcorporate</groupId>
-    <artifactId>pocket-corporate</artifactId>
-    <version>1.0.17-SNAPSHOT</version>
+    <groupId>br.gafs.getit.calvinista</groupId>
+    <artifactId>calvinista</artifactId>
+    <version>6.0.13-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -21,31 +21,31 @@
     </properties>
     
     <scm>
-        <connection>scm:git:https://bitbucket.org/getit-team/pocket-corporate-backend</connection>
-        <tag>pocket-corporate-1.0.13</tag>
+        <connection>scm:git:https://bitbucket.org/getit-team/calvinista-backend</connection>
+        <tag>calvinista-4.1.0</tag>
     </scm>
     
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pocket-corporate-dominio</artifactId>
+                <artifactId>calvinista-dominio</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pocket-corporate-fachada</artifactId>
+                <artifactId>calvinista-fachada</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pocket-corporate-servidor</artifactId>
+                <artifactId>calvinista-servidor</artifactId>
                 <version>${project.version}</version>
                 <type>ejb</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pocket-corporate-api</artifactId>
+                <artifactId>calvinista-api</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
             </dependency>

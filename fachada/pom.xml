@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>br.gafs.getit.pocketcorporate</groupId>
-        <artifactId>pocket-corporate</artifactId>
-        <version>1.0.17-SNAPSHOT</version>
+        <groupId>br.gafs.getit.calvinista</groupId>
+        <artifactId>calvinista</artifactId>
+        <version>6.0.13-SNAPSHOT</version>
     </parent>
     
-    <artifactId>pocket-corporate-fachada</artifactId>
+    <artifactId>calvinista-fachada</artifactId>
     <packaging>jar</packaging>
     
     <properties>
@@ -22,8 +22,8 @@
         </dependency>
         
         <dependency>
-            <groupId>br.gafs.getit.pocketcorporate</groupId>
-            <artifactId>pocket-corporate-dominio</artifactId>
+            <groupId>br.gafs.getit.calvinista</groupId>
+            <artifactId>calvinista-dominio</artifactId>
         </dependency>
         
         <dependency>

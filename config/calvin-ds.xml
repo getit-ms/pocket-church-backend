@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <datasources xmlns="http://www.jboss.org/ironjacamar/schema">
     <datasource jndi-name="java:jboss/datasources/postgres" enabled="true" use-java-context="true" pool-name="postgres">
-        <connection-url>jdbc:postgresql://localhost:5432/pcorporate</connection-url>
+        <connection-url>jdbc:postgresql://localhost:5432/calvinista</connection-url>
         <driver>postgresql</driver>
         <pool>
             <min-pool-size>10</min-pool-size>
