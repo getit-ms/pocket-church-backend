@@ -1,12 +1,12 @@
 package br.gafs.pocket.corporate.servidor;
 
+import br.gafs.dao.DAOService;
+import br.gafs.dto.DTO;
 import br.gafs.pocket.corporate.dao.QueryAcesso;
 import br.gafs.pocket.corporate.entity.Dispositivo;
 import br.gafs.pocket.corporate.entity.Empresa;
 import br.gafs.pocket.corporate.entity.Preferencias;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
-import br.gafs.dao.DAOService;
-import br.gafs.dto.DTO;
 import br.gafs.util.string.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -240,21 +240,38 @@ public class DispositivoService {
         }
     }
 
+    @Asynchronous
     public void migraDispositivo(String oldCD, String newCD) {
-        daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
+        try {
+            userTransaction.begin();
 
-        Dispositivo old = daoService.find(Dispositivo.class, oldCD);
-        if (old != null){
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
+            daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
 
-            dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
-            dispositivo.setColaborador(old.getColaborador());
+            userTransaction.commit();
 
-            daoService.update(dispositivo);
+            Dispositivo old = daoService.find(Dispositivo.class, oldCD);
+            if (old != null) {
+                Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
 
-            if (dispositivo.isRegistrado()){
-                daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
+                dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
+                dispositivo.setColaborador(old.getColaborador());
+
+                userTransaction.begin();
+
+                daoService.update(dispositivo);
+
+                if (dispositivo.isRegistrado()) {
+                    daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
+                }
+
+                userTransaction.commit();
             }
+        } catch (Exception ex) {
+            try {
+                userTransaction.rollback();
+            } catch (SystemException e) {}
+
+            LOGGER.log(Level.SEVERE, "Erro ao migrar os dados do dispositivo", ex);
         }
     }
 
