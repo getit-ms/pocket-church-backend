@@ -2,9 +2,12 @@ package br.gafs.pocket.corporate.servidor;
 
 import br.gafs.pocket.corporate.dao.QueryAcesso;
 import br.gafs.pocket.corporate.entity.Dispositivo;
+import br.gafs.pocket.corporate.entity.Empresa;
+import br.gafs.pocket.corporate.entity.Preferencias;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
 import br.gafs.dao.DAOService;
 import br.gafs.dto.DTO;
+import br.gafs.util.string.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,6 +20,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,7 +75,7 @@ public class DispositivoService {
 
         LOGGER.info("Processando " + register.size() + " registros de push.");
         try {
-            
+
             registraEmGrupo(register);
 
         }catch (Exception ex) {
@@ -103,12 +107,12 @@ public class DispositivoService {
             LOGGER.info("Registro push em grupo para " + dto.getDispositivo());
 
             trataDispositivo(iterator, dto);
-            
+
             size++;
-            
+
             if (size%20 == 0) {
                 userTransaction.commit();
-                
+
                 userTransaction.begin();
             }
         }
@@ -190,6 +194,68 @@ public class DispositivoService {
         }
 
         return TipoAcaoContigencia.NENHUMA;
+    }
+
+    public Dispositivo getDispositivo(String uuid, String chaveEmpresa) {
+        if (StringUtil.isEmpty(uuid)) {
+            uuid = UUID.randomUUID().toString();
+
+            LOGGER.warning("UUID do dispositivo não informado na requisição. Gerando um novo: " + uuid);
+        }
+
+        Dispositivo dispositivo = daoService.find(Dispositivo.class, uuid + "@" + chaveEmpresa);
+
+        if (dispositivo == null) {
+            dispositivo = criaDispositivo(uuid, chaveEmpresa);
+        }
+
+        return dispositivo;
+    }
+
+    private Dispositivo criaDispositivo(String uuid, String chaveEmpresa) {
+        synchronized (DispositivoService.class) {
+            // Garante que o dispositivo não foi criado por outra thread fora do synchronized
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, uuid + "@" + chaveEmpresa);
+
+            if (dispositivo == null) {
+                try {
+                    userTransaction.begin();
+
+                    dispositivo = daoService.update(new Dispositivo(uuid,
+                            daoService.find(Empresa.class, chaveEmpresa)));
+
+                    daoService.update(new Preferencias(dispositivo));
+
+                    userTransaction.commit();
+                } catch (Exception ex) {
+                    try {
+                        userTransaction.rollback();
+                    } catch (Exception e) {}
+
+                    throw new RuntimeException("Erro na criação do dispositivo: " + uuid + "@" + chaveEmpresa, ex);
+                }
+            }
+
+            return dispositivo;
+        }
+    }
+
+    public void migraDispositivo(String oldCD, String newCD) {
+        daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
+
+        Dispositivo old = daoService.find(Dispositivo.class, oldCD);
+        if (old != null){
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
+
+            dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
+            dispositivo.setColaborador(old.getColaborador());
+
+            daoService.update(dispositivo);
+
+            if (dispositivo.isRegistrado()){
+                daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
+            }
+        }
     }
 
     public enum TipoAcaoContigencia {

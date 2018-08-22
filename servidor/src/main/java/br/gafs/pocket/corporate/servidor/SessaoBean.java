@@ -10,7 +10,6 @@ import br.gafs.exceptions.ServiceException;
 import br.gafs.pocket.corporate.dao.QueryAcesso;
 import br.gafs.pocket.corporate.entity.Dispositivo;
 import br.gafs.pocket.corporate.entity.Empresa;
-import br.gafs.pocket.corporate.entity.Preferencias;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.sessao.SessionDataManager;
 import br.gafs.pocket.corporate.util.JWTManager;
@@ -22,7 +21,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -48,11 +48,10 @@ public class SessaoBean implements Serializable {
     private Long idColaborador;
     private boolean admin;
     private Long idUsuario;
+
     private List<Integer> funcionalidades;
 
     private boolean loaded;
-
-    private static final Set<String> DISPOSITIVOS_REGISTRANDO = new HashSet<String>();
 
     public void load(String authorization){
         Number creation = null;
@@ -91,64 +90,24 @@ public class SessaoBean implements Serializable {
         }
 
         String uuid = getUUID();
-        if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
+
+        if (StringUtil.isEmpty(uuid) || (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
             String oldCD = chaveDispositivo;
 
-            String newCD = uuid + "@" + chaveEmpresa;
+            Dispositivo dispositivo = dispositivoService.getDispositivo(uuid, chaveEmpresa);
 
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
+            chaveDispositivo = dispositivo.getChave();
 
-            boolean processa = true;
+            if (!StringUtil.isEmpty(oldCD) && !oldCD.equals(dispositivo.getChave())) {
+                dispositivoService.migraDispositivo(oldCD, dispositivo.getChave());
 
-            if (dispositivo == null){
-                synchronized (DISPOSITIVOS_REGISTRANDO){
-                    processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
-
-                    if (processa){
-                        DISPOSITIVOS_REGISTRANDO.add(newCD);
-                    }
-                }
-
-                if (processa){
-                    dispositivo = createDispositivo(uuid);
-                }
-            }else{
-                chaveDispositivo = newCD;
-                synchronized (DISPOSITIVOS_REGISTRANDO){
-                    DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
-                }
+                set();
             }
 
-            if (!StringUtil.isEmpty(oldCD)){
-                if (processa){
-                    daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
-
-                    Dispositivo old = daoService.find(Dispositivo.class, oldCD);
-                    if (old != null){
-                        dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
-                        dispositivo.setColaborador(old.getColaborador());
-
-                        daoService.update(dispositivo);
-
-                        if (dispositivo.isRegistrado()){
-                            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
-                        }
-                    }
-
-                    set();
-                } else {
-                    chaveDispositivo = oldCD;
-                }
-            }else{
-                chaveDispositivo = newCD;
-            }
-
-            if (dispositivo != null && admin != dispositivo.isAdministrativo()){
+            if (admin != dispositivo.isAdministrativo()){
                 admin = dispositivo.isAdministrativo();
                 set();
             }
-        } else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)) {
-            createDispositivo(UUID.randomUUID().toString());
         } else if (!admin) {
             switch (dispositivoService.verificaContingencia(chaveDispositivo)) {
                 case FORCE_REGISTER:
@@ -168,16 +127,6 @@ public class SessaoBean implements Serializable {
             set();
         }
     }
-
-    private Dispositivo createDispositivo(String uuid){
-        Dispositivo dispositivo = daoService.update(new Dispositivo(uuid, daoService.find(Empresa.class, chaveEmpresa)));
-        daoService.update(new Preferencias(dispositivo));
-
-        chaveDispositivo = uuid + "@" + chaveEmpresa;
-
-        return dispositivo;
-    }
-
 
     private void load(){
         if (!loaded){
