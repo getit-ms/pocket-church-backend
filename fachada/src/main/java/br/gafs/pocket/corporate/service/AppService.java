@@ -164,7 +164,9 @@ public interface AppService extends Serializable {
     void verificaPagSeguroPorIdTransacao(String transactionId);
     
     File buscaAjuda(String path);
-    
+
+    File buscaIPA();
+
     void clearNotificacoes(List<Long> excecoes);
     void removeNotificacao(Long notificacao);
     BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro);

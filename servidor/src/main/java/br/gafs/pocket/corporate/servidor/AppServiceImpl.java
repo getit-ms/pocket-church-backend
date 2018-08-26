@@ -591,6 +591,13 @@ public class AppServiceImpl implements AppService {
         return new File(new File(new File(ResourceBundleUtil._default().
                 getPropriedade("RESOURCES_ROOT"), "ajuda"), empresa.getLocale()), path);
     }
+
+    @Override
+    public File buscaIPA() {
+        Empresa empresa = daoService.find(Empresa.class, sessaoBean.getChaveEmpresa());
+        return new File(new File(ResourceBundleUtil._default().
+                getPropriedade("RESOURCES_ROOT"), "ipa"), empresa.getChave() + ".ipa");
+    }
     
     public AppServiceImpl() {
     }
