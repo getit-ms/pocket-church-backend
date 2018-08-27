@@ -98,7 +98,6 @@ public class Membro implements IEntity {
     private String senha = "undefined";
     
     @Email
-    @NotEmpty
     @Length(max = 150)
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)

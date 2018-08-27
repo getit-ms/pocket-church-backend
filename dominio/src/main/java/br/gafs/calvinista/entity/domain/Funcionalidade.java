@@ -57,7 +57,7 @@ public enum Funcionalidade {
     REALIZAR_INSCRICAO_EBD(Tipo.MEMBRO, 29),
     CONSULTAR_PLANOS_LEITURA_BIBLICA(Tipo.MEMBRO, 34),
     ANIVERSARIANTES(Tipo.MEMBRO, false, 48, 5, 0, 0),
-    GALERIA_FOTOS(Tipo.MEMBRO, false, 52, 6, 0, 0),
+    GALERIA_FOTOS(Tipo.MEMBRO, false, 52, 6, 0, 11),
 
     // Pública
     LISTAR_BOLETINS(Tipo.PUBLICA, 24),
@@ -70,7 +70,7 @@ public enum Funcionalidade {
     LISTAR_PUBLICACOES(Tipo.PUBLICA, 38),
     NOTICIAS(Tipo.PUBLICA, false, 44, 4, 2, 0),
     CONSULTAR_CANTICOS(Tipo.PUBLICA, false, 46, 4, 2, 0),
-    AUDIOS(Tipo.PUBLICA, false, 51, 6, 0, 0),
+    AUDIOS(Tipo.PUBLICA, false, 51, 6, 0, 11),
 
 
     INSTITUCIONAL(Tipo.FIXA, 43),

@@ -35,7 +35,6 @@ public class AutenticacaoFilter implements Filter {
         final HttpServletResponse resp = (HttpServletResponse) response;
         
         // Tratamento CORS Domain
-        // TODO verificar se é a melhor alternativa
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.addHeader("Access-Control-Allow-Methods", req.getHeader("Access-Control-Request-Method"));
         resp.addHeader("Access-Control-Allow-Headers", "igreja, dispositivo, authorization, set-authorization, " + req.getHeader("Access-Control-Request-Headers"));
