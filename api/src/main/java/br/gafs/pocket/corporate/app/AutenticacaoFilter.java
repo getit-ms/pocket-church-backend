@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Gabriel
  */
-@WebFilter(urlPatterns = {"/rest/*","/ajuda/*"})
+@WebFilter(urlPatterns = {"/rest/*","/ajuda/*","/ipa/*"})
 public class AutenticacaoFilter implements Filter {
     
     @Override
