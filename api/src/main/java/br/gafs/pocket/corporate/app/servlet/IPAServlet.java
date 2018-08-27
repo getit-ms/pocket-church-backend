@@ -30,7 +30,9 @@ public class IPAServlet extends HttpServlet {
     
     @Override
     protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        File file = appService.buscaIPA();
+        final String path = req.getRequestURI().replaceAll("(.+/)?ajuda/?", "");
+
+        File file = appService.buscaIPA(path);
 
         resp.addHeader("Content-Type", "application/octet-stream");
         resp.addHeader("Content-Length", "" + file.length());
