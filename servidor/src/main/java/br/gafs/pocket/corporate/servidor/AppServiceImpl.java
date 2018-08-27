@@ -594,9 +594,8 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public File buscaIPA(String path) {
-        Empresa empresa = daoService.find(Empresa.class, sessaoBean.getChaveEmpresa());
-        return new File(new File(new File(ResourceBundleUtil._default().
-            getPropriedade("RESOURCES_ROOT"), "ipa"), empresa.getChave()), path);
+        return new File(new File(ResourceBundleUtil._default().
+                getPropriedade("RESOURCES_ROOT"), "ipa"), path);
     }
     
     public AppServiceImpl() {
