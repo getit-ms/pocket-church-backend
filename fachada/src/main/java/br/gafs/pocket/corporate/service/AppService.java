@@ -165,7 +165,7 @@ public interface AppService extends Serializable {
     
     File buscaAjuda(String path);
 
-    File buscaIPA();
+    File buscaIPA(String path);
 
     void clearNotificacoes(List<Long> excecoes);
     void removeNotificacao(Long notificacao);
