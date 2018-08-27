@@ -5,9 +5,8 @@
 */
 package br.gafs.pocket.corporate.app.servlet;
 
-import br.gafs.pocket.corporate.service.AppService;
+import br.gafs.bundle.ResourceBundleUtil;
 
-import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,14 +24,12 @@ import java.util.logging.Logger;
 public class IPAServlet extends HttpServlet {
     private final static Logger LOGGER = Logger.getLogger(IPAServlet.class.getName());
     
-    @EJB
-    private AppService appService;
-    
     @Override
     protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String path = req.getRequestURI().replaceAll("(.+/)?ipa/?", "");
 
-        File file = appService.buscaIPA(path);
+        File file = new File(new File(ResourceBundleUtil._default().
+                getPropriedade("RESOURCES_ROOT"), "ipa"), path);
 
         resp.addHeader("Content-Type", "application/octet-stream");
         resp.addHeader("Content-Length", "" + file.length());

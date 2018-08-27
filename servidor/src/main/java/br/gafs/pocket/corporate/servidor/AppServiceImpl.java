@@ -592,12 +592,6 @@ public class AppServiceImpl implements AppService {
                 getPropriedade("RESOURCES_ROOT"), "ajuda"), empresa.getLocale()), path);
     }
 
-    @Override
-    public File buscaIPA(String path) {
-        return new File(new File(ResourceBundleUtil._default().
-                getPropriedade("RESOURCES_ROOT"), "ipa"), path);
-    }
-    
     public AppServiceImpl() {
     }
     
