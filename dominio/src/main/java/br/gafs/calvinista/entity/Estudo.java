@@ -38,6 +38,7 @@ import java.util.*;
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
     @NamedQuery(name = "Estudo.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Estudo e inner join e.igreja i where i.status = :statusIgreja and e.divulgado = false and e.dataPublicacao <= :data group by i"),
+    @NamedQuery(name = "Estudo.findUltimoADivulgar", query = "select e from Estudo e inner join e.igreja i where i.chave = :igreja and e.divulgado = false and e.dataPublicacao <= :data order by e.dataPublicacao desc"),
     @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divulgado = true where e.igreja.chave = :igreja and e.dataPublicacao <= :data "),
     @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
     @NamedQuery(name = "Estudo.updateStatus", query = "update Estudo e set e.status = :status where e.id = :estudo and e.igreja.chave = :igreja")

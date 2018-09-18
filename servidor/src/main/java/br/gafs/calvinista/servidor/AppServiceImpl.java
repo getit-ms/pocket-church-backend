@@ -2480,6 +2480,9 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de publicações para " + igreja.getChave());
 
+                Boletim publicacao = daoService.findWith(QueryAdmin.PUBLICACAO_A_DIVULGAR_POR_IGREJA
+                        .createSingle(igreja.getChave()));
+
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_PUBLICACAO);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.publicacao.title", igreja.getLocale());
@@ -2487,7 +2490,8 @@ public class AppServiceImpl implements AppService {
 
                 String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_PUBLICACAO);
                 if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.publicacao.message", igreja.getLocale(), igreja.getNome());
+                    texto = MensagemUtil.getMensagem("push.publicacao.message",
+                            igreja.getLocale(), igreja.getNome(), publicacao.getTitulo());
                 }
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.PUBLICACAO, false);
@@ -2514,6 +2518,9 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de boletins para " + igreja.getChave());
 
+                Boletim boletim = daoService.findWith(QueryAdmin.BOLETIM_A_DIVULGAR_POR_IGREJA
+                        .createSingle(igreja.getChave()));
+
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_BOLETIM);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.boletim.title", igreja.getLocale());
@@ -2521,7 +2528,8 @@ public class AppServiceImpl implements AppService {
 
                 String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_BOLETIM);
                 if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.boletim.message", igreja.getLocale(), igreja.getNome());
+                    texto = MensagemUtil.getMensagem("push.boletim.message",
+                            igreja.getLocale(), igreja.getNome(), boletim.getTitulo());
                 }
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.BOLETIM, false);
@@ -2548,6 +2556,9 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de estudo para " + igreja.getChave());
 
+                Estudo estudo = daoService.findWith(QueryAdmin.ESTUDO_A_DIVULGAR_POR_IGREJA
+                        .createSingle(igreja.getChave()));
+
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_ESTUDO);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.estudo.title", igreja.getLocale());
@@ -2555,7 +2566,9 @@ public class AppServiceImpl implements AppService {
 
                 String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_ESTUDO);
                 if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.estudo.message", igreja.getLocale(), igreja.getNome());
+                    texto = MensagemUtil.getMensagem("push.estudo.message",
+                            igreja.getLocale(), igreja.getNome(),
+                            estudo.getCategoria() != null ? estudo.getCategoria().getNome() : "", estudo.getTitulo());
                 }
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
@@ -2582,6 +2595,9 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de notícia para " + igreja.getChave());
 
+                Noticia noticia = daoService.findWith(QueryAdmin.NOTICIA_A_DIVULGAR_POR_IGREJA
+                        .createSingle(igreja.getChave()));
+
                 String titulo = paramService.get(igreja.getChave(), TipoParametro.TITULO_NOTICIA);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.noticia.title", igreja.getLocale());
@@ -2589,7 +2605,8 @@ public class AppServiceImpl implements AppService {
 
                 String texto = paramService.get(igreja.getChave(), TipoParametro.TEXTO_NOTICIA);
                 if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.noticia.message", igreja.getLocale(), igreja.getNome());
+                    texto = MensagemUtil.getMensagem("push.noticia.message",
+                            igreja.getLocale(), igreja.getNome(), noticia.getTitulo());
                 }
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.NOTICIA, false);

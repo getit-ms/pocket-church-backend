@@ -342,6 +342,45 @@ public enum QueryAdmin {
                             StatusInscricaoEvento.CONFIRMADA
                     ));
         }
+    },
+    NOTICIA_A_DIVULGAR_POR_IGREJA("Noticia.findUltimaADivulgar", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    },
+    ESTUDO_A_DIVULGAR_POR_IGREJA("Estudo.findUltimoADivulgar", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    },
+    PUBLICACAO_A_DIVULGAR_POR_IGREJA("Boletim.findUltimoADivulgar", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("tipo", TipoBoletim.PUBLICACAO).
+                    set("statusBoletim", StatusBoletim.PUBLICADO).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    },
+    BOLETIM_A_DIVULGAR_POR_IGREJA("Boletim.findUltimoADivulgar", "igreja"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("tipo", TipoBoletim.BOLETIM).
+                    set("statusBoletim", StatusBoletim.PUBLICADO).
+                    set("data", DateUtil.getDataAtual());
+        }
     };
     
     private final String query;
