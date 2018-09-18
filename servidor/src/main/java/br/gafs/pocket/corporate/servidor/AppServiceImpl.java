@@ -2285,6 +2285,9 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de notícia para " + empresa.getChave());
 
+                Noticia noticia = daoService.findWith(QueryAdmin.NOTICIA_A_DIVULGAR_POR_EMPRESA
+                        .createSingle(empresa.getChave(), TipoNoticia.NOTICIA));
+
                 String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_NOTICIA);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.noticia.title", empresa.getLocale());
@@ -2292,7 +2295,8 @@ public class AppServiceImpl implements AppService {
 
                 String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_NOTICIA);
                 if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.noticia.message", empresa.getLocale(), empresa.getNome());
+                    texto = MensagemUtil.getMensagem("push.noticia.message",
+                            empresa.getLocale(), empresa.getNome(), noticia.getTitulo());
                 }
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.NOTICIA, false);
@@ -2319,6 +2323,9 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de notícia para " + empresa.getChave());
 
+                Noticia classificados = daoService.findWith(QueryAdmin.NOTICIA_A_DIVULGAR_POR_EMPRESA
+                        .createSingle(empresa.getChave(), TipoNoticia.CLASSIFICADOS));
+
                 String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_CLASSIFICADOS);
                 if (StringUtil.isEmpty(titulo)){
                     titulo = MensagemUtil.getMensagem("push.classificados.title", empresa.getLocale());
@@ -2326,7 +2333,8 @@ public class AppServiceImpl implements AppService {
 
                 String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_CLASSIFICADOS);
                 if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.classificados.message", empresa.getLocale(), empresa.getNome());
+                    texto = MensagemUtil.getMensagem("push.classificados.message", empresa.getLocale(),
+                            empresa.getNome(), classificados.getTitulo());
                 }
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.CLASSIFICADOS, false);

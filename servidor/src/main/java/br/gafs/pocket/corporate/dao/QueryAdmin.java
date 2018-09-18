@@ -291,7 +291,16 @@ public enum QueryAdmin {
     CATEGORIA_AUDIO("CategoriaAudio.findByEmpresa", "empresa"),
     CATEGORIA_USADAS_DOCUMENTO("CategoriaDocumento.findUsadasByEmpresa", "empresa"),
     CATEGORIA_USADAS_AUDIO("CategoriaAudio.findUsadasByEmpresa", "empresa"),
-    MENUS_EMPRESA_FUNCIONALIDADES("Menu.findByEmpresaAndFuncionalidades", "empresa", "funcionalidades");
+    MENUS_EMPRESA_FUNCIONALIDADES("Menu.findByEmpresaAndFuncionalidades", "empresa", "funcionalidades"),
+    NOTICIA_A_DIVULGAR_POR_EMPRESA("Noticia.findUltimaADivulgar", "empresa", "tipoNoticia"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).
+                    set("data", DateUtil.getDataAtual());
+        }
+
+    };
     
     private final String query;
     private final String[] parameters;

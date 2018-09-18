@@ -26,6 +26,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = "Noticia.findEmpresaNaoDivultadosByDataPublicacao", query = "select i from Noticia n inner join n.empresa i where i.status = :statusEmpresa and n.divulgado = false and n.dataPublicacao <= :data and n.tipo = :tipoNoticia group by i"),
         @NamedQuery(name = "Noticia.updateNaoDivulgadosByEmpresa", query = "update Noticia n set n.divulgado = true where n.empresa.chave = :empresa and n.dataPublicacao <= :data and n.tipo = :tipoNoticia"),
+        @NamedQuery(name = "Noticia.findUltimaADivulgar", query = "select n from Noticia n where n.empresa.chave = :empresa and n.dataPublicacao <= :data and n.tipo = :tipoNoticia and n.divulgado = false order by n.dataPublicacao desc"),
 })
 public class Noticia implements IEntity {
     @Id
