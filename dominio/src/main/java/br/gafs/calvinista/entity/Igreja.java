@@ -3,21 +3,20 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.StatusIgreja;
-import br.gafs.calvinista.entity.domain.TemplateIgreja;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Resumido;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.*;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -60,13 +59,7 @@ public class Igreja implements IEntity {
     @JsonView(View.Detalhado.class)
     @Column(name = "nome_aplicativo", length = 15, nullable = false)
     private String nomeAplicativo;
-    
-    @Setter
-    @Enumerated(EnumType.ORDINAL)
-    @JsonView(View.Detalhado.class)
-    @Column(name = "template", nullable = false)
-    private TemplateIgreja template = TemplateIgreja._1;
-    
+
     @Getter
     @JsonIgnore
     @Enumerated(EnumType.ORDINAL)
