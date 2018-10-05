@@ -19,8 +19,8 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
     public FiltroIgreja(FiltroIgrejaDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Igreja i, Template temp, Institucional inst, Endereco edr")
-        .append(" where i = temp.igreja and i = inst.igreja and edr.id in (select min(e.id) from Institucional ii inner join ii.enderecos e where ii = inst) and i.status = :status");
+        StringBuilder query = new StringBuilder("from Template temp, Institucional inst inner join inst.igreja i inner join inst.enderecos edr")
+        .append(" where i = temp.igreja and i.status = :status");
         Map<String, Object> args = new QueryParameters("status", StatusIgreja.ATIVO);
 
         if (!StringUtil.isEmpty(filtro.getChave())) {
