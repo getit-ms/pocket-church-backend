@@ -30,11 +30,12 @@ public class IgrejaController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response busca(
+            @QueryParam("chave") String chave,
             @QueryParam("filtro") String filtro,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("tamanho") @DefaultValue("10") Integer tamanho
     ) {
-        return Response.status(Status.OK).entity(appService.busca(new FiltroIgrejaDTO(filtro, pagina, tamanho))).build();
+        return Response.status(Status.OK).entity(appService.busca(new FiltroIgrejaDTO(chave, filtro, pagina, tamanho))).build();
     }
 
 
