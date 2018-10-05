@@ -10,6 +10,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ResumoIgrejaDTO {
+    private String chave;
     private String nome;
     private Arquivo logoPequena;
     private String cidade;

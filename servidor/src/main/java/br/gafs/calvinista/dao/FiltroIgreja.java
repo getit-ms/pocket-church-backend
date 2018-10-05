@@ -21,15 +21,18 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
         
         StringBuilder query = new StringBuilder("from Igreja i, Template temp, Institucional inst where i = temp.igreja and i = inst.igreja and i.status = :status");
         Map<String, Object> args = new QueryParameters("status", StatusIgreja.ATIVO);
-        
-        if (!StringUtil.isEmpty(filtro.getFiltro())){
+
+        if (!StringUtil.isEmpty(filtro.getChave())) {
+            query.append(" and i.chave = :chave");
+            args.put("chave", filtro.getChave());
+        } else if (!StringUtil.isEmpty(filtro.getFiltro())){
             query.append(" and lower(i.nome) like :filtro");
-            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
+            args.put("filtro", "%" + filtro.getFiltro().replace(" ", "%").toLowerCase() + "%");
         }
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.nome, temp.logoPequena, inst.cidade, inst.estado) ").append(query).append(" order by i.nome").toString());
+        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, temp.logoPequena, inst.cidade, inst.estado) ").append(query).append(" order by i.nome").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(i) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
