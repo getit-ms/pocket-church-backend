@@ -24,7 +24,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString(of = "igreja")
 @EqualsAndHashCode(of = "igreja")
-@Table(name = "tb_template")
+@Table(name = "tb_template_igreja")
 public class Template implements IEntity {
     @Id
     @OneToOne
