@@ -10,8 +10,8 @@ import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoVersao;
 import br.gafs.dao.BuscaPaginadaDTO;
-import java.io.File;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
@@ -22,7 +22,9 @@ import java.util.List;
  * @author Gabriel
  */
 public interface AppService extends Serializable {
-    
+
+    BuscaPaginadaDTO<ResumoIgrejaDTO> busca(FiltroIgrejaDTO filtro);
+    Template buscaTemplate();
     StatusAdminDTO buscaStatus();
     
     Ministerio cadastra(Ministerio grupo);

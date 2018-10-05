@@ -37,9 +37,7 @@ import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
-import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -103,6 +101,20 @@ public class AppServiceImpl implements AppService {
 
     @Inject
     private SessaoBean sessaoBean;
+
+    @Override
+    public BuscaPaginadaDTO<ResumoIgrejaDTO> busca(FiltroIgrejaDTO filtro) {
+        return daoService.findWith(new FiltroIgreja(filtro));
+    }
+
+    @Override
+    public Template buscaTemplate() {
+        Template template = daoService.find(Template.class, sessaoBean.getChaveIgreja());
+        if (template == null) {
+            template = new Template(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        }
+        return template;
+    }
 
     @Override
     @AllowAdmin
