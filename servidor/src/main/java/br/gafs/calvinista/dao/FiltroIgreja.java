@@ -32,7 +32,7 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, temp.logoPequena, inst.cidade, inst.estado) ").append(query).append(" order by i.nome").toString());
+        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, temp.logoPequena, inst.endereco.cidade, inst.endereco.estado) ").append(query).append(" order by i.nome").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(i) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
