@@ -19,8 +19,8 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
     public FiltroIgreja(FiltroIgrejaDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from Igreja i, Template temp, Institucional inst, Endereco end")
-        .append(" where i = temp.igreja and i = inst.igreja and end.id in (select min(e.id) from Institucional ii inner join ii.enderecos e where ii = inst) and i.status = :status");
+        StringBuilder query = new StringBuilder("from Igreja i, Template temp, Institucional inst, Endereco edr")
+        .append(" where i = temp.igreja and i = inst.igreja and edr.id in (select min(e.id) from Institucional ii inner join ii.enderecos e where ii = inst) and i.status = :status");
         Map<String, Object> args = new QueryParameters("status", StatusIgreja.ATIVO);
 
         if (!StringUtil.isEmpty(filtro.getChave())) {
@@ -33,7 +33,7 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, temp.logoPequena, end.cidade, end.estado) ").append(query).append(" order by i.nome").toString());
+        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, temp.logoPequena, edr.cidade, edr.estado) ").append(query).append(" order by i.nome").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(i) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
