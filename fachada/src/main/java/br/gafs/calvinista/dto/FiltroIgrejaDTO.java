@@ -13,6 +13,7 @@ import javax.ws.rs.QueryParam;
 public class FiltroIgrejaDTO implements DTO {
     private String chave;
     private String filtro;
+    private String agrupamento;
     private Integer pagina = 1;
     private Integer total = 50;
 }

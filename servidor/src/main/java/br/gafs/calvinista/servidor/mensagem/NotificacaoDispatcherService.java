@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.transaction.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,9 @@ public class NotificacaoDispatcherService {
 
     @EJB
     private AndroidNotificationService androidService;
+
+    @EJB
+    private IPBNotificationService ipbService;
 
     @EJB
     private IOSNotificationService iosService;
@@ -90,6 +92,7 @@ public class NotificacaoDispatcherService {
 
         List<IOSNotificationService.Destination> destinationIOS = new ArrayList<>();
         List<AndroidNotificationService.Destination> destinationAndroid = new ArrayList<>();
+        List<IPBNotificationService.Destination> destinationIPB = new ArrayList<>();
 
         List<String> ids = new ArrayList<>();
         for (Object[] dispositivo : dispositivos) {
@@ -99,6 +102,8 @@ public class NotificacaoDispatcherService {
                 destinationAndroid.add(new AndroidNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
             }else if (dispositivo[TIPO].equals(TipoDispositivo.IPHONE.ordinal())){
                 destinationIOS.add(new IOSNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
+            }else if (dispositivo[TIPO].equals(TipoDispositivo.IPB.ordinal())){
+                destinationIPB.add(new IPBNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
             }
 
             ids.add((String) dispositivo[INSTALATION_ID]);
@@ -123,6 +128,10 @@ public class NotificacaoDispatcherService {
 
         if (!destinationIOS.isEmpty()) {
             iosService.pushNotifications(filtro.getIgreja(), push, destinationIOS);
+        }
+
+        if (!destinationIPB.isEmpty()) {
+            ipbService.pushNotifications(filtro.getIgreja(), push, destinationIPB);
         }
     }
 

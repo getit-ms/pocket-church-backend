@@ -54,6 +54,7 @@ public enum TipoParametro {
     PUSH_ANDROID_SENDER_ID(TipoValor.VALOR, String.class, null),
     PUSH_IOS_PASS(TipoValor.VALOR, String.class, null),
     PUSH_IOS_CERTIFICADO(TipoValor.ANEXO, byte[].class, null),
+    IPB_PUSH_TOKEN(TipoValor.VALOR, String.class, null),
 
     GOOGLE_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     GOOGLE_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),

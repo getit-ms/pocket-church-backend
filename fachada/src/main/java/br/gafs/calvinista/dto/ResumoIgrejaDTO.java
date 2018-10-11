@@ -12,6 +12,7 @@ import lombok.Getter;
 public class ResumoIgrejaDTO {
     private String chave;
     private String nome;
+    private String nomeAplicativo;
     private Arquivo logoPequena;
     private String cidade;
     private String estado;

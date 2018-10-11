@@ -18,7 +18,8 @@ public enum TipoDispositivo {
     ANDROID("A"),
     IPHONE("I"),
     PC("P"),
-    UNKNOWN("U");
+    UNKNOWN("U"),
+    IPB("IPB");
     
     private final String codigo;
     
