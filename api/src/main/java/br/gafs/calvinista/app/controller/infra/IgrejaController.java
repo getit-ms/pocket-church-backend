@@ -32,10 +32,12 @@ public class IgrejaController {
     public Response busca(
             @QueryParam("chave") String chave,
             @QueryParam("filtro") String filtro,
+            @QueryParam("agrupamento") String agrupamento,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("tamanho") @DefaultValue("10") Integer tamanho
     ) {
-        return Response.status(Status.OK).entity(appService.busca(new FiltroIgrejaDTO(chave, filtro, pagina, tamanho))).build();
+        return Response.status(Status.OK).entity(appService.busca(
+                new FiltroIgrejaDTO(chave, filtro, agrupamento, pagina, tamanho))).build();
     }
 
 
