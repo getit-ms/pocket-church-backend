@@ -56,7 +56,7 @@ public class IPBNotificationService implements Serializable {
 
     private boolean doSendNotification(PushIPBDTO notification, String chave) {
         try{
-            HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://getitmobilesolutions.com/ipb/api/notificacao/push").openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://getitmobilesolutions.com/ipb/app/notificacao/push").openConnection();
 
             urlConnection.setRequestMethod("POST");
             urlConnection.addRequestProperty("Content-Type", "application/json");
