@@ -27,7 +27,7 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
             query.append(" and i.chave = :chave");
             args.put("chave", filtro.getChave());
         } else if (!StringUtil.isEmpty(filtro.getFiltro())){
-            query.append(" and lower(i.nome) like :filtro");
+            query.append(" and lower(concat(i.nome, i.nomeAplicativo, edr.cidade, edr.estado)) like :filtro");
             args.put("filtro", "%" + filtro.getFiltro().replace(" ", "%").toLowerCase() + "%");
         }
 
@@ -38,8 +38,8 @@ public class FiltroIgreja extends AbstractPaginatedFiltro<FiltroIgrejaDTO> {
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, i.nomeAplicativo, temp.logoPequena, edr.cidade, edr.estado) ")
-                .append(query).append(" group by i.chave, i.nome, i.nomeAplicativo, temp.logoPequena, edr.cidade, edr.estado order by i.nome").toString());
+        setQuery(new StringBuilder("select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, i.nomeAplicativo, temp.logoPequena, max(edr.cidade), max(edr.estado)) ")
+                .append(query).append(" group by i.chave, i.nome, i.nomeAplicativo, temp.logoPequena order by i.nome").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(i) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());

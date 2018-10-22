@@ -141,20 +141,21 @@ public class ArquivoController {
                 to = (int) ( file.length() - 1 );
             }
 
+            final int len = to - from + 1;
+
             final String responseRange = String.format( "bytes %d-%d/%d", from, to, file.length() );
 
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             response.addHeader( "Accept-Ranges", "bytes" );
             response.addHeader( "Content-Range", responseRange );
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
-            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Length", "" + len);
             response.addHeader("Content-Disposition",
                     "attachment; filename=\""+arquivo.getNome()+"\"");
 
             final RandomAccessFile raf = new RandomAccessFile( file, "r" );
             raf.seek( from );
 
-            final int len = to - from + 1;
 
             ArquivoUtil.transfer(raf, len, response.getOutputStream());
 
