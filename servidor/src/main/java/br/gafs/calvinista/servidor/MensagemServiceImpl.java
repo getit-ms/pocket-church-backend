@@ -69,8 +69,7 @@ public class MensagemServiceImpl implements MensagemService {
 
     @Override
     public void enviarMensagem(ContatoDTO contato) {
-        if ("Interesse Pocket Church".equals(contato.getAssunto()) &&
-                "Gostaria de conhecer mais sobre o Pocket Church.".equals(contato.getMensagem())) {
+        if ("IPB App - Interesse Pocket Church".equals(contato.getAssunto())) {
             EmailUtil.sendMail(
                     MensagemUtil.getMensagem("email.contato_pocket_church.message", "pt-br", contato.getNome()),
                     MensagemUtil.getMensagem("email.contato_pocket_church.subject", "pt-br", contato.getAssunto()),
