@@ -66,6 +66,7 @@ public class MensagemBuilder {
                         EntityFileManager.get(template.getBanner(), "dados").getAbsolutePath(),
                         MensagemEmailDTO.TipoAnexo.ARQUIVO
                 ));
+                attachmentsNames.add(CID_ATTACHMENT_LOGO);
             }
 
             if (conainsLogo && template.getLogoGrande() != null) {
@@ -73,6 +74,7 @@ public class MensagemBuilder {
                         EntityFileManager.get(template.getLogoGrande(), "dados").getAbsolutePath(),
                         MensagemEmailDTO.TipoAnexo.ARQUIVO
                 ));
+                attachmentsNames.add(CID_ATTACHMENT_BANNER);
             }
         }
 
