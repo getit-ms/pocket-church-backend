@@ -337,7 +337,7 @@ public class AcessoServiceImpl implements AcessoService {
                         membro.getIgreja(),
                         TipoParametro.EMAIL_SUBJECT_SOLICITAR_REDEFINICAO_SENHA,
                         TipoParametro.EMAIL_BODY_SOLICITAR_REDEFINICAO_SENHA,
-                        membro.getNome(), jwt
+                        membro.getNome(), URLEncoder.encode(jwt, "UTF-8")
                 ),
                 new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
     }
