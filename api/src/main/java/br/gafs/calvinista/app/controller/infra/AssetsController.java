@@ -31,18 +31,12 @@ public class AssetsController {
     @EJB
     private ParametroService parametroService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-
     @GET
     @Path("i18n/locale/{locale}.json")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBundleLocale(@PathParam("locale") String locale) throws IOException {
         return Response.status(Response.Status.OK).entity(
-                objectMapper.readValue(
-                        (byte[]) parametroService.get(locale, TipoParametro.BUNDLE_WEB),
-                        Map.class
-                )
+                parametroService.get(locale, TipoParametro.BUNDLE_WEB)
         ).build();
     }
 
@@ -51,10 +45,7 @@ public class AssetsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBundleIgreja(@PathParam("igreja") String igreja) throws IOException {
         return Response.status(Response.Status.OK).entity(
-                objectMapper.readValue(
-                        (byte[]) parametroService.get(igreja, TipoParametro.BUNDLE_WEB),
-                        Map.class
-                )
+                parametroService.get(igreja, TipoParametro.BUNDLE_WEB)
         ).build();
     }
 
