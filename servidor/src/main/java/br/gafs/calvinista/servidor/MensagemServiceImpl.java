@@ -9,13 +9,15 @@ import br.gafs.calvinista.dao.FiltroEmail;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.NotificationSchedule;
+import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.RegistroIgrejaId;
 import br.gafs.calvinista.entity.SentNotification;
 import br.gafs.calvinista.entity.domain.NotificationType;
+import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.MensagemService;
+import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.mensagem.EmailService;
 import br.gafs.calvinista.servidor.mensagem.NotificacaoService;
-import br.gafs.calvinista.util.MensagemUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 import br.gafs.util.date.DateUtil;
@@ -28,6 +30,7 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -37,11 +40,16 @@ import java.util.*;
 @Singleton
 public class MensagemServiceImpl implements MensagemService {
 
+    public static final String ASSUNTO_FIXO_APP_IPB = "IPB App - Interesse Pocket Church";
+
     @EJB
     private DAOService daoService;
 
     @EJB
     private EmailService emailService;
+
+    @EJB
+    private ParametroService paramService;
 
     @EJB
     private NotificacaoService notificacaoService;
@@ -69,18 +77,29 @@ public class MensagemServiceImpl implements MensagemService {
 
     @Override
     public void enviarMensagem(ContatoDTO contato) {
-        if ("IPB App - Interesse Pocket Church".equals(contato.getAssunto())) {
+        if (ASSUNTO_FIXO_APP_IPB.equals(contato.getAssunto())) {
+
             EmailUtil.sendMail(
-                    MensagemUtil.getMensagem("email.contato_pocket_church.message", "pt-br", contato.getNome()),
-                    MensagemUtil.getMensagem("email.contato_pocket_church.subject", "pt-br", contato.getAssunto()),
+                    (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_PC_IPB_RESPOSTA),
+                    MessageFormat.format(
+                            (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_BODY_PC_IPB_RESPOSTA),
+                            contato.getNome()
+                    ),
                     contato.getEmail()
             );
+
         }
 
         EmailUtil.alertAdm(
-                MensagemUtil.getMensagem("email.contato.message", "pt-br",
-                        contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()),
-                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()));
+                MessageFormat.format(
+                    (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_CONTATO_SITE_RESPOSTA),
+                    contato.getAssunto()
+                ),
+                MessageFormat.format(
+                        (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_BODY_CONTATO_SITE_RESPOSTA),
+                        contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()
+                )
+        );
     }
 
     private void sendPushNow(final NotificationSchedule notificacao){

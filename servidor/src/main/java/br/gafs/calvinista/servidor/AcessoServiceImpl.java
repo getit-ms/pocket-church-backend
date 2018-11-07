@@ -7,12 +7,13 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.dao.QueryAdmin;
-import br.gafs.calvinista.dto.CalvinEmailDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MenuDTO;
+import br.gafs.calvinista.dto.ResumoIgrejaDTO;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
+import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.Audit;
 import br.gafs.calvinista.security.AuditoriaInterceptor;
@@ -20,7 +21,7 @@ import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.util.JWTManager;
-import br.gafs.calvinista.util.MensagemUtil;
+import br.gafs.calvinista.util.MensagemBuilder;
 import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
@@ -31,6 +32,8 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -53,6 +56,12 @@ public class AcessoServiceImpl implements AcessoService {
 
     @EJB
     private ArquivoService arquivoService;
+
+    @EJB
+    private JWTManager jwtManager;
+
+    @EJB
+    private MensagemBuilder mensagemBuilder;
 
     @Inject
     private SessaoBean sessaoBean;
@@ -231,7 +240,6 @@ public class AcessoServiceImpl implements AcessoService {
         sessaoBean.logout();
     }
 
-    @Audit
     @Override
     public Membro refreshLogin() {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
@@ -243,7 +251,6 @@ public class AcessoServiceImpl implements AcessoService {
         throw new ServiceException("mensagens.MSG-403");
     }
 
-    @Audit
     @Override
     public Usuario refreshAdmin() {
         Usuario usuario = daoService.find(Usuario.class, sessaoBean.getIdUsuario());
@@ -254,7 +261,18 @@ public class AcessoServiceImpl implements AcessoService {
         
         throw new ServiceException("mensagens.MSG-403");
     }
-    
+
+    @Override
+    public List<ResumoIgrejaDTO> inciaLogin(String username) {
+        List<ResumoIgrejaDTO> igrejas = daoService.findWith(QueryAcesso.BUSCA_IGREJAS_EMAIL.create(username.toLowerCase()));
+
+        if (igrejas.isEmpty()) {
+            throw new ServiceException("mensagens.MSG-606");
+        }
+
+        return igrejas;
+    }
+
     @Audit
     @Override
     public Membro login(String username, String password, TipoDispositivo tipo, String version){
@@ -300,61 +318,57 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Audit
     @Override
-    public void solicitaRedefinicaoSenha(String email) {
+    public void solicitaRedefinicaoSenha(String email) throws UnsupportedEncodingException {
         Membro membro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.createSingle(email, sessaoBean.getChaveIgreja()));
         
         if (membro == null || !membro.isMembro()){
             throw new ServiceException("mensagens.MSG-037");
         }
         
-        String jwt = JWTManager.writer().map("igreja", membro.getIgreja().getId()).map("membro", membro.getId()).build()
-                .replace("/", "%2F")
-                .replace("-", "%2D")
-                .replace(".", "%2E")
-                .replace("=", "%3D")
-                .replace("_", "%5F");
+        String jwt = URLEncoder.encode(jwtManager.writer()
+                .map("igreja", membro.getIgreja().getId())
+                .map("membro", membro.getId())
+                .build(),
+                "UTF-8"
+        );
         
-        String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", membro.getIgreja().getLocale());
-            String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", membro.getIgreja().getLocale(), 
-                    membro.getNome());
-            String text = MensagemUtil.getMensagem("email.redefinir_senha.message.text", membro.getIgreja().getLocale());
-            String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", membro.getIgreja().getLocale(), jwt, membro.getIgreja().getChave());
-            String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", membro.getIgreja().getLocale());
-            
         mensagemService.sendNow(
-                MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
-                        new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, linkUrl, linkText), Collections.EMPTY_LIST)), 
+                mensagemBuilder.email(
+                        membro.getIgreja(),
+                        TipoParametro.EMAIL_SUBJECT_SOLICITAR_REDEFINICAO_SENHA,
+                        TipoParametro.EMAIL_BODY_SOLICITAR_REDEFINICAO_SENHA,
+                        membro.getNome(), jwt
+                ),
                 new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
     }
 
     @Audit
     @Override
     public Membro redefineSenha(String jwt) {
-        JWTManager.JWTReader reader = JWTManager.reader(jwt);
+        JWTManager.JWTReader reader = jwtManager.reader(jwt);
         
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(
                             (String) reader.get("igreja"),
                             ((Number) reader.get("membro")).longValue()));
         
-        if (membro != null || !membro.isMembro()){
+        if (membro != null && membro.isMembro()){
             String novaSenha = SenhaUtil.geraSenha(8);
             membro.setSenha(SenhaUtil.encryptSHA256(novaSenha));
             membro = daoService.update(membro);
             
-            String subject = MensagemUtil.getMensagem("email.nova_senha.subject", 
-                    membro.getIgreja().getLocale());
-            String title = MensagemUtil.getMensagem("email.nova_senha.message.title", 
-                    membro.getIgreja().getLocale(), membro.getNome());
-            String text = MensagemUtil.getMensagem("email.nova_senha.message.text", 
-                    membro.getIgreja().getLocale(), membro.getIgreja().getNome());
-            
             mensagemService.sendNow(
-                    MensagemUtil.email(daoService.find(Institucional.class, membro.getIgreja().getChave()), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", novaSenha), Collections.EMPTY_LIST)),
+                    mensagemBuilder.email(
+                            membro.getIgreja(),
+                            TipoParametro.EMAIL_SUBJECT_REDEFINIR_SENHA,
+                            TipoParametro.EMAIL_BODY_REDEFINIR_SENHA,
+                            membro.getNome(), novaSenha
+                    ),
                     new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
+
+            return membro;
         }
-        
-        return membro;
-    }    
+
+        return null;
+    }
     
 }

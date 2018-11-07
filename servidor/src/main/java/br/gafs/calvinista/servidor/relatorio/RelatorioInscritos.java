@@ -5,6 +5,7 @@ import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.InscricaoEvento;
+import br.gafs.calvinista.entity.Template;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
@@ -26,10 +27,12 @@ import java.util.TimeZone;
 @NoArgsConstructor
 public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio {
     private Igreja igreja;
+    private Template template;
     private Evento evento;
 
-    public RelatorioInscritos(Evento evento){
+    public RelatorioInscritos(Evento evento, Template template){
         this.igreja = evento.getIgreja();
+        this.template = template;
         this.evento = evento;
     }
 
@@ -67,8 +70,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
 
         return ReportUtil.igreja(
                 "report/inscritos_evento.jasper",
-                evento.getNome(),
-                evento.getIgreja())
+                evento.getNome(), igreja, template)
                 .arg("EVENTO", evento)
                 .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                 .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))

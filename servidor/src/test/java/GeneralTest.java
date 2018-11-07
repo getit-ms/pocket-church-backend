@@ -4,57 +4,40 @@
 * and open the template in the editor.
 */
 
-import br.gafs.calvinista.dto.CalvinEmailDTO;
-import br.gafs.calvinista.dto.CalvinEmailDTO.Materia;
-import br.gafs.calvinista.dto.MensagemEmailDTO;
-import br.gafs.calvinista.entity.*;
-import br.gafs.calvinista.util.MensagemUtil;
-import br.gafs.calvinista.util.PDFToImageConverterUtil;
+import br.gafs.calvinista.entity.CalendarioAtendimento;
+import br.gafs.calvinista.entity.HorarioAtendimento;
+import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.Membro;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.File;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.junit.*;
+
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.json.stream.JsonParser;
-import static javax.management.Query.value;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.exolab.castor.types.DateTime;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author Gabriel
  */
 public class GeneralTest {
-    
+
     public GeneralTest() {
     }
     
@@ -82,21 +65,6 @@ public class GeneralTest {
         EmailUtil.sendMail("E-mail teste", "Assunto teste", Arrays.asList("gafsel@gmail.com"));
         
         Thread.sleep(60000);
-    }
-    
-//    @Test
-    public void testaJSON() throws IOException, InterruptedException{
-        Igreja igreja = new Igreja();
-        igreja.setChave("tst");
-        igreja.setNome("Igreja Presbiteriana de Tambaú");
-        Institucional institucional = new Institucional(igreja);
-        institucional.setSite("https://getitmobilesolutions.com");
-        MensagemEmailDTO email = MensagemUtil.email(institucional, "Igreja Presbiteriana Nacional - Novo Acesso",
-                new CalvinEmailDTO(new CalvinEmailDTO.Manchete("Bem Vindo, Gabriel Silva", "Sua senha para acesso ao aplicativo Igreja Presbiteriana Nacional é 1234asdf. Após realizar o primeiro acesso lembre-se de fazer a troca para uma senha de sua escolha.",
-                        "https://getitmobilesolutions.com", "Projetos Calvin"), Collections.EMPTY_LIST));
-        
-        EmailUtil.sendMail(email.getMessage(), email.getSubject(), Arrays.asList("gafsel@gmail.com"), email.getDataSources(), email.getAttachmentsNames());
-        Thread.sleep(10000);
     }
     
 //    @Test

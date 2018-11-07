@@ -67,7 +67,15 @@ public enum QueryAcesso {
         
     }, 
     MIGRA_SENT_NOTIFICATIONS("SentNotification.migraDispositivo", "oldDispositivo", "newDispositivo"), 
-    UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo");
+    UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo"),
+    BUSCA_IGREJAS_EMAIL("Igreja.findByEmailAcesso", "email"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusIgreja", StatusIgreja.ATIVO)
+                    .set("statusMembro", StatusMembro.MEMBRO);
+        }
+    };
     
     private final String query;
     private final String[] parameters;

@@ -4,6 +4,7 @@ import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.entity.Hino;
 import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.Template;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.security.AllowAdmin;
@@ -59,7 +60,8 @@ public class RelatorioServiceImpl implements RelatorioService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS})
     public File exportaInscritos(Long id, String tipo) throws IOException, InterruptedException {
-        return export(new RelatorioInscritos(appService.buscaEvento(id)), tipo);
+        return export(new RelatorioInscritos(appService.buscaEvento(id),
+                daoService.find(Template.class, sessaoBean.getChaveIgreja())), tipo);
     }
 
     @Override
@@ -79,18 +81,21 @@ public class RelatorioServiceImpl implements RelatorioService {
         Hino entidade = appService.buscaHino(hino);
         return export(new RelatorioHino(
                 daoService.find(Igreja.class, sessaoBean.getChaveIgreja()),
+                daoService.find(Template.class, sessaoBean.getChaveIgreja()),
                 entidade), tipo);
     }
 
     @Override
     public File exportaEstudo(Long estudo, String tipo) throws IOException, InterruptedException {
         Estudo entidade = appService.buscaEstudo(estudo);
-        return export(new RelatorioEstudo(entidade), tipo);
+        return export(new RelatorioEstudo(entidade,
+                daoService.find(Template.class, sessaoBean.getChaveIgreja())), tipo);
     }
 
     @Override
     @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
     public File exportaResultadosVotacao(Long votacao, String tipo) throws IOException, InterruptedException {
-        return export(new RelatorioResultadoVotacao(appService.buscaResultado(votacao)), tipo);
+        return export(new RelatorioResultadoVotacao(appService.buscaResultado(votacao),
+                daoService.find(Template.class, sessaoBean.getChaveIgreja())), tipo);
     }
 }

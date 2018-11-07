@@ -27,6 +27,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -49,16 +50,24 @@ public class AcessoController {
     @Context
     private HttpServletResponse response;
     
+    @GET
+    @Path("login/{email}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response iniciaLogin(final @PathParam("email") String email){
+        return Response.status(Response.Status.OK).entity(acessoService.inciaLogin(email)).build();
+    }
+
     @PUT
     @Path("login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizaLogin(final RequisicaoLoginDTO req){
-        Membro membro = acessoService.login(req.getUsername(), 
+        Membro membro = acessoService.login(req.getUsername(),
                 SenhaUtil.encryptSHA256(req.getPassword()), req.getTipoDispositivo(), req.getVersion());
         return Response.status(Response.Status.OK).entity(acesso(membro, req.getVersion())).build();
     }
-    
+
     @PUT
     @Path("logout")
     public Response realizaLogout(){
@@ -144,7 +153,7 @@ public class AcessoController {
     @Path("senha/redefinir/{email}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response solicitarRedefinirSenha(@PathParam("email") String email){
+    public Response solicitarRedefinirSenha(@PathParam("email") String email) throws UnsupportedEncodingException {
         acessoService.solicitaRedefinicaoSenha(email);
         return Response.ok().build();
     }
@@ -193,7 +202,6 @@ public class AcessoController {
     }
     
     @GET
-    @Deprecated
     @Produces(MediaType.APPLICATION_JSON)
     public Response renovaAcesso(
             @QueryParam("versao") String versao

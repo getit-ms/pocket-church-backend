@@ -71,6 +71,7 @@
                         <webModule>
                             <groupId>br.gafs.getit.calvinista</groupId>
                             <artifactId>calvinista-api</artifactId>
+                            <bundleFileName>calvinista-api.war</bundleFileName>
                             <contextRoot>/app</contextRoot>
                         </webModule>
                     </modules>

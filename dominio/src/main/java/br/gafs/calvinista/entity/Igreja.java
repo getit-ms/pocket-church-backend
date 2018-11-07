@@ -37,7 +37,8 @@ import java.util.List;
 @NamedQueries({
     @NamedQuery(name = "Igreja.findAtivas", query = "select i from Igreja i where i.status in :status"),
     @NamedQuery(name = "Igreja.findFuncionalidadesInList", query = "select f from Igreja i inner join i.plano p inner join p.funcionalidades f where i.chave = :igreja and f in :list group by f"),
-    @NamedQuery(name = "Igreja.findFuncionalidadesAplicativoInList", query = "select f from Igreja i inner join i.funcionalidadesAplicativo f where i.chave = :igreja and f in :list group by f")
+    @NamedQuery(name = "Igreja.findFuncionalidadesAplicativoInList", query = "select f from Igreja i inner join i.funcionalidadesAplicativo f where i.chave = :igreja and f in :list group by f"),
+    @NamedQuery(name = "Igreja.findByEmailAcesso", query = "select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, i.nomeAplicativo, temp.logoPequena) from Template temp, Membro m inner join m.acesso a inner join m.igreja i where i = temp.igreja and i.status = :statusIgreja and m.status = :statusMembro and lower(m.email) = :email")
 })
 public class Igreja implements IEntity {
     @Id

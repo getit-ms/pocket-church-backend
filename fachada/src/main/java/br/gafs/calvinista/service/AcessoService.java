@@ -6,10 +6,12 @@
 package br.gafs.calvinista.service;
 
 import br.gafs.calvinista.dto.MenuDTO;
+import br.gafs.calvinista.dto.ResumoIgrejaDTO;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -17,6 +19,8 @@ import java.util.List;
  * @author Gabriel
  */
 public interface AcessoService extends Serializable {
+
+    List<ResumoIgrejaDTO> inciaLogin(String username);
     Membro login(String username, String password, TipoDispositivo tipo, String version);
     Usuario admin(String username, String password);
     Membro refreshLogin();
@@ -33,7 +37,7 @@ public interface AcessoService extends Serializable {
 
     void alteraSenha(Membro entidade);
     
-    void solicitaRedefinicaoSenha(String email);
+    void solicitaRedefinicaoSenha(String email) throws UnsupportedEncodingException;
     
     Membro redefineSenha(String jwt);
 

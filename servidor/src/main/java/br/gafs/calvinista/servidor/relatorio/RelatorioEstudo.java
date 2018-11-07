@@ -2,6 +2,7 @@ package br.gafs.calvinista.servidor.relatorio;
 
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.Template;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
@@ -16,11 +17,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
     private Igreja igreja;
+    private Template template;
     private Estudo estudo;
 
-    public RelatorioEstudo(Estudo estudo){
+    public RelatorioEstudo(Estudo estudo, Template template){
         this.estudo = estudo;
         this.igreja = estudo.getIgreja();
+        this.template = template;
     }
 
     @Override
@@ -42,7 +45,6 @@ public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         return ReportUtil.igreja(
                 "report/estudo.jasper",
-                getTitulo(),
-                igreja).bean(estudo).build();
+                getTitulo(), igreja, template).bean(estudo).build();
     }
 }

@@ -1,7 +1,9 @@
 package br.gafs.calvinista.util;
 
 import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.Template;
 import br.gafs.exceptions.ServiceException;
+import br.gafs.file.EntityFileManager;
 import br.gafs.view.relatorio.RelatorioUtil;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -29,12 +31,14 @@ public class ReportUtil {
 
     public static ReportUtil igreja(String path,
                                     final String titulo,
-                                    final Igreja igreja){
+                                    final Igreja igreja,
+                                    final Template template){
         return new ReportUtil(path){
             @Override
             public ExporterImpl build() {
                 return basic("report/relatorio_igreja.jasper")
-                        .arg("LOGO_IGREJA", ResourceUtil.report(igreja.getChave(), "logo.png"))
+                        .arg("LOGO_IGREJA", template.getLogoReports() == null ? null :
+                                EntityFileManager.get(template.getLogoReports(), "dados").getAbsolutePath())
                         .arg("TITULO", titulo)
                         .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                         .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))

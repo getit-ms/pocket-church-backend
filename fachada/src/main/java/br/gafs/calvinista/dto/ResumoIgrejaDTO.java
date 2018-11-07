@@ -16,4 +16,8 @@ public class ResumoIgrejaDTO {
     private Arquivo logoPequena;
     private String cidade;
     private String estado;
+
+    public ResumoIgrejaDTO(String chave, String nome, String nomeAplicativo, Arquivo logoPequena) {
+        this(chave, nome, nomeAplicativo, logoPequena, null, null);
+    }
 }

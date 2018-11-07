@@ -140,6 +140,10 @@ public class ParametroServiceImpl implements ParametroService {
         Parametro p = daoService.find(Parametro.class, new ParametroId(grupo, param));
         
         if (p == null){
+            if (!Parametro.GLOBAL.equals(grupo)) {
+                return get(Parametro.GLOBAL, param);
+            }
+
             p = new Parametro(grupo, param);
         }
         
@@ -148,9 +152,13 @@ public class ParametroServiceImpl implements ParametroService {
 
     @Override
     public <T> void set(String grupo, TipoParametro param, T value) {
-        Parametro p = new Parametro(grupo, param);
-        p.set(value);
-        daoService.update(p);
+        if (value == null || value.toString().isEmpty()) {
+            daoService.delete(Parametro.class, new ParametroId(grupo, param));
+        } else {
+            Parametro p = new Parametro(grupo, param);
+            p.set(value);
+            daoService.update(p);
+        }
     }
     
 }

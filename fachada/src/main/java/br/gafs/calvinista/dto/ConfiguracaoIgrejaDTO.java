@@ -28,40 +28,40 @@ public class ConfiguracaoIgrejaDTO implements DTO {
     private boolean habilitadoPagSeguro;
     
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_VERSICULO_DIARIO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_VERSICULO_DIARIO)
     private String tituloVersiculoDiario;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_LEMBRETE_LEITURA_BIBLICA)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_LEMBRETE_LEITURA_BIBLICA)
     private String tituloLembreteLeituraBiblica;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_ANIVERSARIO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_ANIVERSARIO)
     private String tituloAniversario;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TEXTO_ANIVERSARIO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_ANIVERSARIO)
     private String textoAniversario;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_BOLETIM)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_BOLETIM)
     private String tituloBoletim;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TEXTO_BOLETIM)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_BOLETIM)
     private String textoBoletim;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_PUBLICACAO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_PUBLICACAO)
     private String tituloPublicacao;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TEXTO_PUBLICACAO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_PUBLICACAO)
     private String textoPublicacao;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_ESTUDO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_ESTUDO)
     private String tituloEstudo;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TEXTO_ESTUDO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_ESTUDO)
     private String textoEstudo;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TITULO_NOTICIA)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_NOTICIA)
     private String tituloNoticia;
     @View.MergeViews(View.Edicao.class)
-    @TipoParametro.Mapping(TipoParametro.TEXTO_NOTICIA)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_NOTICIA)
     private String textoNoticia;
 
     public boolean isPagSeguroConfigurado() {

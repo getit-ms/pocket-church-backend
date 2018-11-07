@@ -32,6 +32,9 @@ public class Template implements IEntity {
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
 
+    @Column(name = "cor_principal")
+    private String corPrincipal;
+
     @OneToOne
     @View.MergeViews(View.Resumido.class)
     @JoinColumns({
@@ -56,8 +59,13 @@ public class Template implements IEntity {
     })
     private Arquivo banner;
 
-    @Column(name = "cor_principal")
-    private String corPrincipal;
+    @OneToOne
+    @View.MergeViews(View.Detalhado.class)
+    @JoinColumns({
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false),
+            @JoinColumn(name = "id_logo_report", referencedColumnName = "id_arquivo")
+    })
+    private Arquivo logoReports;
 
     public Template(Igreja igreja) {
         this.igreja = igreja;

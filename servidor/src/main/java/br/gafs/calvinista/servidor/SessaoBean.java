@@ -34,11 +34,14 @@ public class SessaoBean implements Serializable {
 
     private static final long TIMEOUT = 3 * DateUtil.MILESIMOS_POR_DIA;
 
-    @Inject
-    private SessionDataManager manager;
+    @EJB
+    private JWTManager jwtManager;
 
     @EJB
     private DispositivoService dispositivoService;
+
+    @Inject
+    private SessionDataManager manager;
 
     @EJB
     private DAOService daoService;
@@ -58,7 +61,7 @@ public class SessaoBean implements Serializable {
         Number creation = null;
         if (!StringUtil.isEmpty(authorization)){
             try{
-                JWTManager.JWTReader reader = JWTManager.reader(authorization);
+                JWTManager.JWTReader reader = jwtManager.reader(authorization);
                 chaveIgreja = (String) reader.get("igreja");
                 chaveDispositivo = (String) reader.get("dispositivo");
                 idMembro = toLong(reader.get("membro"));
@@ -220,7 +223,7 @@ public class SessaoBean implements Serializable {
         load();
 
         if (idUsuario != null || idMembro != null){
-            manager.header("Set-Authorization", JWTManager.writer().
+            manager.header("Set-Authorization", jwtManager.writer().
                     map("igreja", chaveIgreja).
                     map("dispositivo", chaveDispositivo).
                     map("membro", idMembro).

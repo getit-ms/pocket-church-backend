@@ -2,6 +2,7 @@ package br.gafs.calvinista.servidor.relatorio;
 
 import br.gafs.calvinista.entity.Hino;
 import br.gafs.calvinista.entity.Igreja;
+import br.gafs.calvinista.entity.Template;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
@@ -16,11 +17,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RelatorioHino implements ProcessamentoRelatorioCache.Relatorio {
     private Igreja igreja;
+    private Template template;
     private Hino hino;
 
-    public RelatorioHino(Igreja igreja, Hino hino){
+    public RelatorioHino(Igreja igreja, Template template, Hino hino){
         this.hino = hino;
         this.igreja = igreja;
+        this.template = template;
     }
 
     @Override
@@ -42,7 +45,6 @@ public class RelatorioHino implements ProcessamentoRelatorioCache.Relatorio {
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         return ReportUtil.igreja(
                 "report/hino.jasper",
-                getTitulo(),
-                igreja).bean(hino).build();
+                getTitulo(), igreja, template).bean(hino).build();
     }
 }
