@@ -8,6 +8,7 @@ import br.gafs.util.email.EmailUtil;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,7 @@ import java.util.logging.Logger;
  */
 @Startup
 @Singleton
+@LocalBean
 public class ConfiguradorEmailService implements ConfiguradorSMTP {
 
     @EJB
