@@ -47,7 +47,7 @@ public class AcessoServiceImpl implements AcessoService {
 
     @EJB
     private DAOService daoService;
-    
+
     @EJB
     private MensagemService mensagemService;
 
@@ -70,12 +70,12 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public Usuario admin(String username, String password) {
         Usuario usuario = daoService.findWith(QueryAcesso.AUTENTICA_USUARIO.createSingle(username, password));
-        
+
         if (usuario != null){
             sessaoBean.admin(usuario.getId());
             return usuario;
         }
-        
+
         throw new ServiceException("mensagens.MSG-600");
     }
 
@@ -95,7 +95,7 @@ public class AcessoServiceImpl implements AcessoService {
             dispositivo.setMembro(null);
             dispositivo = daoService.update(dispositivo);
         }
-        
+
         return dispositivo;
     }
 
@@ -108,7 +108,7 @@ public class AcessoServiceImpl implements AcessoService {
     public Preferencias buscaPreferencis() {
         return daoService.find(Preferencias.class, dispositivo().getChave());
     }
-    
+
     @Override
     public List<Ministerio> buscaMinisterios(){
         return daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja()));
@@ -212,15 +212,15 @@ public class AcessoServiceImpl implements AcessoService {
                 membro.setDesejaDisponibilizarDados(dadosDisponiveis);
                 daoService.update(membro);
             }
-            
+
             List<Preferencias> prefs = daoService.findWith(QueryAdmin.PREFERENCIAS_POR_MEMBRO.
                     create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
-            
+
             for (Preferencias pref : prefs){
                 preferencias.copia(pref);
                 daoService.update(preferencias);
             }
-            
+
             return daoService.update(preferencias);
         }else{
             return daoService.update(preferencias);
@@ -231,12 +231,12 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public void logout() {
         Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
-        
+
         if (dispositivo != null){
             dispositivo.setMembro(null);
             daoService.update(dispositivo);
         }
-        
+
         sessaoBean.logout();
     }
 
@@ -247,7 +247,7 @@ public class AcessoServiceImpl implements AcessoService {
             sessaoBean.login(membro.getId(), sessaoBean.isAdmin());
             return membro;
         }
-        
+
         throw new ServiceException("mensagens.MSG-403");
     }
 
@@ -258,7 +258,7 @@ public class AcessoServiceImpl implements AcessoService {
             sessaoBean.admin(usuario.getId());
             return usuario;
         }
-        
+
         throw new ServiceException("mensagens.MSG-403");
     }
 
@@ -277,18 +277,18 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public Membro login(String username, String password, TipoDispositivo tipo, String version){
         Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
-        
+
         if (membro != null && membro.isMembro()){
             Dispositivo dispositivo = dispositivo();
             dispositivo.setMembro(membro);
             daoService.update(dispositivo);
-            
+
             registerPush(tipo, null, version);
-            
+
             sessaoBean.login(membro.getId(), TipoDispositivo.PC.equals(tipo));
             return membro;
         }
-        
+
         throw new ServiceException("mensagens.MSG-606");
     }
 
@@ -307,12 +307,12 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public void alteraSenha(Membro entidade) {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-        
+
         membro.setNovaSenha(entidade.getNovaSenha());
         membro.setConfirmacaoSenha(entidade.getConfirmacaoSenha());
-        
+
         membro.alteraSenha();
-        
+
         daoService.update(membro);
     }
 
@@ -320,24 +320,27 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public void solicitaRedefinicaoSenha(String email) throws UnsupportedEncodingException {
         Membro membro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.createSingle(email, sessaoBean.getChaveIgreja()));
-        
+
         if (membro == null || !membro.isMembro()){
             throw new ServiceException("mensagens.MSG-037");
         }
-        
-        String jwt = URLEncoder.encode(jwtManager.writer()
+
+        String jwt = jwtManager.writer()
                 .map("igreja", membro.getIgreja().getId())
                 .map("membro", membro.getId())
-                .build(),
-                "UTF-8"
-        );
-        
+                .build()
+                .replace("/", "%2F")
+                .replace("-", "%2D")
+                .replace(".", "%2E")
+                .replace("=", "%3D")
+                .replace("_", "%5F");
+
         mensagemService.sendNow(
                 mensagemBuilder.email(
                         membro.getIgreja(),
                         TipoParametro.EMAIL_SUBJECT_SOLICITAR_REDEFINICAO_SENHA,
                         TipoParametro.EMAIL_BODY_SOLICITAR_REDEFINICAO_SENHA,
-                        membro.getNome(), URLEncoder.encode(jwt, "UTF-8")
+                        membro.getNome(), jwt
                 ),
                 new FiltroEmailDTO(membro.getIgreja(), membro.getId()));
     }
@@ -346,16 +349,16 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public Membro redefineSenha(String jwt) {
         JWTManager.JWTReader reader = jwtManager.reader(jwt);
-        
+
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(
-                            (String) reader.get("igreja"),
-                            ((Number) reader.get("membro")).longValue()));
-        
+                (String) reader.get("igreja"),
+                ((Number) reader.get("membro")).longValue()));
+
         if (membro != null && membro.isMembro()){
             String novaSenha = SenhaUtil.geraSenha(8);
             membro.setSenha(SenhaUtil.encryptSHA256(novaSenha));
             membro = daoService.update(membro);
-            
+
             mensagemService.sendNow(
                     mensagemBuilder.email(
                             membro.getIgreja(),
@@ -370,5 +373,5 @@ public class AcessoServiceImpl implements AcessoService {
 
         return null;
     }
-    
+
 }
