@@ -71,6 +71,11 @@ public class ParametroServiceImpl implements ParametroService {
         return build(ConfiguracaoYouTubeIgrejaDTO.class, igreja);
     }
 
+    @Override
+    public ConfiguracaoFacebookIgrejaDTO buscaConfiguracaoVideosFacebook(String igreja) {
+        return build(ConfiguracaoFacebookIgrejaDTO.class, igreja);
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
@@ -79,6 +84,13 @@ public class ParametroServiceImpl implements ParametroService {
     }
 
     @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public void salvaConfiguracaoVideosFacebook(ConfiguracaoFacebookIgrejaDTO params, String igreja) {
+        extract(params, igreja);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_FLICKR)
     public ConfiguracaoFlickrIgrejaDTO buscaConfiguracaoFlickr(String igreja) {
         return build(ConfiguracaoFlickrIgrejaDTO.class, igreja);
     }

@@ -19,12 +19,14 @@ public interface ParametroService extends Serializable {
     ConfiguracaoIgrejaDTO buscaConfiguracao(String igreja);
     ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube(String igreja);
     ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar(String chaveIgreja);
-    
+    ConfiguracaoFacebookIgrejaDTO buscaConfiguracaoVideosFacebook(String chaveIgreja);
+
     void salvaParametrosGlobais(ParametrosGlobaisDTO params);
     void salvaParametros(ParametrosIgrejaDTO params, String igreja);
     void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja);
     void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja);
     void salvaConfiguracaoCalendar(ConfiguracaoCalendarIgrejaDTO params, String igreja);
+    void salvaConfiguracaoVideosFacebook(ConfiguracaoFacebookIgrejaDTO params, String igreja);
 
     <T> T get(String grupo, TipoParametro param);
 

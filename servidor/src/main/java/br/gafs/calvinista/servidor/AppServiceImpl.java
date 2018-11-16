@@ -17,6 +17,7 @@ import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.calvinista.servidor.facebook.FacebookService;
 import br.gafs.calvinista.servidor.flickr.FlickrService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
@@ -89,6 +90,9 @@ public class AppServiceImpl implements AppService {
 
     @EJB
     private GoogleService googleService;
+
+    @EJB
+    private FacebookService facebookService;
 
     @EJB
     private ParametroService  paramService;
@@ -1863,6 +1867,12 @@ public class AppServiceImpl implements AppService {
                 ResourceBundleUtil._default().getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"));
     }
 
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public String buscaURLAutenticacaoVideosFacebook() throws IOException {
+        return facebookService.getLoginUrlVideos(sessaoBean.getChaveIgreja());
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
@@ -1877,12 +1887,26 @@ public class AppServiceImpl implements AppService {
         return googleService.buscaCalendarios(sessaoBean.getChaveIgreja());
     }
 
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public List<PaginaFacebookDTO> buscaPaginasFacebook() throws IOException {
+        return facebookService.buscaPaginas(sessaoBean.getChaveIgreja());
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao) {
         paramService.salvaConfiguracaoYouTube(configuracao, sessaoBean.getChaveIgreja());
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public ConfiguracaoFacebookIgrejaDTO atualiza(ConfiguracaoFacebookIgrejaDTO configuracao) {
+        paramService.salvaConfiguracaoVideosFacebook(configuracao, sessaoBean.getChaveIgreja());
+        return paramService.buscaConfiguracaoVideosFacebook(sessaoBean.getChaveIgreja());
     }
 
     @Audit
@@ -1900,6 +1924,23 @@ public class AppServiceImpl implements AppService {
             LOGGER.log(Level.SEVERE, null, ex);
             throw new ServiceException("mensagens.MSG-049");
         }
+    }
+
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public void iniciaConfiguracaoVideosFacebook(String code) {
+        facebookService.login(sessaoBean.getChaveIgreja(), code);
+
+        ConfiguracaoFacebookIgrejaDTO config = paramService.buscaConfiguracaoVideosFacebook(sessaoBean.getChaveIgreja());
+
+        List<PaginaFacebookDTO> paginas = facebookService.buscaPaginas(sessaoBean.getChaveIgreja());
+
+        if (!paginas.isEmpty()) {
+            config.setPagina(paginas.get(0).getId());
+        }
+
+        paramService.salvaConfiguracaoVideosFacebook(config, sessaoBean.getChaveIgreja());
     }
 
     @Audit
@@ -1941,6 +1982,14 @@ public class AppServiceImpl implements AppService {
                 TipoParametro.YOUTUBE_CHANNEL_ID, null);
     }
 
+    @Audit
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public void desvinculaVideosFacebook() {
+        paramService.set(sessaoBean.getChaveIgreja(),
+                TipoParametro.FACEBOOK_APP_CODE, null);
+    }
+
     @Override
     public BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total) {try {
         return googleService.buscaEventosCalendar(sessaoBean.getChaveIgreja(), pagina, total);
@@ -1951,9 +2000,19 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public List<VideoDTO> buscaVideos() {
+    public List<VideoDTO> buscaVideosYouTube() {
         try {
             return googleService.buscaVideosYouTube(sessaoBean.getChaveIgreja());
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<VideoDTO> buscaVideosFacebook() {
+        try {
+            return facebookService.buscaVideos(sessaoBean.getChaveIgreja());
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
             return Collections.emptyList();
@@ -1970,6 +2029,12 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube() {
         return paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveIgreja());
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
+    public ConfiguracaoFacebookIgrejaDTO buscaConfiguracaoVideosFacebook() {
+        return paramService.buscaConfiguracaoVideosFacebook(sessaoBean.getChaveIgreja());
     }
 
     @Override
@@ -2670,7 +2735,7 @@ public class AppServiceImpl implements AppService {
                                 String titulo = MessageFormat.format(config.getTituloAoVivo(), video.getTitulo(), horario);
 
                                 String texto = MessageFormat.format(config.getTextoAoVivo(),
-                                            video.getTitulo(), horario);
+                                        video.getTitulo(), horario);
 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
                             }catch(Exception e){

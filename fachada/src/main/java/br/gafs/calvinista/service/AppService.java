@@ -193,11 +193,19 @@ public interface AppService extends Serializable {
 
     String buscaURLAutenticacaoYouTube() throws IOException;
     void iniciaConfiguracaoYouTube(String code);
-    List<VideoDTO> buscaVideos();
+    List<VideoDTO> buscaVideosYouTube();
     ConfiguracaoYouTubeIgrejaDTO buscaConfiguracaoYouTube();
     void desvinculaYouTube();
     ConfiguracaoIgrejaDTO buscaConfiguracao();
     ConfiguracaoYouTubeIgrejaDTO atualiza(ConfiguracaoYouTubeIgrejaDTO configuracao);
+
+    String buscaURLAutenticacaoVideosFacebook() throws IOException;
+    void iniciaConfiguracaoVideosFacebook(String code);
+    List<VideoDTO> buscaVideosFacebook();
+    ConfiguracaoFacebookIgrejaDTO buscaConfiguracaoVideosFacebook();
+    void desvinculaVideosFacebook();
+    List<PaginaFacebookDTO> buscaPaginasFacebook() throws IOException;
+    ConfiguracaoFacebookIgrejaDTO atualiza(ConfiguracaoFacebookIgrejaDTO configuracao);
 
     String buscaURLAutenticacaoCalendar() throws IOException;
     void iniciaConfiguracaoCalendar(String code);

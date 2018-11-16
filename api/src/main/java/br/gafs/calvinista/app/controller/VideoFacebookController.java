@@ -6,7 +6,7 @@
 package br.gafs.calvinista.app.controller;
 
 import br.gafs.bundle.ResourceBundleUtil;
-import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
+import br.gafs.calvinista.dto.ConfiguracaoFacebookIgrejaDTO;
 import br.gafs.calvinista.service.AppService;
 
 import javax.ejb.EJB;
@@ -26,8 +26,8 @@ import java.util.Map;
  * @author Gabriel
  */
 @RequestScoped
-@Path("youtube")
-public class YouTubeController {
+@Path("facebook/video")
+public class VideoFacebookController {
     
     @EJB
     private AppService appService;
@@ -45,29 +45,36 @@ public class YouTubeController {
     @Path("configuracao")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaConfiguracao(){
-        return Response.status(Response.Status.OK).entity(appService.buscaConfiguracaoYouTube()).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaConfiguracaoVideosFacebook()).build();
     }
-    
+
+    @GET
+    @Path("paginas")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaPaginas() throws IOException {
+        return Response.status(Response.Status.OK).entity(appService.buscaPaginasFacebook()).build();
+    }
+
     @GET
     @Path("url")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaURL() throws IOException{
         Map<String, Object> args = new HashMap<String, Object>();
-        args.put("url", appService.buscaURLAutenticacaoYouTube());
+        args.put("url", appService.buscaURLAutenticacaoVideosFacebook());
         return Response.status(Response.Status.OK).entity(args).build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     public Response desativa() throws IOException{
-        appService.desvinculaYouTube();
+        appService.desvinculaVideosFacebook();
         return Response.status(Response.Status.OK).build();
     }
 
     @GET
-    @Path("integracao")
-    public Response redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
-        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_YOUTUBE_REDIRECT_URL"), state, code));
+    @Path("integracao/{chave}")
+    public Response redirectConfiguracao(@QueryParam("code") String code, @QueryParam("chave") String chave) throws IOException{
+        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_FACEBOOK_VIDEO_REDIRECT_URL"), chave, code));
         return Response.status(Response.Status.OK).build();
     }
     
@@ -75,13 +82,13 @@ public class YouTubeController {
     @Path("configuracao")
     @Produces(MediaType.APPLICATION_JSON)
     public Response iniciaConfiguracao(Map<String, String> body){
-        appService.iniciaConfiguracaoYouTube(body.get("code"));
+        appService.iniciaConfiguracaoVideosFacebook(body.get("code"));
         return Response.status(Response.Status.OK).build();
     }
     
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response salva(ConfiguracaoYouTubeIgrejaDTO configuracao){
+    public Response salva(ConfiguracaoFacebookIgrejaDTO configuracao){
         appService.atualiza(configuracao);
         return Response.status(Response.Status.OK).build();
     }

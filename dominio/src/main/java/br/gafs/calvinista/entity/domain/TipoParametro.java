@@ -52,6 +52,10 @@ public enum TipoParametro {
     PUSH_BODY_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, "Assista ''{0}'' ao vivo agora!"),
     PUSH_TITLE_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, "Estaremos AO VIVO hoje {1}!"),
     PUSH_BODY_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, "Assista ''{0}'' ao vivo hoje as {1}."),
+    PUSH_TITLE_FACEBOOK_AO_VIVO(TipoValor.VALOR, String.class, "Estamos AO VIVO!"),
+    PUSH_BODY_FACEBOOK_AO_VIVO(TipoValor.VALOR, String.class, "Assista ''{0}'' ao vivo agora!"),
+    PUSH_TITLE_FACEBOOK_AGENDADO(TipoValor.VALOR, String.class, "Estaremos AO VIVO hoje {1}!"),
+    PUSH_BODY_FACEBOOK_AGENDADO(TipoValor.VALOR, String.class, "Assista ''{0}'' ao vivo hoje as {1}."),
     PUSH_TITLE_CONFIRMACAO_AGENDAMENTO(TipoValor.VALOR, String.class, "Confirmação de Aconselhamento"),
     PUSH_BODY_CONFIRMACAO_AGENDAMENTO(TipoValor.VALOR, String.class, "O pastor {0} confirmou seu aconselhamento no dia {1} de {2} a {3}."),
     PUSH_TITLE_CANCELAMENTO_AGENDAMENTO(TipoValor.VALOR, String.class, "Cancelamento de Aconselhamento"),
@@ -81,6 +85,12 @@ public enum TipoParametro {
     FLICKR_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     FLICKR_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
     FLICKR_ID(TipoValor.VALOR, String.class, null),
+
+    // Integração Facebook
+    FACEBOOK_PAGE_ID(TipoValor.VALOR, String.class, null),
+    FACEBOOK_APP_ID(TipoValor.VALOR, String.class, null),
+    FACEBOOK_APP_SECRET(TipoValor.VALOR, String.class, null),
+    FACEBOOK_APP_CODE(TipoValor.VALOR, String.class, null),
 
     // Senha de tokens JWT
     JWT_KEY_ALGORITHM(TipoValor.VALOR, String.class, "HmacSHA512"),
