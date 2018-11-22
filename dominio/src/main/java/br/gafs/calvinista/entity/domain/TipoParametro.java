@@ -88,8 +88,8 @@ public enum TipoParametro {
 
     // Integração Facebook
     FACEBOOK_PAGE_ID(TipoValor.VALOR, String.class, null),
-    FACEBOOK_APP_ID(TipoValor.VALOR, String.class, null),
-    FACEBOOK_APP_SECRET(TipoValor.VALOR, String.class, null),
+    FACEBOOK_APP_ID(TipoValor.VALOR, String.class, "2260125654205962"),
+    FACEBOOK_APP_SECRET(TipoValor.VALOR, String.class, "3f2773a0bb27c75363009a903b747d30"),
     FACEBOOK_APP_CODE(TipoValor.VALOR, String.class, null),
 
     // Senha de tokens JWT
