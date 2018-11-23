@@ -73,7 +73,7 @@ public class BatchService {
 
         ExecucaoServicoDTO execucaoServico = client.target(BASE_PATH).path("servico/" + servico + "/execute")
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", tokenConexao)
+                .header("Authorization", "Agente " + tokenConexao)
                 .post(Entity.json(entradas))
                 .readEntity(ExecucaoServicoDTO.class);
 
