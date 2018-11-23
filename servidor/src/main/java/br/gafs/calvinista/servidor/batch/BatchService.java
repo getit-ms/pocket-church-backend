@@ -19,17 +19,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Gabriel on 22/11/2018.
  */
 @Singleton
 public class BatchService {
-    private static final String VERSAO = ResourceBundleUtil.getBundle("versao").getPropriedade("VERSAO");
+    private static final String VERSAO = ResourceBundle.getBundle("versao", new Locale("pt-br")).getString("VERSAO");
 
     public static final Logger LOGGER = LogManager.getLogger(BatchService.class);
 
