@@ -17,12 +17,11 @@ import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.calvinista.servidor.batch.BatchService;
 import br.gafs.calvinista.servidor.facebook.FacebookService;
 import br.gafs.calvinista.servidor.flickr.FlickrService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
-import br.gafs.calvinista.servidor.processamento.ProcessamentoBoletim;
-import br.gafs.calvinista.servidor.processamento.ProcessamentoEstudo;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
 import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
@@ -81,6 +80,9 @@ public class AppServiceImpl implements AppService {
 
     @EJB
     private ArquivoService arquivoService;
+
+    @EJB
+    private BatchService batchServie;
 
     @EJB
     private MensagemService notificacaoService;
@@ -219,7 +221,6 @@ public class AppServiceImpl implements AppService {
                 create(sessaoBean.getChaveIgreja()));
     }
 
-    @Audit
     @Override
     public Chamado solicita(Chamado chamado) {
         if (sessaoBean.isAdmin()){
@@ -600,52 +601,6 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.PERFIS.create(sessaoBean.getChaveIgreja()));
     }
 
-    @Schedule(hour = "*", minute = "*/5")
-    public void processaBoletins() {
-        LOGGER.info("Iniciando processamento de boletins");
-        if (Boletim.locked() < 15){
-            List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
-            LOGGER.info("Quantidade de boletins a processar: " + boletins.size());
-            for (Boletim boletim : boletins){
-                try{
-                    if (!Boletim.locked(new RegistroIgrejaId(boletim.getChaveIgreja(), boletim.getId()))){
-                        LOGGER.info("Agendando processamento do boletim " + boletim.getId());
-                        processamentoService.schedule(new ProcessamentoBoletim(boletim));
-                    }else{
-                        LOGGER.info("Boletim já encontra-se em processamento: " + boletim.getId());
-                    }
-                }catch(Exception e){
-                    LOGGER.log(Level.SEVERE, "Erro ao tentar processar boletim " + boletim.getId(), e);
-                }
-            }
-        }else{
-            LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
-        }
-    }
-
-    @Schedule(hour = "*", minute = "*/5")
-    public void processaEstudos() {
-        LOGGER.info("Iniciando processamento de estudos (PDF)");
-        if (Estudo.locked() < 15){
-            List<Estudo> estudos = daoService.findWith(QueryAdmin.ESTUDOS_PROCESSANDO.create());
-            LOGGER.info("Quantidade de estudos a processar: " + estudos.size());
-            for (Estudo estudo : estudos){
-                try{
-                    if (!Estudo.locked(new RegistroIgrejaId(estudo.getChaveIgreja(), estudo.getId()))){
-                        LOGGER.info("Agendando processamento do estudo " + estudo.getId());
-                        processamentoService.schedule(new ProcessamentoEstudo(estudo));
-                    }else{
-                        LOGGER.info("Estudo já encontra-se em processamento: " + estudo.getId());
-                    }
-                }catch(Exception e){
-                    LOGGER.log(Level.SEVERE, "Erro ao tentar processar estudo " + estudo.getId(), e);
-                }
-            }
-        }else{
-            LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
-        }
-    }
-
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
@@ -653,9 +608,10 @@ public class AppServiceImpl implements AppService {
         boletim.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
         if (trataTrocaPDF(boletim)){
+
             boletim.processando();
 
-            processamentoService.schedule(new ProcessamentoBoletim(boletim));
+            batchServie.processaBoletim(boletim.getChaveIgreja(), boletim.getId());
         }
         return daoService.create(boletim);
     }
@@ -666,9 +622,15 @@ public class AppServiceImpl implements AppService {
     public Cifra cadastra(Cifra cifra) throws IOException {
         cifra.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
+
         if (trataTrocaPDF(cifra)){
-            trataPaginasPDF(cifra);
+
+            cifra.processando();
+
+            batchServie.processaCifra(cifra.getChaveIgreja(), cifra.getId());
+
         }
+
         return daoService.create(cifra);
     }
 
@@ -705,15 +667,6 @@ public class AppServiceImpl implements AppService {
         }
 
         return null;
-    }
-
-    private int trataPaginasPDF(ArquivoPDF pdf) throws IOException {
-        return ProcessamentoBoletim.trataPaginasPDF(new ProcessamentoBoletim.TransactionHandler() {
-            @Override
-            public <T> T transactional(ProcessamentoService.ExecucaoTransacional<T> execucaoTransacional) {
-                return execucaoTransacional.execute(daoService);
-            }
-        }, pdf, -1);
     }
 
     private boolean trataTrocaPDF(final ArquivoPDF pdf) {
@@ -754,7 +707,7 @@ public class AppServiceImpl implements AppService {
         if (trataTrocaPDF(boletim)){
             boletim.processando();
 
-            processamentoService.schedule(new ProcessamentoBoletim(boletim));
+            batchServie.processaBoletim(boletim.getChaveIgreja(), boletim.getId());
         }
         return daoService.update(boletim);
     }
@@ -765,7 +718,11 @@ public class AppServiceImpl implements AppService {
     public Cifra atualiza(Cifra cifra) throws IOException {
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
         if (trataTrocaPDF(cifra)){
-            trataPaginasPDF(cifra);
+
+            cifra.processando();
+
+            batchServie.processaCifra(cifra.getChaveIgreja(), cifra.getId());
+
         }
         return daoService.update(cifra);
     }
@@ -824,7 +781,7 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public BuscaPaginadaDTO<Cifra> busca(FiltroCifraDTO filtro) {
-        return daoService.findWith(new FiltroCifra(sessaoBean.getChaveIgreja(), filtro));
+        return daoService.findWith(new FiltroCifra(sessaoBean.isAdmin(), sessaoBean.getChaveIgreja(), filtro));
     }
 
     @Override
@@ -883,18 +840,10 @@ public class AppServiceImpl implements AppService {
 
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
 
-        if (estudo.getPDF() != null) {
-            estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
-            if (trataTrocaPDF(estudo)){
-                estudo.processando();
-
-                processamentoService.schedule(new ProcessamentoEstudo(estudo));
-            }
-        } else {
-            estudo.publicado();
-        }
+        trataAtualizacaoPDFEstudo(estudo);
 
         estudo = daoService.create(estudo);
+
         scheduleRelatorioEstudo(estudo);
 
         return estudo;
@@ -921,21 +870,25 @@ public class AppServiceImpl implements AppService {
 
         estudo.alterado();
 
-        if (estudo.getPDF() != null) {
-            estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
-            if (trataTrocaPDF(estudo)){
-                estudo.processando();
-
-                processamentoService.schedule(new ProcessamentoEstudo(estudo));
-            }
-        } else {
-            estudo.publicado();
-        }
+        trataAtualizacaoPDFEstudo(estudo);
 
         estudo = daoService.update(estudo);
         scheduleRelatorioEstudo(estudo);
 
         return estudo;
+    }
+
+    private void trataAtualizacaoPDFEstudo(Estudo estudo) {
+        if (estudo.getPDF() != null) {
+            estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
+            if (trataTrocaPDF(estudo)){
+                estudo.processando();
+
+                batchServie.processaEstudo(estudo.getChaveIgreja(), estudo.getId());
+            }
+        } else {
+            estudo.publicado();
+        }
     }
 
     @Override
@@ -1556,7 +1509,6 @@ public class AppServiceImpl implements AppService {
         return evento;
     }
 
-    @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
     @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})

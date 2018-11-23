@@ -43,7 +43,6 @@ public class ArquivoServiceImpl implements ArquivoService {
         return daoService.find(Arquivo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), arquivo));
     }
 
-    @Audit
     @Override
     @AllowMembro
     @AllowAdmin({
@@ -61,8 +60,7 @@ public class ArquivoServiceImpl implements ArquivoService {
     public Arquivo upload(String fileName, byte[] fileData) {
         return cadastra(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), fileName, fileData);
     }
-    
-    @Audit
+
     @Override
     public Arquivo cadastra(Igreja igreja, String fileName, byte[] fileData) {
         return daoService.update(new Arquivo(igreja, fileName, fileData));
@@ -76,25 +74,21 @@ public class ArquivoServiceImpl implements ArquivoService {
         }
     }
 
-    @Audit
     @Override
     public void registraDesuso(Long idArquivo) {
         registraDesuso(sessaoBean.getChaveIgreja(), idArquivo);
     }
 
-    @Audit
     @Override
     public void registraDesuso(String igreja, Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_DESUSO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
 
-    @Audit
     @Override
     public void registraUso(Long idArquivo) {
         registraUso(sessaoBean.getChaveIgreja(), idArquivo);
     }
 
-    @Audit
     @Override
     public void registraUso(String igreja, Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_USO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));

@@ -155,7 +155,11 @@ public enum TipoParametro {
     SMTP_FROM_EMAIL(TipoValor.VALOR, String.class, "donotreply@getitmobilesolutions.com"),
 
     // Assets WEB
-    BUNDLE_WEB(TipoValor.ANEXO, byte[].class, "{}".getBytes());
+    BUNDLE_WEB(TipoValor.ANEXO, byte[].class, "{}".getBytes()),
+
+    // Acesso Batch
+    UUID_APP_BATCH(TipoValor.VALOR, String.class, "29f1dad0-64ea-4bce-8554-6a17aadeb7c0"),
+    TOKEN_ACESSO_APP_BATCH(TipoValor.VALOR, String.class, "fe0b2a7d-1a19-4ef0-890c-a0226f9ceb06");
 
     private final TipoValor tipoValor;
     private final Class<?> runtimeType;

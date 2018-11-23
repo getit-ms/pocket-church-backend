@@ -65,7 +65,7 @@ public class AcessoController {
     public Response realizaLogin(final RequisicaoLoginDTO req){
         Membro membro = acessoService.login(req.getUsername(),
                 SenhaUtil.encryptSHA256(req.getPassword()), req.getTipoDispositivo(), req.getVersion());
-        return Response.status(Response.Status.OK).entity(acesso(membro, req.getVersion())).build();
+        return Response.status(Response.Status.OK).entity(acesso(membro, req.getTipoDispositivo(), req.getVersion())).build();
     }
 
     @PUT
@@ -207,12 +207,13 @@ public class AcessoController {
             @QueryParam("versao") String versao
     ){
         return Response.status(Response.Status.OK)
-                .entity(acesso(acessoService.refreshLogin(), versao)).build();
+                .entity(acesso(acessoService.refreshLogin(), null, versao)).build();
     }
 
-    private AcessoDTO acesso(Membro membro, String versao){
+    private AcessoDTO acesso(Membro membro, TipoDispositivo tipoDispositivo, String versao){
         return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(),
-                response.getHeader("Set-Authorization"), getMenu(versao));
+                response.getHeader("Set-Authorization"),
+                TipoDispositivo.PC.equals(tipoDispositivo) ? null : getMenu(versao));
     }
 
     private MenuDTO getMenu(String versao) {

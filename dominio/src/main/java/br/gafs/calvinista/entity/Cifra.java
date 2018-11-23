@@ -1,5 +1,6 @@
 package br.gafs.calvinista.entity;
 
+import br.gafs.calvinista.entity.domain.StatusCifra;
 import br.gafs.calvinista.entity.domain.TipoCifra;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -42,6 +43,11 @@ public class Cifra implements ArquivoPDF {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "letra", nullable = false, columnDefinition = "TEXT")
     private String letra;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
+    @JsonView(View.Resumido.class)
+    private StatusCifra status = StatusCifra.PROCESSANDO;
 
     @Column(name = "tipo")
     @Enumerated(EnumType.ORDINAL)
@@ -94,5 +100,9 @@ public class Cifra implements ArquivoPDF {
     @JsonIgnore
     public Arquivo getPDF() {
         return cifra;
+    }
+
+    public void processando() {
+        status = StatusCifra.PROCESSANDO;
     }
 }

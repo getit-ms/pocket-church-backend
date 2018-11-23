@@ -45,28 +45,6 @@ import java.util.*;
 })
 public class Estudo implements IEntity, ArquivoPDF {
 
-    private static final Map<RegistroIgrejaId, Integer> locks = new HashMap<RegistroIgrejaId, Integer>();
-
-    public synchronized static boolean locked(RegistroIgrejaId id){
-        return locks.containsKey(id);
-    }
-
-    public synchronized static int lock(RegistroIgrejaId id){
-        return locks.get(id);
-    }
-
-    public synchronized static void lock(RegistroIgrejaId id, int percent){
-        locks.put(id, percent);
-    }
-
-    public synchronized static void unlock(RegistroIgrejaId id){
-        locks.remove(id);
-    }
-
-    public synchronized static int locked(){
-        return locks.size();
-    }
-
     @Id
     @JsonView(Resumido.class)
     @Column(name = "id_estudo")
@@ -227,9 +205,8 @@ public class Estudo implements IEntity, ArquivoPDF {
     }
 
     public double getPorcentagemProcessamento(){
-        RegistroIgrejaId riid = new RegistroIgrejaId(chaveIgreja, id);
-        if (isProcessando() && locked(riid)){
-            return lock(riid);
+        if (isProcessando()) {
+            return getPaginas().size();
         }
 
         if (isPublicado() || isAgendado()){
