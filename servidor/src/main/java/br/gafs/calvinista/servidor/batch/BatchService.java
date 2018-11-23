@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @Singleton
 public class BatchService {
-    private static final String VERSAO = ResourceBundleUtil.getBundle("config").getPropriedade("VERSAO");
+    private static final String VERSAO = ResourceBundleUtil.getBundle("versao").getPropriedade("VERSAO");
 
     public static final Logger LOGGER = LogManager.getLogger(BatchService.class);
 
