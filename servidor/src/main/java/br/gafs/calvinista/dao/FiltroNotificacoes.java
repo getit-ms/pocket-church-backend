@@ -25,7 +25,7 @@ public class FiltroNotificacoes extends AbstractPaginatedFiltro<FiltroNotificaco
         Map<String, Object> args = new QueryParameters("igreja", igreja);
         
         if (membro != null){
-            where.append(" and ((d.chave = :dispositivo and m.id is null) or m.id = :membro)");
+            where.append(" and m.id = :membro");
             args.put("dispositivo", dispositivo);
             args.put("membro", membro);
         }else{

@@ -35,42 +35,34 @@ public class FacebookService {
     @EJB
     private ParametroService paramService;
 
-    private final DefaultFacebookClient client = new DefaultFacebookClient(Version.VERSION_2_12);
-
     public String getLoginUrlVideos(String chave) {
         ScopeBuilder scopeBuilder = new ScopeBuilder();
         scopeBuilder.addPermission(FacebookPermissions.PAGES_SHOW_LIST);
-        scopeBuilder.addPermission(FacebookPermissions.MANAGE_PAGES);
-        return client.getLoginDialogUrl(
+        return new DefaultFacebookClient(Version.VERSION_2_12).getLoginDialogUrl(
                 (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_ID),
-                MessageFormat.format(CALLBACK_URL, chave), scopeBuilder,
-                Parameter.with("auth_type", "true"));
+                CALLBACK_URL, scopeBuilder,
+                Parameter.with("state", chave));
     }
 
     public void login(String chave, String code) {
-        paramService.set(chave, TipoParametro.FACEBOOK_APP_CODE, code);
+        FacebookClient.AccessToken accessToken = new DefaultFacebookClient(Version.VERSION_2_12).obtainUserAccessToken(
+                (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_ID),
+                (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_SECRET),
+                MessageFormat.format(CALLBACK_URL, chave), code);
+
+        paramService.set(chave, TipoParametro.FACEBOOK_APP_CODE, accessToken.getAccessToken());
     }
 
     public List<PaginaFacebookDTO> buscaPaginas(String chave) {
-        FacebookClient.AccessToken accessToken = getAccessToken(chave);
-
-        Connection<PaginaFacebookDTO> connection = client.fetchConnection("/me/accounts", PaginaFacebookDTO.class,
-                Parameter.with("access_token", accessToken.getAccessToken()));
+        Connection<PaginaFacebookDTO> connection = new DefaultFacebookClient(
+                (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_CODE), Version.VERSION_2_12)
+                .fetchConnection("/me/accounts", PaginaFacebookDTO.class);
 
         return connection.getData();
     }
 
     public void logout(String chave) {
         paramService.set(chave, TipoParametro.FACEBOOK_APP_CODE, null);
-    }
-
-    private FacebookClient.AccessToken getAccessToken(String chave) {
-        return client.obtainUserAccessToken(
-                (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_ID),
-                (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_SECRET),
-                MessageFormat.format(CALLBACK_URL, chave),
-                (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_CODE)
-        );
     }
 
     public List<VideoDTO> buscaVideos(String chave) throws IOException {
@@ -92,10 +84,9 @@ public class FacebookService {
         if (force || cache == null || cache.isExpirado()) {
 
             try {
-                FacebookClient.AccessToken accessToken = getAccessToken(chave);
-
-                Connection<JsonObject> connection = client.fetchConnection("/" + pageId + "/live_videos", JsonObject.class,
-                        Parameter.with("access_token", accessToken.getAccessToken()),
+                Connection<JsonObject> connection = new DefaultFacebookClient(
+                        (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_CODE), Version.VERSION_2_12)
+                        .fetchConnection("/" + pageId + "/live_videos", JsonObject.class,
                         Parameter.with("fields", "dash_preview_url,creation_time,broadcast_start_time,secure_stream_url,status,title"));
 
                 for (JsonObject result : connection.getData()){

@@ -90,7 +90,7 @@ public enum TipoParametro {
     FACEBOOK_PAGE_ID(TipoValor.VALOR, String.class, null),
     FACEBOOK_APP_ID(TipoValor.VALOR, String.class, "2260125654205962"),
     FACEBOOK_APP_SECRET(TipoValor.VALOR, String.class, "3f2773a0bb27c75363009a903b747d30"),
-    FACEBOOK_APP_CODE(TipoValor.VALOR, String.class, null),
+    FACEBOOK_APP_CODE(TipoValor.ANEXO, String.class, null),
 
     // Senha de tokens JWT
     JWT_KEY_ALGORITHM(TipoValor.VALOR, String.class, "HmacSHA512"),
@@ -121,7 +121,7 @@ public enum TipoParametro {
     SMTP_PORTA(TipoValor.VALOR, Integer.class, "587"),
     SMTP_ENABLE_START_TLS(TipoValor.VALOR, Boolean.class, "true"),
     SMTP_AUTH(TipoValor.VALOR, Boolean.class, "true"),
-    SMTP_PROPERTIES(TipoValor.ANEXO, String.class, "# CONFIGURA\\u00c7\\u00d5ES DE ENVIO DE EMAILS =====================================\n" +
+    SMTP_PROPERTIES(TipoValor.ANEXO, String.class, ("# CONFIGURA\\u00c7\\u00d5ES DE ENVIO DE EMAILS =====================================\n" +
             "# emails dos administradores separados por v\\u00edrgula\n" +
             "mail.smtp.adms = suporte@getitmobilesolutions.com\n" +
             "# define protocolo de envio como SMTP\n" +
@@ -147,7 +147,7 @@ public enum TipoParametro {
             "mail.smtp.ssl.trust = *\n" +
             "mail.smtp.socketFactory.fallback = false\n" +
             "# ======================================================================\n" +
-            "\n".getBytes()),
+            "\n").getBytes()),
     ADMIN_MAILS(TipoValor.VALOR, String.class, "suporte@getitmobilesolutions.com"),
     SMTP_USERNAME(TipoValor.VALOR, String.class, "AKIAIQXFUIZAY6FEIX7Q"),
     SMTP_PASSWORD(TipoValor.VALOR, String.class, "AgZwoq7BjUx+FpsSNQ8ng5YlsmS48jQMtZjMnJejVyh6"),
@@ -241,15 +241,25 @@ public enum TipoParametro {
     }
     
     public <T> T get(Parametro param) {
-        return (T) converter().sourceToTarget(
-                tipoValor.get(param) != null ?
-                        tipoValor.get(param) : defaultValue
-        );
+        Object valor = tipoValor.get(param);
+
+        if (valor != null) {
+            return (T) converter().sourceToTarget(valor);
+        }
+
+        if (defaultValue != null) {
+            return (T) converter().sourceToTarget(defaultValue);
+        }
+
+        return null;
     }
     
     public <T> void set(Parametro param, T valor) {
-        tipoValor.set(param, valor == null ? defaultValue :
-                converter().targetToSource(valor));
+        if (valor == null) {
+            tipoValor.set(param, null);
+        } else {
+            tipoValor.set(param, converter().targetToSource(valor));
+        }
     }
     
     private Converter converter(){

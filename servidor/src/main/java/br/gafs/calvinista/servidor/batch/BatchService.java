@@ -1,6 +1,5 @@
 package br.gafs.calvinista.servidor.batch;
 
-import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
@@ -59,16 +58,17 @@ public class BatchService {
     @Asynchronous
     public void processaBoletim(String igreja, Long boletim) {
 
-        executeService("processa-boletim",
+        executeService("processa-boletim", "Processamento de Boletim " + igreja + " " + boletim,
                 entradas().set("IGREJA", igreja).set("BOLETIM", boletim.toString()));
 
     }
 
-    private void executeService(String servico, Map<String, List<String>> entradas) {
+    private void executeService(String servico, String descricao, Map<String, List<String>> entradas) {
 
         LOGGER.info("Preparando para solicitar execução do serviço " + servico);
 
         ExecucaoServicoDTO execucaoServico = client.target(BASE_PATH).path("servico/" + servico + "/execute")
+                .queryParam("descricao", descricao)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Agente " + tokenConexao)
                 .post(Entity.json(entradas))
@@ -80,7 +80,7 @@ public class BatchService {
     @Asynchronous
     public void processaCifra(String igreja, Long cifra) {
 
-        executeService("processa-cifra",
+        executeService("processa-cifra", "Processamento de Cifra " + igreja + " " + cifra,
                 entradas().set("IGREJA", igreja).set("CIFRA", cifra.toString()));
 
     }
@@ -88,7 +88,7 @@ public class BatchService {
     @Asynchronous
     public void processaEstudo(String igreja, Long estudo) {
 
-        executeService("processa-estudo",
+        executeService("processa-estudo", "Processamento de Estudo " + igreja + " " + estudo,
                 entradas().set("IGREJA", igreja).set("ESTUDO", estudo.toString()));
 
     }

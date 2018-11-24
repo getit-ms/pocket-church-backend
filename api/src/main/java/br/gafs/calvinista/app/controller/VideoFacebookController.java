@@ -72,8 +72,9 @@ public class VideoFacebookController {
     }
 
     @GET
-    @Path("integracao/{chave}")
-    public Response redirectConfiguracao(@QueryParam("code") String code, @QueryParam("chave") String chave) throws IOException{
+    @Path("integracao")
+    public Response redirectConfiguracao(@QueryParam("code") String code,
+                                         @QueryParam("state") String chave) throws IOException{
         response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_FACEBOOK_VIDEO_REDIRECT_URL"), chave, code));
         return Response.status(Response.Status.OK).build();
     }
