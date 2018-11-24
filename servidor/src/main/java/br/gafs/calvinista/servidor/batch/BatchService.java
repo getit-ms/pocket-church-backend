@@ -28,11 +28,14 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -130,6 +133,8 @@ public class BatchService {
 
     }
 
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public static class MyJacksonJsonProvider implements ContextResolver<ObjectMapper> {
 
         private static final ObjectMapper MAPPER = new ObjectMapper();
