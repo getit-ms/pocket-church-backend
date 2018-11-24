@@ -58,8 +58,7 @@ public class BatchService {
 
     @PostConstruct
     public void configura() {
-        this.client = ClientBuilder.newBuilder().build();
-        this.client.getConfiguration().getClasses().add(MyJacksonJsonProvider.class);
+        this.client = ClientBuilder.newClient().register(MyJacksonJsonProvider.class);
 
         this.autentica();
     }
