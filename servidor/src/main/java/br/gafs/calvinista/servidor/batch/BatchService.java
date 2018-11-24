@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.client.ClientConfig;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Asynchronous;
@@ -35,7 +36,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -61,7 +61,9 @@ public class BatchService {
 
     @PostConstruct
     public void configura() {
-        this.client = ClientBuilder.newClient().register(MyJacksonJsonProvider.class);
+        ClientConfig config = new ClientConfig();
+        config.register(MyJacksonJsonProvider.class);
+        this.client = ClientBuilder.newBuilder().withConfig(config).build();
 
         this.autentica();
     }
