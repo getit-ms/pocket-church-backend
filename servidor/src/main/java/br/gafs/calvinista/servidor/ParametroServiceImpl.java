@@ -54,13 +54,6 @@ public class ParametroServiceImpl implements ParametroService {
         return build(ConfiguracaoIgrejaDTO.class, igreja);
     }
 
-    @Audit
-    @Override
-    @AllowUsuario
-    public void salvaParametrosGlobais(ParametrosGlobaisDTO params) {
-        extract(params, Parametro.GLOBAL);
-    }
-
     @Override
     public ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar(String igreja) {
         return build(ConfiguracaoCalendarIgrejaDTO.class, igreja);

@@ -1,16 +1,12 @@
 package br.gafs.calvinista.util;
 
-import br.gafs.calvinista.entity.Parametro;
-import br.gafs.calvinista.entity.domain.TipoParametro;
+import br.gafs.calvinista.dto.ParametrosGlobaisDTO;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.util.email.ConfiguradorSMTP;
 import br.gafs.util.email.EmailUtil;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,24 +26,33 @@ public class ConfiguradorEmailService implements ConfiguradorSMTP {
     @EJB
     private ParametroService paramService;
 
+    private ParametrosGlobaisDTO parametros;
+
     @PostConstruct
     public void prepare() {
+        carregaDados();
+
         EmailUtil.setConfigurador(this);
+    }
+
+    @Schedule(hour = "*", minute = "*/30")
+    public void carregaDados() {
+        this.parametros = paramService.buscaParametrosGlobais();
     }
 
     @Override
     public Integer getSmtpPort() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_PORTA);
+        return parametros.getSmtpPort();
     }
 
     @Override
     public Boolean getEnableStartTls() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_ENABLE_START_TLS);
+        return parametros.getEnableStartTls();
     }
 
     @Override
     public boolean isAuth() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_AUTH);
+        return parametros.getAuth();
     }
 
     @Override
@@ -55,7 +60,7 @@ public class ConfiguradorEmailService implements ConfiguradorSMTP {
         Properties prop = new Properties();
 
         try {
-            prop.load(new ByteArrayInputStream(((String) paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_PROPERTIES)).getBytes()));
+            prop.load(new ByteArrayInputStream(parametros.getProperties().getBytes()));
         } catch (IOException e) {
             Logger.getLogger(ConfiguradorEmailService.class.getName())
                     .log(Level.SEVERE, "Erro ao recuperar properties de SMTP", e);
@@ -66,27 +71,27 @@ public class ConfiguradorEmailService implements ConfiguradorSMTP {
 
     @Override
     public List<String> getAdminMails() {
-        return Arrays.asList(((String) paramService.get(Parametro.GLOBAL, TipoParametro.ADMIN_MAILS)).split("\\s*,\\s*"));
+        return Arrays.asList((parametros.getAdminMails()).split("\\s*,\\s*"));
     }
 
     @Override
     public String getUsername() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_USERNAME);
+        return parametros.getUsername();
     }
 
     @Override
     public String getPassword() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_PASSWORD);
+        return parametros.getPassword();
     }
 
     @Override
     public String getFromName() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_FROM_NAME);
+        return parametros.getFromName();
     }
 
     @Override
     public String getFromEmail() {
-        return paramService.get(Parametro.GLOBAL, TipoParametro.SMTP_FROM_EMAIL);
+        return parametros.getFromEmail();
     }
 
     @Override
@@ -98,4 +103,5 @@ public class ConfiguradorEmailService implements ConfiguradorSMTP {
     public void end() {
 
     }
+
 }
