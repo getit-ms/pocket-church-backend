@@ -26,7 +26,6 @@ public class FiltroNotificacoes extends AbstractPaginatedFiltro<FiltroNotificaco
         
         if (membro != null){
             where.append(" and m.id = :membro");
-            args.put("dispositivo", dispositivo);
             args.put("membro", membro);
         }else{
             where.append(" and d.chave = :dispositivo and m.id is null");
