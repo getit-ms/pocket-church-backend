@@ -16,7 +16,6 @@ import lombok.Data;
  */
 @Data
 public class ConfiguracaoFacebookIgrejaDTO {
-    @JsonIgnore
     @TipoParametro.Mapping(TipoParametro.FACEBOOK_APP_CODE)
     private String code;
     
