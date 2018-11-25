@@ -76,7 +76,7 @@ public class EasyRESTRequest {
             HttpURLConnection urlConnection = (HttpURLConnection) new URL(
                     client.getBasePath() + "/" + getPath() + getQueryParams()).openConnection();
 
-            if (getHeaders().containsKey("Content-Type")) {
+            if (!getHeaders().containsKey("Content-Type")) {
                 urlConnection.addRequestProperty("Content-Type", provider.getContentType());
             }
 
