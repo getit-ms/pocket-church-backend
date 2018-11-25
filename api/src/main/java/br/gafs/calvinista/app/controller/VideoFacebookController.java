@@ -17,7 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,14 +75,7 @@ public class VideoFacebookController {
     @Path("integracao")
     public Response redirectConfiguracao(@QueryParam("code") String code,
                                          @QueryParam("state") String chave) throws IOException{
-        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default()
-                .getPropriedade("USER_FACEBOOK_VIDEO_REDIRECT_URL"), chave,
-                code
-                        .replace("/", "%2F")
-                        .replace("-", "%2D")
-                        .replace(".", "%2E")
-                        .replace("=", "%3D")
-                        .replace("_", "%5F")));
+        response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_FACEBOOK_VIDEO_REDIRECT_URL"), chave, code));
         return Response.status(Response.Status.OK).build();
     }
     
