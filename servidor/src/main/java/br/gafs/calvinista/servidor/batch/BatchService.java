@@ -6,6 +6,8 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.batch.dto.AgenteDTO;
 import br.gafs.calvinista.servidor.batch.dto.ExecucaoServicoDTO;
 import br.gafs.calvinista.servidor.batch.dto.LoginDTO;
+import br.gafs.calvinista.servidor.rest.EasyRESTClient;
+import br.gafs.calvinista.servidor.rest.EasyRESTREsponse;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,7 +22,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.glassfish.jersey.client.ClientConfig;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Asynchronous;
@@ -31,9 +32,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 import java.io.IOException;
@@ -50,9 +48,7 @@ public class BatchService {
 
     public static final Logger LOGGER = LogManager.getLogger(BatchService.class);
 
-    private Client client = ClientBuilder.newBuilder().build();
-
-    private static final String BASE_PATH = "https://batch.getitmobilesolutions.com/control";
+    private EasyRESTClient client = new EasyRESTClient("https://batch.getitmobilesolutions.com/control");
 
     @EJB
     private ParametroService parametroService;
@@ -60,28 +56,26 @@ public class BatchService {
     private String tokenConexao;
 
     @PostConstruct
-    public void configura() {
-        ClientConfig config = new ClientConfig();
-        config.register(MyJacksonJsonProvider.class);
-        this.client = ClientBuilder.newBuilder().withConfig(config).build();
-
-        this.autentica();
-    }
-
     @Schedule(hour = "*/12")
     public void autentica() {
         LOGGER.info("Preparando para autenticar para batch");
 
-        this.tokenConexao = client.target(BASE_PATH).path("acesso/login")
-                .request(MediaType.APPLICATION_JSON)
-                .put(Entity.json(new LoginDTO(
-                        (String) parametroService.get(Parametro.GLOBAL, TipoParametro.UUID_APP_BATCH),
-                        (String) parametroService.get(Parametro.GLOBAL, TipoParametro.TOKEN_ACESSO_APP_BATCH),
-                        VERSAO
-                ))).readEntity(AgenteDTO.class).getTokenConexao();
+        EasyRESTREsponse<AgenteDTO> response =
+                client.requestJSON("acesso/login")
+                        .put(new LoginDTO(
+                                (String) parametroService.get(Parametro.GLOBAL, TipoParametro.UUID_APP_BATCH),
+                                (String) parametroService.get(Parametro.GLOBAL, TipoParametro.TOKEN_ACESSO_APP_BATCH),
+                                VERSAO
+                        ), AgenteDTO.class);
 
-        LOGGER.info("Autenticação batch realizada com sucesso");
+        if (response.isSucesso()) {
+            this.tokenConexao = response.getBody().getTokenConexao();
 
+            LOGGER.info("Autenticação batch realizada com sucesso");
+        } else {
+            LOGGER.error("Não foi possível realizar a autenticação batch. " +
+                    response.getStatus() + " " + response.getError());
+        }
     }
 
     @Asynchronous
@@ -96,14 +90,19 @@ public class BatchService {
 
         LOGGER.info("Preparando para solicitar execução do serviço " + servico);
 
-        ExecucaoServicoDTO execucaoServico = client.target(BASE_PATH).path("servico/" + servico + "/execute")
+        EasyRESTREsponse<ExecucaoServicoDTO> response = client.requestJSON("servico/{0}/execute", servico)
                 .queryParam("descricao", descricao)
-                .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Agente " + tokenConexao)
-                .post(Entity.json(entradas))
-                .readEntity(ExecucaoServicoDTO.class);
+                .post(entradas, ExecucaoServicoDTO.class);
+        if (response.isSucesso()) {
+            ExecucaoServicoDTO execucaoServico = response.getBody();
 
-        LOGGER.info("Serviço criado para execução batch com ID " + execucaoServico.getId());
+            LOGGER.info("Serviço criado para execução batch com ID " + execucaoServico.getId());
+        } else {
+            LOGGER.warn("Não foi possível executar o serviço batch: " +
+                    response.getStatus() + " " + response.getError());
+        }
+
     }
 
     @Asynchronous
