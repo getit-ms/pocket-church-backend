@@ -12,6 +12,7 @@ import br.gafs.calvinista.dto.EventoCalendarioDTO;
 import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
+import br.gafs.calvinista.util.CacheDTO;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;

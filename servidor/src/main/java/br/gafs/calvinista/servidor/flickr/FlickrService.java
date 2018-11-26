@@ -5,7 +5,7 @@ import br.gafs.calvinista.dto.FotoDTO;
 import br.gafs.calvinista.dto.GaleriaDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.calvinista.servidor.google.CacheDTO;
+import br.gafs.calvinista.util.CacheDTO;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.string.StringUtil;

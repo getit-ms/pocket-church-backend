@@ -1,4 +1,4 @@
-package br.gafs.calvinista.servidor.google;
+package br.gafs.calvinista.util;
 
 import br.gafs.calvinista.dto.VideoDTO;
 import lombok.Getter;

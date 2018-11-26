@@ -5,8 +5,8 @@ import br.gafs.calvinista.dto.PaginaFacebookDTO;
 import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.calvinista.servidor.google.CacheDTO;
-import br.gafs.calvinista.servidor.google.GoogleService;
+import br.gafs.calvinista.util.CacheDTO;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 import com.restfb.*;
 import com.restfb.json.JsonObject;
@@ -31,6 +31,8 @@ public class FacebookService {
 
     private static final Map<String, CacheDTO<List<VideoDTO>>> CACHE_VIDEOS = new HashMap<>();
     private static final long MILLIS_MINUTO = 60000;
+    public static final String FORMAT_TIME = "yyyy-MM-ddTHH:dd:ssXX";
+    public static final Logger LOGGER = Logger.getLogger(FacebookService.class.getName());
 
     @EJB
     private ParametroService paramService;
@@ -88,13 +90,13 @@ public class FacebookService {
                 Connection<JsonObject> connection = new DefaultFacebookClient(code, Version.VERSION_2_12)
                         .fetchConnection("/" + pageId + "/live_videos", JsonObject.class,
                         Parameter.with("fields", "dash_preview_url,creation_time,broadcast_start_time,secure_stream_url,status,title"));
-
                 for (JsonObject result : connection.getData()){
                     VideoDTO video = new VideoDTO(
                             result.getString("id", null),
                             result.getString("title", null),
                             null,
-                            new Date(result.getLong("creation_time", System.currentTimeMillis()))
+                            DateUtil.parseData(result.getString("creation_time",
+                                    DateUtil.formataData(new Date(), FORMAT_TIME)), FORMAT_TIME)
                             );
 
                     video.setThumbnail(result.getString("dash_preview_url", null));
@@ -107,7 +109,10 @@ public class FacebookService {
                         case "SCHEDULED_LIVE":
                         case "SCHEDULED_UNPUBLISHED":
                             if (result.get("broadcast_start_time").asString() != null){
-                                video.setAgendamento(new Date(result.get("broadcast_start_time").asLong()));
+                                video.setAgendamento(
+                                        DateUtil.parseData(result.getString("broadcast_start_time",
+                                                DateUtil.formataData(new Date(), FORMAT_TIME)), FORMAT_TIME)
+                                );
                             }
 
                             break;
@@ -116,7 +121,7 @@ public class FacebookService {
                     videos.add(video);
                 }
             }catch (Exception ex) {
-                Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
+                LOGGER.log(Level.SEVERE, "Erro ao recuperar streamings do Facebook", ex);
             }
 
             CACHE_VIDEOS.put(chave, new CacheDTO(videos, System.currentTimeMillis() + MILLIS_MINUTO));
