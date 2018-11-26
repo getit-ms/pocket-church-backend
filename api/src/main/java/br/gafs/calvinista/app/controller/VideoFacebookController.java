@@ -38,7 +38,7 @@ public class VideoFacebookController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(){
-        return Response.status(Response.Status.OK).entity(appService.buscaVideosYouTube()).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaVideosFacebook()).build();
     }
     
     @GET
