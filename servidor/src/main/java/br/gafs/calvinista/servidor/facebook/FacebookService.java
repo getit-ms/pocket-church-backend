@@ -38,6 +38,7 @@ public class FacebookService {
     public String getLoginUrlVideos(String chave) {
         ScopeBuilder scopeBuilder = new ScopeBuilder();
         scopeBuilder.addPermission(FacebookPermissions.PAGES_SHOW_LIST);
+        scopeBuilder.addPermission(FacebookPermissions.PUBLISH_VIDEO);
         return new DefaultFacebookClient(Version.VERSION_2_12).getLoginDialogUrl(
                 (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_ID),
                 CALLBACK_URL, scopeBuilder,
@@ -84,8 +85,7 @@ public class FacebookService {
         if (force || cache == null || cache.isExpirado()) {
 
             try {
-                Connection<JsonObject> connection = new DefaultFacebookClient(
-                        (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_CODE), Version.VERSION_2_12)
+                Connection<JsonObject> connection = new DefaultFacebookClient(code, Version.VERSION_2_12)
                         .fetchConnection("/" + pageId + "/live_videos", JsonObject.class,
                         Parameter.with("fields", "dash_preview_url,creation_time,broadcast_start_time,secure_stream_url,status,title"));
 
