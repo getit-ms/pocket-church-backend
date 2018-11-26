@@ -38,7 +38,7 @@ public class FacebookService {
     public String getLoginUrlVideos(String chave) {
         ScopeBuilder scopeBuilder = new ScopeBuilder();
         scopeBuilder.addPermission(FacebookPermissions.PAGES_SHOW_LIST);
-        scopeBuilder.addPermission(FacebookPermissions.PUBLISH_VIDEO);
+        scopeBuilder.addPermission(FacebookPermissions.MANAGE_PAGES);
         return new DefaultFacebookClient(Version.VERSION_2_12).getLoginDialogUrl(
                 (String) paramService.get(chave, TipoParametro.FACEBOOK_APP_ID),
                 CALLBACK_URL, scopeBuilder,
