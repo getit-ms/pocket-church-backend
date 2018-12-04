@@ -163,6 +163,8 @@ public class SessaoBean implements Serializable {
             }
         }
 
+        dispositivoService.registraAcesso(chaveDispositivo);
+
         boolean deprecated = creation == null ||
                 creation.longValue() + TIMEOUT < System.currentTimeMillis();
 

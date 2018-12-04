@@ -14,10 +14,7 @@ import javax.ejb.*;
 import javax.transaction.*;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +26,8 @@ import java.util.logging.Logger;
 public class DispositivoService {
 
     public static final Logger LOGGER = Logger.getLogger(DispositivoService.class.getName());
+
+    private final Set<String> DISPOSITIVOS_ACESSADOS = new HashSet<>();
 
     public final List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
 
@@ -50,6 +49,29 @@ public class DispositivoService {
         synchronized(REGISTER_DEVICES) {
             REGISTER_DEVICES.add(new RegisterPushDTO(chaveDispositivo, tipoDispositivo, pushKey, version));
         }
+    }
+
+    @Schedule(hour = "*", minute = "*")
+    public void doFlushAcessos() {
+        LOGGER.info("Iniciando flush de acessos de dispositivos");
+
+        List<String> dispositivos;
+        synchronized (DISPOSITIVOS_ACESSADOS) {
+            dispositivos = new ArrayList<>(DISPOSITIVOS_ACESSADOS);
+            DISPOSITIVOS_ACESSADOS.clear();
+        }
+
+        List<List<String>> paginas = new ArrayList<>();
+
+        for (int i=0;i<dispositivos.size();i+=500) {
+            paginas.add(dispositivos.subList(i, Math.min(i + 500, dispositivos.size())));
+        }
+
+        for (List<String> pag : paginas) {
+            daoService.execute(QueryAcesso.REGISTER_ACESSO_DISPOSITIVO.create(pag));
+        }
+
+        LOGGER.info("Finalizando flush de acessos de " + dispositivos.size() + " dispositivos");
     }
 
     @Schedule(hour = "*", minute = "*")
@@ -191,6 +213,13 @@ public class DispositivoService {
         }
 
         return TipoAcaoContigencia.NENHUMA;
+    }
+
+    @Asynchronous
+    public void registraAcesso(String chaveDispositivo) {
+        synchronized (DISPOSITIVOS_ACESSADOS) {
+            DISPOSITIVOS_ACESSADOS.add(chaveDispositivo);
+        }
     }
 
     public enum TipoAcaoContigencia {

@@ -68,6 +68,7 @@ public enum QueryAcesso {
     }, 
     MIGRA_SENT_NOTIFICATIONS("SentNotification.migraDispositivo", "oldDispositivo", "newDispositivo"), 
     UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo"),
+    REGISTER_ACESSO_DISPOSITIVO("Dispositivo.registerAcesso", "chaves"),
     BUSCA_IGREJAS_EMAIL("Igreja.findByEmailAcesso", "email"){
         @Override
         protected QueryParameters extractArguments(Object... args) {

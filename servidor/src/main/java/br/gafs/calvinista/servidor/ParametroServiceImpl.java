@@ -33,7 +33,6 @@ import javax.interceptor.Interceptors;
  */
 @Stateless
 @Local(ParametroService.class)
-@Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class ParametroServiceImpl implements ParametroService {
     
     @EJB
@@ -69,28 +68,22 @@ public class ParametroServiceImpl implements ParametroService {
         return build(ConfiguracaoFacebookIgrejaDTO.class, igreja);
     }
 
-    @Audit
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR_GOOGLE_CALENDAR)
     public void salvaConfiguracaoCalendar(ConfiguracaoCalendarIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }
 
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR_VIDEOS_FACEBOOK)
     public void salvaConfiguracaoVideosFacebook(ConfiguracaoFacebookIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }
 
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR_FLICKR)
     public ConfiguracaoFlickrIgrejaDTO buscaConfiguracaoFlickr(String igreja) {
         return build(ConfiguracaoFlickrIgrejaDTO.class, igreja);
     }
 
-    @Audit
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR_YOUTUBE)
     public void salvaConfiguracaoYouTube(ConfiguracaoYouTubeIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }
@@ -102,9 +95,7 @@ public class ParametroServiceImpl implements ParametroService {
         extract(params, igreja);
     }
 
-    @Audit
     @Override
-    @AllowAdmin(Funcionalidade.CONFIGURAR)
     public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }

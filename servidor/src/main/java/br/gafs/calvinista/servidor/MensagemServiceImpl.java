@@ -92,12 +92,12 @@ public class MensagemServiceImpl implements MensagemService {
 
         EmailUtil.alertAdm(
                 MessageFormat.format(
-                    (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_CONTATO_SITE_RESPOSTA),
-                    contato.getAssunto()
-                ),
-                MessageFormat.format(
                         (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_BODY_CONTATO_SITE_RESPOSTA),
                         contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()
+                ),
+                MessageFormat.format(
+                        (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_CONTATO_SITE_RESPOSTA),
+                        contato.getAssunto()
                 )
         );
     }
