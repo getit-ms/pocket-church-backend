@@ -80,11 +80,11 @@ public class MensagemServiceImpl implements MensagemService {
         if (ASSUNTO_FIXO_APP_IPB.equals(contato.getAssunto())) {
 
             EmailUtil.sendMail(
-                    (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_PC_IPB_RESPOSTA),
                     MessageFormat.format(
                             (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_BODY_PC_IPB_RESPOSTA),
                             contato.getNome()
                     ),
+                    (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_PC_IPB_RESPOSTA),
                     contato.getEmail()
             );
 
