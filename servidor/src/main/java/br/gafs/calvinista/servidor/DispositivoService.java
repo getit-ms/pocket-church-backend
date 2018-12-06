@@ -68,7 +68,19 @@ public class DispositivoService {
         }
 
         for (List<String> pag : paginas) {
-            daoService.execute(QueryAcesso.REGISTER_ACESSO_DISPOSITIVO.create(pag));
+            try {
+                userTransaction.begin();
+
+                daoService.execute(QueryAcesso.REGISTER_ACESSO_DISPOSITIVO.create(pag));
+
+                userTransaction.commit();
+            } catch (Exception ex) {
+                try {
+                    userTransaction.rollback();
+                } catch (SystemException e) {}
+
+                LOGGER.log(Level.SEVERE, "Falha ao registrar o acesso de " + pag.size() + " dispositivos.", ex);
+            }
         }
 
         LOGGER.info("Finalizando flush de acessos de " + dispositivos.size() + " dispositivos");
