@@ -66,7 +66,6 @@ public class Cifra implements ArquivoPDF {
     private Arquivo cifra;
 
     @Setter
-    @NotNull
     @OneToOne
     @JsonView(View.Resumido.class)
     @JoinColumns({
