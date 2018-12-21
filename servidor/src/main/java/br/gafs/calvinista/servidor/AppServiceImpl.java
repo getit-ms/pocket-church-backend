@@ -2153,7 +2153,17 @@ public class AppServiceImpl implements AppService {
 
         int fim = (dateCal.get(Calendar.MONTH) + 1) * 100 + dateCal.get(Calendar.DAY_OF_MONTH);
 
-        return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), inicio, fim));
+        if (inicio < fim) {
+            return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), inicio, fim));
+        } else {
+            List<Membro> aniversariantes = new ArrayList<>();
+            aniversariantes.addAll(daoService.findWith(QueryAdmin
+                    .PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), inicio, 1231)));
+            aniversariantes.addAll(daoService.findWith(QueryAdmin
+                    .PROXIMOS_ANIVERSARIANTES.create(igreja.getChave(), 101, fim)));
+            return aniversariantes;
+        }
+
     }
 
     @Override
