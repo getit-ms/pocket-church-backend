@@ -192,7 +192,8 @@ public class GoogleService {
             StringBuilder nextPages = new StringBuilder();
 
             try {
-                String[] pageTokens = !StringUtil.isEmpty(pageToken) ? pageToken.split(Pattern.quote("(#)")) : new String[0];
+                String[] pageTokens = !StringUtil.isEmpty(pageToken) ?
+                        pageToken.split(Pattern.quote("(#)")) : new String[0];
 
                 int i=0;
                 for (String calendarId : calendarIds) {
@@ -200,8 +201,8 @@ public class GoogleService {
 
                         try {
                             Events response = connectCalendar(chave).events().list(calendarId)
-                                    .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1)
-                                    .setShowHiddenInvitations(true)
+                                    .setTimeMin(new DateTime(new Date()))
+                                    .setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
                                     .setPageToken(pageTokens.length <= i ? null : pageTokens[i])
                                     .setSingleEvents(true).setOrderBy("startTime").execute();
 
@@ -230,7 +231,9 @@ public class GoogleService {
                                 }
                             }
 
-                            nextPages.append(response.getNextPageToken());
+                            if (response.getNextPageToken() != null) {
+                                nextPages.append(response.getNextPageToken());
+                            }
                         } catch (Exception ex) {
                             LOGGER.log(Level.SEVERE, "Falha na busca de eventos de calendário " + calendarId, ex);
                         }
@@ -241,7 +244,8 @@ public class GoogleService {
 
                 Collections.sort(eventos);
 
-                return new BuscaPaginadaEventosCalendarioDTO(eventos, nextPages.toString());
+                return new BuscaPaginadaEventosCalendarioDTO(eventos,
+                        nextPages.length() == (3 * calendarIds.size()) ? null : nextPages.toString());
             } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
             }
