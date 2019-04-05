@@ -154,8 +154,8 @@ public class ArquivoController {
                     "attachment; filename=\""+arquivo.getNome()+"\"");
 
             final RandomAccessFile raf = new RandomAccessFile( file, "r" );
-            raf.seek( from );
 
+            raf.seek( from );
 
             ArquivoUtil.transfer(raf, len, response.getOutputStream());
 

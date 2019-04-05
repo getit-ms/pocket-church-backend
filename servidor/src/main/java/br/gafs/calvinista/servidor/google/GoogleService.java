@@ -64,6 +64,8 @@ public class GoogleService {
     private static final String GOOGLE_CALENDAR_CHAVE = "CAL";
     private static final String YOUTUBE_CHAVE = "YTB";
 
+    public static final Logger LOGGER = Logger.getLogger(GoogleService.class.getName());
+
     static {
         if (!GOOGLE_STORE_DIR.exists()){
             GOOGLE_STORE_DIR.mkdirs();
@@ -72,7 +74,7 @@ public class GoogleService {
             DATA_STORE_FACTORY.put(GOOGLE_CALENDAR_CHAVE, new FileDataStoreFactory(new File(GOOGLE_STORE_DIR, GOOGLE_CALENDAR_CHAVE + "store")));
             DATA_STORE_FACTORY.put(YOUTUBE_CHAVE, new FileDataStoreFactory(new File(GOOGLE_STORE_DIR, YOUTUBE_CHAVE + "store")));
         } catch (IOException ex) {
-            Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
     
@@ -194,43 +196,47 @@ public class GoogleService {
 
                 int i=0;
                 for (String calendarId : calendarIds) {
-                    Events response = connectCalendar(chave).events().list(calendarId)
-                            .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
-                            .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
+                    try {
+                        Events response = connectCalendar(chave).events().list(calendarId)
+                                .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
+                                .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
 
-                    for (Event event : response.getItems()) {
-                        if (event.getStart() != null && event.getEnd() != null) {
-                            EventoCalendarioDTO evento = new EventoCalendarioDTO();
+                        for (Event event : response.getItems()) {
+                            if (event.getStart() != null && event.getEnd() != null) {
+                                EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
-                            evento.setId(event.getId());
+                                evento.setId(event.getId());
 
-                            if (event.getStart().getDateTime() != null) {
-                                evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                            } else {
-                                evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                                if (event.getStart().getDateTime() != null) {
+                                    evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                                } else {
+                                    evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                                }
+
+                                if (event.getEnd().getDateTime() != null) {
+                                    evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                                } else {
+                                    evento.setTermino(new Date(event.getEnd().getDate().getValue()));
+                                }
+
+                                evento.setDescricao(event.getSummary());
+                                evento.setLocal(event.getLocation());
+
+                                eventos.add(evento);
                             }
-
-                            if (event.getEnd().getDateTime() != null) {
-                                evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
-                            } else {
-                                evento.setTermino(new Date(event.getEnd().getDate().getValue()));
-                            }
-
-                            evento.setDescricao(event.getSummary());
-                            evento.setLocal(event.getLocation());
-
-                            eventos.add(evento);
                         }
-                    }
 
-                    nextPages.append(response.getNextPageToken()).append("(#)");
+                        nextPages.append(response.getNextPageToken()).append("(#)");
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, "Falha na busca de eventos de calendário " + calendarId, ex);
+                    }
                 }
 
                 Collections.sort(eventos);
 
                 return new BuscaPaginadaEventosCalendarioDTO(eventos, nextPages.toString());
             } catch (Exception ex) {
-                Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
+                LOGGER.log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
             }
 
         }
@@ -288,7 +294,7 @@ public class GoogleService {
                     videos.add(video);
                 }
             }catch (Exception ex) {
-                Logger.getLogger(GoogleService.class.getName()).log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
+                LOGGER.log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
             }
 
             CACHE_VIDEOS.put(chave, new CacheDTO(videos, System.currentTimeMillis() + MILLIS_MINUTO));

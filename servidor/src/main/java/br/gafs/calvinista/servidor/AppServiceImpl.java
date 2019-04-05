@@ -1772,12 +1772,12 @@ public class AppServiceImpl implements AppService {
         }
 
         if (!StringUtil.isEmpty(configuracao.getTextoAniversario()) &&
-                configuracao.getTextoAniversario().length() > 150){
+                configuracao.getTextoAniversario().length() > 250){
             validation.add("textoAniversario", "mensagens.MSG-010");
         }
 
         if (!StringUtil.isEmpty(configuracao.getTextoBoletim()) &&
-                configuracao.getTextoBoletim().length() > 150){
+                configuracao.getTextoBoletim().length() > 250){
             validation.add("textoBoletim", "mensagens.MSG-010");
         }
 

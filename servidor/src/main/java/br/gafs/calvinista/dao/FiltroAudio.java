@@ -31,7 +31,7 @@ public class FiltroAudio extends AbstractPaginatedFiltro<FiltroAudioDTO>{
 
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select a ").append(query).append(" order by a.nome").toString());
+        setQuery(new StringBuilder("select a ").append(query).append(" order by a.id desc").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(a) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());

@@ -30,20 +30,24 @@ public class ArquivoUtil {
     }
 
     public static void transfer(RandomAccessFile raf, int len, ServletOutputStream outputStream) throws IOException {
-        byte[] cache = new byte[5000];
-        int size;
-        while (len > 0) {
-            size = raf.read(cache, 0, Math.min(len, cache.length));
+        try {
+            byte[] cache = new byte[5000];
+            int size;
+            while (len > 0) {
+                size = raf.read(cache, 0, Math.min(len, cache.length));
 
-            outputStream.write(cache, 0,size);
+                outputStream.write(cache, 0,size);
 
-            outputStream.flush();
+                outputStream.flush();
 
-            if (size < cache.length) {
-                break;
+                if (size < cache.length) {
+                    break;
+                }
+
+                len -= size;
             }
-
-            len -= size;
+        } finally {
+            raf.close();
         }
     }
 }
