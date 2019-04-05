@@ -196,44 +196,46 @@ public class GoogleService {
 
                 int i=0;
                 for (String calendarId : calendarIds) {
-                    try {
-                        Events response = connectCalendar(chave).events().list(calendarId)
-                                .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
-                                .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null)
-                                .setSingleEvents(true).setOrderBy("startTime").execute();
+                    if (!StringUtil.isEmpty(pageTokens[i])) {
 
-                        for (Event event : response.getItems()) {
-                            if (event.getStart() != null && event.getEnd() != null) {
-                                EventoCalendarioDTO evento = new EventoCalendarioDTO();
+                        try {
+                            Events response = connectCalendar(chave).events().list(calendarId)
+                                    .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
+                                    .setPageToken(pageTokens[i])
+                                    .setSingleEvents(true).setOrderBy("startTime").execute();
 
-                                evento.setId(event.getId());
+                            for (Event event : response.getItems()) {
+                                if (event.getStart() != null && event.getEnd() != null) {
+                                    EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
-                                if (event.getStart().getDateTime() != null) {
-                                    evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                                } else {
-                                    evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                                    evento.setId(event.getId());
+
+                                    if (event.getStart().getDateTime() != null) {
+                                        evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                                    } else {
+                                        evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                                    }
+
+                                    if (event.getEnd().getDateTime() != null) {
+                                        evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                                    } else {
+                                        evento.setTermino(new Date(event.getEnd().getDate().getValue()));
+                                    }
+
+                                    evento.setDescricao(event.getSummary());
+                                    evento.setLocal(event.getLocation());
+
+                                    eventos.add(evento);
                                 }
-
-                                if (event.getEnd().getDateTime() != null) {
-                                    evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
-                                } else {
-                                    evento.setTermino(new Date(event.getEnd().getDate().getValue()));
-                                }
-
-                                evento.setDescricao(event.getSummary());
-                                evento.setLocal(event.getLocation());
-
-                                eventos.add(evento);
                             }
+
+                            nextPages.append(response.getNextPageToken());
+                        } catch (Exception ex) {
+                            LOGGER.log(Level.SEVERE, "Falha na busca de eventos de calendário " + calendarId, ex);
                         }
-
-                        nextPages.append(response.getNextPageToken()).append("(#)");
-                    } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, "Falha na busca de eventos de calendário " + calendarId, ex);
-
-
-                        nextPages.append("(#)");
                     }
+
+                    nextPages.append("(#)");
                 }
 
                 Collections.sort(eventos);
