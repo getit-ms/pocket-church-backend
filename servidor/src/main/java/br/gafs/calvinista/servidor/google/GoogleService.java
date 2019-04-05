@@ -196,7 +196,7 @@ public class GoogleService {
 
                 int i=0;
                 for (String calendarId : calendarIds) {
-                    if (StringUtil.isEmpty(pageToken) || !StringUtil.isEmpty(pageTokens[i])) {
+                    if (pageTokens.length <= i || !StringUtil.isEmpty(pageTokens[i])) {
 
                         try {
                             Events response = connectCalendar(chave).events().list(calendarId)
