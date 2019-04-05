@@ -199,7 +199,8 @@ public class GoogleService {
                     try {
                         Events response = connectCalendar(chave).events().list(calendarId)
                                 .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
-                                .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null).setSingleEvents(true).setOrderBy("startTime").execute();
+                                .setPageToken(pageTokens.length > i && !StringUtil.isEmpty(pageTokens[i]) ? pageTokens[i] : null)
+                                .setSingleEvents(true).setOrderBy("startTime").execute();
 
                         for (Event event : response.getItems()) {
                             if (event.getStart() != null && event.getEnd() != null) {
@@ -229,6 +230,9 @@ public class GoogleService {
                         nextPages.append(response.getNextPageToken()).append("(#)");
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Falha na busca de eventos de calendário " + calendarId, ex);
+
+
+                        nextPages.append("(#)");
                     }
                 }
 
