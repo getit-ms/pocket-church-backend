@@ -196,12 +196,12 @@ public class GoogleService {
 
                 int i=0;
                 for (String calendarId : calendarIds) {
-                    if (!StringUtil.isEmpty(pageTokens[i])) {
+                    if (StringUtil.isEmpty(pageToken) || !StringUtil.isEmpty(pageTokens[i])) {
 
                         try {
                             Events response = connectCalendar(chave).events().list(calendarId)
-                                    .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
-                                    .setPageToken(pageTokens[i])
+                                    .setTimeMin(new DateTime(new Date())).setMaxResults(tamanho + 1)
+                                    .setShowHiddenInvitations(true).setPageToken(pageTokens[i])
                                     .setSingleEvents(true).setOrderBy("startTime").execute();
 
                             for (Event event : response.getItems()) {
