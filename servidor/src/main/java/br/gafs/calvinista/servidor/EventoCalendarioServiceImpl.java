@@ -9,6 +9,7 @@ import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.dao.DAOService;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 
 import javax.annotation.Resource;
@@ -25,8 +26,6 @@ import java.util.logging.Logger;
 @TransactionManagement(TransactionManagementType.BEAN)
 public class EventoCalendarioServiceImpl {
     private static final Logger LOGGER = Logger.getLogger(EventoCalendarioServiceImpl.class.getName());
-
-    private static final long LIMITE_CALENDARIO = 7200000L * 24L * 365L;
 
     @EJB
     private DAOService daoService;
@@ -48,6 +47,7 @@ public class EventoCalendarioServiceImpl {
 
         LOGGER.info(igrejas.size() + " igrejas encontradas atualiza eventos de calendário.");
 
+        Date dataMaxima = DateUtil.incrementaAnos(new Date(), 2);
         for (Igreja igreja : igrejas) {
             List<String> calendarIds = paramService.get(igreja.getChave(), TipoParametro.GOOGLE_CALENDAR_ID);
 
@@ -78,8 +78,10 @@ public class EventoCalendarioServiceImpl {
 
                             if (busca.isPossuiProximaPagina() && (busca.getEventos().isEmpty() ||
                                     busca.getEventos().get(busca.getEventos().size() - 1)
-                                            .getInicio().getTime() > System.currentTimeMillis() + LIMITE_CALENDARIO)) {
+                                            .getInicio().before(dataMaxima))) {
                                 nextPage = busca.getProximaPagina();
+                            } else {
+                                nextPage = null;
                             }
 
                         } while (nextPage != null);
