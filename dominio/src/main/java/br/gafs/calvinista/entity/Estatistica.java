@@ -18,7 +18,7 @@ import java.util.Date;
 @Table(name = "tb_estatistica")
 @EqualsAndHashCode(of = {"igreja", "data", "tipoDispositivo"})
 @NamedQueries({
-        @NamedQuery(name = "Estatistica.findByIgreja", query = "select new br.gafs.calvinista.entity.Estatistica(i, CURRENT_DATE, d.tipo, count(d.uuid), count(distinct m.id)) from Dispositivo d inner join d.igreja i left join d.membro m where d.tipo in :tipos and i.status = :statusIgreja group by i, d.tipo "),
+        @NamedQuery(name = "Estatistica.findByIgreja", query = "select new br.gafs.calvinista.entity.Estatistica(i, CURRENT_DATE, d.tipo, count(d.uuid), count(distinct m.id)) from Dispositivo d inner join d.igreja i left join d.membro m where d.tipo in :tipos and i.status = :statusIgreja and d.ultimoAcesso > :limite group by i, d.tipo "),
         @NamedQuery(name = "Estatistica.removeAntigas", query = "delete from Estatistica e where e.data < :limite")
 })
 public class Estatistica implements IEntity {
