@@ -39,7 +39,7 @@ public class EventoCalendarioServiceImpl {
     @Resource
     private UserTransaction userTransaction;
 
-    @Schedule(hour = "*", minute = "0/5")
+    @Schedule(hour = "*", minute = "0/15")
     public void atualizaEventosCalendario() {
         LOGGER.info("Iniciando atualização de eventos de calendário.");
 

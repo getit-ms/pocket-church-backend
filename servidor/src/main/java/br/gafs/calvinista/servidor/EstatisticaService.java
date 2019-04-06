@@ -19,7 +19,7 @@ public class EstatisticaService {
     @EJB
     private DAOService daoService;
 
-    @Schedule(hour = "*", minute = "*/5")
+    @Schedule(hour = "*", minute = "*/30")
     public void registraEstatisticasIgrejas() {
         LOGGER.info("Iniciando registro de estatísticas.");
 
