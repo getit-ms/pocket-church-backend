@@ -49,61 +49,57 @@ public class EventoCalendarioServiceImpl {
         LOGGER.info(igrejas.size() + " igrejas encontradas atualiza eventos de calendário.");
 
         for (Igreja igreja : igrejas) {
-            String idCalendario = paramService.get(igreja.getChave(), TipoParametro.GOOGLE_CALENDAR_ID);
+            LOGGER.info("Sincronizando calendário para igreja " + igreja.getChave());
 
-            if (!StringUtil.isEmpty(idCalendario)) {
-                LOGGER.info("Sincronizando calendário para igreja " + igreja.getChave());
+            List<String> calendarIds = paramService.get(igreja.getChave(), TipoParametro.GOOGLE_CALENDAR_ID);
 
-                List<String> calendarIds = paramService.get(igreja.getChave(), TipoParametro.GOOGLE_CALENDAR_ID);
+            for (String calendarId : calendarIds) {
+                String nextPage = null;
 
-                for (String calendarId : calendarIds) {
-                    String nextPage = null;
+                Date limite = new Date();
 
-                    Date limite = new Date();
+                try {
 
-                    try {
-
-                        do {
-                            BuscaPaginadaEventosCalendarioDTO busca = googleService
-                                    .buscaEventosCalendar(igreja.getChave(), calendarId, nextPage, 50);
-
-                            userTransaction.begin();
-
-                            for (EventoCalendarioDTO evento : busca.getEventos()) {
-                                daoService.update(new EventoCalendario(
-                                        igreja, evento.getId(), evento.getInicio(),
-                                        evento.getTermino(), evento.getDescricao(), evento.getLocal()
-                                ));
-                            }
-
-                            userTransaction.commit();
-
-                            if (busca.isPossuiProximaPagina() && (busca.getEventos().isEmpty() ||
-                                    busca.getEventos().get(busca.getEventos().size() - 1)
-                                    .getInicio().getTime() > System.currentTimeMillis() + LIMITE_CALENDARIO)) {
-                                nextPage = busca.getProximaPagina();
-                            }
-
-                        } while (nextPage != null);
+                    do {
+                        BuscaPaginadaEventosCalendarioDTO busca = googleService
+                                .buscaEventosCalendar(igreja.getChave(), calendarId, nextPage, 50);
 
                         userTransaction.begin();
 
-                        daoService.execute(QueryAdmin.REMOVE_EVENTO_CALENDARIO_POR_IGREJA
-                                .create(igreja.getChave(), limite));
+                        for (EventoCalendarioDTO evento : busca.getEventos()) {
+                            daoService.update(new EventoCalendario(
+                                    igreja, evento.getId(), evento.getInicio(),
+                                    evento.getTermino(), evento.getDescricao(), evento.getLocal()
+                            ));
+                        }
 
                         userTransaction.commit();
 
-                    } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, "Falha ao sincronizar calendários", ex);
+                        if (busca.isPossuiProximaPagina() && (busca.getEventos().isEmpty() ||
+                                busca.getEventos().get(busca.getEventos().size() - 1)
+                                        .getInicio().getTime() > System.currentTimeMillis() + LIMITE_CALENDARIO)) {
+                            nextPage = busca.getProximaPagina();
+                        }
 
-                        try {
-                            userTransaction.rollback();
-                        } catch (SystemException e) {}
-                    }
+                    } while (nextPage != null);
+
+                    userTransaction.begin();
+
+                    daoService.execute(QueryAdmin.REMOVE_EVENTO_CALENDARIO_POR_IGREJA
+                            .create(igreja.getChave(), limite));
+
+                    userTransaction.commit();
+
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, "Falha ao sincronizar calendários", ex);
+
+                    try {
+                        userTransaction.rollback();
+                    } catch (SystemException e) {}
                 }
-
-                LOGGER.info("Calendários para igreja " + igreja.getChave() + " sincronizados.");
             }
+
+            LOGGER.info("Calendários para igreja " + igreja.getChave() + " sincronizados.");
         }
     }
 
