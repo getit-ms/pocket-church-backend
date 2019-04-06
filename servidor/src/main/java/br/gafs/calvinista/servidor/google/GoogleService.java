@@ -1,8 +1,8 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.servidor.google;
 
 import br.gafs.bundle.ResourceBundleUtil;
@@ -56,7 +56,7 @@ public class GoogleService {
             _default().getPropriedade("GOOGLE_CALENDAR_SCOPES").split("\\s*,\\s*"));
 
     private static final File GOOGLE_STORE_DIR = new File(ResourceBundleUtil._default().getPropriedade("GOOGLE_STORE_DIR"));
-    
+
     private static Map<String, FileDataStoreFactory> DATA_STORE_FACTORY = new HashMap<>();
 
     private static final Map<String, CacheDTO<List<VideoDTO>>> CACHE_VIDEOS = new HashMap<>();
@@ -77,19 +77,19 @@ public class GoogleService {
             LOGGER.log(Level.SEVERE, null, ex);
         }
     }
-    
+
     @EJB
     private ParametroService paramService;
 
     private GoogleAuthorizationCodeFlow.Builder flow(String store, String chaveIgreja, Collection<String> scopes) throws IOException{
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
-                (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_CLIENT_KEY), 
+                (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_CLIENT_KEY),
                 (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_SECRET_KEY),
                 scopes).addRefreshListener(new DataStoreCredentialRefreshListener(chaveIgreja, DATA_STORE_FACTORY.get(store))).
                 setDataStoreFactory(DATA_STORE_FACTORY.get(store)).setAccessType("offline");
     }
-    
+
     public String getURLAutorizacaoYouTube(String chaveIgreja, String urlCallback) throws IOException {
         return getURLAutorizacao(YOUTUBE_CHAVE, chaveIgreja, YOUTUBE_SCOPES, urlCallback);
     }
@@ -114,7 +114,7 @@ public class GoogleService {
 
     private Credential saveCredentials(String store, String chaveIgreja, Collection<String> scopes, String callbackURL, String code) throws IOException {
         GoogleAuthorizationCodeFlow flow = flow(store, chaveIgreja, scopes).build();
-        
+
         TokenResponse resp = flow.newTokenRequest(code).
                 setRedirectUri(MessageFormat.format(callbackURL, chaveIgreja)).execute();
 
@@ -144,14 +144,14 @@ public class GoogleService {
 
         return Collections.emptyList();
     }
-    
+
     public String buscaIdCanalYouTube(String chaveIgreja) throws IOException {
         ChannelListResponse response = connectYouTube(chaveIgreja).channels().list("id").setMine(true).execute();
-        
+
         if (!response.isEmpty()){
             return response.getItems().get(0).getId();
         }
-        
+
         return null;
     }
 
@@ -184,77 +184,49 @@ public class GoogleService {
         return Collections.emptyList();
     }
 
-    public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String pageToken, Integer tamanho) throws IOException {
+    public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String calendarId, String pageToken, Integer tamanho) throws IOException {
         List<EventoCalendarioDTO> eventos = new ArrayList<EventoCalendarioDTO>();
 
-        List<String> calendarIds = paramService.get(chave, TipoParametro.GOOGLE_CALENDAR_ID);
-        if (calendarIds != null) {
-            StringBuilder nextPages = new StringBuilder();
+        try {
+            Events response = connectCalendar(chave).events().list(calendarId)
+                    .setTimeMin(new DateTime(new Date()))
+                    .setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
+                    .setPageToken(pageToken)
+                    .setSingleEvents(true).setOrderBy("startTime").execute();
 
-            try {
-                String[] pageTokens = !StringUtil.isEmpty(pageToken) ?
-                        pageToken.split(Pattern.quote("(#)")) : new String[0];
+            for (Event event : response.getItems()) {
+                if (event.getStart() != null && event.getEnd() != null) {
+                    EventoCalendarioDTO evento = new EventoCalendarioDTO();
 
-                int i=0;
-                for (String calendarId : calendarIds) {
-                    if (pageTokens.length <= i || !StringUtil.isEmpty(pageTokens[i])) {
+                    evento.setId(event.getId());
 
-                        try {
-                            Events response = connectCalendar(chave).events().list(calendarId)
-                                    .setTimeMin(new DateTime(new Date()))
-                                    .setMaxResults(tamanho + 1).setShowHiddenInvitations(true)
-                                    .setPageToken(pageTokens.length <= i ? null : pageTokens[i])
-                                    .setSingleEvents(true).setOrderBy("startTime").execute();
-
-                            for (Event event : response.getItems()) {
-                                if (event.getStart() != null && event.getEnd() != null) {
-                                    EventoCalendarioDTO evento = new EventoCalendarioDTO();
-
-                                    evento.setId(event.getId());
-
-                                    if (event.getStart().getDateTime() != null) {
-                                        evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
-                                    } else {
-                                        evento.setInicio(new Date(event.getStart().getDate().getValue()));
-                                    }
-
-                                    if (event.getEnd().getDateTime() != null) {
-                                        evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
-                                    } else {
-                                        evento.setTermino(new Date(event.getEnd().getDate().getValue()));
-                                    }
-
-                                    evento.setDescricao(event.getSummary());
-                                    evento.setLocal(event.getLocation());
-
-                                    eventos.add(evento);
-                                }
-                            }
-
-                            if (response.getNextPageToken() != null) {
-                                nextPages.append(response.getNextPageToken());
-                            }
-                        } catch (Exception ex) {
-                            LOGGER.log(Level.SEVERE, "Falha na busca de eventos de calendário " + calendarId, ex);
-                        }
+                    if (event.getStart().getDateTime() != null) {
+                        evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
+                    } else {
+                        evento.setInicio(new Date(event.getStart().getDate().getValue()));
                     }
 
-                    nextPages.append("(#)");
+                    if (event.getEnd().getDateTime() != null) {
+                        evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
+                    } else {
+                        evento.setTermino(new Date(event.getEnd().getDate().getValue()));
+                    }
+
+                    evento.setDescricao(event.getSummary());
+                    evento.setLocal(event.getLocation());
+
+                    eventos.add(evento);
                 }
-
-                Collections.sort(eventos);
-
-                return new BuscaPaginadaEventosCalendarioDTO(eventos,
-                        nextPages.length() == (3 * calendarIds.size()) ? null : nextPages.toString());
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
             }
 
+            return new BuscaPaginadaEventosCalendarioDTO(eventos, response.getNextPageToken());
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Erro ao recuperar eventos do Google Calendar", ex);
         }
 
         return new BuscaPaginadaEventosCalendarioDTO(eventos, null);
     }
-    
+
     public List<VideoDTO> buscaVideosYouTube(String chave) throws IOException {
         return buscaVideosYouTube(chave, false);
     }
@@ -318,26 +290,26 @@ public class GoogleService {
 
     public List<VideoDTO> buscaStreamsAtivosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
-        
+
         for (VideoDTO video : buscaVideosYouTube(chave, true)){
             if (video.isAoVivo()){
                 videos.add(video);
             }
         }
-        
+
         return videos;
     }
 
     public List<VideoDTO> buscaStreamsAgendadosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
-        
+
         for (VideoDTO video : buscaVideosYouTube(chave)){
             if (video.isAgendado()){
                 videos.add(video);
             }
         }
-        
+
         return videos;
     }
-    
+
 }

@@ -6,9 +6,8 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.calvinista.entity.domain.StatusEstudo;
-import br.gafs.calvinista.entity.dominio.TipoEstudo;
+import br.gafs.calvinista.entity.domain.TipoEstudo;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -22,7 +21,6 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**

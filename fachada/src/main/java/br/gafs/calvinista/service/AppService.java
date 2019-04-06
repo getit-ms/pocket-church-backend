@@ -209,7 +209,7 @@ public interface AppService extends Serializable {
 
     String buscaURLAutenticacaoCalendar() throws IOException;
     void iniciaConfiguracaoCalendar(String code);
-    BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total);
+    BuscaPaginadaEventosCalendarioDTO buscaEventos(Integer pagina, Integer total);
     ConfiguracaoCalendarIgrejaDTO buscaConfiguracaoCalendar();
     void desvinculaCalendar();
     ConfiguracaoCalendarIgrejaDTO atualiza(ConfiguracaoCalendarIgrejaDTO configuracao);

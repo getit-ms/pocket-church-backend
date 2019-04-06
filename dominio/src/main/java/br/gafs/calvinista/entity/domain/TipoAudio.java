@@ -1,4 +1,4 @@
-package br.gafs.calvinista.entity.dominio;
+package br.gafs.calvinista.entity.domain;
 
 /**
  * Created by Gabriel on 23/07/2018.

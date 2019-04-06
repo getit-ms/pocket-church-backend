@@ -1,8 +1,8 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.servidor;
 
 import br.gafs.bundle.ResourceBundleUtil;
@@ -10,7 +10,6 @@ import br.gafs.calvinista.dao.*;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.*;
-import br.gafs.calvinista.entity.dominio.TipoAudio;
 import br.gafs.calvinista.exception.ValidationException;
 import br.gafs.calvinista.security.*;
 import br.gafs.calvinista.service.AppService;
@@ -1943,12 +1942,25 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total) {try {
-        return googleService.buscaEventosCalendar(sessaoBean.getChaveIgreja(), pagina, total);
-    } catch (IOException ex) {
-        LOGGER.log(Level.SEVERE, null, ex);
-        return new BuscaPaginadaEventosCalendarioDTO(Collections.EMPTY_LIST, null);
-    }
+    public BuscaPaginadaEventosCalendarioDTO buscaEventos(Integer pagina, Integer total) {
+        BuscaPaginadaDTO<EventoCalendario> eventos = daoService.findWith(QueryAdmin.EVENTOS_CALENDARIO_IGREJA.createPaginada(
+                pagina, sessaoBean.getChaveIgreja(), total
+        ));
+
+        List<EventoCalendarioDTO> eventosDTO = new ArrayList<>();
+
+        for (EventoCalendario e : eventos) {
+            eventosDTO.add(new EventoCalendarioDTO(
+                    e.getId(),
+                    e.getInicio(),
+                    e.getTermino(),
+                    e.getDescricao(),
+                    e.getLocal()
+            ));
+        }
+
+        return new BuscaPaginadaEventosCalendarioDTO(eventosDTO,
+                eventos.isHasProxima() ? Integer.toString(pagina + 1) : null);
     }
 
     @Override

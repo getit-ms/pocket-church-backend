@@ -1,7 +1,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import br.gafs.calvinista.entity.dominio.TipoAudio;
+import br.gafs.calvinista.entity.domain.TipoAudio;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;

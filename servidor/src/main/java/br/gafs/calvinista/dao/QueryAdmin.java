@@ -381,8 +381,37 @@ public enum QueryAdmin {
                     set("statusBoletim", StatusBoletim.PUBLICADO).
                     set("data", DateUtil.getDataAtual());
         }
+    },
+    REMOVE_EVENTO_CALENDARIO_POR_IGREJA("EventoCalendario.removeDesatualizadosPorIgreja", "igreja", "limite"),
+    COUNT_EVENTOS_CALENDARIO_IGREJA("EventoCalendario.countByIgreja", "igreja"),
+    EVENTOS_CALENDARIO_IGREJA("EventoCalendario.findByIgreja", COUNT_EVENTOS_CALENDARIO_IGREJA, "igreja"){
+
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return (int) args[1];
+        }
+    },
+    ESTATISTICAS_IGREJAS("Estatistica.findByIgreja") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("tipos", Arrays.asList(
+                            TipoDispositivo.ANDROID,
+                            TipoDispositivo.IPB,
+                            TipoDispositivo.IPHONE
+                    ))
+                    .set("limite", DateUtil.decrementaMeses(new Date(), 1))
+                    .set("statusIgreja", StatusIgreja.ATIVO);
+        }
+    },
+    REMOVE_ESTATISTICAS_IGREJAS_ANTIGAS("Estatistica.removeAntigas"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("limite", DateUtil.decrementaMeses(new Date(), 1));
+        }
     };
-    
+
     private final String query;
     private final String[] parameters;
     private final QueryAdmin countQuery;
