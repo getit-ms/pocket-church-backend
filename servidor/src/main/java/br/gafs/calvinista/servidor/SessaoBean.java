@@ -104,11 +104,13 @@ public class SessaoBean implements Serializable {
             boolean processa = true;
 
             if (dispositivo == null){
-                synchronized (DISPOSITIVOS_REGISTRANDO){
-                    processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
+                if (!DISPOSITIVOS_REGISTRANDO.contains(newCD)) {
+                    synchronized (DISPOSITIVOS_REGISTRANDO) {
+                        processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
 
-                    if (processa){
-                        DISPOSITIVOS_REGISTRANDO.add(newCD);
+                        if (processa) {
+                            DISPOSITIVOS_REGISTRANDO.add(newCD);
+                        }
                     }
                 }
 
