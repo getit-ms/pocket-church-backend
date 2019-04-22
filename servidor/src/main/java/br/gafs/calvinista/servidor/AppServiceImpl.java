@@ -501,6 +501,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.CONSULTAR_CONTATOS_IGREJA)
     @AllowAdmin({
             Funcionalidade.MANTER_MEMBROS,
             Funcionalidade.GERENCIAR_ACESSO_MEMBROS
@@ -728,12 +729,28 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public Boletim buscaBoletim(Long boletim) {
-        return daoService.find(Boletim.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), boletim));
+        Boletim entidade = daoService.find(Boletim.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), boletim));
+
+        if (TipoBoletim.BOLETIM.equals(entidade.getTipo())) {
+            AcessoMarkerContext.funcionalidade(Funcionalidade.LISTAR_BOLETINS);
+        } else {
+            AcessoMarkerContext.funcionalidade(Funcionalidade.LISTAR_PUBLICACOES);
+        }
+
+        return entidade;
     }
 
     @Override
     public Cifra buscaCifra(Long cifra) {
-        return daoService.find(Cifra.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), cifra));
+        Cifra entidade = daoService.find(Cifra.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), cifra));
+
+        if (TipoCifra.CIFRA.equals(entidade.getTipo())) {
+            AcessoMarkerContext.funcionalidade(Funcionalidade.CONSULTAR_CIFRAS);
+        } else {
+            AcessoMarkerContext.funcionalidade(Funcionalidade.CONSULTAR_CANTICOS);
+        }
+
+        return entidade;
     }
 
     @Audit
@@ -891,6 +908,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.LISTAR_ESTUDOS)
     public Estudo buscaEstudo(Long estudo) {
         return daoService.find(Estudo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), estudo));
     }
@@ -1086,6 +1104,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.REALIZAR_VOTACAO)
     @AllowAdmin(Funcionalidade.MANTER_VOTACOES)
     @AllowMembro(Funcionalidade.REALIZAR_VOTACAO)
     public Votacao buscaVotacao(Long votacao) {
@@ -1171,6 +1190,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
+    @AcessoMarker(Funcionalidade.PEDIR_ORACAO)
     @AllowMembro(Funcionalidade.PEDIR_ORACAO)
     public PedidoOracao realizaPedido(PedidoOracao pedido) {
         pedido.setSolicitante(buscaMembro(sessaoBean.getIdMembro()));
@@ -1514,6 +1534,13 @@ public class AppServiceImpl implements AppService {
     public Evento buscaEvento(Long evento) {
         Evento entidade = daoService.find(Evento.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento));
         entidade.setVagasRestantes(entidade.getLimiteInscricoes() - ((Number) daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento))).intValue());
+
+        if (TipoEvento.EVENTO.equals(entidade.getTipo())) {
+            AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_EVENTO);
+        } else {
+            AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_EBD);
+        }
+
         return entidade;
     }
 
@@ -1942,6 +1969,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.AGENDA)
     public BuscaPaginadaEventosCalendarioDTO buscaEventos(Integer pagina, Integer total) {
         BuscaPaginadaDTO<EventoCalendario> eventos = daoService.findWith(QueryAdmin.EVENTOS_CALENDARIO_IGREJA.createPaginada(
                 pagina, sessaoBean.getChaveIgreja(), total
@@ -1964,6 +1992,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.YOUTUBE)
     public List<VideoDTO> buscaVideosYouTube() {
         try {
             return googleService.buscaVideosYouTube(sessaoBean.getChaveIgreja());
@@ -2179,6 +2208,22 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    public List<QuantidadeDispositivoDTO> buscaQuantidadesDispositivos() {
+        return daoService.findWith(QueryAdmin.QUANTIDADE_DISPOSITIVOS_BY_IGREJA.create(sessaoBean.getChaveIgreja()));
+    }
+
+    @Override
+    public List<EstatisticaDispositivo> buscaEstatisticasDispositivos() {
+        return daoService.findWith(QueryAdmin.ESTATISTICAS_DISPOSITIVOS_BY_IGREJA.create(sessaoBean.getChaveIgreja()));
+    }
+
+    @Override
+    public List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade) {
+        return daoService.findWith(QueryAdmin.ESTATISTICAS_ACESSO_BY_IGREJA_AND_FUNCIONALIDADE
+                .create(sessaoBean.getChaveIgreja(), funcionalidade.getCodigo()));
+    }
+
+    @Override
     public List<CategoriaAudio> buscaCategoriasAudio() {
         if (sessaoBean.isAdmin()) {
             return daoService.findWith(QueryAdmin.CATEGORIA_AUDIO.create(sessaoBean.getChaveIgreja()));
@@ -2300,6 +2345,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.AUDIOS)
     public BuscaPaginadaAudioDTO buscaTodos(FiltroAudioDTO filtro) {
         BuscaPaginadaDTO<Audio> resultado = daoService.findWith(new FiltroAudio(sessaoBean.getChaveIgreja(), filtro));
 
@@ -2321,6 +2367,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AcessoMarker(Funcionalidade.GALERIA_FOTOS)
     public BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro) {
         return flickrService.buscaFotos(sessaoBean.getChaveIgreja(), filtro);
     }

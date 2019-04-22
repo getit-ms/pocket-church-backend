@@ -391,7 +391,21 @@ public enum QueryAdmin {
             return (int) args[1];
         }
     },
-    ESTATISTICAS_IGREJAS("Estatistica.findByIgreja") {
+    QUANTIDADE_DISPOSITIVOS_BY_IGREJA("EstatisticaDispositivo.quantidadeDispositivosIgreja", "igreja") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("tipos", Arrays.asList(
+                            TipoDispositivo.ANDROID,
+                            TipoDispositivo.IPB,
+                            TipoDispositivo.IPHONE
+                    ))
+                    .set("limite", DateUtil.decrementaMeses(new Date(), 1));
+        }
+    },
+    ESTATISTICAS_DISPOSITIVOS_BY_IGREJA("EstatisticaDispositivo.findByigreja", "igreja"),
+    ESTATISTICAS_ACESSO_BY_IGREJA_AND_FUNCIONALIDADE("EstatisticaAcesso.findByIgrejaAndFuncionalidade", "igreja", "funcionalidade"),
+    ESTATISTICAS_DISPOSITIVOS_ONLINE("EstatisticaDispositivo.findOnLine") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
@@ -404,11 +418,36 @@ public enum QueryAdmin {
                     .set("statusIgreja", StatusIgreja.ATIVO);
         }
     },
-    REMOVE_ESTATISTICAS_IGREJAS_ANTIGAS("Estatistica.removeAntigas"){
+    ESTATISTICAS_ACESSO_ONLINE("EstatisticaAcesso.findOnLine") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("inicio", DateUtil.getDataAtualPrimeiraHora())
+                    .set("termino", DateUtil.getDataAtualUltimaHora())
+                    .set("sucesso", StatusRegistroAcesso.SUCESSO)
+                    .set("falha", StatusRegistroAcesso.FALHA)
+                    .set("statusIgreja", StatusIgreja.ATIVO);
+        }
+    },
+    REMOVE_ESTATISTICAS_DISPOSITIVOS_IGREJAS_ANTIGAS("EstatisticaDispositivo.removeAntigas"){
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaMeses(new Date(), 1));
+        }
+    },
+    REMOVE_ESTATISTICAS_ACESSO_IGREJAS_ANTIGAS("EstatisticaAcesso.removeAntigas"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("limite", DateUtil.decrementaMeses(new Date(), 1));
+        }
+    },
+    REMOVE_REGISTROS_ACESSO_IGREJAS_ANTIGAS("RegistroAcesso.removeAntigas"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
     };
 

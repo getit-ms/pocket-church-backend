@@ -125,7 +125,21 @@ public enum Funcionalidade {
     public boolean isPublica(){
         return Tipo.PUBLICA.equals(tipo);
     }
-    
+
+    public static Funcionalidade getByCodigo(Integer codigo) {
+        if (codigo == null) {
+            return null;
+        }
+
+        for (Funcionalidade func : values()) {
+            if (codigo.equals(func.getCodigo())) {
+                return func;
+            }
+        }
+
+        return null;
+    }
+
     enum Tipo {
         ADMIN,
         MEMBRO,
