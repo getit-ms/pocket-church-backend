@@ -21,7 +21,7 @@ import java.util.Date;
 @Table(name = "tb_estatistica_dispositivo")
 @EqualsAndHashCode(of = {"igreja", "data", "funcionalidade"})
 @NamedQueries({
-        @NamedQuery(name = "EstatisticaAcesso.findByIgrejaAndFuncionalidade", query = "select ea from EstatisticaAcesso ea where ea.igreja = :igreja and ea.funcionalidade = :funcionalidade order by ea.data"),
+        @NamedQuery(name = "EstatisticaAcesso.findByIgrejaAndFuncionalidade", query = "select ea from EstatisticaAcesso ea where ea.igreja.chave = :igreja and ea.funcionalidade = :funcionalidade order by ea.data"),
         @NamedQuery(name = "EstatisticaAcesso.findOnLine", query = "select new br.gafs.calvinista.entity.EstatisticaAcesso(i, CURRENT_DATE, ra.funcionalidade, (select count(su) from RegistroAcesso su where su.igreja = ra.igreja and su.data between :inicio and :termino and su.funcionalidade = ra.funcionalidade and su.status = :sucesso), (select count(fa) from RegistroAcesso fa where fa.igreja = ra.igreja and fa.data between :inicio and :termino and fa.funcionalidade = ra.funcionalidade and fa.status = :falha)) from RegistroAcesso ra, Igreja i where i.chave = ra.igreja and i.status = :statusIgreja group by i, ra.funcionalidade "),
         @NamedQuery(name = "EstatisticaAcesso.removeAntigas", query = "delete from EstatisticaAcesso e where e.data < :limite")
 })
