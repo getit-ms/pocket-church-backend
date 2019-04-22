@@ -21,7 +21,7 @@ import java.util.Date;
 @EqualsAndHashCode(of = {"igreja", "data", "tipoDispositivo"})
 @NamedQueries({
         @NamedQuery(name = "EstatisticaDispositivo.quantidadeDispositivosIgreja", query = "select new br.gafs.calvinista.dto.QuantidadeDispositivoDTO(d.tipo, count(d.uuid), count(distinct m.id)) from Dispositivo d inner join d.igreja i left join d.membro m where d.tipo in :tipos and i.chave = :igreja and d.ultimoAcesso > :limite group by i, d.tipo "),
-        @NamedQuery(name = "EstatisticaDispositivo.findByIgreja", query = "select rd from RegistroDispositivo rd where rd.igreja.chave = :igerja order by rd.data"),
+        @NamedQuery(name = "EstatisticaDispositivo.findByIgreja", query = "select ed from EstatisticaDispositivo ed where ed.igreja.chave = :igreja order by ed.data"),
         @NamedQuery(name = "EstatisticaDispositivo.findOnLine", query = "select new br.gafs.calvinista.entity.EstatisticaDispositivo(i, CURRENT_DATE, d.tipo, count(d.uuid), count(distinct m.id)) from Dispositivo d inner join d.igreja i left join d.membro m where d.tipo in :tipos and i.status = :statusIgreja and d.ultimoAcesso > :limite group by i, d.tipo "),
         @NamedQuery(name = "EstatisticaDispositivo.removeAntigas", query = "delete from EstatisticaDispositivo e where e.data < :limite")
 })
