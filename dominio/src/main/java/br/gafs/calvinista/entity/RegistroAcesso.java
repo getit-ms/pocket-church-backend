@@ -39,6 +39,7 @@ public class RegistroAcesso implements IEntity {
     private String igreja;
 
     @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
     private StatusRegistroAcesso status;
 
     @Override
