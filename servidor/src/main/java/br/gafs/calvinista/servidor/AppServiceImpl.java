@@ -2208,16 +2208,19 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AllowAdmin
     public List<QuantidadeDispositivoDTO> buscaQuantidadesDispositivos() {
         return daoService.findWith(QueryAdmin.QUANTIDADE_DISPOSITIVOS_BY_IGREJA.create(sessaoBean.getChaveIgreja()));
     }
 
     @Override
+    @AllowAdmin
     public List<EstatisticaDispositivo> buscaEstatisticasDispositivos() {
         return daoService.findWith(QueryAdmin.ESTATISTICAS_DISPOSITIVOS_BY_IGREJA.create(sessaoBean.getChaveIgreja()));
     }
 
     @Override
+    @AllowAdmin
     public List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade) {
         return daoService.findWith(QueryAdmin.ESTATISTICAS_ACESSO_BY_IGREJA_AND_FUNCIONALIDADE
                 .create(sessaoBean.getChaveIgreja(), funcionalidade.getCodigo()));

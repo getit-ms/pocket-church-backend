@@ -34,8 +34,8 @@ public class EstatisticaController {
     @Path("dispositivos/quantidade")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaQuantidadeDispositivos(){
-        return Response.status(Response.Status.OK).entity(buscaQuantidadeDispositivos()).build();
+    public Response buscaQuantidadesDispositivos(){
+        return Response.status(Response.Status.OK).entity(appService.buscaQuantidadesDispositivos()).build();
     }
 
     @GET
@@ -50,7 +50,7 @@ public class EstatisticaController {
     @Path("acessos/{funcionalidade}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaEstatisticasAcesso(final @PathParam("funcionalidade") String funcionalidade){
+    public Response buscaEstatisticasAcessoFuncionalidade(final @PathParam("funcionalidade") String funcionalidade){
         return Response.ok().entity(appService.buscaEstatisticasAcessoFuncionalidade(Funcionalidade.valueOf(funcionalidade))).build();
     }
     
