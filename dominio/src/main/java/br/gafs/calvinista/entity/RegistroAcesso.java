@@ -35,7 +35,7 @@ public class RegistroAcesso implements IEntity {
     private String dispositivo;
 
     @Id
-    @Column(name = "igreja")
+    @Column(name = "chave_igreja")
     private String igreja;
 
     @Column(name = "status")
