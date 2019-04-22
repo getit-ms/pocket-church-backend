@@ -403,7 +403,7 @@ public enum QueryAdmin {
                     .set("limite", DateUtil.decrementaMeses(new Date(), 1));
         }
     },
-    ESTATISTICAS_DISPOSITIVOS_BY_IGREJA("EstatisticaDispositivo.findByigreja", "igreja"),
+    ESTATISTICAS_DISPOSITIVOS_BY_IGREJA("EstatisticaDispositivo.findByIgreja", "igreja"),
     ESTATISTICAS_ACESSO_BY_IGREJA_AND_FUNCIONALIDADE("EstatisticaAcesso.findByIgrejaAndFuncionalidade", "igreja", "funcionalidade"),
     ESTATISTICAS_DISPOSITIVOS_ONLINE("EstatisticaDispositivo.findOnLine") {
         @Override
