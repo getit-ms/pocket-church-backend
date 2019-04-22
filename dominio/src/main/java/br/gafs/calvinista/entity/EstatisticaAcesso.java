@@ -18,7 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(EstatisticaAcessoId.class)
-@Table(name = "tb_estatistica_dispositivo")
+@Table(name = "tb_estatistica_acesso")
 @EqualsAndHashCode(of = {"igreja", "data", "funcionalidade"})
 @NamedQueries({
         @NamedQuery(name = "EstatisticaAcesso.findByIgrejaAndFuncionalidade", query = "select ea from EstatisticaAcesso ea where ea.igreja.chave = :igreja and ea.funcionalidade = :funcionalidade order by ea.data"),
