@@ -367,7 +367,7 @@ public enum TipoParametro {
             public Object sourceToTarget(byte[] source) {
                 try{
                     if (source != null) {
-                        Writable writable = om.readValue(new String(source), Writable.class);
+                        Writable writable = om.readValue(source, Writable.class);
                         return om.readValue(writable.content, Class.forName(writable.classname));
                     }
                 }catch(Exception e){
