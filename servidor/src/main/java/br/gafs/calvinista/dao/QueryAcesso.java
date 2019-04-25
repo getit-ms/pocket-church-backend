@@ -45,7 +45,6 @@ public enum QueryAcesso {
         
     }, 
     AUTENTICA_USUARIO("Usuario.autentica", "login", "senha"), 
-    USUARIO_POR_AUTENTICACAO("Usuario.findByAutenticacao", "autenticacao"), 
     FUNCIONALIDADES_MEMBRO_APP("Membro.findFuncionalidadesAcessoApp", "membro", "igreja"),
     FUNCIONALIDADES_MEMBRO_ADMIN("Membro.findFuncionalidadesAcessoAdmin", "membro", "igreja"),
     TODAS_FUNCIONALIDADES_ADMIN("Igreja.findFuncionalidadesInList", "igreja"){
@@ -66,7 +65,6 @@ public enum QueryAcesso {
         }
         
     }, 
-    MIGRA_SENT_NOTIFICATIONS("SentNotification.migraDispositivo", "oldDispositivo", "newDispositivo"), 
     UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo"),
     REGISTER_ACESSO_DISPOSITIVO("Dispositivo.registerAcesso", "chaves"),
     BUSCA_IGREJAS_EMAIL("Igreja.findByEmailAcesso", "email"){

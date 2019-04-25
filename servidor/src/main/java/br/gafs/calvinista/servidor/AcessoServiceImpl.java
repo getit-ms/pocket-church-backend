@@ -78,21 +78,7 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        dispositivoService.register(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version);
-    }
-
-    private Dispositivo dispositivo() {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
-
-        if (dispositivo.getMembro() == null && sessaoBean.getIdMembro() != null){
-            dispositivo.setMembro(daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())));
-            dispositivo = daoService.update(dispositivo);
-        }else if (dispositivo.getMembro() != null && sessaoBean.getIdMembro() == null){
-            dispositivo.setMembro(null);
-            dispositivo = daoService.update(dispositivo);
-        }
-
-        return dispositivo;
+        dispositivoService.registraPush(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version);
     }
 
     @Override
@@ -102,7 +88,8 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public Preferencias buscaPreferencis() {
-        return daoService.find(Preferencias.class, dispositivo().getChave());
+        Dispositivo dispositivo = dispositivoService.getDispositivo(sessaoBean.getChaveDispositivo());
+        return daoService.find(Preferencias.class, dispositivo.getChave());
     }
 
     @Override
@@ -224,13 +211,6 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public void logout() {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
-
-        if (dispositivo != null){
-            dispositivo.setMembro(null);
-            daoService.update(dispositivo);
-        }
-
         sessaoBean.logout();
     }
 
@@ -238,7 +218,7 @@ public class AcessoServiceImpl implements AcessoService {
     public Membro refreshLogin() {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
         if (membro != null && membro.isMembro()){
-            sessaoBean.login(membro.getId(), sessaoBean.isAdmin());
+            sessaoBean.refresh();
             return membro;
         }
 
@@ -272,13 +252,8 @@ public class AcessoServiceImpl implements AcessoService {
         Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
 
         if (membro != null && membro.isMembro()){
-            Dispositivo dispositivo = dispositivo();
-            dispositivo.setMembro(membro);
-            daoService.update(dispositivo);
+            sessaoBean.login(membro.getId(), tipo, version);
 
-            registerPush(tipo, null, version);
-
-            sessaoBean.login(membro.getId(), TipoDispositivo.PC.equals(tipo));
             return membro;
         }
 

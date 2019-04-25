@@ -7,9 +7,8 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.entity.Dispositivo;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.dao.DAOService;
@@ -22,7 +21,9 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -40,11 +41,14 @@ public class SessaoBean implements Serializable {
     @EJB
     private DispositivoService dispositivoService;
 
-    @Inject
-    private SessionDataManager manager;
+    @EJB
+    private IgrejaService igrejaService;
 
     @EJB
     private DAOService daoService;
+
+    @Inject
+    private SessionDataManager manager;
 
     private String chaveIgreja;
     private String chaveDispositivo;
@@ -55,147 +59,71 @@ public class SessaoBean implements Serializable {
 
     private boolean loaded;
 
-    private static final Set<String> DISPOSITIVOS_REGISTRANDO = new HashSet<String>();
-
-    public void load(String authorization){
-        Number creation = null;
-        if (!StringUtil.isEmpty(authorization)){
-            try{
-                JWTManager.JWTReader reader = jwtManager.reader(authorization);
-                chaveIgreja = (String) reader.get("igreja");
-                chaveDispositivo = (String) reader.get("dispositivo");
-                idMembro = toLong(reader.get("membro"));
-                admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
-                idUsuario = toLong("usuario");
-                funcionalidades = (List<Integer>) reader.get("funcionalidades");
-                creation = (Number) reader.get("creation");
-            }catch(Exception e){
-                e.printStackTrace();
-                throw new ServiceException("mensagens.MSG-403");
-            }
-        }
-
-        if (StringUtil.isEmpty(chaveIgreja)){
-            chaveIgreja = get("Igreja");
-
-            if (StringUtil.isEmpty(chaveIgreja)){
-                throw new ServiceException("mensagens.MSG-403");
-            }
-        }
-
-        Igreja igreja = daoService.find(Igreja.class, chaveIgreja);
-
-        if (igreja.isInativa()) {
-            throw new ServiceException("O aplicativo foi desativado. Entre em contato com a igreja para mais detalhes");
-        }
-
-        if (igreja.isBloqueada() && admin) {
-            throw new ServiceException("O aplicativo está bloqueado. Entre em contato com a GET IT para mais detalhes.");
-        }
-
-        String uuid = getUUID();
-        if (!StringUtil.isEmpty(uuid) && (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
-            String oldCD = chaveDispositivo;
-
-            String newCD = uuid + "@" + chaveIgreja;
-
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
-
-            boolean processa = true;
-
-            if (dispositivo == null){
-                if (!DISPOSITIVOS_REGISTRANDO.contains(newCD)) {
-                    synchronized (DISPOSITIVOS_REGISTRANDO) {
-                        processa = !DISPOSITIVOS_REGISTRANDO.contains(newCD);
-
-                        if (processa) {
-                            DISPOSITIVOS_REGISTRANDO.add(newCD);
-                        }
-                    }
-                }
-
-                if (processa){
-                    dispositivo = createDispositivo(uuid);
-                }
-            }else{
-                chaveDispositivo = newCD;
-                synchronized (DISPOSITIVOS_REGISTRANDO){
-                    DISPOSITIVOS_REGISTRANDO.remove(dispositivo);
-                }
-            }
-
-            if (!StringUtil.isEmpty(oldCD)){
-                if (processa){
-                    daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
-
-                    Dispositivo old = daoService.find(Dispositivo.class, oldCD);
-                    if (old != null){
-                        dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
-                        dispositivo.setMembro(old.getMembro());
-
-                        daoService.update(dispositivo);
-
-                        if (dispositivo.isRegistrado()){
-                            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
-                        }
-                    }
-
-                    set();
-                } else {
-                    chaveDispositivo = oldCD;
-                }
-            }else{
-                chaveDispositivo = newCD;
-            }
-
-            if (dispositivo != null && admin != dispositivo.isAdministrativo()){
-                admin = dispositivo.isAdministrativo();
-                set();
-            }
-        } else if (StringUtil.isEmpty(uuid) && StringUtil.isEmpty(chaveDispositivo)) {
-            createDispositivo(UUID.randomUUID().toString());
-        } else if (!admin) {
-            switch (dispositivoService.verificaContingencia(chaveDispositivo)) {
-                case FORCE_REGISTER:
-                    manager.header("Force-Register", "true");
-                    break;
-                case FULL_RESET:
-                    manager.header("Force-Reset", "true");
-                    break;
-            }
-        }
-
-        dispositivoService.registraAcesso(chaveDispositivo);
-
-        boolean deprecated = creation == null ||
-                creation.longValue() + TIMEOUT < System.currentTimeMillis();
-
-        if (deprecated || funcionalidades == null){
-            refreshFuncionalidades();
-            set();
-        }
-    }
-
-    private Dispositivo createDispositivo(String uuid){
-        Dispositivo dispositivo = daoService.update(new Dispositivo(uuid, daoService.find(Igreja.class, chaveIgreja)));
-        daoService.update(preparaPreferencias(new Preferencias(dispositivo)));
-
-        chaveDispositivo = uuid + "@" + chaveIgreja;
-
-        return dispositivo;
-    }
-
-    private Preferencias preparaPreferencias(Preferencias preferencias){
-        preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(chaveIgreja)));
-        return preferencias;
-    }
-
-    private void load(){
+    public void load(){
         if (!loaded){
             loaded = true;
-            load(get("Authorization"));
+
+            Number creation = null;
+            String authorization = get("Authorization");
+            if (!StringUtil.isEmpty(authorization)){
+                try{
+                    JWTManager.JWTReader reader = jwtManager.reader(authorization);
+                    chaveIgreja = (String) reader.get("igreja");
+                    chaveDispositivo = (String) reader.get("dispositivo");
+                    idMembro = toLong(reader.get("membro"));
+                    admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
+                    idUsuario = toLong("usuario");
+                    funcionalidades = (List<Integer>) reader.get("funcionalidades");
+                    creation = (Number) reader.get("creation");
+                }catch(Exception e){
+                    throw new ServiceException("mensagens.MSG-403", e);
+                }
+            } else {
+                if (StringUtil.isEmpty(chaveIgreja)) {
+                    chaveIgreja = get("Igreja");
+
+                    if (StringUtil.isEmpty(chaveIgreja)) {
+                        throw new ServiceException("mensagens.MSG-403");
+                    }
+                }
+
+                if (StringUtil.isEmpty(chaveDispositivo)) {
+                    String dispositivo = get("Dispositivo");
+
+                    if (StringUtil.isEmpty(dispositivo)) {
+                        chaveDispositivo = UUID.randomUUID().toString() + "@" + chaveIgreja;
+                    } else {
+                        chaveDispositivo = dispositivo + "@" + chaveIgreja;
+                    }
+                }
+            }
+
+            igrejaService.checkStatusIgreja(chaveIgreja, admin);
+
+            dispositivoService.registraAcesso(chaveDispositivo);
+
+            if (!admin) {
+                switch (DispositivoService.verificaContingencia(chaveDispositivo)) {
+                    case FORCE_REGISTER:
+                        manager.header("Force-Register", "true");
+                        break;
+                    case FULL_RESET:
+                        manager.header("Force-Reset", "true");
+                        break;
+                }
+            }
+
+            boolean deprecated = creation == null ||
+                    creation.longValue() + TIMEOUT < System.currentTimeMillis();
+
+            if (deprecated || funcionalidades == null) {
+                refreshFuncionalidades();
+                set();
+            }
+
         }
     }
+
 
     private static Long toLong(Object value){
         if (value instanceof Number){
@@ -293,11 +221,13 @@ public class SessaoBean implements Serializable {
         set();
     }
 
-    public void login(Long idMembro, boolean admin){
+    public void login(Long idMembro, TipoDispositivo tipoDispositivo, String version){
         this.idMembro = idMembro;
-        this.admin = admin;
+        this.admin = TipoDispositivo.PC.equals(tipoDispositivo);
 
         this.refreshFuncionalidades();
+
+        dispositivoService.registraLogin(chaveDispositivo, idMembro, tipoDispositivo, version);
 
         set();
     }
@@ -313,10 +243,16 @@ public class SessaoBean implements Serializable {
         this.idMembro = null;
         this.funcionalidades.clear();
 
+        dispositivoService.registraLogout(chaveDispositivo);
+
         set();
     }
 
-    public String getUUID() {
-        return get("Dispositivo");
+    public void refresh() {
+        this.refreshFuncionalidades();
+
+        dispositivoService.registraLogin(chaveDispositivo, idMembro, null, null);
+
+        set();
     }
 }

@@ -37,7 +37,7 @@ public class AssetsController {
     public Response getBundleLocale(@PathParam("locale") String locale) throws IOException {
         return Response.status(Response.Status.OK).entity(
                 parametroService.get(locale, TipoParametro.BUNDLE_WEB)
-        ).encoding("UTF-8").build();
+        ).build();
     }
 
     @GET
@@ -46,7 +46,7 @@ public class AssetsController {
     public Response getBundleIgreja(@PathParam("igreja") String igreja) throws IOException {
         return Response.status(Response.Status.OK).entity(
                 parametroService.get(igreja, TipoParametro.BUNDLE_WEB)
-        ).encoding("UTF-8").build();
+        ).build();
     }
 
 }

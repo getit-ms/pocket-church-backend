@@ -107,6 +107,9 @@ public class AppServiceImpl implements AppService {
     @EJB
     private MensagemBuilder mensagemBuilder;
 
+    @EJB
+    private DispositivoService dispositivoService;
+
     @Inject
     private SessaoBean sessaoBean;
 
@@ -233,7 +236,7 @@ public class AppServiceImpl implements AppService {
             throw new ServiceException("mensagens.MSG-403");
         }
 
-        chamado.setDispositivoSolicitante(daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo()));
+        chamado.setDispositivoSolicitante(dispositivoService.getDispositivo(sessaoBean.getChaveDispositivo()));
         chamado = daoService.create(chamado);
 
         EmailUtil.sendMail(

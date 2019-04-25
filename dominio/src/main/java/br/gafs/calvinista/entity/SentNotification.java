@@ -6,19 +6,9 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedNativeQueries;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
 import lombok.Getter;
+
+import javax.persistence.*;
 
 /**
  *
@@ -28,9 +18,6 @@ import lombok.Getter;
 @Entity
 @IdClass(SentNotificationId.class)
 @Table(name = "tb_sent_notification")
-@NamedNativeQueries({
-    @NamedNativeQuery(name = "SentNotification.migraDispositivo", query = "update tb_sent_notification set chave_dispositivo = #newDispositivo where chave_dispositivo = #oldDispositivo"),
-})
 @NamedQueries({
     @NamedQuery(name = "SentNotification.clearNotificacoesDispositivo", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.chaveDispositivo = :dispositivo and sn.membro is null and sn.idNotificacao not in :excecoes"),
     @NamedQuery(name = "SentNotification.clearNotificacoesMembro", query = "delete from SentNotification sn where sn.igreja.chave = :igreja and sn.membro.id = :membro and sn.idNotificacao not in :excecoes"),
