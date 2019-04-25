@@ -88,8 +88,14 @@ public class AcessoServiceImpl implements AcessoService {
 
     @Override
     public Preferencias buscaPreferencis() {
-        Dispositivo dispositivo = dispositivoService.getDispositivo(sessaoBean.getChaveDispositivo());
-        return daoService.find(Preferencias.class, dispositivo.getChave());
+        Preferencias preferencias = daoService.find(Preferencias.class, sessaoBean.getChaveDispositivo());
+
+        if (preferencias == null) {
+            Dispositivo dispositivo = dispositivoService.getDispositivo(sessaoBean.getChaveDispositivo());
+            preferencias = daoService.find(Preferencias.class, dispositivo.getChave());
+        }
+
+        return preferencias;
     }
 
     @Override
