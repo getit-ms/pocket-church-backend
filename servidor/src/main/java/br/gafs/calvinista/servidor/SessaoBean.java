@@ -251,7 +251,9 @@ public class SessaoBean implements Serializable {
     public void refresh() {
         this.refreshFuncionalidades();
 
-        dispositivoService.registraLogin(chaveDispositivo, idMembro, null, null);
+        if (idMembro != null) {
+            dispositivoService.registraLogin(chaveDispositivo, idMembro, null, null);
+        }
 
         set();
     }

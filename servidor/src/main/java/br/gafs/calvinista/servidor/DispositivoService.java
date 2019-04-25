@@ -7,6 +7,7 @@ import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.Preferencias;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.dao.DAOService;
+import br.gafs.util.string.StringUtil;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
@@ -46,31 +47,36 @@ public class DispositivoService {
 
     @Asynchronous
     public void registraPush(String chaveDispositivo, TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        LOGGER.info("Chamada para registro de dispositivo " + tipoDispositivo + " - " + pushKey + " - " + version);
+        if (tipoDispositivo != null && !StringUtil.isEmpty(pushKey) && !StringUtil.isEmpty(version)) {
+            LOGGER.info("Chamada para registro de dispositivo " + tipoDispositivo + " - " + pushKey + " - " + version);
 
-        try {
-            userTransaction.begin();
-
-            LOGGER.info("Registro push para " + chaveDispositivo);
-
-            Dispositivo dispositivo = getDispositivo(chaveDispositivo);
-
-            LOGGER.info("Dispositivo " + chaveDispositivo + " existe. Registrando push " +
-                    tipoDispositivo + "  - " + pushKey + " = " + version);
-
-            dispositivo.registerToken(tipoDispositivo, pushKey, version);
-
-            dispositivo = daoService.update(dispositivo);
-
-            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
-
-            userTransaction.commit();
-        }catch(Exception ex0) {
             try {
-                userTransaction.rollback();
-            } catch (SystemException e) {}
+                userTransaction.begin();
 
-            LOGGER.log(Level.SEVERE, "Dispositivo " + chaveDispositivo + " não pode ser registrado. Será removido da lista para não impedir novos registros", ex0);
+                LOGGER.info("Registro push para " + chaveDispositivo);
+
+                Dispositivo dispositivo = getDispositivo(chaveDispositivo);
+
+                LOGGER.info("Dispositivo " + chaveDispositivo + " existe. Registrando push " +
+                        tipoDispositivo + "  - " + pushKey + " = " + version);
+
+                dispositivo.registerToken(tipoDispositivo, pushKey, version);
+
+                dispositivo = daoService.update(dispositivo);
+
+                if (!StringUtil.isEmpty(dispositivo.getPushkey())) {
+                    daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
+                }
+
+                userTransaction.commit();
+            } catch (Exception ex0) {
+                try {
+                    userTransaction.rollback();
+                } catch (SystemException e) {
+                }
+
+                LOGGER.log(Level.SEVERE, "Dispositivo " + chaveDispositivo + " não pode ser registrado. Será removido da lista para não impedir novos registros", ex0);
+            }
         }
     }
 
