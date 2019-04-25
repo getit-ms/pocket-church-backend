@@ -158,6 +158,8 @@ public class DispositivoService {
             daoService.create(preferencias);
 
             userTransaction.commit();
+
+            return dispositivo;
         } catch (Exception ex) {
             try {
                 userTransaction.rollback();
@@ -166,7 +168,6 @@ public class DispositivoService {
             throw new RuntimeException(ex);
         }
 
-        return dispositivo;
     }
 
     @Asynchronous
