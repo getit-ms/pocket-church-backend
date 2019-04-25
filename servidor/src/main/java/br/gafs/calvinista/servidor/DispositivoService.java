@@ -148,11 +148,23 @@ public class DispositivoService {
         String uuid = parts[0];
         String chaveIgreja = parts[1];
 
-        Dispositivo dispositivo = daoService.create(new Dispositivo(uuid, daoService.find(Igreja.class, chaveIgreja)));
+        try {
+            userTransaction.begin();
 
-        Preferencias preferencias = new Preferencias(dispositivo);
-        preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(chaveIgreja)));
-        daoService.create(preferencias);
+            Dispositivo dispositivo = daoService.create(new Dispositivo(uuid, daoService.find(Igreja.class, chaveIgreja)));
+
+            Preferencias preferencias = new Preferencias(dispositivo);
+            preferencias.setMinisteriosInteresse(daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(chaveIgreja)));
+            daoService.create(preferencias);
+
+            userTransaction.commit();
+        } catch (Exception ex) {
+            try {
+                userTransaction.rollback();
+            } catch (Exception ex0){}
+
+            throw new RuntimeException(ex);
+        }
 
         return dispositivo;
     }
@@ -185,8 +197,19 @@ public class DispositivoService {
     @Asynchronous
     public void registraLogin(String chaveDispositivo, Long idMembro, TipoDispositivo tipoDispositivo, String version) {
         Dispositivo dispositivo = getDispositivo(chaveDispositivo);
-        dispositivo.setMembro(daoService.find(Membro.class, idMembro));
-        daoService.update(dispositivo);
+
+        try {
+            userTransaction.begin();
+            dispositivo.setMembro(daoService.find(Membro.class, idMembro));
+            daoService.update(dispositivo);
+            userTransaction.commit();
+        } catch (Exception ex) {
+            try {
+                userTransaction.rollback();
+            } catch (Exception ex0) {}
+
+            LOGGER.log(Level.SEVERE, "Falha ao registrar o login do membro", ex);
+        }
 
         registraPush(chaveDispositivo, tipoDispositivo, null, version);
     }
@@ -194,8 +217,19 @@ public class DispositivoService {
     @Asynchronous
     public void registraLogout(String chaveDispositivo) {
         Dispositivo dispositivo = getDispositivo(chaveDispositivo);
-        dispositivo.setMembro(null);
-        daoService.update(dispositivo);
+
+        try {
+            userTransaction.begin();
+            dispositivo.setMembro(null);
+            daoService.update(dispositivo);
+            userTransaction.commit();
+        } catch (Exception ex) {
+            try {
+                userTransaction.rollback();
+            } catch (Exception ex0) {}
+
+            LOGGER.log(Level.SEVERE, "Falha ao registrar o logout do membro", ex);
+        }
     }
 
     public enum TipoAcaoContigencia {
