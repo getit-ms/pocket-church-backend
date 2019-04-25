@@ -1,10 +1,7 @@
 package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dao.QueryAcesso;
-import br.gafs.calvinista.entity.Dispositivo;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.Preferencias;
+import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.dao.DAOService;
 import br.gafs.util.string.StringUtil;
@@ -207,7 +204,8 @@ public class DispositivoService {
 
         try {
             userTransaction.begin();
-            dispositivo.setMembro(daoService.find(Membro.class, idMembro));
+            dispositivo.setMembro(daoService.find(Membro.class,
+                    new RegistroIgrejaId(dispositivo.getIgreja().getChave(), idMembro)));
             daoService.update(dispositivo);
             userTransaction.commit();
         } catch (Exception ex) {
