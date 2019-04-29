@@ -170,14 +170,14 @@ public class GeneralTest {
 
     @Test
     public void verificaTimeZone() {
-        java.util.Calendar cal = java.util.Calendar.getInstance();
+        java.util.Calendar cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
         cal.setTimeInMillis((System.currentTimeMillis() / MILLIS_DAY) * MILLIS_DAY);
 
-        System.out.println(TimeZone.getDefault().getRawOffset());
-
-        cal.add(Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
-
-        System.out.println(cal.getTime().toString());
+        System.out.println(DateUtil.criarDataAtualSemHora(
+                cal.get(Calendar.DAY_OF_MONTH),
+                cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.YEAR)
+        ));
     }
 }

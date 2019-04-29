@@ -13,6 +13,7 @@ import br.gafs.calvinista.dto.VideoDTO;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.util.CacheDTO;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
@@ -204,13 +205,29 @@ public class GoogleService {
                     if (event.getStart().getDateTime() != null) {
                         evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
                     } else {
-                        evento.setInicio(new Date(event.getStart().getDate().getValue() -TimeZone.getDefault().getRawOffset()));
+                        java.util.Calendar cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+                        cal.setTimeInMillis(event.getStart().getDate().getValue());
+
+                        evento.setInicio(DateUtil.criarDataAtualSemHora(
+                                cal.get(java.util.Calendar.DAY_OF_MONTH),
+                                cal.get(java.util.Calendar.MONTH) + 1,
+                                cal.get(java.util.Calendar.YEAR)
+                        ));
                     }
 
                     if (event.getEnd().getDateTime() != null) {
                         evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
                     } else {
-                        evento.setTermino(new Date(event.getEnd().getDate().getValue() -TimeZone.getDefault().getRawOffset()));
+                        java.util.Calendar cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+                        cal.setTimeInMillis(event.getEnd().getDate().getValue());
+
+                        evento.setInicio(DateUtil.criarDataAtualSemHora(
+                                cal.get(java.util.Calendar.DAY_OF_MONTH),
+                                cal.get(java.util.Calendar.MONTH) + 1,
+                                cal.get(java.util.Calendar.YEAR)
+                        ));
                     }
 
                     evento.setDescricao(event.getSummary());
