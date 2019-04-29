@@ -174,6 +174,8 @@ public class GeneralTest {
 
         cal.setTimeInMillis((System.currentTimeMillis() / MILLIS_DAY) * MILLIS_DAY);
 
+        System.out.println(TimeZone.getDefault().getRawOffset());
+
         cal.add(Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
 
         System.out.println(cal.getTime().toString());

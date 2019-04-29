@@ -204,21 +204,13 @@ public class GoogleService {
                     if (event.getStart().getDateTime() != null) {
                         evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
                     } else {
-                        java.util.Calendar cal = java.util.Calendar.getInstance();
-                        cal.setTimeInMillis(event.getStart().getDate().getValue());
-                        cal.add(java.util.Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
-
-                        evento.setInicio(cal.getTime());
+                        evento.setInicio(new Date(event.getStart().getDate().getValue() -TimeZone.getDefault().getRawOffset()));
                     }
 
                     if (event.getEnd().getDateTime() != null) {
                         evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
                     } else {
-                        java.util.Calendar cal = java.util.Calendar.getInstance();
-                        cal.setTimeInMillis(event.getEnd().getDate().getValue());
-                        cal.add(java.util.Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
-
-                        evento.setTermino(cal.getTime());
+                        evento.setTermino(new Date(event.getEnd().getDate().getValue() -TimeZone.getDefault().getRawOffset()));
                     }
 
                     evento.setDescricao(event.getSummary());
