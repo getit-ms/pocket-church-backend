@@ -223,7 +223,7 @@ public class GoogleService {
 
                         cal.setTimeInMillis(event.getEnd().getDate().getValue());
 
-                        evento.setInicio(DateUtil.criarDataAtualSemHora(
+                        evento.setTermino(DateUtil.criarDataAtualSemHora(
                                 cal.get(java.util.Calendar.DAY_OF_MONTH),
                                 cal.get(java.util.Calendar.MONTH) + 1,
                                 cal.get(java.util.Calendar.YEAR)
