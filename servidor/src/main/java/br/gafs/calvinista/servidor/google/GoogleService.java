@@ -206,7 +206,7 @@ public class GoogleService {
                     } else {
                         java.util.Calendar cal = java.util.Calendar.getInstance();
                         cal.setTimeInMillis(event.getStart().getDate().getValue());
-                        cal.setTimeZone(TimeZone.getTimeZone(response.getTimeZone()));
+                        cal.add(java.util.Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
 
                         evento.setInicio(cal.getTime());
                     }
@@ -216,7 +216,7 @@ public class GoogleService {
                     } else {
                         java.util.Calendar cal = java.util.Calendar.getInstance();
                         cal.setTimeInMillis(event.getEnd().getDate().getValue());
-                        cal.setTimeZone(TimeZone.getTimeZone(response.getTimeZone()));
+                        cal.add(java.util.Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
 
                         evento.setTermino(cal.getTime());
                     }

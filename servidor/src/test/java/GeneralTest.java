@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -37,6 +38,8 @@ import java.util.logging.Logger;
  * @author Gabriel
  */
 public class GeneralTest {
+
+    private static final long MILLIS_DAY = 1000 * 60 * 60 * 24;
 
     public GeneralTest() {
     }
@@ -163,5 +166,16 @@ public class GeneralTest {
         hora.getCalendario().setIgreja(new Igreja());
         hora.getCalendario().getIgreja().setTimezone("America/Sao_Paulo");
         System.out.println(hora.getHoraInicio() + " " + TimeZone.getTimeZone(hora.getCalendario().getIgreja().getTimezone()).getID());
+    }
+
+    @Test
+    public void verificaTimeZone() {
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+
+        cal.setTimeInMillis((System.currentTimeMillis() / MILLIS_DAY) * MILLIS_DAY);
+
+        cal.add(Calendar.MILLISECOND, -TimeZone.getDefault().getRawOffset());
+
+        System.out.println(cal.getTime().toString());
     }
 }
