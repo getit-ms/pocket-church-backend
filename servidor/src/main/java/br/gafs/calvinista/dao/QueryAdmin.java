@@ -414,7 +414,7 @@ public enum QueryAdmin {
                             TipoDispositivo.IPB,
                             TipoDispositivo.IPHONE
                     ))
-                    .set("limite", DateUtil.decrementaMeses(new Date(), 1))
+                    .set("limite", DateUtil.getDataAtualPrimeiraHora())
                     .set("statusIgreja", StatusIgreja.ATIVO);
         }
     },
