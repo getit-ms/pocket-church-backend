@@ -184,7 +184,8 @@ public class GoogleService {
         return Collections.emptyList();
     }
 
-    public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String calendarId, String pageToken, Integer tamanho) throws IOException {
+    public BuscaPaginadaEventosCalendarioDTO buscaEventosCalendar(String chave, String calendarId,
+                                                                  String pageToken, Integer tamanho) throws IOException {
         List<EventoCalendarioDTO> eventos = new ArrayList<EventoCalendarioDTO>();
 
         try {
@@ -203,13 +204,21 @@ public class GoogleService {
                     if (event.getStart().getDateTime() != null) {
                         evento.setInicio(new Date(event.getStart().getDateTime().getValue()));
                     } else {
-                        evento.setInicio(new Date(event.getStart().getDate().getValue()));
+                        java.util.Calendar cal = java.util.Calendar.getInstance();
+                        cal.setTimeInMillis(event.getStart().getDate().getValue());
+                        cal.setTimeZone(TimeZone.getTimeZone(response.getTimeZone()));
+
+                        evento.setInicio(cal.getTime());
                     }
 
                     if (event.getEnd().getDateTime() != null) {
                         evento.setTermino(new Date(event.getEnd().getDateTime().getValue()));
                     } else {
-                        evento.setTermino(new Date(event.getEnd().getDate().getValue()));
+                        java.util.Calendar cal = java.util.Calendar.getInstance();
+                        cal.setTimeInMillis(event.getEnd().getDate().getValue());
+                        cal.setTimeZone(TimeZone.getTimeZone(response.getTimeZone()));
+
+                        evento.setTermino(cal.getTime());
                     }
 
                     evento.setDescricao(event.getSummary());
