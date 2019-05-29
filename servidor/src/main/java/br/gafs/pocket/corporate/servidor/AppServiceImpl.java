@@ -1846,7 +1846,7 @@ public class AppServiceImpl implements AppService {
 
         int inicio = mes * 100 + 1;
 
-        int fim = mes * 100 + DateUtil.getDiasMes(mes, dateCal.get(Calendar.YEAR));
+        int fim = mes * 100 + 31;
 
         return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(empresa.getChave(), inicio, fim));
     }
