@@ -135,11 +135,7 @@ public class ArquivoController {
             int from = Integer.parseInt( ranges[0] );
 
             // Chunk media if the range upper bound is unspecified
-            int to = chunk_size + from;
-
-            if ( to >= file.length() ) {
-                to = (int) ( file.length() - 1 );
-            }
+            int to = Math.min((int) file.length(), chunk_size + from) - 1;
 
             final int len = to - from + 1;
 
