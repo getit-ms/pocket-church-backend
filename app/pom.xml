@@ -4,7 +4,7 @@
     <parent>
         <groupId>br.gafs.getit.calvinista</groupId>
         <artifactId>calvinista</artifactId>
-        <version>7.0.24-SNAPSHOT</version>
+        <version>7.0.24</version>
     </parent>
     
     <artifactId>calvinista-app</artifactId>
