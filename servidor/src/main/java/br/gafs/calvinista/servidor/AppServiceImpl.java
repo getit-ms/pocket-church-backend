@@ -144,20 +144,49 @@ public class AppServiceImpl implements AppService {
 
         if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)){
             Number pedidos = daoService.findWith(new FiltroPedidoOracao(null, sessaoBean.getChaveIgreja(),
-                    new FiltroPedidoOracaoDTO(null, null, Arrays.asList(StatusPedidoOracao.PENDENTE), 1, 10)).getCountQuery());
+                    new FiltroPedidoOracaoDTO(null, null, Arrays.asList(StatusPedidoOracao.PENDENTE), 1, 1)).getCountQuery());
 
             if (pedidos.intValue() > 0){
                 status.addNotificacao("mensagens.MSG-036",
-                        new QueryParameters("quantidade", pedidos));
+                        new QueryParameters("quantidade", pedidos),
+                        "/oracao");
+            }
+        }
+
+        boolean temPermissaoAcessoMembros = sessaoBean.temPermissao(Funcionalidade.GERENCIAR_ACESSO_MEMBROS);
+        boolean temPermissaoManterMemebros = sessaoBean.temPermissao(Funcionalidade.MANTER_MEMBROS);
+        if (temPermissaoAcessoMembros || temPermissaoManterMemebros) {
+
+            Number pendentes = daoService.findWith(new FiltroMembro(true, sessaoBean.getChaveIgreja(),
+                    new FiltroMembroDTO(null, null, null, 1, 1, null, true)).getCountQuery());
+
+            if (pendentes.intValue() > 0){
+                status.addNotificacao("mensagens.MSG-058",
+                        new QueryParameters("quantidade", pendentes),
+                        temPermissaoAcessoMembros ? "/contato?pendentes=true" : "/membro?pendentes=true");
             }
         }
 
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
-            // TODO verificar a quantidade de inscrições pendentes em eventos
+            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null,
+                    new FiltroInscricaoDTO(TipoEvento.EVENTO, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
+
+            if (pendentes.intValue() > 0){
+                status.addNotificacao("mensagens.MSG-059",
+                        new QueryParameters("quantidade", pendentes),
+                        "/evento");
+            }
         }
 
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)){
-            // TODO verificar a quantidade de inscrições pendentes em cursos EBD
+            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null,
+                    new FiltroInscricaoDTO(TipoEvento.EBD, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
+
+            if (pendentes.intValue() > 0){
+                status.addNotificacao("mensagens.MSG-060",
+                        new QueryParameters("quantidade", pendentes),
+                        "/ebd");
+            }
         }
 
         return status;

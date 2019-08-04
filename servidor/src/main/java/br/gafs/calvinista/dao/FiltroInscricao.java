@@ -25,10 +25,20 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
     public FiltroInscricao(Long evento, String igreja, Long membro, FiltroInscricaoDTO filtro) {
         super(filtro);
         
-        StringBuilder query = new StringBuilder("from InscricaoEvento ie where ie.evento.id = :evento and ie.evento.igreja.chave = :chaveIgreja and ie.status in :status");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).set("evento", evento);
-        
-        if (filtro instanceof FiltroMinhasInscricoesDTO){
+        StringBuilder query = new StringBuilder("from InscricaoEvento ie where ie.evento.igreja.chave = :chaveIgreja and ie.status in :status");
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
+
+        if (evento != null) {
+            query.append(" and ie.evento.id = :evento");
+            args.put("evento", evento);
+        } else if (filtro.getTipoEvento() != null) {
+            query.append(" and ie.evento.tipo = :tipo");
+            args.put("tipo", filtro.getTipoEvento());
+        }
+
+        if (filtro.getStatus() != null) {
+            args.put("status", filtro.getStatus());
+        } else if (filtro instanceof FiltroMinhasInscricoesDTO){
             query.append(" and ie.membro.id = :membro");
             args.put("membro", membro);
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE, StatusInscricaoEvento.CANCELADA));

@@ -5,9 +5,13 @@
  */
 package br.gafs.calvinista.dto;
 
+import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.dto.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  *
@@ -16,6 +20,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FiltroInscricaoDTO implements DTO {
+    private TipoEvento tipoEvento;
+    private List<StatusInscricaoEvento> status;
     private Integer pagina;
     private Integer total;
 }
