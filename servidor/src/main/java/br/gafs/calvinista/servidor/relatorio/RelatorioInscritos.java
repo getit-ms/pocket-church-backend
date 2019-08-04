@@ -55,7 +55,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         BuscaPaginadaDTO busca;
         List<InscricaoEvento> inscricoes = new ArrayList<InscricaoEvento>();
-        final FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(1, 30);
+        final FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(null, null,  1, 30);
         do{
             busca = tool.transactional(new ProcessamentoService.ExecucaoTransacional<BuscaPaginadaDTO>() {
                 @Override
