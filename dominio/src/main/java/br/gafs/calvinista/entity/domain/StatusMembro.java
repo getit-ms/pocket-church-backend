@@ -12,5 +12,6 @@ package br.gafs.calvinista.entity.domain;
 public enum StatusMembro {
     MEMBRO,
     CONTATO,
-    EXCLUIDO
+    EXCLUIDO,
+    PENDENTE
 }

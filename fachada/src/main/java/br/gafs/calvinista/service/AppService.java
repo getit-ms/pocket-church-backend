@@ -25,6 +25,7 @@ public interface AppService extends Serializable {
 
     BuscaPaginadaDTO<ResumoIgrejaDTO> busca(FiltroIgrejaDTO filtro);
     Template buscaTemplate();
+    TemplateAplicativo buscaTemplateApp();
     StatusAdminDTO buscaStatus();
     
     Ministerio cadastra(Ministerio grupo);
@@ -56,6 +57,10 @@ public interface AppService extends Serializable {
     void redefinirSenha(Long membro);
     BuscaPaginadaDTO<Membro> busca(FiltroMembroDTO filtro);
     Membro buscaMembro(Long membro);
+
+    Membro aprovaCadastroContato(Long membro);
+    Membro aprovaCadastroMembro(Long membro);
+    void rejeitaCadastro(Long membro);
     
     Boletim cadastra(Boletim boletim) throws IOException;
     Boletim atualiza(Boletim boletim) throws IOException;

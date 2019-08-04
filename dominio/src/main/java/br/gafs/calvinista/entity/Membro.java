@@ -129,7 +129,7 @@ public class Membro implements IEntity {
     @JsonIgnore
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
-    private StatusMembro status = StatusMembro.CONTATO;
+    private StatusMembro status = StatusMembro.PENDENTE;
     
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
@@ -296,6 +296,10 @@ public class Membro implements IEntity {
         }
 
         return null;
+    }
+
+    public void ativo() {
+        status = StatusMembro.CONTATO;
     }
 
     public interface Aniversariante extends Resumido {}

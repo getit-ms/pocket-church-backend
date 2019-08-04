@@ -128,6 +128,15 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    public TemplateAplicativo buscaTemplateApp() {
+        TemplateAplicativo template = daoService.find(TemplateAplicativo.class, sessaoBean.getChaveIgreja());
+        if (template == null) {
+            template = new TemplateAplicativo(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        }
+        return template;
+    }
+
+    @Override
     @AllowAdmin
     public StatusAdminDTO buscaStatus(){
         StatusAdminDTO status = new StatusAdminDTO();
@@ -277,13 +286,18 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin(Funcionalidade.MANTER_MEMBROS)
     public Membro cadastra(Membro membro) {
+        if (sessaoBean.isAdmin() && sessaoBean.temPermissao(Funcionalidade.MANTER_MEMBROS)) {
+            membro.ativo();
+        }
+
         membro.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
         if (membro.getFoto() != null) {
             arquivoService.registraUso(membro.getFoto().getId());
             membro.setFoto(arquivoService.buscaArquivo(membro.getFoto().getId()));
         }
+
         return daoService.create(membro);
     }
 
@@ -515,6 +529,38 @@ public class AppServiceImpl implements AppService {
     })
     public Membro buscaMembro(Long membro) {
         return daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), membro));
+    }
+
+    @Override
+    @AllowAdmin({
+            Funcionalidade.MANTER_MEMBROS,
+            Funcionalidade.GERENCIAR_ACESSO_MEMBROS
+    })
+    public Membro aprovaCadastroContato(Long membro) {
+        Membro entidade = buscaMembro(membro);
+
+        entidade.ativo();
+
+        return daoService.update(entidade);
+    }
+
+    @Override
+    @AllowAdmin({
+            Funcionalidade.GERENCIAR_ACESSO_MEMBROS
+    })
+    public Membro aprovaCadastroMembro(Long membro) {
+        Membro entidade = aprovaCadastroContato(membro);
+
+        return darAcessoMembro(entidade.getId());
+    }
+
+    @Override
+    @AllowAdmin({
+            Funcionalidade.MANTER_MEMBROS,
+            Funcionalidade.GERENCIAR_ACESSO_MEMBROS
+    })
+    public void rejeitaCadastro(Long membro) {
+        removeMembro(membro);
     }
 
     @Override

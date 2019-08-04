@@ -28,4 +28,6 @@ public class FiltroMembroDTO implements DTO {
     private Integer pagina = 1;
     private Integer total = 10;
     private List<Long> perfis;
+
+    private boolean pendentes;
 }

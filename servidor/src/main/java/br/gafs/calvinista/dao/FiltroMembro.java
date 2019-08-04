@@ -13,6 +13,7 @@ import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.string.StringUtil;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -26,8 +27,13 @@ public class FiltroMembro extends AbstractPaginatedFiltro<FiltroMembroDTO> {
         
         StringBuilder from = new StringBuilder("from Membro m");
         StringBuilder where = new StringBuilder(" where m.igreja.chave = :chaveIgreja and m.status in :status");
-        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja).
-                set("status", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
+        Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
+
+        if (filtro.isPendentes()) {
+            args.put("status", Collections.singletonList(StatusMembro.PENDENTE));
+        } else {
+            args.put("status", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
+        }
         
         if (!admin){
             where.append(" and m.dadosDisponiveis = true");

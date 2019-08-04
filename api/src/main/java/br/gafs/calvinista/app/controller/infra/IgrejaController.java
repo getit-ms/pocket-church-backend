@@ -49,5 +49,13 @@ public class IgrejaController {
         return Response.status(Status.OK).entity(appService.buscaTemplate()).build();
     }
 
+    @GET
+    @Path("template-app")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response buscaTemplateApp() {
+        return Response.status(Status.OK).entity(appService.buscaTemplateApp()).build();
+    }
+
 
 }
