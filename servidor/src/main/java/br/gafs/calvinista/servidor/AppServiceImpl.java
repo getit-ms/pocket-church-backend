@@ -147,7 +147,7 @@ public class AppServiceImpl implements AppService {
                     new FiltroPedidoOracaoDTO(null, null, Arrays.asList(StatusPedidoOracao.PENDENTE), 1, 1)).getCountQuery());
 
             if (pedidos.intValue() > 0){
-                status.addNotificacao("mensagens.MSG-036",
+                status.addNotificacao("mensagens.MSG-036", pedidos.intValue(),
                         new QueryParameters("quantidade", pedidos),
                         "/oracao");
             }
@@ -161,7 +161,7 @@ public class AppServiceImpl implements AppService {
                     new FiltroMembroDTO(null, null, null, 1, 1, null, true)).getCountQuery());
 
             if (pendentes.intValue() > 0){
-                status.addNotificacao("mensagens.MSG-058",
+                status.addNotificacao("mensagens.MSG-058", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         temPermissaoAcessoMembros ? "/contato?pendentes=true" : "/membro?pendentes=true");
             }
@@ -172,7 +172,7 @@ public class AppServiceImpl implements AppService {
                     new FiltroInscricaoDTO(TipoEvento.EVENTO, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
             if (pendentes.intValue() > 0){
-                status.addNotificacao("mensagens.MSG-059",
+                status.addNotificacao("mensagens.MSG-059", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         "/evento");
             }
@@ -183,7 +183,7 @@ public class AppServiceImpl implements AppService {
                     new FiltroInscricaoDTO(TipoEvento.EBD, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
             if (pendentes.intValue() > 0){
-                status.addNotificacao("mensagens.MSG-060",
+                status.addNotificacao("mensagens.MSG-060", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         "/ebd");
             }

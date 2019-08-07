@@ -9,6 +9,7 @@ import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Membro;
+import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
@@ -32,8 +33,9 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
             query.append(" and ie.evento.id = :evento");
             args.put("evento", evento);
         } else if (filtro.getTipoEvento() != null) {
-            query.append(" and ie.evento.tipo = :tipo");
+            query.append(" and ie.evento.tipo = :tipo and ie.evento.status = :statusEvento");
             args.put("tipo", filtro.getTipoEvento());
+            args.put("statusEvento", StatusEvento.ATIVO);
         }
 
         if (filtro.getStatus() != null) {

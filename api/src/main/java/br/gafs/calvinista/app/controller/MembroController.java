@@ -183,7 +183,7 @@ public class MembroController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response remove(final Membro membro){
+    public Response cadastra(final Membro membro){
         return Response.status(Response.Status.OK).entity(appService.cadastra(membro)).build();
     }
     
