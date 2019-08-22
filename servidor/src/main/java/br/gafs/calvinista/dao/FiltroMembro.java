@@ -29,7 +29,7 @@ public class FiltroMembro extends AbstractPaginatedFiltro<FiltroMembroDTO> {
         StringBuilder where = new StringBuilder(" where m.igreja.chave = :chaveIgreja and m.status in :status");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
 
-        if (filtro.isPendentes()) {
+        if (admin && filtro.isPendentes()) {
             args.put("status", Collections.singletonList(StatusMembro.PENDENTE));
         } else {
             args.put("status", Arrays.asList(StatusMembro.CONTATO, StatusMembro.MEMBRO));
@@ -37,6 +37,11 @@ public class FiltroMembro extends AbstractPaginatedFiltro<FiltroMembroDTO> {
         
         if (!admin){
             where.append(" and m.dadosDisponiveis = true");
+        }
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
+            where.append(" and lower(concat(m.nome, m.email)) like :filtro");
+            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         
         if (!StringUtil.isEmpty(filtro.getNome())){

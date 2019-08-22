@@ -14,7 +14,7 @@ import java.util.Map;
 @Setter
 @Entity
 @NoArgsConstructor
-@ToString(of = "id")
+@ToString(of = "igreja")
 @EqualsAndHashCode(of = "igreja")
 @Table(name = "tb_template_aplicativo")
 public class TemplateAplicativo implements IEntity {
