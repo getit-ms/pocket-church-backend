@@ -19,7 +19,9 @@ public enum TipoDispositivo {
     IPHONE("I"),
     PC("P"),
     UNKNOWN("U"),
-    IPB("IPB");
+    IPB("IPB"),
+    ANDROID_FIREBASE("AF"),
+    IPHONE_FIREBASE("IF");
     
     private final String codigo;
     

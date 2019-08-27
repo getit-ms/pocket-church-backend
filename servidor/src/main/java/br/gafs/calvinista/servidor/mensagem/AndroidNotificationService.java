@@ -80,6 +80,7 @@ public class AndroidNotificationService implements Serializable {
             return "0".equals(response.get("failure").toString());
         }catch(Exception e){
             LOGGER.log(Level.SEVERE, "Erro ao enviar push para " + notification.getTo(), e);
+
             return false;
         }
     }

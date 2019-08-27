@@ -398,7 +398,9 @@ public enum QueryAdmin {
                     .set("tipos", Arrays.asList(
                             TipoDispositivo.ANDROID,
                             TipoDispositivo.IPB,
-                            TipoDispositivo.IPHONE
+                            TipoDispositivo.IPHONE,
+                            TipoDispositivo.ANDROID_FIREBASE,
+                            TipoDispositivo.IPHONE_FIREBASE
                     ))
                     .set("limite", DateUtil.decrementaMeses(new Date(), 1));
         }
@@ -412,7 +414,9 @@ public enum QueryAdmin {
                     .set("tipos", Arrays.asList(
                             TipoDispositivo.ANDROID,
                             TipoDispositivo.IPB,
-                            TipoDispositivo.IPHONE
+                            TipoDispositivo.IPHONE,
+                            TipoDispositivo.ANDROID_FIREBASE,
+                            TipoDispositivo.IPHONE_FIREBASE
                     ))
                     .set("limite", DateUtil.getDataAtualPrimeiraHora())
                     .set("statusIgreja", StatusIgreja.ATIVO);

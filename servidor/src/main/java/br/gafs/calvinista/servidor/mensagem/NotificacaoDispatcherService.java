@@ -42,6 +42,9 @@ public class NotificacaoDispatcherService {
     private AndroidNotificationService androidService;
 
     @EJB
+    private FirebaseService firebaseService;
+
+    @EJB
     private IPBNotificationService ipbService;
 
     @EJB
@@ -93,6 +96,7 @@ public class NotificacaoDispatcherService {
         List<IOSNotificationService.Destination> destinationIOS = new ArrayList<>();
         List<AndroidNotificationService.Destination> destinationAndroid = new ArrayList<>();
         List<IPBNotificationService.Destination> destinationIPB = new ArrayList<>();
+        List<FirebaseService.Destination> destinationFirebase = new ArrayList<>();
 
         List<String> ids = new ArrayList<>();
         for (Object[] dispositivo : dispositivos) {
@@ -104,6 +108,10 @@ public class NotificacaoDispatcherService {
                 destinationIOS.add(new IOSNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
             }else if (dispositivo[TIPO].equals(TipoDispositivo.IPB.ordinal())){
                 destinationIPB.add(new IPBNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
+            } else if (dispositivo[TIPO].equals(TipoDispositivo.ANDROID_FIREBASE.ordinal())) {
+                destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], count));
+            } else if (dispositivo[TIPO].equals(TipoDispositivo.IPHONE_FIREBASE.ordinal())) {
+                destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], count));
             }
 
             ids.add((String) dispositivo[INSTALATION_ID]);
@@ -132,6 +140,10 @@ public class NotificacaoDispatcherService {
 
         if (!destinationIPB.isEmpty()) {
             ipbService.pushNotifications(filtro.getIgreja(), push, destinationIPB);
+        }
+
+        if (!destinationFirebase.isEmpty()) {
+            firebaseService.pushNotifications(filtro.getIgreja(), push, destinationFirebase);
         }
     }
 
