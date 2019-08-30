@@ -22,6 +22,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FiltroBoletimDTO implements DTO {
+    private String filtro;
     private Date dataInicio;
     private Date dataTermino;
     @JsonIgnore

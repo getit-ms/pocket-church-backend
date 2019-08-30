@@ -14,8 +14,8 @@ import br.gafs.util.date.DateUtil;
  */
 public class FiltroBoletimPublicadoDTO extends FiltroBoletimDTO {
 
-    public FiltroBoletimPublicadoDTO(TipoBoletim tipo, Integer pagina, Integer total) {
-        super(null, DateUtil.getDataAtual(), tipo, pagina, total);
+    public FiltroBoletimPublicadoDTO(String filtro, TipoBoletim tipo, Integer pagina, Integer total) {
+        super(filtro, null, DateUtil.getDataAtual(), tipo, pagina, total);
     }
     
 }

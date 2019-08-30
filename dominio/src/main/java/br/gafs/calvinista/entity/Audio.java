@@ -11,6 +11,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * Created by Gabriel on 23/07/2018.
@@ -93,6 +94,11 @@ public class Audio implements IEntity {
     @JsonView(View.Resumido.class)
     @Column(name = "tempo_audio")
     private long tempoAudio;
+
+    @Column(name = "data_cadastro")
+    @JsonView(View.Resumido.class)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataCadastro = new Date();
 
     @Setter
     @OneToOne

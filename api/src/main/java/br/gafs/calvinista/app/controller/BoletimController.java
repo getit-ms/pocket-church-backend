@@ -47,11 +47,12 @@ public class BoletimController {
     @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaTodos(
+            @QueryParam("filtro") final String filtro,
             @QueryParam("tipo") @DefaultValue("BOLETIM") final TipoBoletim tipo,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                buscaTodos(new FiltroBoletimDTO(null, null, tipo, pagina, total))).build();
+                buscaTodos(new FiltroBoletimDTO(filtro, null, null, tipo, pagina, total))).build();
     }
     
     @GET
@@ -59,11 +60,12 @@ public class BoletimController {
     @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaPublicados(
+            @QueryParam("filtro") final String filtro,
             @QueryParam("tipo") @DefaultValue("BOLETIM") final TipoBoletim tipo,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
         return Response.status(Status.OK).entity(appService.
-                buscaPublicados(new FiltroBoletimPublicadoDTO(tipo, pagina, total))).build();
+                buscaPublicados(new FiltroBoletimPublicadoDTO(filtro, tipo, pagina, total))).build();
     }
     
     @GET
