@@ -157,6 +157,9 @@ public enum TipoParametro {
     // Assets WEB
     BUNDLE_WEB(TipoValor.ANEXO, byte[].class, "{}".getBytes()),
 
+    // Assets APP
+    BUNDLE_APP(TipoValor.ANEXO, byte[].class, "{}".getBytes()),
+
     // Acesso Batch
     UUID_APP_BATCH(TipoValor.VALOR, String.class, "29f1dad0-64ea-4bce-8554-6a17aadeb7c0"),
     TOKEN_ACESSO_APP_BATCH(TipoValor.VALOR, String.class, "fe0b2a7d-1a19-4ef0-890c-a0226f9ceb06");

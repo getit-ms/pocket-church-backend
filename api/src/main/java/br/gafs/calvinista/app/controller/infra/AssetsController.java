@@ -49,4 +49,22 @@ public class AssetsController {
         ).build();
     }
 
+    @GET
+    @Path("i18n/locale/app/{locale}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBundleLocaleApp(@PathParam("locale") String locale) throws IOException {
+        return Response.status(Response.Status.OK).entity(
+                parametroService.get(locale, TipoParametro.BUNDLE_APP)
+        ).build();
+    }
+
+    @GET
+    @Path("i18n/igreja/app/{igreja}.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBundleIgrejaApp(@PathParam("igreja") String igreja) throws IOException {
+        return Response.status(Response.Status.OK).entity(
+                parametroService.get(igreja, TipoParametro.BUNDLE_APP)
+        ).build();
+    }
+
 }
