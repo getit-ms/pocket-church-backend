@@ -9,18 +9,7 @@ import br.gafs.bean.IEntity;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
 import br.gafs.util.string.StringUtil;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,6 +18,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import java.util.Date;
 
 /**
  *
@@ -43,7 +34,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 @NamedQueries({
     @NamedQuery(name = "Dispositivo.findPorTipoAndEmpresa", query = "select d.pushkey from Dispositivo d where d.empresa.chave = :empresa and d.tipo = :tipo and d.pushkey in :dispositivos"),
     @NamedQuery(name = "Dispositivo.desabilitaByPushkey", query = "update Dispositivo d set d.pushkey = 'unknown' where d.pushkey = :pushkey"),
-    @NamedQuery(name = "Dispositivo.unregisterOldDevices", query = "update Dispositivo d set d.pushkey = 'unknown' where d.chave <> :chaveDispositivo and d.pushkey = :pushkey")
+    @NamedQuery(name = "Dispositivo.unregisterOldDevices", query = "update Dispositivo d set d.pushkey = 'unknown' where d.chave <> :chaveDispositivo and d.pushkey = :pushkey"),
+    @NamedQuery(name = "Dispositivo.registerAcesso", query = "update Dispositivo d set d.ultimoAcesso = CURRENT_TIMESTAMP where d.chave in :chaves")
 })
 public class Dispositivo implements IEntity {
     @Id
@@ -54,7 +46,11 @@ public class Dispositivo implements IEntity {
     @Length(max = 250)
     @Column(name = "uuid", nullable = false, length = 250)
     private String uuid;
-    
+
+    @Column(name = "ultimo_acesso")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date ultimoAcesso = new Date();
+
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "tipo", nullable = false)

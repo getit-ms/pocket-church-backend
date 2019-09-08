@@ -49,6 +49,11 @@ public class Notificacao implements IEntity {
     @Column(name = "apenas_gerentes", nullable = false, updatable = false)
     private boolean apenasGerentes;
 
+    @JsonIgnore
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "data", nullable = false, updatable = false)
+    private Date data = new Date();
+
     @ManyToMany
     @JoinTable(name = "rl_lotacao_notificacao",
             joinColumns = {
@@ -61,10 +66,6 @@ public class Notificacao implements IEntity {
             })
     private List<LotacaoColaborador> lotacoes;
 
-    @JsonIgnore
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "data", nullable = false, updatable = false)
-    private Date data = new Date();
 
     @Id
     @JsonIgnore

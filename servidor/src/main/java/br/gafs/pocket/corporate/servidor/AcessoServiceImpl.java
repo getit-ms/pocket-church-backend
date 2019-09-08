@@ -10,12 +10,13 @@ import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.pocket.corporate.dao.QueryAcesso;
 import br.gafs.pocket.corporate.dao.QueryAdmin;
-import br.gafs.pocket.corporate.dto.CalvinEmailDTO;
 import br.gafs.pocket.corporate.dto.FiltroEmailDTO;
 import br.gafs.pocket.corporate.dto.MenuDTO;
+import br.gafs.pocket.corporate.dto.ResumoEmpresaDTO;
 import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
+import br.gafs.pocket.corporate.entity.domain.TipoParametro;
 import br.gafs.pocket.corporate.security.AllowColaborador;
 import br.gafs.pocket.corporate.security.Audit;
 import br.gafs.pocket.corporate.security.AuditoriaInterceptor;
@@ -23,7 +24,7 @@ import br.gafs.pocket.corporate.service.AcessoService;
 import br.gafs.pocket.corporate.service.ArquivoService;
 import br.gafs.pocket.corporate.service.MensagemService;
 import br.gafs.pocket.corporate.util.JWTManager;
-import br.gafs.pocket.corporate.util.MensagemUtil;
+import br.gafs.pocket.corporate.util.MensagemBuilder;
 import br.gafs.util.senha.SenhaUtil;
 
 import javax.ejb.EJB;
@@ -54,6 +55,12 @@ public class AcessoServiceImpl implements AcessoService {
     @EJB
     private ArquivoService arquivoService;
 
+    @EJB
+    private JWTManager jwtManager;
+
+    @EJB
+    private MensagemBuilder mensagemBuilder;
+    
     @Inject
     private SessaoBean sessaoBean;
 
@@ -73,26 +80,19 @@ public class AcessoServiceImpl implements AcessoService {
     @Audit
     @Override
     public void registerPush(TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        dispositivoService.register(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version);
-    }
-
-    private Dispositivo dispositivo() {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
-
-        if (dispositivo.getColaborador() == null && sessaoBean.getIdColaborador() != null){
-            dispositivo.setColaborador(daoService.find(Colaborador.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador())));
-            dispositivo = daoService.update(dispositivo);
-        }else if (dispositivo.getColaborador() != null && sessaoBean.getIdColaborador() == null){
-            dispositivo.setColaborador(null);
-            dispositivo = daoService.update(dispositivo);
-        }
-        
-        return dispositivo;
+        dispositivoService.registraPush(sessaoBean.getChaveDispositivo(), tipoDispositivo, pushKey, version);
     }
 
     @Override
     public Preferencias buscaPreferencis() {
-        return daoService.find(Preferencias.class, dispositivo().getChave());
+        Preferencias preferencias = daoService.find(Preferencias.class, sessaoBean.getChaveDispositivo());
+
+        if (preferencias == null) {
+            Dispositivo dispositivo = dispositivoService.getDispositivo(sessaoBean.getChaveDispositivo());
+            preferencias = daoService.find(Preferencias.class, dispositivo.getChave());
+        }
+
+        return preferencias;
     }
     
     @Override
@@ -206,28 +206,19 @@ public class AcessoServiceImpl implements AcessoService {
         }
     }
 
-    @Audit
     @Override
     public void logout() {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
-        
-        if (dispositivo != null){
-            dispositivo.setColaborador(null);
-            daoService.update(dispositivo);
-        }
-        
         sessaoBean.logout();
     }
 
-    @Audit
     @Override
     public Colaborador refreshLogin() {
         Colaborador colaborador = daoService.find(Colaborador.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()));
         if (colaborador != null && colaborador.isColaborador()){
-            sessaoBean.login(colaborador.getId(), sessaoBean.isAdmin());
+            sessaoBean.refresh();
             return colaborador;
         }
-        
+
         throw new SecurityException();
     }
 
@@ -242,20 +233,25 @@ public class AcessoServiceImpl implements AcessoService {
 
         throw new SecurityException();
     }
-    
-    @Audit
+
+    @Override
+    public List<ResumoEmpresaDTO> inciaLogin(String username) {
+        List<ResumoEmpresaDTO> empresas = daoService.findWith(QueryAcesso.BUSCA_EMPRESAS_EMAIL.create(username.toLowerCase()));
+
+        if (empresas.isEmpty()) {
+            throw new ServiceException("mensagens.MSG-606");
+        }
+
+        return empresas;
+    }
+
     @Override
     public Colaborador login(String username, String password, TipoDispositivo tipo, String version){
         Colaborador colaborador = daoService.findWith(QueryAcesso.AUTENTICA_COLABORADOR.createSingle(sessaoBean.getChaveEmpresa(), username, password));
         
         if (colaborador != null && colaborador.isColaborador()){
-            Dispositivo dispositivo = dispositivo();
-            dispositivo.setColaborador(colaborador);
-            daoService.update(dispositivo);
-            
-            registerPush(tipo, null, version);
-            
-            sessaoBean.login(colaborador.getId(), TipoDispositivo.PC.equals(tipo));
+            sessaoBean.login(colaborador.getId(), tipo, version);
+
             return colaborador;
         }
         
@@ -295,30 +291,27 @@ public class AcessoServiceImpl implements AcessoService {
             throw new ServiceException("mensagens.MSG-037");
         }
         
-        String jwt = JWTManager.writer().map("empresa", colaborador.getEmpresa().getId()).map("colaborador", colaborador.getId()).build()
+        String jwt = jwtManager.writer().map("empresa", colaborador.getEmpresa().getId()).map("colaborador", colaborador.getId()).build()
                 .replace("/", "%2F")
                 .replace("-", "%2D")
                 .replace(".", "%2E")
                 .replace("=", "%3D")
                 .replace("_", "%5F");
         
-        String subject = MensagemUtil.getMensagem("email.redefinir_senha.subject", colaborador.getEmpresa().getLocale());
-            String title = MensagemUtil.getMensagem("email.redefinir_senha.message.title", colaborador.getEmpresa().getLocale(),
-                    colaborador.getNome());
-            String text = MensagemUtil.getMensagem("email.redefinir_senha.message.text", colaborador.getEmpresa().getLocale());
-            String linkUrl = MensagemUtil.getMensagem("email.redefinir_senha.message.link.url", colaborador.getEmpresa().getLocale(), jwt, colaborador.getEmpresa().getChave());
-            String linkText = MensagemUtil.getMensagem("email.redefinir_senha.message.link.text", colaborador.getEmpresa().getLocale());
-            
         mensagemService.sendNow(
-                MensagemUtil.email(daoService.find(Institucional.class, colaborador.getEmpresa().getChave()), subject,
-                        new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, linkUrl, linkText), Collections.EMPTY_LIST)),
+                mensagemBuilder.email(
+                        colaborador.getEmpresa(),
+                        TipoParametro.EMAIL_SUBJECT_SOLICITAR_REDEFINICAO_SENHA,
+                        TipoParametro.EMAIL_BODY_SOLICITAR_REDEFINICAO_SENHA,
+                        colaborador.getNome(), jwt
+                ),
                 new FiltroEmailDTO(colaborador.getEmpresa(), colaborador.getId()));
     }
 
     @Audit
     @Override
     public Colaborador redefineSenha(String jwt) {
-        JWTManager.JWTReader reader = JWTManager.reader(jwt);
+        JWTManager.JWTReader reader = jwtManager.reader(jwt);
         
         Colaborador colaborador = daoService.find(Colaborador.class, new RegistroEmpresaId(
                             (String) reader.get("empresa"),
@@ -329,16 +322,13 @@ public class AcessoServiceImpl implements AcessoService {
             colaborador.setSenha(SenhaUtil.encryptSHA256(novaSenha));
             colaborador = daoService.update(colaborador);
             
-            String subject = MensagemUtil.getMensagem("email.nova_senha.subject", 
-                    colaborador.getEmpresa().getLocale());
-            String title = MensagemUtil.getMensagem("email.nova_senha.message.title", 
-                    colaborador.getEmpresa().getLocale(), colaborador.getNome());
-            String text = MensagemUtil.getMensagem("email.nova_senha.message.text", 
-                    colaborador.getEmpresa().getLocale(), colaborador.getEmpresa().getNomeAplicativo());
-            
             mensagemService.sendNow(
-                    MensagemUtil.email(daoService.find(Institucional.class, colaborador.getEmpresa().getChave()), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", novaSenha), Collections.EMPTY_LIST)),
+                    mensagemBuilder.email(
+                            colaborador.getEmpresa(),
+                            TipoParametro.EMAIL_SUBJECT_REDEFINIR_SENHA,
+                            TipoParametro.EMAIL_BODY_REDEFINIR_SENHA,
+                            colaborador.getNome(), novaSenha
+                    ),
                     new FiltroEmailDTO(colaborador.getEmpresa(), colaborador.getId()));
         }
         

@@ -29,43 +29,129 @@ public enum TipoParametro {
     REPOSITORY_URL(TipoValor.VALOR, String.class, null),
     GERACAO_POOL_SIZE(TipoValor.VALOR, Integer.class, "5"),
 
-    USER_PAGSEGURO(TipoValor.VALOR, String.class, ""),
-    TOKEN_PAGSEGURO(TipoValor.VALOR, String.class, ""),
+    // Integração PagSeguro
+    USER_PAGSEGURO(TipoValor.VALOR, String.class, null),
+    TOKEN_PAGSEGURO(TipoValor.VALOR, String.class, null),
     HABILITADO_PAGSEGURO(TipoValor.VALOR, boolean.class, "false"),
-    TITULO_MENSAGEM_DIA(TipoValor.VALOR, String.class, null),
-    TITULO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
-    TEXTO_ANIVERSARIO(TipoValor.VALOR, String.class, null),
-    TITULO_PUBLICACAO(TipoValor.VALOR, String.class, null),
-    TEXTO_PUBLICACAO(TipoValor.VALOR, String.class, null),
-    TITULO_BOLETIM(TipoValor.VALOR, String.class, null),
-    TEXTO_BOLETIM(TipoValor.VALOR, String.class, null),
-    TITULO_DOCUMENTO(TipoValor.VALOR, String.class, null),
-    TEXTO_DOCUMENTO(TipoValor.VALOR, String.class, null),
-    TITULO_NOTICIA(TipoValor.VALOR, String.class, null),
-    TEXTO_NOTICIA(TipoValor.VALOR, String.class, null),
-    TITULO_CLASSIFICADOS(TipoValor.VALOR, String.class, null),
-    TEXTO_CLASSIFICADOS(TipoValor.VALOR, String.class, null),
-    TITULO_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, null),
-    TEXTO_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, null),
-    TITULO_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, null),
-    TEXTO_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, null),
+    ITEM_INSCRICAO_PAGSEGURO(TipoValor.VALOR, String.class, "Inscrição em {0} para {1}"),
 
+    // Mensagens de Push Notification Automático
+    PUSH_TITLE_MENSAGEM_DIA(TipoValor.VALOR, String.class, "Mensagem do Dia"),
+    PUSH_TITLE_ANIVERSARIO(TipoValor.VALOR, String.class, "HOJE É UM DIA ESPECIAL!"),
+    PUSH_BODY_ANIVERSARIO(TipoValor.VALOR, String.class, "Olá, {0}.\nNo dia do seu aniversário queremos desejar a você muitas bençãos de Deus, junto aos seus queridos. Parabéns! Felicidades!\nSão os votos da sua {1}."),
+    PUSH_TITLE_PUBLICACAO(TipoValor.VALOR, String.class, "Nova Publicação!"),
+    PUSH_BODY_PUBLICACAO(TipoValor.VALOR, String.class, "Veja agora a nova publicação ''{1}'' da {0}."),
+    PUSH_TITLE_BOLETIM(TipoValor.VALOR, String.class, "Novo Boletim!"),
+    PUSH_BODY_BOLETIM(TipoValor.VALOR, String.class, "Veja agora a nova edição do Boletim ''{1}'' da {0}."),
+    PUSH_TITLE_DOCUMENTO(TipoValor.VALOR, String.class, "Novo Documento!"),
+    PUSH_BODY_DOCUMENTO(TipoValor.VALOR, String.class, "Veja agora o novo Documento ''{1}'' > ''{2}'' da {0}."),
+    PUSH_TITLE_NOTICIA(TipoValor.VALOR, String.class, "Notícia!"),
+    PUSH_BODY_NOTICIA(TipoValor.VALOR, String.class, "Veja agora a notícia ''{1}'' publicada por {0}."),
+    PUSH_TITLE_CLASSIFICADOS(TipoValor.VALOR, String.class, "Anúncio no Classificados!"),
+    PUSH_BODY_CLASSIFICADOS(TipoValor.VALOR, String.class, "Veja agora o novo anúncio ''{1}'' nos classificados."),
+    PUSH_TITLE_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, "Estamos AO VIVO!"),
+    PUSH_BODY_YOUTUBE_AO_VIVO(TipoValor.VALOR, String.class, "Assista ''{0}'' ao vivo agora!"),
+    PUSH_TITLE_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, "Estaremos AO VIVO hoje {1}!"),
+    PUSH_BODY_YOUTUBE_AGENDADO(TipoValor.VALOR, String.class, "Assista ''{0}'' ao vivo hoje as {1}."),
+    PUSH_TITLE_CONFIRMACAO_AGENDAMENTO(TipoValor.VALOR, String.class, "Confirmação de Agendamento"),
+    PUSH_BODY_CONFIRMACAO_AGENDAMENTO(TipoValor.VALOR, String.class, "O gerente {0} confirmou seu agendamento no dia {1} de {2} a {3}."),
+    PUSH_TITLE_CANCELAMENTO_AGENDAMENTO(TipoValor.VALOR, String.class, "Cancelamento de Agendamento"),
+    PUSH_BODY_CANCELAMENTO_AGENDAMENTO(TipoValor.VALOR, String.class, "{0} cancelou o agendamento do dia {1} de {2} a {3}."),
+    PUSH_TITLE_CANCELAMENTO_AGENDAMENTO_COLABORADOR(TipoValor.VALOR, String.class, "Cancelamento de Agendamento"),
+    PUSH_BODY_CANCELAMENTO_AGENDAMENTO_COLABORADOR(TipoValor.VALOR, String.class, "{0} cancelou o Agendamento do dia {1} de {2} a {3}."),
+    PUSH_TITLE_AGENDAMENTO(TipoValor.VALOR, String.class, "Solicitação de Agendamento"),
+    PUSH_BODY_AGENDAMENTO(TipoValor.VALOR, String.class, "{0} deseja marcar um agendamento no dia {1} de {2} a {3}."),
+    PUSH_TITLE_NOTIFICACAO(TipoValor.VALOR, String.class, "Notificação {0}!"),
+    PUSH_TITLE_ATENDIMENTO_CONTATO_COLABORADOR(TipoValor.VALOR, String.class, "Contato"),
+    PUSH_BODY_ATENDIMENTO_CONTATO_COLABORADOR(TipoValor.VALOR, String.class, "Sua mensagem enviada em {0} foi encaminhado internamente."),
+
+    // Integração Push Notifications
     PUSH_ANDROID_KEY(TipoValor.VALOR, String.class, null),
     PUSH_ANDROID_SENDER_ID(TipoValor.VALOR, String.class, null),
     PUSH_IOS_PASS(TipoValor.VALOR, String.class, null),
     PUSH_IOS_CERTIFICADO(TipoValor.ANEXO, byte[].class, null),
 
+    // Integrações Google
     GOOGLE_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     GOOGLE_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
     YOUTUBE_CHANNEL_ID(TipoValor.VALOR, String.class, null),
     GOOGLE_CALENDAR_ID(TipoValor.ANEXO, List.class, null),
 
+    // Integração Flickr
     FLICKR_OAUTH_CLIENT_KEY(TipoValor.VALOR, String.class, null),
     FLICKR_OAUTH_SECRET_KEY(TipoValor.VALOR, String.class, null),
     FLICKR_ID(TipoValor.VALOR, String.class, null),
 
-    ;
-    
+    // Senha de tokens JWT
+    JWT_KEY_ALGORITHM(TipoValor.VALOR, String.class, "HmacSHA512"),
+    JWT_KEY(TipoValor.VALOR, String.class, "wPDBZCfB6Md1JOpCMXeCPFmCvKP+WGeJrWWL+8jS+r6bUaFU23WKJv0xU6pwXKsadCIXo1z/AhsNMkhQWIa2Tg=="),
+
+    // Formats
+    FORMATO_DATA(TipoValor.VALOR, String.class, "dd/MM/yyyy"),
+    FORMATO_DATA_HORA(TipoValor.VALOR, String.class, "dd/MM/yyyy HH:mm"),
+    FORMATO_HORA(TipoValor.VALOR, String.class, "HH:mm"),
+
+    // Template de E-mails
+    EMAIL_SUBJECT_SOLICITAR_REDEFINICAO_SENHA(TipoValor.VALOR, String.class, "Solicitação de Redefinição de Senha"),
+    EMAIL_BODY_SOLICITAR_REDEFINICAO_SENHA(TipoValor.ANEXO, String.class, null),
+    EMAIL_SUBJECT_REDEFINIR_SENHA(TipoValor.VALOR, String.class, "Nova Senha"),
+    EMAIL_BODY_REDEFINIR_SENHA(TipoValor.ANEXO, String.class, null),
+    EMAIL_SUBJECT_PAGAMENTO_INSCRICAO(TipoValor.VALOR, String.class, "Inscrição em Evento"),
+    EMAIL_BODY_PAGAMENTO_INSCRICAO(TipoValor.ANEXO, String.class, null),
+    EMAIL_SUBJECT_DAR_ACESSO(TipoValor.VALOR, String.class, "Primeiro Acesso"),
+    EMAIL_BODY_DAR_ACESSO(TipoValor.ANEXO, String.class, null),
+    EMAIL_SUBJECT_CONFIRMAR_INSCRICAO(TipoValor.VALOR, String.class, "Confirmação de Inscrição em Evento"),
+    EMAIL_BODY_CONFIRMAR_INSCRICAO(TipoValor.ANEXO, String.class, null),
+    EMAIL_SUBJECT_CONTATO_SITE_RESPOSTA(TipoValor.VALOR, String.class, "Contato GETIT"),
+    EMAIL_BODY_CONTATO_SITE_RESPOSTA(TipoValor.ANEXO, String.class, null),
+
+    // Configurações SMTP
+    SMTP_PORTA(TipoValor.VALOR, Integer.class, "587"),
+    SMTP_ENABLE_START_TLS(TipoValor.VALOR, Boolean.class, "true"),
+    SMTP_AUTH(TipoValor.VALOR, Boolean.class, "true"),
+    SMTP_PROPERTIES(TipoValor.ANEXO, String.class, ("# CONFIGURA\\u00c7\\u00d5ES DE ENVIO DE EMAILS =====================================\n" +
+            "# emails dos administradores separados por v\\u00edrgula\n" +
+            "mail.smtp.adms = suporte@getitmobilesolutions.com\n" +
+            "# define protocolo de envio como SMTP\n" +
+            "mail.transport.protocol = smtp\n" +
+            "#mail.smtp.starttls.enable -  deve ser setado para false quando n\\u00e3o estiver usando autenticacao\n" +
+            "mail.smtp.starttls.enable = true\n" +
+            "#mail.smtp.ssl.enable = true \n" +
+            "\n" +
+            "mail.smtp.host = email-smtp.us-east-1.amazonaws.com\n" +
+            "\n" +
+            "# ativa autenticacao\n" +
+            "mail.smtp.auth = true\n" +
+            "\n" +
+            "mail.smtp.user = AKIAIQXFUIZAY6FEIX7Q\n" +
+            "mail.smtp.pass = AgZwoq7BjUx+FpsSNQ8ng5YlsmS48jQMtZjMnJejVyh6\n" +
+            "\n" +
+            "mail.debug = true\n" +
+            "# porta\n" +
+            "mail.smtp.port = 587\n" +
+            "# mesma porta para o socket\n" +
+            "mail.smtp.socketFactory.port = 587\n" +
+            "#confiara no servidor mesmo que n\\u00e3o esteja com certificado\n" +
+            "mail.smtp.ssl.trust = *\n" +
+            "mail.smtp.socketFactory.fallback = false\n" +
+            "# ======================================================================\n" +
+            "\n").getBytes()),
+    ADMIN_MAILS(TipoValor.VALOR, String.class, "suporte@getitmobilesolutions.com"),
+    SMTP_USERNAME(TipoValor.VALOR, String.class, "AKIAIQXFUIZAY6FEIX7Q"),
+    SMTP_PASSWORD(TipoValor.VALOR, String.class, "AgZwoq7BjUx+FpsSNQ8ng5YlsmS48jQMtZjMnJejVyh6"),
+    SMTP_FROM_NAME(TipoValor.VALOR, String.class, "Pocket Corporate"),
+    SMTP_FROM_EMAIL(TipoValor.VALOR, String.class, "donotreply@getitmobilesolutions.com"),
+
+    // Assets WEB
+    BUNDLE_WEB(TipoValor.ANEXO, byte[].class, "{}".getBytes()),
+
+    // Assets APP
+    BUNDLE_APP(TipoValor.ANEXO, byte[].class, "{}".getBytes()),
+
+    // Acesso Batch
+    UUID_APP_BATCH(TipoValor.VALOR, String.class, "29f1dad0-64ea-4bce-8554-6a17aadeb7c0"),
+    TOKEN_ACESSO_APP_BATCH(TipoValor.VALOR, String.class, "fe0b2a7d-1a19-4ef0-890c-a0226f9ceb06");
+
     private final TipoValor tipoValor;
     private final Class<?> runtimeType;
     private final Object defaultValue;
@@ -130,18 +216,41 @@ public enum TipoParametro {
             }
             
         });
+        converters.get(byte[].class).put(String.class, new Converter<byte[], String>(){
+
+            @Override
+            public String sourceToTarget(byte[] source) {
+                return new String(source);
+            }
+
+            @Override
+            public byte[] targetToSource(String target) {
+                return target.getBytes();
+            }
+
+        });
     }
     
     public <T> T get(Parametro param) {
-        return (T) converter().sourceToTarget(
-                tipoValor.get(param) != null ?
-                        tipoValor.get(param) : defaultValue
-        );
+        Object valor = tipoValor.get(param);
+
+        if (valor != null) {
+            return (T) converter().sourceToTarget(valor);
+        }
+
+        if (defaultValue != null) {
+            return (T) converter().sourceToTarget(defaultValue);
+        }
+
+        return null;
     }
     
     public <T> void set(Parametro param, T valor) {
-        tipoValor.set(param, valor == null ? defaultValue :
-                converter().targetToSource(valor));
+        if (valor == null) {
+            tipoValor.set(param, null);
+        } else {
+            tipoValor.set(param, converter().targetToSource(valor));
+        }
     }
     
     private Converter converter(){
@@ -249,7 +358,7 @@ public enum TipoParametro {
             public Object sourceToTarget(byte[] source) {
                 try{
                     if (source != null) {
-                        Writable writable = om.readValue(new String(source), Writable.class);
+                        Writable writable = om.readValue(source, Writable.class);
                         return om.readValue(writable.content, Class.forName(writable.classname));
                     }
                 }catch(Exception e){

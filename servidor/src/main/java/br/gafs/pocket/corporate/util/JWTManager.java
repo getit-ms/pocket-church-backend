@@ -5,34 +5,41 @@
 */
 package br.gafs.pocket.corporate.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import br.gafs.pocket.corporate.entity.Parametro;
+import br.gafs.pocket.corporate.entity.domain.TipoParametro;
+import br.gafs.pocket.corporate.service.ParametroService;
+import io.jsonwebtoken.*;
+
+import javax.annotation.PostConstruct;
+import javax.crypto.spec.SecretKeySpec;
+import javax.ejb.EJB;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
 import java.security.Key;
 import java.util.Base64;
-import java.util.ResourceBundle;
-import javax.crypto.spec.SecretKeySpec;
 
 
 /**
  *
  * @author Gabriel
  */
-public final class JWTManager {
-    private static final Key key;
-    private static final SignatureAlgorithm algorithm;
+@Singleton
+public class JWTManager {
 
-    static {
-        ResourceBundle secret = ResourceBundle.getBundle("jwt-secret");
+    @EJB
+    private ParametroService parametroService;
 
-        algorithm = getSignatureAlgorithm(secret.getString("key.algorithm"));
-        key = new SecretKeySpec(Base64.getDecoder().decode(secret.getString("key.base64")), algorithm.getValue());
+    private Key key;
+    private SignatureAlgorithm algorithm;
+
+    @PostConstruct
+    @Schedule(hour = "*")
+    public void prepara() {
+        algorithm = getSignatureAlgorithm((String) parametroService.get(Parametro.GLOBAL, TipoParametro.JWT_KEY_ALGORITHM));
+        key = new SecretKeySpec(Base64.getDecoder().decode((String) parametroService.get(Parametro.GLOBAL, TipoParametro.JWT_KEY)), algorithm.getValue());
     }
 	
-    private static SignatureAlgorithm getSignatureAlgorithm(String name) {
+    private SignatureAlgorithm getSignatureAlgorithm(String name) {
         for (SignatureAlgorithm sa : SignatureAlgorithm.values()){
             if (name.equals(sa.getJcaName())){
                     return sa;
@@ -41,17 +48,15 @@ public final class JWTManager {
         return SignatureAlgorithm.HS512;
     }
     
-    public static JWTWriter writer(){
+    public JWTWriter writer(){
         return new JWTWriter();
     }
     
-    public static JWTReader reader(String jwt){
+    public JWTReader reader(String jwt){
         return new JWTReader(jwt);
     }
 
-    private JWTManager(){}
-
-    public static class JWTReader { 
+    public class JWTReader {
         private Jws<Claims> claims;
         
         private JWTReader(String jwt){
@@ -63,7 +68,7 @@ public final class JWTManager {
         }
     }
 
-    public static class JWTWriter { 
+    public class JWTWriter {
         private JwtBuilder builder = Jwts.builder();
         
         private JWTWriter(){}

@@ -3,9 +3,7 @@ package br.gafs.pocket.corporate.servidor;
 import br.gafs.dao.DAOService;
 import br.gafs.dto.DTO;
 import br.gafs.pocket.corporate.dao.QueryAcesso;
-import br.gafs.pocket.corporate.entity.Dispositivo;
-import br.gafs.pocket.corporate.entity.Empresa;
-import br.gafs.pocket.corporate.entity.Preferencias;
+import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
 import br.gafs.util.string.StringUtil;
 import lombok.AllArgsConstructor;
@@ -17,10 +15,7 @@ import javax.ejb.*;
 import javax.transaction.*;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,9 +28,10 @@ public class DispositivoService {
 
     public static final Logger LOGGER = Logger.getLogger(DispositivoService.class.getName());
 
-    public final List<RegisterPushDTO> REGISTER_DEVICES = new ArrayList<RegisterPushDTO>();
+    private final Set<String> DISPOSITIVOS_ACESSADOS = new HashSet<>();
 
-    private static final File CONTINGENCIA_DIR = new File("/calvin/contingencia");
+    private static final File CONTINGENCIA_DIR = new File("/pcorporate/contingencia");
+
     private static final String FORCE_REGISTER_MASK = "force_register_{0}";
     private static final String FULL_RESET_MASK = "full_reset_{0}";
     private static final String BIBLIA_RESET = "bible_reset_{0}";
@@ -47,120 +43,73 @@ public class DispositivoService {
     private UserTransaction userTransaction;
 
     @Asynchronous
-    public void register(String chaveDispositivo, TipoDispositivo tipoDispositivo, String pushKey, String version) {
-        LOGGER.info("Chamada para registro de dispositivo " + tipoDispositivo + " - " + pushKey + " - " + version);
+    public void registraPush(String chaveDispositivo, TipoDispositivo tipoDispositivo, String pushKey, String version) {
+        if (tipoDispositivo != null && !StringUtil.isEmpty(pushKey) && !StringUtil.isEmpty(version)) {
+            LOGGER.info("Chamada para registro de dispositivo " + tipoDispositivo + " - " + pushKey + " - " + version);
 
-        synchronized(REGISTER_DEVICES) {
-            REGISTER_DEVICES.add(new RegisterPushDTO(chaveDispositivo, tipoDispositivo, pushKey, version));
+            try {
+                userTransaction.begin();
+
+                LOGGER.info("Registro push para " + chaveDispositivo);
+
+                Dispositivo dispositivo = getDispositivo(chaveDispositivo);
+
+                LOGGER.info("Dispositivo " + chaveDispositivo + " existe. Registrando push " +
+                        tipoDispositivo + "  - " + pushKey + " = " + version);
+
+                dispositivo.registerToken(tipoDispositivo, pushKey, version);
+
+                dispositivo = daoService.update(dispositivo);
+
+                if (!StringUtil.isEmpty(dispositivo.getPushkey())) {
+                    daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
+                }
+
+                userTransaction.commit();
+            } catch (Exception ex0) {
+                try {
+                    userTransaction.rollback();
+                } catch (SystemException e) {
+                }
+
+                LOGGER.log(Level.SEVERE, "Dispositivo " + chaveDispositivo + " não pode ser registrado. Será removido da lista para não impedir novos registros", ex0);
+            }
         }
     }
 
     @Schedule(hour = "*", minute = "*")
-    public void doRegisterPush(){
-        LOGGER.info("Iniciando flush de registros de push");
+    public void doFlushAcessos() {
+        LOGGER.info("Iniciando flush de acessos de dispositivos");
 
-        List<RegisterPushDTO> register = new ArrayList<RegisterPushDTO>();
-        synchronized (REGISTER_DEVICES){
-            register.addAll(REGISTER_DEVICES);
+        List<String> dispositivos;
+        synchronized (DISPOSITIVOS_ACESSADOS) {
+            dispositivos = new ArrayList<>(DISPOSITIVOS_ACESSADOS);
+            DISPOSITIVOS_ACESSADOS.clear();
         }
 
-        if (register.isEmpty()) {
-            LOGGER.info("Nenhum dispositivo a ser registrado.");
-            return;
+        List<List<String>> paginas = new ArrayList<>();
+
+        for (int i=0;i<dispositivos.size();i+=500) {
+            paginas.add(dispositivos.subList(i, Math.min(i + 500, dispositivos.size())));
         }
 
-        while (register.size() > 30) {
-            register.remove(register.size() - 1);
-        }
-
-        LOGGER.info("Processando " + register.size() + " registros de push.");
-        try {
-
-            registraEmGrupo(register);
-
-        }catch (Exception ex) {
-            try {
-                userTransaction.rollback();
-            } catch (SystemException e) {}
-
-            LOGGER.log(Level.SEVERE, "Erro ao persistir grupo de dispositivos. Tentando persistência individual.", ex);
-
-            registraIndividualmente(register);
-        }
-
-        synchronized (REGISTER_DEVICES){
-            REGISTER_DEVICES.removeAll(register);
-
-            LOGGER.info("Registros de push concluídos. " + REGISTER_DEVICES.size() + " restantes.");
-        }
-    }
-
-    private void registraEmGrupo(List<RegisterPushDTO> register) throws NotSupportedException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
-        Iterator<RegisterPushDTO> iterator = register.iterator();
-
-        userTransaction.begin();
-
-        int size = 1;
-        while (iterator.hasNext()){
-            RegisterPushDTO dto = iterator.next();
-
-            LOGGER.info("Registro push em grupo para " + dto.getDispositivo());
-
-            trataDispositivo(iterator, dto);
-
-            size++;
-
-            if (size%20 == 0) {
-                userTransaction.commit();
-
-                userTransaction.begin();
-            }
-        }
-
-        if (size%20 != 0) {
-            userTransaction.commit();
-        }
-    }
-
-    private void registraIndividualmente(List<RegisterPushDTO> register) {
-        Iterator<RegisterPushDTO> iterator = register.iterator();
-
-        while (iterator.hasNext()){
-            RegisterPushDTO dto = iterator.next();
+        for (List<String> pag : paginas) {
             try {
                 userTransaction.begin();
 
-                LOGGER.info("Registro push individual para " + dto.getDispositivo());
-
-                trataDispositivo(iterator, dto);
+                daoService.execute(QueryAcesso.REGISTER_ACESSO_DISPOSITIVO.create(pag));
 
                 userTransaction.commit();
-            }catch(Exception ex0) {
+            } catch (Exception ex) {
                 try {
                     userTransaction.rollback();
                 } catch (SystemException e) {}
 
-                LOGGER.log(Level.SEVERE, "Dispositivo " + dto.getDispositivo() + " não pode ser registrado. Será removido da lista para não impedir novos registros", ex0);
+                LOGGER.log(Level.SEVERE, "Falha ao registrar o acesso de " + pag.size() + " dispositivos.", ex);
             }
         }
-    }
 
-    private void trataDispositivo(Iterator<RegisterPushDTO> iterator, RegisterPushDTO dto) {
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, dto.getDispositivo());
-
-        if (dispositivo != null){
-            LOGGER.info("Dispositivo " + dto.getDispositivo() + " existe. Registrando push " + dto.getTipo() + "  - " + dto.getPushkey() + " = " + dto.getVersion());
-
-            dispositivo.registerToken(dto.getTipo(), dto.getPushkey(), dto.getVersion());
-
-            dispositivo = daoService.update(dispositivo);
-
-            daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), dispositivo.getChave()));
-        }else{
-            LOGGER.info("Dispositivo não existe. Adiando registro.");
-
-            iterator.remove();
-        }
+        LOGGER.info("Finalizando flush de acessos de " + dispositivos.size() + " dispositivos");
     }
 
     public static boolean shouldResetaBiblia(String chaveDispositivo) {
@@ -196,82 +145,94 @@ public class DispositivoService {
         return TipoAcaoContigencia.NENHUMA;
     }
 
-    public Dispositivo getDispositivo(String uuid, String chaveEmpresa) {
-        if (StringUtil.isEmpty(uuid)) {
-            uuid = UUID.randomUUID().toString();
+    private synchronized Dispositivo createDispositivo(String chaveDispositivo){
+        String parts[] = chaveDispositivo.split("@");
 
-            LOGGER.warning("UUID do dispositivo não informado na requisição. Gerando um novo: " + uuid);
-        }
+        String uuid = parts[0];
+        String chaveEmpresa = parts[1];
 
-        Dispositivo dispositivo = daoService.find(Dispositivo.class, uuid + "@" + chaveEmpresa);
-
-        if (dispositivo == null) {
-            dispositivo = criaDispositivo(uuid, chaveEmpresa);
-        }
-
-        return dispositivo;
-    }
-
-    private Dispositivo criaDispositivo(String uuid, String chaveEmpresa) {
-        synchronized (DispositivoService.class) {
-            // Garante que o dispositivo não foi criado por outra thread fora do synchronized
-            Dispositivo dispositivo = daoService.find(Dispositivo.class, uuid + "@" + chaveEmpresa);
-
-            if (dispositivo == null) {
-                try {
-                    userTransaction.begin();
-
-                    dispositivo = daoService.update(new Dispositivo(uuid,
-                            daoService.find(Empresa.class, chaveEmpresa)));
-
-                    daoService.update(new Preferencias(dispositivo));
-
-                    userTransaction.commit();
-                } catch (Exception ex) {
-                    try {
-                        userTransaction.rollback();
-                    } catch (Exception e) {}
-
-                    throw new RuntimeException("Erro na criação do dispositivo: " + uuid + "@" + chaveEmpresa, ex);
-                }
-            }
-
-            return dispositivo;
-        }
-    }
-
-    @Asynchronous
-    public void migraDispositivo(String oldCD, String newCD) {
         try {
             userTransaction.begin();
 
-            daoService.execute(QueryAcesso.MIGRA_SENT_NOTIFICATIONS.create(oldCD, newCD));
+            Dispositivo dispositivo = daoService.create(new Dispositivo(uuid, daoService.find(Empresa.class, chaveEmpresa)));
+
+            Preferencias preferencias = new Preferencias(dispositivo);
+            daoService.create(preferencias);
 
             userTransaction.commit();
 
-            Dispositivo old = daoService.find(Dispositivo.class, oldCD);
-            if (old != null) {
-                Dispositivo dispositivo = daoService.find(Dispositivo.class, newCD);
-
-                dispositivo.registerToken(old.getTipo(), old.getPushkey(), old.getVersao());
-                dispositivo.setColaborador(old.getColaborador());
-
-                userTransaction.begin();
-
-                daoService.update(dispositivo);
-
-                if (dispositivo.isRegistrado()) {
-                    daoService.execute(QueryAcesso.UNREGISTER_OLD_DEVICES.create(dispositivo.getPushkey(), newCD));
-                }
-
-                userTransaction.commit();
-            }
+            return dispositivo;
         } catch (Exception ex) {
             try {
                 userTransaction.rollback();
-            } catch (SystemException e) {}
+            } catch (Exception ex0){}
 
-            LOGGER.log(Level.SEVERE, "Erro ao migrar os dados do dispositivo", ex);
+            throw new RuntimeException(ex);
+        }
+
+    }
+
+    @Asynchronous
+    public void registraAcesso(String chaveDispositivo) {
+        if (!DISPOSITIVOS_ACESSADOS.contains(chaveDispositivo)) {
+            synchronized (DISPOSITIVOS_ACESSADOS) {
+                DISPOSITIVOS_ACESSADOS.add(getDispositivo(chaveDispositivo).getChave());
+            }
+        }
+
+    }
+
+    public Dispositivo getDispositivo(String chaveDispositivo) {
+        Dispositivo dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+
+        if (dispositivo == null) {
+            synchronized (this) {
+                dispositivo = daoService.find(Dispositivo.class, chaveDispositivo);
+
+                if (dispositivo == null) {
+                    dispositivo = createDispositivo(chaveDispositivo);
+                }
+            }
+        }
+        return dispositivo;
+    }
+
+    @Asynchronous
+    public void registraLogin(String chaveDispositivo, Long idColaborador, TipoDispositivo tipoDispositivo, String version) {
+        Dispositivo dispositivo = getDispositivo(chaveDispositivo);
+
+        try {
+            userTransaction.begin();
+            dispositivo.setColaborador(daoService.find(Colaborador.class,
+                    new RegistroEmpresaId(dispositivo.getEmpresa().getChave(), idColaborador)));
+            daoService.update(dispositivo);
+            userTransaction.commit();
+        } catch (Exception ex) {
+            try {
+                userTransaction.rollback();
+            } catch (Exception ex0) {}
+
+            LOGGER.log(Level.SEVERE, "Falha ao registrar o login do colaborador", ex);
+        }
+
+        registraPush(chaveDispositivo, tipoDispositivo, null, version);
+    }
+
+    @Asynchronous
+    public void registraLogout(String chaveDispositivo) {
+        Dispositivo dispositivo = getDispositivo(chaveDispositivo);
+
+        try {
+            userTransaction.begin();
+            dispositivo.setColaborador(null);
+            daoService.update(dispositivo);
+            userTransaction.commit();
+        } catch (Exception ex) {
+            try {
+                userTransaction.rollback();
+            } catch (Exception ex0) {}
+
+            LOGGER.log(Level.SEVERE, "Falha ao registrar o logout do colaborador", ex);
         }
     }
 
@@ -279,15 +240,5 @@ public class DispositivoService {
         FULL_RESET,
         FORCE_REGISTER,
         NENHUMA
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @EqualsAndHashCode(of = "dispositivo")
-    static class RegisterPushDTO implements DTO {
-        private String dispositivo;
-        private TipoDispositivo tipo;
-        private String pushkey;
-        private String version;
     }
 }

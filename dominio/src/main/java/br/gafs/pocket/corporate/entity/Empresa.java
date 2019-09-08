@@ -54,9 +54,9 @@ public class Empresa implements IEntity {
 
     @Setter
     @NotEmpty
-    @Length(max = 25)
-    @JsonView(View.Detalhado.class)
-    @Column(name = "nome_aplicativo", length = 25, nullable = false)
+    @Length(max = 35)
+    @JsonView(View.Resumido.class)
+    @Column(name = "nome_aplicativo", length = 35, nullable = false)
     private String nomeAplicativo;
     
     @Getter

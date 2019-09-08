@@ -81,7 +81,7 @@ public class EventoController {
             @PathParam("evento") Long evento, 
             @QueryParam("pagina") @DefaultValue("1") Integer pagina, 
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaTodas(evento, new FiltroInscricaoDTO(pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaTodas(evento, new FiltroInscricaoDTO(null, null, pagina, total))).build();
     }
 
     @GET

@@ -12,7 +12,7 @@ package br.gafs.pocket.corporate.dto;
 public class FiltroMinhasInscricoesDTO extends FiltroInscricaoDTO{
 
     public FiltroMinhasInscricoesDTO(Integer pagina, Integer total) {
-        super(pagina, total);
+        super(null, null, pagina, total);
     }
     
 }

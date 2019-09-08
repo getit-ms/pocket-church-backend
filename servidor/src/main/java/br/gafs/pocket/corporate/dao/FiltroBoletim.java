@@ -12,6 +12,8 @@ import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
+
 import java.util.Map;
 
 /**
@@ -30,6 +32,11 @@ public class FiltroBoletim extends AbstractPaginatedFiltro<FiltroBoletimDTO> {
             query.append(" and b.status = :status and b.dataPublicacao <= :dataCorte");
             args.put("status", StatusBoletimInformativo.PUBLICADO);
             args.put("dataCorte", DateUtil.getDataAtual());
+        }
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
+            query.append(" and lower(b.titulo) like :filtro");
+            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
 
         String orderBy;

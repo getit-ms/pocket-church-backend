@@ -2,10 +2,8 @@ package br.gafs.pocket.corporate.servidor.relatorio;
 
 import br.gafs.pocket.corporate.dao.FiltroInscricao;
 import br.gafs.pocket.corporate.dto.FiltroInscricaoDTO;
+import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.Empresa;
-import br.gafs.pocket.corporate.entity.Evento;
-import br.gafs.pocket.corporate.entity.Empresa;
-import br.gafs.pocket.corporate.entity.InscricaoEvento;
 import br.gafs.pocket.corporate.servidor.ProcessamentoService;
 import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.pocket.corporate.util.ReportUtil;
@@ -27,10 +25,12 @@ import java.util.TimeZone;
 @NoArgsConstructor
 public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio {
     private Empresa empresa;
+    private Template template;
     private Evento evento;
 
-    public RelatorioInscritos(Evento evento){
+    public RelatorioInscritos(Evento evento, Template template){
         this.empresa = evento.getEmpresa();
+        this.template = template;
         this.evento = evento;
     }
 
@@ -53,7 +53,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         BuscaPaginadaDTO busca;
         List<InscricaoEvento> inscricoes = new ArrayList<InscricaoEvento>();
-        final FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(1, 30);
+        final FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(null, null,  1, 30);
         do{
             busca = tool.transactional(new ProcessamentoService.ExecucaoTransacional<BuscaPaginadaDTO>() {
                 @Override
@@ -69,7 +69,8 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
         return ReportUtil.empresa(
                 "report/inscritos_evento.jasper",
                 evento.getNome(),
-                evento.getEmpresa())
+                evento.getEmpresa(),
+                template)
                 .arg("EVENTO", evento)
                 .arg("REPORT_LOCALE", new Locale(empresa.getLocale()))
                 .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(empresa.getTimezone()))

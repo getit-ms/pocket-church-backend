@@ -2,6 +2,7 @@ package br.gafs.pocket.corporate.servidor.relatorio;
 
 import br.gafs.pocket.corporate.entity.Documento;
 import br.gafs.pocket.corporate.entity.Empresa;
+import br.gafs.pocket.corporate.entity.Template;
 import br.gafs.pocket.corporate.servidor.ProcessamentoService;
 import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.pocket.corporate.util.ReportUtil;
@@ -17,10 +18,12 @@ import lombok.NoArgsConstructor;
 public class RelatorioDocumento implements ProcessamentoRelatorioCache.Relatorio {
     private Empresa empresa;
     private Documento documento;
+    private Template template;
 
-    public RelatorioDocumento(Documento documento){
+    public RelatorioDocumento(Documento documento, Template template){
         this.documento = documento;
         this.empresa = documento.getEmpresa();
+        this.template = template;
     }
 
     @Override
@@ -42,7 +45,6 @@ public class RelatorioDocumento implements ProcessamentoRelatorioCache.Relatorio
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         return ReportUtil.empresa(
                 "report/documento.jasper",
-                getTitulo(),
-                empresa).bean(documento).build();
+                getTitulo(), empresa, template).bean(documento).build();
     }
 }

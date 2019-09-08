@@ -36,9 +36,11 @@ public class EmpresaController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
+            @QueryParam("chave") String chave,
+            @QueryParam("filtro") String filtro,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
-        return Response.status(Response.Status.OK).entity(adminService.busca(new FiltroEmpresaDTO(null, null, pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(adminService.busca(new FiltroEmpresaDTO(chave, filtro, pagina, total))).build();
     }
     
     @GET

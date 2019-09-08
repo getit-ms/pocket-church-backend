@@ -135,11 +135,9 @@ public class ArquivoController {
             int from = Integer.parseInt( ranges[0] );
 
             // Chunk media if the range upper bound is unspecified
-            int to = chunk_size + from;
+            int to = Math.min((int) file.length(), chunk_size + from) - 1;
 
-            if ( to >= file.length() ) {
-                to = (int) ( file.length() - 1 );
-            }
+            final int len = to - from + 1;
 
             final String responseRange = String.format( "bytes %d-%d/%d", from, to, file.length() );
 
@@ -147,14 +145,13 @@ public class ArquivoController {
             response.addHeader( "Accept-Ranges", "bytes" );
             response.addHeader( "Content-Range", responseRange );
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
-            response.addHeader("Content-Length", "" + file.length());
+            response.addHeader("Content-Length", "" + len);
             response.addHeader("Content-Disposition",
                     "attachment; filename=\""+arquivo.getNome()+"\"");
 
             final RandomAccessFile raf = new RandomAccessFile( file, "r" );
-            raf.seek( from );
 
-            final int len = to - from + 1;
+            raf.seek( from );
 
             ArquivoUtil.transfer(raf, len, response.getOutputStream());
 

@@ -22,23 +22,20 @@ import br.gafs.pocket.corporate.service.AppService;
 import br.gafs.pocket.corporate.service.ArquivoService;
 import br.gafs.pocket.corporate.service.MensagemService;
 import br.gafs.pocket.corporate.service.ParametroService;
+import br.gafs.pocket.corporate.servidor.batch.BatchService;
 import br.gafs.pocket.corporate.servidor.flickr.FlickrService;
 import br.gafs.pocket.corporate.servidor.google.GoogleService;
 import br.gafs.pocket.corporate.servidor.pagseguro.PagSeguroService;
-import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoBoletim;
-import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoDocumento;
 import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.pocket.corporate.servidor.relatorio.RelatorioDocumento;
 import br.gafs.pocket.corporate.servidor.relatorio.RelatorioInscritos;
-import br.gafs.pocket.corporate.util.MensagemUtil;
+import br.gafs.pocket.corporate.util.MensagemBuilder;
 import br.gafs.pocket.corporate.util.Persister;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
-import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -95,11 +92,40 @@ public class AppServiceImpl implements AppService {
     private ProcessamentoService processamentoService;
 
     @EJB
+    private BatchService batchService;
+
+    @EJB
     private FlickrService flickrService;
 
+    @EJB
+    private MensagemBuilder mensagemBuilder;
+    
     @Inject
     private SessaoBean sessaoBean;
 
+    @Override
+    public BuscaPaginadaDTO<ResumoEmpresaDTO> busca(FiltroEmpresaDTO filtro) {
+        return daoService.findWith(new FiltroEmpresa(filtro));
+    }
+
+    @Override
+    public Template buscaTemplate() {
+        Template template = daoService.find(Template.class, sessaoBean.getChaveEmpresa());
+        if (template == null) {
+            template = new Template(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+        }
+        return template;
+    }
+
+    @Override
+    public TemplateAplicativo buscaTemplateApp() {
+        TemplateAplicativo template = daoService.find(TemplateAplicativo.class, sessaoBean.getChaveEmpresa());
+        if (template == null) {
+            template = new TemplateAplicativo(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+        }
+        return template;
+    }
+    
     @Override
     @AllowAdmin
     public StatusAdminDTO buscaStatus(){
@@ -111,13 +137,21 @@ public class AppServiceImpl implements AppService {
                     new FiltroContatoColaboradorDTO(null, null, Arrays.asList(StatusContatoColaborador.PENDENTE), 1, 10)).getCountQuery());
 
             if (contatos.intValue() > 0){
-                status.addNotificacao("mensagens.MSG-036",
-                        new QueryParameters("quantidade", contatos));
+                status.addNotificacao("mensagens.MSG-036", contatos.intValue(),
+                        new QueryParameters("quantidade", contatos),
+                        "/contato");
             }
         }
 
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
-            // TODO verificar a quantidade de inscrições pendentes em eventos
+            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveEmpresa(), null,
+                    new FiltroInscricaoDTO(TipoEvento.EVENTO, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
+
+            if (pendentes.intValue() > 0){
+                status.addNotificacao("mensagens.MSG-059", pendentes.intValue(),
+                        new QueryParameters("quantidade", pendentes),
+                        "/evento");
+            }
         }
 
         return status;
@@ -305,15 +339,13 @@ public class AppServiceImpl implements AppService {
             
             entidade = daoService.update(entidade);
             
-            String subject = MensagemUtil.getMensagem("email.dar_acesso.subject", entidade.getEmpresa().getLocale());
-            String title = MensagemUtil.getMensagem("email.dar_acesso.message.title", entidade.getEmpresa().getLocale(),
-                    entidade.getNome());
-            String text = MensagemUtil.getMensagem("email.dar_acesso.message.text", entidade.getEmpresa().getLocale(),
-                    entidade.getEmpresa().getNomeAplicativo());
-            
             notificacaoService.sendNow(
-                    MensagemUtil.email(recuperaInstitucional(), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", senha), Collections.EMPTY_LIST)),
+                    mensagemBuilder.email(
+                            entidade.getEmpresa(),
+                            TipoParametro.EMAIL_SUBJECT_DAR_ACESSO,
+                            TipoParametro.EMAIL_BODY_DAR_ACESSO,
+                            entidade.getNome(), senha
+                    ),
                     new FiltroEmailDTO(entidade.getEmpresa(), entidade.getId()));
         }
         
@@ -386,16 +418,13 @@ public class AppServiceImpl implements AppService {
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
             daoService.update(entidade);
 
-            String subject = MensagemUtil.getMensagem("email.nova_senha.subject",
-                    entidade.getEmpresa().getLocale());
-            String title = MensagemUtil.getMensagem("email.nova_senha.message.title",
-                    entidade.getEmpresa().getLocale(), entidade.getNome());
-            String text = MensagemUtil.getMensagem("email.nova_senha.message.text",
-                    entidade.getEmpresa().getLocale(), entidade.getEmpresa().getNomeAplicativo());
-
             notificacaoService.sendNow(
-                    MensagemUtil.email(daoService.find(Institucional.class, entidade.getEmpresa().getChave()), subject,
-                            new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, "javascript:void(0)", senha), Collections.EMPTY_LIST)),
+                    mensagemBuilder.email(
+                            entidade.getEmpresa(),
+                            TipoParametro.EMAIL_SUBJECT_REDEFINIR_SENHA,
+                            TipoParametro.EMAIL_BODY_REDEFINIR_SENHA,
+                            entidade.getNome(), senha
+                    ),
                     new FiltroEmailDTO(entidade.getEmpresa(), entidade.getId()));
         }
     }
@@ -538,52 +567,6 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.PERFIS.create(sessaoBean.getChaveEmpresa()));
     }
     
-    @Schedule(hour = "*", minute = "*/5")
-    public void processaBoletins() {
-        LOGGER.info("Iniciando processamento de boletins");
-        if (BoletimInformativo.locked() < 15){
-            List<BoletimInformativo> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
-            LOGGER.info("Quantidade de boletins a processar: " + boletins.size());
-            for (BoletimInformativo boletimInformativo : boletins){
-                try{
-                    if (!BoletimInformativo.locked(new RegistroEmpresaId(boletimInformativo.getChaveEmpresa(), boletimInformativo.getId()))){
-                        LOGGER.info("Agendando processamento do boletim " + boletimInformativo.getId());
-                        processamentoService.schedule(new ProcessamentoBoletim(boletimInformativo));
-                    }else{
-                        LOGGER.info("BoletimInformativo já encontra-se em processamento: " + boletimInformativo.getId());
-                    }
-                }catch(Exception e){
-                    LOGGER.log(Level.SEVERE, "Erro ao tentar processar boletim " + boletimInformativo.getId(), e);
-                }
-            }
-        }else{
-            LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
-        }
-    }
-
-    @Schedule(hour = "*", minute = "*/5")
-    public void processaDocumentos() {
-        LOGGER.info("Iniciando processamento de documentos (PDF)");
-        if (Documento.locked() < 15){
-            List<Documento> documentos = daoService.findWith(QueryAdmin.DOCUMENTOS_PROCESSANDO.create());
-            LOGGER.info("Quantidade de documentos a processar: " + documentos.size());
-            for (Documento documento : documentos){
-                try{
-                    if (!Documento.locked(new RegistroEmpresaId(documento.getChaveEmpresa(), documento.getId()))){
-                        LOGGER.info("Agendando processamento do documento " + documento.getId());
-                        processamentoService.schedule(new ProcessamentoDocumento(documento));
-                    }else{
-                        LOGGER.info("Documento já encontra-se em processamento: " + documento.getId());
-                    }
-                }catch(Exception e){
-                    LOGGER.log(Level.SEVERE, "Erro ao tentar processar documento " + documento.getId(), e);
-                }
-            }
-        }else{
-            LOGGER.info("Limite de processamento paralelos atingido. Aguardando próxima tentativa.");
-        }
-    }
-
     @Override
     @AllowAdmin
     public File buscaAjuda(String path) {
@@ -592,18 +575,6 @@ public class AppServiceImpl implements AppService {
                 getPropriedade("RESOURCES_ROOT"), "ajuda"), empresa.getLocale()), path);
     }
 
-    public AppServiceImpl() {
-    }
-    
-    private int trataPaginasPDF(ArquivoPDF pdf) throws IOException {
-        return ProcessamentoBoletim.trataPaginasPDF(new ProcessamentoBoletim.TransactionHandler() {
-            @Override
-            public <T> T transactional(ProcessamentoService.ExecucaoTransacional<T> execucaoTransacional) {
-                return execucaoTransacional.execute(daoService);
-            }
-        }, pdf, -1);
-    }
-    
     private boolean trataTrocaPDF(final ArquivoPDF pdf) {
         if (!pdf.getPDF().isUsed()) {
             if (pdf.getId() != null){
@@ -629,7 +600,7 @@ public class AppServiceImpl implements AppService {
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -644,7 +615,7 @@ public class AppServiceImpl implements AppService {
         if (trataTrocaPDF(boletimInformativo)){
             boletimInformativo.processando();
 
-            processamentoService.schedule(new ProcessamentoBoletim(boletimInformativo));
+            batchService.processaBoletim(boletimInformativo.getChaveEmpresa(), boletimInformativo.getId());
         }
 
         return daoService.create(boletimInformativo);
@@ -659,7 +630,7 @@ public class AppServiceImpl implements AppService {
         if (trataTrocaPDF(boletimInformativo)){
             boletimInformativo.processando();
 
-            processamentoService.schedule(new ProcessamentoBoletim(boletimInformativo));
+            batchService.processaBoletim(boletimInformativo.getChaveEmpresa(), boletimInformativo.getId());
         }
         return daoService.update(boletimInformativo);
     }
@@ -752,28 +723,34 @@ public class AppServiceImpl implements AppService {
 
         documento.setColaborador(buscaColaborador(sessaoBean.getIdColaborador()));
 
-        if (documento.getPDF() != null) {
-            documento.setPdf(arquivoService.buscaArquivo(documento.getPDF().getId()));
-            if (trataTrocaPDF(documento)){
-                documento.processando();
-
-                processamentoService.schedule(new ProcessamentoDocumento(documento));
-            }
-        } else {
-            documento.publicado();
-        }
+        trataAtualizacaoPDFDocumento(documento);
 
         documento = daoService.create(documento);
         scheduleRelatorioDocumento(documento);
 
         return documento;
     }
+
+    private void trataAtualizacaoPDFDocumento(Documento documento) {
+        if (documento.getPDF() != null) {
+            documento.setPdf(arquivoService.buscaArquivo(documento.getPDF().getId()));
+            if (trataTrocaPDF(documento)){
+                documento.processando();
+
+                batchService.processaEstudo(documento.getChaveEmpresa(), documento.getId());
+            }
+        } else {
+            documento.publicado();
+        }
+    }
     
     private void scheduleRelatorioDocumento(Documento documento){
         try {
-            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioDocumento(documento), "pdf"));
-            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioDocumento(documento), "xls"));
-            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioDocumento(documento), "docx"));
+            Template template = daoService.find(Template.class, documento.getEmpresa().getChave());
+
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioDocumento(documento, template), "pdf"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioDocumento(documento, template), "xls"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioDocumento(documento, template), "docx"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -788,16 +765,7 @@ public class AppServiceImpl implements AppService {
 
         documento.alterado();
 
-        if (documento.getPDF() != null) {
-            documento.setPdf(arquivoService.buscaArquivo(documento.getPDF().getId()));
-            if (trataTrocaPDF(documento)){
-                documento.processando();
-
-                processamentoService.schedule(new ProcessamentoDocumento(documento));
-            }
-        } else {
-            documento.publicado();
-        }
+        trataAtualizacaoPDFDocumento(documento);
 
         documento = daoService.update(documento);
         scheduleRelatorioDocumento(documento);
@@ -929,8 +897,12 @@ public class AppServiceImpl implements AppService {
         }
         
         if (StringUtil.isEmpty(notificacao.getTitulo())){
-            notificacao.setTitulo(MensagemUtil.getMensagem("push.notificacao.title",
-                    notificacao.getEmpresa().getLocale(), notificacao.getEmpresa().getNomeAplicativo()));
+            notificacao.setTitulo(
+                    MessageFormat.format(
+                            (String) paramService.get(notificacao.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_NOTIFICACAO),
+                            notificacao.getEmpresa().getNomeAplicativo()
+                    )
+            );
         }
         
         notificacao = daoService.create(notificacao);
@@ -1070,14 +1042,15 @@ public class AppServiceImpl implements AppService {
         ContatoColaborador entidade = daoService.find(ContatoColaborador.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), contatoColaborador));
         entidade.atende(buscaColaborador(sessaoBean.getIdColaborador()));
         entidade = daoService.update(entidade);
-        
+
         enviaPush(new FiltroDispositivoNotificacaoDTO(entidade.getEmpresa(),
-                entidade.getSolicitante().getId()),
-                MensagemUtil.getMensagem("push.atendimento_contato_colaborador.title", entidade.getEmpresa().getLocale()),
-                MensagemUtil.getMensagem("push.atendimento_contato_colaborador.message", entidade.getEmpresa().getLocale(),
-                        MensagemUtil.formataDataHora(entidade.getDataSolicitacao(), entidade.getEmpresa().getLocale(), entidade.getEmpresa().getTimezone())),
+                        entidade.getSolicitante().getId()),
+                (String) paramService.get(entidade.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_ATENDIMENTO_CONTATO_COLABORADOR),
+                MessageFormat.format(
+                        (String) paramService.get(entidade.getEmpresa().getChave(), TipoParametro.PUSH_BODY_ATENDIMENTO_CONTATO_COLABORADOR),
+                        mensagemBuilder.formataDataHora(entidade.getDataSolicitacao(), entidade.getEmpresa().getLocale(), entidade.getEmpresa().getTimezone())),
                 TipoNotificacao.CONTATO_COLABORADOR, false);
-        
+
         return entidade;
     }
     
@@ -1125,16 +1098,17 @@ public class AppServiceImpl implements AppService {
         
         if (!sessaoBean.isAdmin()){
             enviaPush(new FiltroDispositivoNotificacaoDTO(atendimento.getEmpresa(), atendimento.getCalendario().getGerente().getId()),
-                    MensagemUtil.getMensagem("push.agendamento.title", atendimento.getEmpresa().getLocale()),
-                    MensagemUtil.getMensagem("push.agendamento.message", atendimento.getEmpresa().getLocale(),
+                    (String) paramService.get(atendimento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_AGENDAMENTO),
+                    MessageFormat.format(
+                            (String) paramService.get(atendimento.getEmpresa().getChave(), TipoParametro.PUSH_BODY_AGENDAMENTO),
                             atendimento.getColaborador().getNome(),
-                            MensagemUtil.formataData(atendimento.getDataHoraInicio(),
+                            mensagemBuilder.formataData(atendimento.getDataHoraInicio(),
                                     atendimento.getEmpresa().getLocale(),
                                     atendimento.getEmpresa().getTimezone()),
-                            MensagemUtil.formataHora(atendimento.getDataHoraInicio(),
+                            mensagemBuilder.formataHora(atendimento.getDataHoraInicio(),
                                     atendimento.getEmpresa().getLocale(),
                                     atendimento.getEmpresa().getTimezone()),
-                            MensagemUtil.formataHora(atendimento.getDataHoraFim(),
+                            mensagemBuilder.formataHora(atendimento.getDataHoraFim(),
                                     atendimento.getEmpresa().getLocale(),
                                     atendimento.getEmpresa().getTimezone())),
                     TipoNotificacao.AGENDAMENTO, false);
@@ -1157,22 +1131,23 @@ public class AppServiceImpl implements AppService {
         
         agendamento.confirmado();
         agendamento = daoService.update(agendamento);
-        
+
         enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getEmpresa(), agendamento.getColaborador().getId()),
-                MensagemUtil.getMensagem("push.confirmacao_agendamento.title", agendamento.getEmpresa().getLocale()),
-                MensagemUtil.getMensagem("push.confirmacao_agendamento.message", agendamento.getEmpresa().getLocale(),
+                (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_CONFIRMACAO_AGENDAMENTO),
+                MessageFormat.format(
+                        (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_BODY_CONFIRMACAO_AGENDAMENTO),
                         agendamento.getCalendario().getGerente().getNome(),
-                        MensagemUtil.formataData(agendamento.getDataHoraInicio(),
+                        mensagemBuilder.formataData(agendamento.getDataHoraInicio(),
                                 agendamento.getEmpresa().getLocale(),
                                 agendamento.getEmpresa().getTimezone()),
-                        MensagemUtil.formataHora(agendamento.getDataHoraInicio(),
+                        mensagemBuilder.formataHora(agendamento.getDataHoraInicio(),
                                 agendamento.getEmpresa().getLocale(),
                                 agendamento.getEmpresa().getTimezone()),
-                        MensagemUtil.formataHora(agendamento.getDataHoraFim(),
+                        mensagemBuilder.formataHora(agendamento.getDataHoraFim(),
                                 agendamento.getEmpresa().getLocale(),
                                 agendamento.getEmpresa().getTimezone())),
                 TipoNotificacao.AGENDAMENTO, false);
-        
+
         return agendamento;
     }
     
@@ -1192,37 +1167,39 @@ public class AppServiceImpl implements AppService {
         agendamento.cancelado();
         
         agendamento = daoService.update(agendamento);
-        
+
         if (sessaoBean.isAdmin() ||
                 agendamento.getCalendario().getGerente().getId().equals(sessaoBean.getIdColaborador())){
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getEmpresa(),
-                    agendamento.getColaborador().getId()),
-                    MensagemUtil.getMensagem("push.cancelamento_agendamento_gerente.title", agendamento.getEmpresa().getLocale()),
-                    MensagemUtil.getMensagem("push.cancelamento_agendamento_gerente.message", agendamento.getEmpresa().getLocale(),
+                            agendamento.getColaborador().getId()),
+                    (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_CANCELAMENTO_AGENDAMENTO),
+                    MessageFormat.format(
+                            (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_BODY_CANCELAMENTO_AGENDAMENTO),
                             agendamento.getCalendario().getGerente().getNome(),
-                            MensagemUtil.formataData(agendamento.getDataHoraInicio(),
+                            mensagemBuilder.formataData(agendamento.getDataHoraInicio(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone()),
-                            MensagemUtil.formataHora(agendamento.getDataHoraInicio(),
+                            mensagemBuilder.formataHora(agendamento.getDataHoraInicio(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone()),
-                            MensagemUtil.formataHora(agendamento.getDataHoraFim(),
+                            mensagemBuilder.formataHora(agendamento.getDataHoraFim(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone())),
                     TipoNotificacao.AGENDAMENTO, false);
         }else{
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getEmpresa(),
-                    agendamento.getCalendario().getGerente().getId()),
-                    MensagemUtil.getMensagem("push.cancelamento_agendamento_colaborador.title", agendamento.getEmpresa().getLocale()),
-                    MensagemUtil.getMensagem("push.cancelamento_agendamento_colaborador.message", agendamento.getEmpresa().getLocale(),
+                            agendamento.getCalendario().getGerente().getId()),
+                    (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_CANCELAMENTO_AGENDAMENTO_COLABORADOR),
+                    MessageFormat.format(
+                            (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_BODY_CANCELAMENTO_AGENDAMENTO_COLABORADOR),
                             agendamento.getColaborador().getNome(),
-                            MensagemUtil.formataData(agendamento.getDataHoraInicio(),
+                            mensagemBuilder.formataData(agendamento.getDataHoraInicio(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone()),
-                            MensagemUtil.formataHora(agendamento.getDataHoraInicio(),
+                            mensagemBuilder.formataHora(agendamento.getDataHoraInicio(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone()),
-                            MensagemUtil.formataHora(agendamento.getDataHoraFim(),
+                            mensagemBuilder.formataHora(agendamento.getDataHoraFim(),
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone())),
                     TipoNotificacao.AGENDAMENTO, false);
@@ -1402,9 +1379,11 @@ public class AppServiceImpl implements AppService {
     
     private void scheduleRelatoriosInscritos(Evento evento) {
         try {
-            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "pdf"));
-            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "xls"));
-            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento), "docx"));
+            Template template = daoService.find(Template.class, evento.getEmpresa().getChave());
+
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento, template), "pdf"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento, template), "xls"));
+            processamentoService.schedule(new ProcessamentoRelatorioCache(new RelatorioInscritos(evento, template), "docx"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1535,7 +1514,27 @@ public class AppServiceImpl implements AppService {
         entidade.desabilitado();
         return daoService.update(entidade);
     }
-    
+
+
+    @Override
+    @AllowAdmin
+    public List<QuantidadeDispositivoDTO> buscaQuantidadesDispositivos() {
+        return daoService.findWith(QueryAdmin.QUANTIDADE_DISPOSITIVOS_BY_EMPRESA.create(sessaoBean.getChaveEmpresa()));
+    }
+
+    @Override
+    @AllowAdmin
+    public List<EstatisticaDispositivo> buscaEstatisticasDispositivos() {
+        return daoService.findWith(QueryAdmin.ESTATISTICAS_DISPOSITIVOS_BY_EMPRESA.create(sessaoBean.getChaveEmpresa()));
+    }
+
+    @Override
+    @AllowAdmin
+    public List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade) {
+        return daoService.findWith(QueryAdmin.ESTATISTICAS_ACESSO_BY_EMPRESA_AND_FUNCIONALIDADE
+                .create(sessaoBean.getChaveEmpresa(), funcionalidade.getCodigo()));
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
@@ -1616,7 +1615,8 @@ public class AppServiceImpl implements AppService {
                     for (InscricaoEvento inscricao : inscricoes){
                         pedido.add(new PagSeguroService.ItemPedido(
                                 Long.toString(inscricao.getId(), 36).toUpperCase(),
-                                MensagemUtil.getMensagem("pagseguro.inscricao.item", evento.getEmpresa().getLocale(),
+                                MessageFormat.format(
+                                        (String) paramService.get(evento.getEmpresa().getChave(), TipoParametro.ITEM_INSCRICAO_PAGSEGURO),
                                         inscricao.getEvento().getNome(), inscricao.getNomeInscrito()),
                                 1,
                                 inscricao.getValor()
@@ -1634,15 +1634,16 @@ public class AppServiceImpl implements AppService {
                     Locale locale = Locale.forLanguageTag(evento.getEmpresa().getLocale());
                     NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
                     
-                    String subject = MensagemUtil.getMensagem("email.pagamento_inscricao.subject", evento.getEmpresa().getLocale());
-                    String title = MensagemUtil.getMensagem("email.pagamento_inscricao.message.title", evento.getEmpresa().getLocale(), colaborador.getNome());
-                    String text = MensagemUtil.getMensagem("email.pagamento_inscricao.message.text", evento.getEmpresa().getLocale(), evento.getNome(), nformat.format(pedido.getTotal()));
-                    String url = MensagemUtil.getMensagem("email.pagamento_inscricao.message.link.url", evento.getEmpresa().getLocale(), checkout);
-                    String link = MensagemUtil.getMensagem("email.pagamento_inscricao.message.link.text", evento.getEmpresa().getLocale());
-                    
                     notificacaoService.sendNow(
-                            MensagemUtil.email(recuperaInstitucional(), subject,
-                                    new CalvinEmailDTO(new CalvinEmailDTO.Manchete(title, text, url, link), Collections.EMPTY_LIST)),
+                            mensagemBuilder.email(
+                                    evento.getEmpresa(),
+                                    TipoParametro.EMAIL_SUBJECT_PAGAMENTO_INSCRICAO,
+                                    TipoParametro.EMAIL_BODY_PAGAMENTO_INSCRICAO,
+                                    colaborador.getNome(),
+                                    evento.getNome(),
+                                    nformat.format(pedido.getTotal()),
+                                    checkout
+                            ),
                             new FiltroEmailDTO(evento.getEmpresa(), colaborador.getId()));
                     
                     return new ResultadoInscricaoDTO(checkout);
@@ -1803,12 +1804,27 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total) {try {
-        return googleService.buscaEventosCalendar(sessaoBean.getChaveEmpresa(), pagina, total);
-    } catch (IOException ex) {
-        LOGGER.log(Level.SEVERE, null, ex);
-        return new BuscaPaginadaEventosCalendarioDTO(Collections.EMPTY_LIST, null);
-    }
+    public BuscaPaginadaEventosCalendarioDTO buscaEventos(Integer pagina, Integer total) {
+        BuscaPaginadaDTO<EventoCalendario> eventos = daoService.findWith(
+                QueryAdmin.EVENTOS_CALENDARIO_EMPRESA.createPaginada(
+                        pagina, sessaoBean.getChaveEmpresa(), total
+                )
+        );
+
+        List<EventoCalendarioDTO> eventosDTO = new ArrayList<>();
+
+        for (EventoCalendario e : eventos) {
+            eventosDTO.add(new EventoCalendarioDTO(
+                    e.getId(),
+                    e.getInicio(),
+                    e.getTermino(),
+                    e.getDescricao(),
+                    e.getLocal()
+            ));
+        }
+
+        return new BuscaPaginadaEventosCalendarioDTO(eventosDTO,
+                eventos.isHasProxima() ? Integer.toString(pagina + 1) : null);
     }
 
     @Override
@@ -2060,14 +2076,16 @@ public class AppServiceImpl implements AppService {
                     Locale locale = Locale.forLanguageTag(evento.getEmpresa().getLocale());
                     NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
                     
-                    String subject = MensagemUtil.getMensagem("email.confirmacao_inscricao.subject", evento.getEmpresa().getLocale());
-                    String title = MensagemUtil.getMensagem("email.confirmacao_inscricao.message.title", evento.getEmpresa().getLocale(), colaborador.getNome());
-                    String text = MensagemUtil.getMensagem("email.confirmacao_inscricao.message.text", evento.getEmpresa().getLocale(),
-                            evento.getNome(), nformat.format(total), institucional.getEmail());
-                    
                     notificacaoService.sendNow(
-                            MensagemUtil.email(institucional, subject,
-                                    new CalvinEmailDTO(null, Arrays.asList(new CalvinEmailDTO.Materia(title, text)))),
+                            mensagemBuilder.email(
+                                    evento.getEmpresa(),
+                                    TipoParametro.EMAIL_SUBJECT_CONFIRMAR_INSCRICAO,
+                                    TipoParametro.EMAIL_BODY_CONFIRMAR_INSCRICAO,
+                                    colaborador.getNome(),
+                                    evento.getNome(),
+                                    nformat.format(total),
+                                    institucional.getEmail()
+                            ),
                             new FiltroEmailDTO(evento.getEmpresa(), colaborador.getId()));
                     
                     
@@ -2109,12 +2127,9 @@ public class AppServiceImpl implements AppService {
                     atual = daoService.update(mensagemDia);
                 }
             }
-            
-            String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_MENSAGEM_DIA);
-            if (StringUtil.isEmpty(titulo)){
-                titulo = MensagemUtil.getMensagem("push.mensagem_dia.title", empresa.getLocale());
-            }
-            
+
+            String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_MENSAGEM_DIA);
+
             if (atual != null && atual.isAtivo()){
                 for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
                     if (hev.getHoraInt().equals(hora)){
@@ -2145,19 +2160,13 @@ public class AppServiceImpl implements AppService {
                 List<Colaborador> aniversariantes = daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(empresa.getChave()));
                 
                 for (Colaborador colaborador : aniversariantes){
-                    String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_ANIVERSARIO);
-                    if (StringUtil.isEmpty(titulo)){
-                        titulo = MensagemUtil.getMensagem("push.aniversario.title", empresa.getLocale());
-                    }
-                    
-                    String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_ANIVERSARIO);
-                    if (StringUtil.isEmpty(texto)){
-                        texto = MensagemUtil.getMensagem("push.aniversario.message",
-                                empresa.getLocale(), colaborador.getNome(), empresa.getNome());
-                    }else{
-                        texto = MessageFormat.format(texto, colaborador.getNome(), empresa.getNome());
-                    }
-                    
+                    String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_ANIVERSARIO);
+
+                    String texto = MessageFormat.format(
+                            (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_BODY_ANIVERSARIO),
+                            colaborador.getNome(), empresa.getNome());
+
+
                     enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, colaborador.getId()), titulo, texto, TipoNotificacao.ANIVERSARIO, false);
                 }
             } else {
@@ -2181,15 +2190,14 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de publicações para " + empresa.getChave());
 
-                String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_PUBLICACAO);
-                if (StringUtil.isEmpty(titulo)){
-                    titulo = MensagemUtil.getMensagem("push.publicacao.title", empresa.getLocale());
-                }
+                BoletimInformativo publicacao = daoService.findWith(QueryAdmin.PUBLICACAO_A_DIVULGAR_POR_EMPRESA
+                        .createSingle(empresa.getChave()));
 
-                String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_PUBLICACAO);
-                if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.publicacao.message", empresa.getLocale(), empresa.getNome());
-                }
+                String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_PUBLICACAO);
+
+                String texto = MessageFormat.format(
+                        (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_BODY_PUBLICACAO),
+                        empresa.getNome(), publicacao.getTitulo());
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.PUBLICACAO, false);
 
@@ -2215,15 +2223,14 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de boletins para " + empresa.getChave());
 
-                String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_BOLETIM);
-                if (StringUtil.isEmpty(titulo)){
-                    titulo = MensagemUtil.getMensagem("push.boletim.title", empresa.getLocale());
-                }
+                BoletimInformativo boletim = daoService.findWith(QueryAdmin.BOLETIM_A_DIVULGAR_POR_EMPRESA
+                        .createSingle(empresa.getChave()));
 
-                String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_BOLETIM);
-                if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.boletim.message", empresa.getLocale(), empresa.getNome());
-                }
+                String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_BOLETIM);
+
+                String texto = MessageFormat.format(
+                        (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_BODY_BOLETIM),
+                        empresa.getNome(), boletim.getTitulo());
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.BOLETIM, false);
 
@@ -2249,15 +2256,15 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de documento para " + empresa.getChave());
 
-                String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_DOCUMENTO);
-                if (StringUtil.isEmpty(titulo)){
-                    titulo = MensagemUtil.getMensagem("push.documento.title", empresa.getLocale());
-                }
+                Documento documento = daoService.findWith(QueryAdmin.DOCUMENTO_A_DIVULGAR_POR_EMPRESA
+                        .createSingle(empresa.getChave()));
 
-                String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_DOCUMENTO);
-                if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.documento.message", empresa.getLocale(), empresa.getNome());
-                }
+                String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_DOCUMENTO);
+
+                String texto = MessageFormat.format(
+                        (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_BODY_DOCUMENTO),
+                        empresa.getNome(), documento.getCategoria() != null ? documento.getCategoria().getNome() : "", documento.getTitulo());
+
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.DOCUMENTO, false);
 
@@ -2286,16 +2293,11 @@ public class AppServiceImpl implements AppService {
                 Noticia noticia = daoService.findWith(QueryAdmin.NOTICIA_A_DIVULGAR_POR_EMPRESA
                         .createSingle(empresa.getChave(), TipoNoticia.NOTICIA));
 
-                String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_NOTICIA);
-                if (StringUtil.isEmpty(titulo)){
-                    titulo = MensagemUtil.getMensagem("push.noticia.title", empresa.getLocale());
-                }
+                String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_NOTICIA);
 
-                String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_NOTICIA);
-                if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.noticia.message",
-                            empresa.getLocale(), empresa.getNome(), noticia.getTitulo());
-                }
+                String texto = MessageFormat.format(
+                        (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_BODY_NOTICIA),
+                        empresa.getNome(), noticia.getTitulo());
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.NOTICIA, false);
 
@@ -2321,19 +2323,14 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 LOGGER.info("Preparando envio de notificações de notícia para " + empresa.getChave());
 
-                Noticia classificados = daoService.findWith(QueryAdmin.NOTICIA_A_DIVULGAR_POR_EMPRESA
+                Noticia classificados = daoService.findWith(QueryAdmin.CLASSIFICADOS_A_DIVULGAR_POR_EMPRESA
                         .createSingle(empresa.getChave(), TipoNoticia.CLASSIFICADOS));
 
-                String titulo = paramService.get(empresa.getChave(), TipoParametro.TITULO_CLASSIFICADOS);
-                if (StringUtil.isEmpty(titulo)){
-                    titulo = MensagemUtil.getMensagem("push.classificados.title", empresa.getLocale());
-                }
+                String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_CLASSIFICADOS);
 
-                String texto = paramService.get(empresa.getChave(), TipoParametro.TEXTO_CLASSIFICADOS);
-                if (StringUtil.isEmpty(texto)){
-                    texto = MensagemUtil.getMensagem("push.classificados.message", empresa.getLocale(),
-                            empresa.getNome(), classificados.getTitulo());
-                }
+                String texto = MessageFormat.format(
+                        (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_BODY_CLASSIFICADOS),
+                        empresa.getNome(), classificados.getTitulo());
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa), titulo, texto, TipoNotificacao.CLASSIFICADOS, false);
 
@@ -2356,18 +2353,12 @@ public class AppServiceImpl implements AppService {
                     for (VideoDTO video : streamings){
                         if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()){
                             Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
-                            
+
                             try{
                                 String titulo = config.getTituloAoVivo();
-                                if (StringUtil.isEmpty(titulo)){
-                                    titulo = MensagemUtil.getMensagem("push.youtube.aovivo.title", empresa.getLocale());
-                                }
-                                
-                                String texto = config.getTextoAoVivo();
-                                if (StringUtil.isEmpty(texto)){
-                                    texto = MensagemUtil.getMensagem("push.youtube.aovivo.message", empresa.getLocale(), video.getTitulo());
-                                }
-                                
+
+                                String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
+
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
                             }catch(Exception e){
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
@@ -2402,22 +2393,15 @@ public class AppServiceImpl implements AppService {
                                 horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO){
                             
                             Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
-                            
-                            try{
-                                String horario = MensagemUtil.formataHora(video.getAgendamento(), empresa.getLocale(), empresa.getTimezone());
 
-                                String titulo = config.getTituloAoVivo();
-                                if (StringUtil.isEmpty(titulo)){
-                                    titulo = MensagemUtil.getMensagem("push.youtube.agendado.title",
-                                            empresa.getLocale(), video.getTitulo(), horario);
-                                }
-                                
-                                String texto = config.getTextoAoVivo();
-                                if (StringUtil.isEmpty(texto)){
-                                    texto = MensagemUtil.getMensagem("push.youtube.agendado.message", empresa.getLocale(),
-                                            video.getTitulo(), horario);
-                                }
-                                
+                            try{
+                                String horario = mensagemBuilder.formataHora(video.getAgendamento(), empresa.getLocale(), empresa.getTimezone());
+
+                                String titulo = MessageFormat.format(config.getTituloAoVivo(), video.getTitulo(), horario);
+
+                                String texto = MessageFormat.format(config.getTextoAoVivo(),
+                                        video.getTitulo(), horario);
+
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
                             }catch(Exception e){
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());

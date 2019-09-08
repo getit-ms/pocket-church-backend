@@ -32,8 +32,10 @@ public class StatusAdminDTO implements DTO{
         return dto;
     }
     
-    public NotificacaoDTO addNotificacao(String mensagem, Map<String, Object> args){
+    public NotificacaoDTO addNotificacao(String mensagem, Integer count, Map<String, Object> args, String path){
         NotificacaoDTO dto = addNotificacao(mensagem);
+        dto.setCount(count);
+        dto.setPath(path);
         dto.getArgs().putAll(args);
         return dto;
     }
@@ -43,6 +45,8 @@ public class StatusAdminDTO implements DTO{
     @AllArgsConstructor
     public class NotificacaoDTO implements DTO {
         private String mensagem;
+        private Integer count = 1;
         private Map<String, Object> args = new HashMap<String, Object>();
+        private String path;
     }
 }

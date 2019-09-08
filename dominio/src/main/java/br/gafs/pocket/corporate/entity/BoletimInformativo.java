@@ -19,9 +19,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -36,34 +34,13 @@ import java.util.Map;
 @IdClass(RegistroEmpresaId.class)
 @NamedQueries({
     @NamedQuery(name = "BoletimInformativo.findEmpresaByStatusAndDataPublicacao", query = "select i from BoletimInformativo b inner join b.empresa i where i.status = :statusEmpresa and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
+    @NamedQuery(name = "BoletimInformativo.findUltimoADivulgar", query = "select b from BoletimInformativo b inner join b.empresa e where e.chave = :empresa and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false order by b.dataPublicacao desc"),
     @NamedQuery(name = "BoletimInformativo.updateNaoDivulgadosByEmpresa", query = "update BoletimInformativo b set b.divulgado = true where b.dataPublicacao <= :data and b.empresa.chave = :empresa and b.tipo = :tipo"),
     @NamedQuery(name = "BoletimInformativo.findByStatus", query = "select b from BoletimInformativo b where b.status = :status order by b.dataPublicacao"),
     @NamedQuery(name = "BoletimInformativo.updateStatus", query = "update BoletimInformativo b set b.status = :status where b.id = :boletim and b.empresa.chave = :empresa")
 })
 public class BoletimInformativo implements ArquivoPDF {
 
-    private static final Map<RegistroEmpresaId, Integer> locks = new HashMap<RegistroEmpresaId, Integer>();
-    
-    public synchronized static boolean locked(RegistroEmpresaId id){
-        return locks.containsKey(id);
-    }
-    
-    public synchronized static int lock(RegistroEmpresaId id){
-        return locks.get(id);
-    }
-    
-    public synchronized static void lock(RegistroEmpresaId id, int percent){
-        locks.put(id, percent);
-    }
-    
-    public synchronized static void unlock(RegistroEmpresaId id){
-        locks.remove(id);
-    }
-    
-    public synchronized static int locked(){
-        return locks.size();
-    }
-    
     @Id
     @JsonView(View.Resumido.class)
     @Column(name = "id_boletim")
@@ -177,11 +154,6 @@ public class BoletimInformativo implements ArquivoPDF {
     }
     
     public double getPorcentagemProcessamento(){
-        RegistroEmpresaId riid = new RegistroEmpresaId(chaveEmpresa, id);
-        if (isProcessando() && locked(riid)){
-            return lock(riid);
-        }
-        
         if (isPublicado() || isAgendado()){
             return 1d;
         }

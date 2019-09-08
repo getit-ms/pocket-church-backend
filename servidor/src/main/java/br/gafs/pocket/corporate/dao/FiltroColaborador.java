@@ -31,7 +31,12 @@ public class FiltroColaborador extends AbstractPaginatedFiltro<FiltroColaborador
         if (!admin){
             where.append(" and m.dadosDisponiveis = true");
         }
-        
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
+            where.append(" and lower(concat(m.nome, m.email)) like :filtro");
+            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
+        }
+
         if (!StringUtil.isEmpty(filtro.getNome())){
             where.append(" and lower(m.nome) like :nome");
             args.put("nome", "%" + filtro.getNome().toLowerCase() + "%");

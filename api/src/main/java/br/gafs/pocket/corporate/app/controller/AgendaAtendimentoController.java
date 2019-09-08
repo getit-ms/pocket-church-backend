@@ -168,7 +168,7 @@ public class AgendaAtendimentoController {
     @GET
     @Path("agendamentos/meus")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaMeusAgendamentos(@PathParam("pagina") @DefaultValue("1") Integer pagina, @QueryParam("total") @DefaultValue("10") Integer total){
+    public Response buscaMeusAgendamentos(@QueryParam("pagina") @DefaultValue("1") Integer pagina, @QueryParam("total") @DefaultValue("10") Integer total){
         return Response.status(Status.OK).entity(appService.buscaMeusAgendamentos(new FiltroMeusAgendamentoDTO(pagina, total))).build();
     }
     

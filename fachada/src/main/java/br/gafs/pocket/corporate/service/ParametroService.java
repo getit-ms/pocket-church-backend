@@ -21,7 +21,6 @@ public interface ParametroService extends Serializable {
     ConfiguracaoYouTubeEmpresaDTO buscaConfiguracaoYouTube(String empresa);
     ConfiguracaoCalendarEmpresaDTO buscaConfiguracaoCalendar(String chaveEmpresa);
     
-    void salvaParametrosGlobais(ParametrosGlobaisDTO params);
     void salvaParametros(ParametrosEmpresaDTO params, String empresa);
     void salvaConfiguracao(ConfiguracaoEmpresaDTO params, String empresa);
     void salvaConfiguracaoYouTube(ConfiguracaoYouTubeEmpresaDTO params, String empresa);

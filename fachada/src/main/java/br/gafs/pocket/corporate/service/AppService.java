@@ -22,7 +22,10 @@ import java.util.List;
  * @author Gabriel
  */
 public interface AppService extends Serializable {
-    
+
+    BuscaPaginadaDTO<ResumoEmpresaDTO> busca(FiltroEmpresaDTO filtro);
+    Template buscaTemplate();
+    TemplateAplicativo buscaTemplateApp();
     StatusAdminDTO buscaStatus();
     
     Perfil cadastra(Perfil perfil);
@@ -30,7 +33,7 @@ public interface AppService extends Serializable {
     void removePerfil(Long perfil);
     List<Perfil> buscaPerfis();
     Perfil buscaPerfil(Long perfil);
-    
+
     Chamado solicita(Chamado chamado);
     Chamado buscaChamado(Long chamado);
     BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro);
@@ -181,11 +184,15 @@ public interface AppService extends Serializable {
 
     String buscaURLAutenticacaoCalendar() throws IOException;
     void iniciaConfiguracaoCalendar(String code);
-    BuscaPaginadaEventosCalendarioDTO buscaEventos(String pagina, Integer total);
+    BuscaPaginadaEventosCalendarioDTO buscaEventos(Integer pagina, Integer total);
     ConfiguracaoCalendarEmpresaDTO buscaConfiguracaoCalendar();
     void desvinculaCalendar();
     ConfiguracaoCalendarEmpresaDTO atualiza(ConfiguracaoCalendarEmpresaDTO configuracao);
     List<CalendarioGoogleDTO> buscaVisoesCalendar() throws IOException;
 
     List<Colaborador> buscaProximosAniversariantes();
+
+    List<QuantidadeDispositivoDTO> buscaQuantidadesDispositivos();
+    List<EstatisticaDispositivo> buscaEstatisticasDispositivos();
+    List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade);
 }

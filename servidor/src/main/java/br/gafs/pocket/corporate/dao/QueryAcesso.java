@@ -9,6 +9,7 @@ import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.StatusColaborador;
+import br.gafs.pocket.corporate.entity.domain.StatusEmpresa;
 import br.gafs.query.Queries;
 
 import java.util.Arrays;
@@ -42,7 +43,16 @@ public enum QueryAcesso {
         
     }, 
     MIGRA_SENT_NOTIFICATIONS("SentNotification.migraDispositivo", "oldDispositivo", "newDispositivo"),
-    UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo");
+    UNREGISTER_OLD_DEVICES("Dispositivo.unregisterOldDevices", "pushkey", "chaveDispositivo"),
+    REGISTER_ACESSO_DISPOSITIVO("Dispositivo.registerAcesso", "chaves"),
+    BUSCA_EMPRESAS_EMAIL("Empresa.findByEmailAcesso", "email"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusEmpresa", StatusEmpresa.ATIVO)
+                    .set("statusColaborador", StatusColaborador.COLABORADOR);
+        }
+    };
     
     private final String query;
     private final String[] parameters;

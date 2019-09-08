@@ -17,8 +17,8 @@ import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
 import com.flickr4java.flickr.photosets.Photoset;
 import com.flickr4java.flickr.photosets.Photosets;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
+import com.github.scribejava.core.model.OAuth1RequestToken;
+import com.github.scribejava.core.model.OAuth1Token;
 
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
@@ -41,14 +41,14 @@ public class FlickrService {
     @EJB
     private ParametroService parametroService;
 
-    private static final Map<String, CacheDTO<Token>> CACHE_TOKEN = new HashMap<>();
+    private static final Map<String, CacheDTO<OAuth1RequestToken>> CACHE_TOKEN = new HashMap<>();
 
     @Schedule(minute = "*/15", hour = "*")
     public void clearCache() {
         List<String> expired = new ArrayList<>();
 
         LOGGER.info("Realizando limpeza de cache de tokens de Flickr.");
-        for (Map.Entry<String, CacheDTO<Token>> entry : CACHE_TOKEN.entrySet()) {
+        for (Map.Entry<String, CacheDTO<OAuth1RequestToken>> entry : CACHE_TOKEN.entrySet()) {
             if (entry.getValue().isExpirado()) {
                 expired.add(entry.getKey());
             }
@@ -153,9 +153,9 @@ public class FlickrService {
     public String buscaURLAutenticacaoFlickr(String chaveEmpresa, String callbackURL) {
         Flickr f = getFlickr(chaveEmpresa);
 
-        Token reqToken = f.getAuthInterface().getRequestToken(callbackURL);
+        OAuth1RequestToken reqToken = f.getAuthInterface().getRequestToken(callbackURL);
 
-        CACHE_TOKEN.put(reqToken.getToken(), new CacheDTO<Token>(reqToken, System.currentTimeMillis() + TIMEOUT_TOKEN));
+        CACHE_TOKEN.put(reqToken.getToken(), new CacheDTO<>(reqToken, System.currentTimeMillis() + TIMEOUT_TOKEN));
 
         return f.getAuthInterface().getAuthorizationUrl(reqToken, Permission.READ);
     }
@@ -163,7 +163,7 @@ public class FlickrService {
     public void iniciaConfiguracaoFlickr(String chaveEmpresa, String token, String verifier) {
         Flickr f = getFlickr(chaveEmpresa);
 
-        CacheDTO<Token> cacheToken = CACHE_TOKEN.get(token);
+        CacheDTO<OAuth1RequestToken> cacheToken = CACHE_TOKEN.get(token);
 
         if (cacheToken == null || cacheToken.isExpirado()) {
             throw new ServiceException("mensagens.MSG-052");
@@ -171,7 +171,7 @@ public class FlickrService {
 
         CACHE_TOKEN.remove(token);
 
-        Token accessToken = f.getAuthInterface().getAccessToken(cacheToken.getDados(), new Verifier(verifier));
+        OAuth1Token accessToken = f.getAuthInterface().getAccessToken(cacheToken.getDados(), verifier);
 
         try {
             parametroService.set(chaveEmpresa, TipoParametro.FLICKR_ID,

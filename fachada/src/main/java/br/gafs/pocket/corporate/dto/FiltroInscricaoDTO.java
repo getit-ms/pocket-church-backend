@@ -6,8 +6,12 @@
 package br.gafs.pocket.corporate.dto;
 
 import br.gafs.dto.DTO;
+import br.gafs.pocket.corporate.entity.domain.StatusInscricaoEvento;
+import br.gafs.pocket.corporate.entity.domain.TipoEvento;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  *
@@ -16,6 +20,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FiltroInscricaoDTO implements DTO {
+    private TipoEvento tipoEvento;
+    private List<StatusInscricaoEvento> status;
     private Integer pagina;
     private Integer total;
 }

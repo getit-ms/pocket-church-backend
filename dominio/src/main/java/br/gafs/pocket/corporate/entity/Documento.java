@@ -19,7 +19,10 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -34,33 +37,12 @@ import java.util.*;
 @IdClass(RegistroEmpresaId.class)
 @NamedQueries({
     @NamedQuery(name = "Documento.findEmpresaNaoDivultadosByDataPublicacao", query = "select i from Documento e inner join e.empresa i where i.status = :statusEmpresa and e.divulgado = false and e.dataPublicacao <= :data group by i"),
+    @NamedQuery(name = "Documento.findUltimoADivulgar", query = "select d from Documento d inner join d.empresa e where e.chave = :empresa and d.divulgado = false and d.dataPublicacao <= :data order by d.dataPublicacao desc"),
     @NamedQuery(name = "Documento.updateNaoDivulgadosByEmpresa", query = "update Documento e set e.divulgado = true where e.empresa.chave = :empresa and e.dataPublicacao <= :data "),
     @NamedQuery(name = "Documento.findPDFByStatus", query = "select e from Documento e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
     @NamedQuery(name = "Documento.updateStatus", query = "update Documento e set e.status = :status where e.id = :documento and e.empresa.chave = :empresa")
 })
 public class Documento implements IEntity, ArquivoPDF {
-
-    private static final Map<RegistroEmpresaId, Integer> locks = new HashMap<RegistroEmpresaId, Integer>();
-
-    public synchronized static boolean locked(RegistroEmpresaId id){
-        return locks.containsKey(id);
-    }
-
-    public synchronized static int lock(RegistroEmpresaId id){
-        return locks.get(id);
-    }
-
-    public synchronized static void lock(RegistroEmpresaId id, int percent){
-        locks.put(id, percent);
-    }
-
-    public synchronized static void unlock(RegistroEmpresaId id){
-        locks.remove(id);
-    }
-
-    public synchronized static int locked(){
-        return locks.size();
-    }
 
     @Id
     @JsonView(View.Resumido.class)
@@ -222,11 +204,6 @@ public class Documento implements IEntity, ArquivoPDF {
     }
 
     public double getPorcentagemProcessamento(){
-        RegistroEmpresaId riid = new RegistroEmpresaId(chaveEmpresa, id);
-        if (isProcessando() && locked(riid)){
-            return lock(riid);
-        }
-
         if (isPublicado() || isAgendado()){
             return 1d;
         }

@@ -18,14 +18,14 @@ public class ConfiguracaoYouTubeEmpresaDTO {
     @TipoParametro.Mapping(TipoParametro.YOUTUBE_CHANNEL_ID)
     private String idCanal;
     
-    @TipoParametro.Mapping(TipoParametro.TITULO_YOUTUBE_AO_VIVO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_YOUTUBE_AO_VIVO)
     private String tituloAoVivo;
-    @TipoParametro.Mapping(TipoParametro.TEXTO_YOUTUBE_AO_VIVO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_YOUTUBE_AO_VIVO)
     private String textoAoVivo;
     
-    @TipoParametro.Mapping(TipoParametro.TITULO_YOUTUBE_AGENDADO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_TITLE_YOUTUBE_AGENDADO)
     private String tituloAgendado;
-    @TipoParametro.Mapping(TipoParametro.TEXTO_YOUTUBE_AGENDADO)
+    @TipoParametro.Mapping(TipoParametro.PUSH_BODY_YOUTUBE_AGENDADO)
     private String textoAgendado;
     
     public boolean isConfigurado(){

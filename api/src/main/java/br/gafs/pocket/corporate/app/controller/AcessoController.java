@@ -47,6 +47,14 @@ public class AcessoController {
     @Context
     private HttpServletResponse response;
     
+    @GET
+    @Path("login/{email}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response iniciaLogin(final @PathParam("email") String email){
+        return Response.status(Response.Status.OK).entity(acessoService.inciaLogin(email)).build();
+    }
+
     @PUT
     @Path("login")
     @Consumes(MediaType.APPLICATION_JSON)

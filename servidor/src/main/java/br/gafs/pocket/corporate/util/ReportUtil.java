@@ -1,8 +1,9 @@
 package br.gafs.pocket.corporate.util;
 
-import br.gafs.pocket.corporate.entity.Empresa;
-import br.gafs.pocket.corporate.entity.Empresa;
 import br.gafs.exceptions.ServiceException;
+import br.gafs.file.EntityFileManager;
+import br.gafs.pocket.corporate.entity.Empresa;
+import br.gafs.pocket.corporate.entity.Template;
 import br.gafs.view.relatorio.RelatorioUtil;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -30,12 +31,14 @@ public class ReportUtil {
 
     public static ReportUtil empresa(String path,
                                     final String titulo,
-                                    final Empresa empresa){
+                                    final Empresa empresa,
+                                     final Template template){
         return new ReportUtil(path){
             @Override
             public ExporterImpl build() {
                 return basic("report/relatorio_empresa.jasper")
-                        .arg("LOGO_EMPRESA", ResourceUtil.report(empresa.getChave(), "logo.png"))
+                        .arg("LOGO_EMPRESA", template.getLogoReports() == null ? null :
+                                EntityFileManager.get(template.getLogoReports(), "dados").getAbsolutePath())
                         .arg("TITULO", titulo)
                         .arg("REPORT_LOCALE", new Locale(empresa.getLocale()))
                         .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(empresa.getTimezone()))

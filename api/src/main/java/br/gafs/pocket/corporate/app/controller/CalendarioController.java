@@ -38,9 +38,10 @@ public class CalendarioController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(
-            @QueryParam("pagina") final String pagina,
+            @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaEventos(pagina, total)).build();
+        return Response.status(Response.Status.OK)
+                .entity(appService.buscaEventos(pagina, total)).build();
     }
     
     @GET

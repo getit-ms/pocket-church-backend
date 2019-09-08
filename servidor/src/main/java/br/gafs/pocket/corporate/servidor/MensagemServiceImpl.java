@@ -5,20 +5,21 @@
 */
 package br.gafs.pocket.corporate.servidor;
 
+import br.gafs.dao.BuscaPaginadaDTO;
+import br.gafs.dao.DAOService;
 import br.gafs.pocket.corporate.dao.FiltroEmail;
 import br.gafs.pocket.corporate.dao.QueryNotificacao;
 import br.gafs.pocket.corporate.dto.*;
-import br.gafs.pocket.corporate.dto.*;
 import br.gafs.pocket.corporate.entity.NotificationSchedule;
+import br.gafs.pocket.corporate.entity.Parametro;
 import br.gafs.pocket.corporate.entity.RegistroEmpresaId;
 import br.gafs.pocket.corporate.entity.SentNotification;
 import br.gafs.pocket.corporate.entity.domain.NotificationType;
+import br.gafs.pocket.corporate.entity.domain.TipoParametro;
 import br.gafs.pocket.corporate.service.MensagemService;
+import br.gafs.pocket.corporate.service.ParametroService;
 import br.gafs.pocket.corporate.servidor.mensagem.EmailService;
 import br.gafs.pocket.corporate.servidor.mensagem.NotificacaoService;
-import br.gafs.pocket.corporate.util.MensagemUtil;
-import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.dao.DAOService;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.email.EmailUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -43,6 +45,9 @@ public class MensagemServiceImpl implements MensagemService {
 
     @EJB
     private EmailService emailService;
+
+    @EJB
+    private ParametroService paramService;
 
     @EJB
     private NotificacaoService notificacaoService;
@@ -71,9 +76,15 @@ public class MensagemServiceImpl implements MensagemService {
     @Override
     public void enviarMensagem(ContatoDTO contato) {
         EmailUtil.alertAdm(
-                MensagemUtil.getMensagem("email.contato.message", "pt-br",
-                        contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()),
-                MensagemUtil.getMensagem("email.contato.subject", "pt-br", contato.getAssunto()));
+                MessageFormat.format(
+                        (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_BODY_CONTATO_SITE_RESPOSTA),
+                        contato.getMensagem(), contato.getNome(), contato.getEmail(), contato.getTelefone()
+                ),
+                MessageFormat.format(
+                        (String) paramService.get(Parametro.GLOBAL, TipoParametro.EMAIL_SUBJECT_CONTATO_SITE_RESPOSTA),
+                        contato.getAssunto()
+                )
+        );
     }
 
     private void sendPushNow(final NotificationSchedule notificacao){

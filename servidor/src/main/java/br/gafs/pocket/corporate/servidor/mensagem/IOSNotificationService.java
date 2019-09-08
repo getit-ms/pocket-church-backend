@@ -44,21 +44,25 @@ public class IOSNotificationService implements Serializable {
 
     @Asynchronous
     public void pushNotifications(Empresa empresa, MensagemPushDTO notification, List<Destination> destinations) {
-        Map<String, String> requests = new HashMap<String, String>();
-        for (Destination destination : destinations) {
-            prepareRequests(requests, notification, destination.getTo(), destination.getBadge());
-        }
+        try {
+            final ApnsService service = getApnsService(empresa);
 
-        ApnsService service = getApnsService(empresa);
+            Map<String, String> requests = new HashMap<String, String>();
+            for (Destination destination : destinations) {
+                prepareRequests(requests, notification, destination.getTo(), destination.getBadge());
+            }
 
-        synchronized (service) {
-            for (Map.Entry<String, String> entry : requests.entrySet()) {
-                try {
-                    service.push(entry.getKey(), entry.getValue());
-                } catch (Exception ex) {
-                    LOGGER.log(Level.SEVERE, "Erro o enviar push iOS para " + entry.getKey(), ex);
+            synchronized (service) {
+                for (Map.Entry<String, String> entry : requests.entrySet()) {
+                    try {
+                        service.push(entry.getKey(), entry.getValue());
+                    } catch (Exception ex) {
+                        LOGGER.log(Level.SEVERE, "Erro o enviar push iOS para " + entry.getKey(), ex);
+                    }
                 }
             }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Falha ao preparar serviço para envio de notificação da empresa " + empresa.getChave(), ex);
         }
     }
 
@@ -78,16 +82,24 @@ public class IOSNotificationService implements Serializable {
 
     private synchronized ApnsService getApnsService(Empresa empresa) {
         if (!services.containsKey(empresa.getChave())) {
-            ApnsServiceBuilder serviceBuilder = APNS.newService().withCert(
-                    new ByteArrayInputStream((byte[]) paramService.get(empresa.getChave(), TipoParametro.PUSH_IOS_CERTIFICADO)),
-                    (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_IOS_PASS));
-            serviceBuilder.withProductionDestination();
 
-            ApnsService service = serviceBuilder.build();
+            synchronized (services) {
+                if (!services.containsKey(empresa.getChave())) {
+                    ApnsServiceBuilder serviceBuilder = APNS.newService().withCert(
+                            new ByteArrayInputStream((byte[]) paramService.get(empresa.getChave(), TipoParametro.PUSH_IOS_CERTIFICADO)),
+                            (String) paramService.get(empresa.getChave(), TipoParametro.PUSH_IOS_PASS));
 
-            service.start();
+                    serviceBuilder.withProductionDestination();
 
-            services.put(empresa.getChave(), service);
+                    ApnsService service = serviceBuilder.build();
+
+                    service.start();
+
+                    service.testConnection();
+
+                    services.put(empresa.getChave(), service);
+                }
+            }
         }
 
         return services.get(empresa.getChave());

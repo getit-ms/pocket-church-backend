@@ -6,6 +6,7 @@
 package br.gafs.pocket.corporate.service;
 
 import br.gafs.pocket.corporate.dto.MenuDTO;
+import br.gafs.pocket.corporate.dto.ResumoEmpresaDTO;
 import br.gafs.pocket.corporate.entity.Arquivo;
 import br.gafs.pocket.corporate.entity.Colaborador;
 import br.gafs.pocket.corporate.entity.Preferencias;
@@ -21,6 +22,8 @@ import java.util.List;
  * @author Gabriel
  */
 public interface AcessoService extends Serializable {
+
+    List<ResumoEmpresaDTO> inciaLogin(String username);
     Colaborador login(String username, String password, TipoDispositivo tipo, String version);
     Usuario admin(String username, String password);
     Colaborador refreshLogin();

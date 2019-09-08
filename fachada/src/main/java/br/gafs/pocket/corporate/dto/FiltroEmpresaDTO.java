@@ -17,7 +17,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class FiltroEmpresaDTO implements DTO {
     private String chave;
-    private String nome;
+    private String filtro;
     private Integer pagina = 1;
     private Integer total = 10;
 

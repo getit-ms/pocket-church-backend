@@ -6,11 +6,9 @@
 package br.gafs.pocket.corporate.servidor;
 
 import br.gafs.dao.DAOService;
-import br.gafs.exceptions.ServiceException;
 import br.gafs.pocket.corporate.dao.QueryAcesso;
-import br.gafs.pocket.corporate.entity.Dispositivo;
-import br.gafs.pocket.corporate.entity.Empresa;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
+import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
 import br.gafs.pocket.corporate.sessao.SessionDataManager;
 import br.gafs.pocket.corporate.util.JWTManager;
 import br.gafs.util.date.DateUtil;
@@ -41,7 +39,13 @@ public class SessaoBean implements Serializable {
     private DispositivoService dispositivoService;
 
     @EJB
+    private EmpresaService empresaService;
+
+    @EJB
     private DAOService daoService;
+
+    @EJB
+    private JWTManager jwtManager;
 
     private String chaveEmpresa;
     private String chaveDispositivo;
@@ -53,85 +57,51 @@ public class SessaoBean implements Serializable {
 
     private boolean loaded;
 
-    public void load(String authorization){
-        Number creation = null;
-        if (!StringUtil.isEmpty(authorization)){
-            try{
-                JWTManager.JWTReader reader = JWTManager.reader(authorization);
-                chaveEmpresa = (String) reader.get("empresa");
-                chaveDispositivo = (String) reader.get("dispositivo");
-                idColaborador = toLong(reader.get("colaborador"));
-                admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
-                idUsuario = toLong("usuario");
-                funcionalidades = (List<Integer>) reader.get("funcionalidades");
-                creation = (Number) reader.get("creation");
-            }catch(Exception e){
-                e.printStackTrace();
-                throw new SecurityException();
-            }
-        }
-
-        if (StringUtil.isEmpty(chaveEmpresa)){
-            chaveEmpresa = get("Empresa");
-
-            if (StringUtil.isEmpty(chaveEmpresa)){
-                throw new SecurityException();
-            }
-        }
-
-        Empresa empresa = daoService.find(Empresa.class, chaveEmpresa);
-
-        if (empresa.isInativa()) {
-            throw new ServiceException("O aplicativo foi desativado. Entre em contato com a empresa para mais detalhes");
-        }
-
-        if (empresa.isBloqueada() && admin) {
-            throw new ServiceException("O aplicativo está bloqueado. Entre em contato com a GET IT para mais detalhes.");
-        }
-
-        String uuid = getUUID();
-
-        if (StringUtil.isEmpty(uuid) || (StringUtil.isEmpty(chaveDispositivo) || !chaveDispositivo.startsWith(uuid))){
-            String oldCD = chaveDispositivo;
-
-            Dispositivo dispositivo = dispositivoService.getDispositivo(uuid, chaveEmpresa);
-
-            chaveDispositivo = dispositivo.getChave();
-
-            if (!StringUtil.isEmpty(oldCD) && !oldCD.equals(dispositivo.getChave())) {
-                dispositivoService.migraDispositivo(oldCD, dispositivo.getChave());
-
-                set();
-            }
-
-            if (admin != dispositivo.isAdministrativo()){
-                admin = dispositivo.isAdministrativo();
-                set();
-            }
-        } else if (!admin) {
-            switch (dispositivoService.verificaContingencia(chaveDispositivo)) {
-                case FORCE_REGISTER:
-                    manager.header("Force-Register", "true");
-                    break;
-                case FULL_RESET:
-                    manager.header("Force-Reset", "true");
-                    break;
-            }
-        }
-
-        boolean deprecated = creation == null ||
-                creation.longValue() + TIMEOUT < System.currentTimeMillis();
-
-        if (deprecated || funcionalidades == null){
-            refreshFuncionalidades();
-            set();
-        }
-    }
-
-    private void load(){
-        if (!loaded){
+    public void load(){
+        if (!loaded) {
             loaded = true;
-            load(get("Authorization"));
+
+            Number creation = null;
+            String authorization = get("Authorization");
+            if (!StringUtil.isEmpty(authorization)) {
+                try {
+                    JWTManager.JWTReader reader = jwtManager.reader(authorization);
+                    chaveEmpresa = (String) reader.get("empresa");
+                    chaveDispositivo = (String) reader.get("dispositivo");
+                    idColaborador = toLong(reader.get("colaborador"));
+                    admin = Boolean.valueOf(String.valueOf(reader.get("admin")));
+                    idUsuario = toLong("usuario");
+                    funcionalidades = (List<Integer>) reader.get("funcionalidades");
+                    creation = (Number) reader.get("creation");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new SecurityException();
+                }
+            }
+
+            empresaService.checkStatusEmpresa(chaveEmpresa, admin);
+
+            dispositivoService.registraAcesso(chaveDispositivo);
+
+            if (!admin) {
+                switch (DispositivoService.verificaContingencia(chaveDispositivo)) {
+                    case FORCE_REGISTER:
+                        manager.header("Force-Register", "true");
+                        break;
+                    case FULL_RESET:
+                        manager.header("Force-Reset", "true");
+                        break;
+                }
+            }
+
+            boolean deprecated = creation == null ||
+                    creation.longValue() + TIMEOUT < System.currentTimeMillis();
+
+            if (deprecated || funcionalidades == null) {
+                refreshFuncionalidades();
+                set();
+            }
+
         }
     }
 
@@ -165,7 +135,7 @@ public class SessaoBean implements Serializable {
         load();
 
         if (idUsuario != null || idColaborador != null){
-            manager.header("Set-Authorization", JWTManager.writer().
+            manager.header("Set-Authorization", jwtManager.writer().
                     map("empresa", chaveEmpresa).
                     map("dispositivo", chaveDispositivo).
                     map("colaborador", idColaborador).
@@ -231,11 +201,13 @@ public class SessaoBean implements Serializable {
         set();
     }
 
-    public void login(Long idColaborador, boolean admin){
+    public void login(Long idColaborador, TipoDispositivo tipoDispositivo, String version){
         this.idColaborador = idColaborador;
-        this.admin = admin;
+        this.admin = TipoDispositivo.PC.equals(tipoDispositivo);
 
         this.refreshFuncionalidades();
+
+        dispositivoService.registraLogin(chaveDispositivo, idColaborador, tipoDispositivo, version);
 
         set();
     }
@@ -254,7 +226,13 @@ public class SessaoBean implements Serializable {
         set();
     }
 
-    public String getUUID() {
-        return get("Dispositivo");
+    public void refresh() {
+        this.refreshFuncionalidades();
+
+        if (idColaborador != null) {
+            dispositivoService.registraLogin(chaveDispositivo, idColaborador, null, null);
+        }
+
+        set();
     }
 }

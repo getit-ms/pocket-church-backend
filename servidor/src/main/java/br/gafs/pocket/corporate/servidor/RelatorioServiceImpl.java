@@ -5,6 +5,7 @@ import br.gafs.dao.DAOService;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.pocket.corporate.entity.Documento;
 import br.gafs.pocket.corporate.entity.Empresa;
+import br.gafs.pocket.corporate.entity.Template;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.TipoEvento;
 import br.gafs.pocket.corporate.security.AllowAdmin;
@@ -58,7 +59,8 @@ public class RelatorioServiceImpl implements RelatorioService {
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
     public File exportaInscritos(Long id, String tipo) throws IOException, InterruptedException {
-        return export(new RelatorioInscritos(appService.buscaEvento(id)), tipo);
+        return export(new RelatorioInscritos(appService.buscaEvento(id),
+                daoService.find(Template.class, sessaoBean.getChaveEmpresa())), tipo);
     }
 
     @Override
@@ -76,12 +78,14 @@ public class RelatorioServiceImpl implements RelatorioService {
     @Override
     public File exportaDocumento(Long documento, String tipo) throws IOException, InterruptedException {
         Documento entidade = appService.buscaDocumento(documento);
-        return export(new RelatorioDocumento(entidade), tipo);
+        return export(new RelatorioDocumento(entidade,
+                daoService.find(Template.class, sessaoBean.getChaveEmpresa())), tipo);
     }
 
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public File exportaResultadosEnquete(Long enquete, String tipo) throws IOException, InterruptedException {
-        return export(new RelatorioResultadoEnquete(appService.buscaResultado(enquete)), tipo);
+        return export(new RelatorioResultadoEnquete(appService.buscaResultado(enquete),
+                daoService.find(Template.class, sessaoBean.getChaveEmpresa())), tipo);
     }
 }
