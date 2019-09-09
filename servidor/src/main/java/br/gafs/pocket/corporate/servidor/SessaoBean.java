@@ -6,6 +6,7 @@
 package br.gafs.pocket.corporate.servidor;
 
 import br.gafs.dao.DAOService;
+import br.gafs.exceptions.ServiceException;
 import br.gafs.pocket.corporate.dao.QueryAcesso;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
@@ -21,6 +22,7 @@ import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -32,8 +34,8 @@ public class SessaoBean implements Serializable {
 
     private static final long TIMEOUT = 3 * DateUtil.MILESIMOS_POR_DIA;
 
-    @Inject
-    private SessionDataManager manager;
+    @EJB
+    private JWTManager jwtManager;
 
     @EJB
     private DispositivoService dispositivoService;
@@ -44,27 +46,26 @@ public class SessaoBean implements Serializable {
     @EJB
     private DAOService daoService;
 
-    @EJB
-    private JWTManager jwtManager;
+    @Inject
+    private SessionDataManager manager;
 
     private String chaveEmpresa;
     private String chaveDispositivo;
     private Long idColaborador;
     private boolean admin;
     private Long idUsuario;
-
     private List<Integer> funcionalidades;
 
     private boolean loaded;
 
     public void load(){
-        if (!loaded) {
+        if (!loaded){
             loaded = true;
 
             Number creation = null;
             String authorization = get("Authorization");
-            if (!StringUtil.isEmpty(authorization)) {
-                try {
+            if (!StringUtil.isEmpty(authorization)){
+                try{
                     JWTManager.JWTReader reader = jwtManager.reader(authorization);
                     chaveEmpresa = (String) reader.get("empresa");
                     chaveDispositivo = (String) reader.get("dispositivo");
@@ -73,9 +74,26 @@ public class SessaoBean implements Serializable {
                     idUsuario = toLong("usuario");
                     funcionalidades = (List<Integer>) reader.get("funcionalidades");
                     creation = (Number) reader.get("creation");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new SecurityException();
+                }catch(Exception e){
+                    throw new ServiceException("mensagens.MSG-403", e);
+                }
+            } else {
+                if (StringUtil.isEmpty(chaveEmpresa)) {
+                    chaveEmpresa = get("Empresa");
+
+                    if (StringUtil.isEmpty(chaveEmpresa)) {
+                        throw new ServiceException("mensagens.MSG-403");
+                    }
+                }
+
+                if (StringUtil.isEmpty(chaveDispositivo)) {
+                    String dispositivo = get("Dispositivo");
+
+                    if (StringUtil.isEmpty(dispositivo)) {
+                        chaveDispositivo = UUID.randomUUID().toString() + "@" + chaveEmpresa;
+                    } else {
+                        chaveDispositivo = dispositivo + "@" + chaveEmpresa;
+                    }
                 }
             }
 
@@ -104,6 +122,7 @@ public class SessaoBean implements Serializable {
 
         }
     }
+
 
     private static Long toLong(Object value){
         if (value instanceof Number){
@@ -222,6 +241,8 @@ public class SessaoBean implements Serializable {
         this.idUsuario = null;
         this.idColaborador = null;
         this.funcionalidades.clear();
+
+        dispositivoService.registraLogout(chaveDispositivo);
 
         set();
     }

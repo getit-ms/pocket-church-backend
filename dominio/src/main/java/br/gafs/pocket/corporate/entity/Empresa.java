@@ -36,7 +36,8 @@ import java.util.List;
 @NamedQueries({
     @NamedQuery(name = "Empresa.findAtivas", query = "select i from Empresa i where i.status in :status"),
     @NamedQuery(name = "Empresa.findFuncionalidadesInList", query = "select f from Empresa i inner join i.plano p inner join p.funcionalidades f where i.chave = :empresa and f in :list group by f"),
-    @NamedQuery(name = "Empresa.findFuncionalidadesAplicativoInList", query = "select f from Empresa i inner join i.funcionalidadesAplicativo f where i.chave = :empresa and f in :list group by f")
+    @NamedQuery(name = "Empresa.findFuncionalidadesAplicativoInList", query = "select f from Empresa i inner join i.funcionalidadesAplicativo f where i.chave = :empresa and f in :list group by f"),
+    @NamedQuery(name = "Empresa.findByEmailAcesso", query = "select new br.gafs.pocket.corporate.dto.ResumoEmpresaDTO(e.chave, e.nome, e.nomeAplicativo, temp.logoPequena) from Template temp, Colaborador c inner join c.acesso a inner join c.empresa e where e = temp.empresa and e.status = :statusEmpresa and c.status = :statusColaborador and lower(c.email) = :email")
 })
 public class Empresa implements IEntity {
     @Id
