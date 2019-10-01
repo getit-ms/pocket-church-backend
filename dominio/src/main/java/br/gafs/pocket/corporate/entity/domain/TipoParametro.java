@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 public enum TipoParametro {
     REPOSITORY_URL(TipoValor.VALOR, String.class, null),
     GERACAO_POOL_SIZE(TipoValor.VALOR, Integer.class, "5"),
+    SENHA_PADRAO(TipoValor.VALOR, String.class, "123456"),
 
     // Integração PagSeguro
     USER_PAGSEGURO(TipoValor.VALOR, String.class, null),

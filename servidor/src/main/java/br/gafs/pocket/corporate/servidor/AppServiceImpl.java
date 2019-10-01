@@ -333,8 +333,8 @@ public class AppServiceImpl implements AppService {
         entidade = daoService.update(entidade);
         
         if (gerarSenha){
-            String senha = SenhaUtil.geraSenha(8);
-            
+            String senha = paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.SENHA_PADRAO);
+
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
             
             entidade = daoService.update(entidade);
@@ -413,7 +413,7 @@ public class AppServiceImpl implements AppService {
         Colaborador entidade = buscaColaborador(colaborador);
 
         if (entidade.isColaborador()){
-            String senha = SenhaUtil.geraSenha(8);
+            String senha = paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.SENHA_PADRAO);
 
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
             daoService.update(entidade);

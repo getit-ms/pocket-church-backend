@@ -103,7 +103,7 @@ public class Colaborador implements IEntity {
     
     @JsonView(Detalhado.class)
     @Setter(AccessLevel.NONE)
-    @Column(name = "deve_alterar_senha", length = 150, nullable = false)
+    @Column(name = "deve_alterar_senha", nullable = false)
     private boolean deveAlterarSenha;
     
     @JsonView(Detalhado.class)

@@ -42,7 +42,7 @@ public class Notificacao implements IEntity {
     private String titulo;
 
     @NotEmpty
-    @Length(max = 150)
+    @Length(max = 250)
     @Column(name = "mensagem", length = 150, nullable = false, updatable = false)
     private String mensagem;
 

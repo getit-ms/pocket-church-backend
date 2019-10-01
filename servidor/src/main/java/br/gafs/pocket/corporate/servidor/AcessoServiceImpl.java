@@ -45,6 +45,9 @@ public class AcessoServiceImpl implements AcessoService {
 
     @EJB
     private DAOService daoService;
+
+    @EJB
+    private ParametroServiceImpl paramService;
     
     @EJB
     private MensagemService mensagemService;
@@ -318,7 +321,7 @@ public class AcessoServiceImpl implements AcessoService {
                             ((Number) reader.get("colaborador")).longValue()));
         
         if (colaborador != null || !colaborador.isColaborador()){
-            String novaSenha = SenhaUtil.geraSenha(8);
+            String novaSenha = paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.SENHA_PADRAO);
             colaborador.setSenha(SenhaUtil.encryptSHA256(novaSenha));
             colaborador = daoService.update(colaborador);
             
