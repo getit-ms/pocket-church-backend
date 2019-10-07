@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Data
 @RequiredArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class VideoDTO implements Serializable {
     private final String id;
     private final String titulo;

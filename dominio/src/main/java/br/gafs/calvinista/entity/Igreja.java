@@ -56,9 +56,9 @@ public class Igreja implements IEntity {
 
     @Setter
     @NotEmpty
-    @Length(max = 15)
+    @Length(max = 30)
     @JsonView(View.Resumido.class)
-    @Column(name = "nome_aplicativo", length = 15, nullable = false)
+    @Column(name = "nome_aplicativo", length = 30, nullable = false)
     private String nomeAplicativo;
 
     @Getter

@@ -40,10 +40,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -68,7 +66,7 @@ public class GoogleService {
     public static final Logger LOGGER = Logger.getLogger(GoogleService.class.getName());
 
     static {
-        if (!GOOGLE_STORE_DIR.exists()){
+        if (!GOOGLE_STORE_DIR.exists()) {
             GOOGLE_STORE_DIR.mkdirs();
         }
         try {
@@ -82,7 +80,7 @@ public class GoogleService {
     @EJB
     private ParametroService paramService;
 
-    private GoogleAuthorizationCodeFlow.Builder flow(String store, String chaveIgreja, Collection<String> scopes) throws IOException{
+    private GoogleAuthorizationCodeFlow.Builder flow(String store, String chaveIgreja, Collection<String> scopes) throws IOException {
         return new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
                 (String) paramService.get(chaveIgreja, TipoParametro.GOOGLE_OAUTH_CLIENT_KEY),
@@ -125,7 +123,7 @@ public class GoogleService {
     private Credential loadCredentials(String store, String chaveIgreja, Collection<String> scopes) throws IOException {
         Credential credential = flow(store, chaveIgreja, scopes).build().loadCredential(chaveIgreja);
 
-        if (credential.getExpiresInSeconds() < 15){
+        if (credential.getExpiresInSeconds() < 15) {
             credential.refreshToken();
         }
 
@@ -149,7 +147,7 @@ public class GoogleService {
     public String buscaIdCanalYouTube(String chaveIgreja) throws IOException {
         ChannelListResponse response = connectYouTube(chaveIgreja).channels().list("id").setMine(true).execute();
 
-        if (!response.isEmpty()){
+        if (!response.isEmpty()) {
             return response.getItems().get(0).getId();
         }
 
@@ -252,11 +250,11 @@ public class GoogleService {
     public List<VideoDTO> buscaVideosYouTube(String chave, boolean force) throws IOException {
         String channelId = paramService.get(chave, TipoParametro.YOUTUBE_CHANNEL_ID);
 
-        if (StringUtil.isEmpty(channelId)){
+        if (StringUtil.isEmpty(channelId)) {
             return Collections.emptyList();
         }
 
-        List<VideoDTO> videos = new ArrayList<VideoDTO>();
+        List<VideoDTO> videos = new ArrayList<>();
 
         CacheDTO<List<VideoDTO>> cache = CACHE_VIDEOS.get(chave);
 
@@ -264,37 +262,23 @@ public class GoogleService {
 
             try {
                 YouTube connection = connectYouTube(chave);
-                SearchListResponse response = connection.search().list("id,snippet").
-                        setChannelId(channelId).
-                        setMaxResults(30L).setType("video").setOrder("date").execute();
 
-                for (SearchResult result : response.getItems()){
-                    VideoDTO video = new VideoDTO(
-                            result.getId().getVideoId(),
-                            result.getSnippet().getTitle(),
-                            result.getSnippet().getDescription(),
-                            new Date(result.getSnippet().getPublishedAt().getValue()));
-
-                    video.setThumbnail(result.getSnippet().getThumbnails().getDefault().getUrl());
-
-                    switch (result.getSnippet().getLiveBroadcastContent()){
-                        case "live":
-                            video.setAoVivo(true);
-                            video.setThumbnail(result.getSnippet().getThumbnails().getHigh().getUrl());
-                            break;
-                        case "upcoming":
-                            LiveBroadcastListResponse liveResponse = connection.liveBroadcasts().list("snippet").setId(video.getId()).execute();
-
-                            if (!liveResponse.isEmpty() && !liveResponse.getItems().isEmpty()){
-                                video.setAgendamento(new Date(liveResponse.getItems().get(0).getSnippet().getScheduledStartTime().getValue()));
-                            }
-
-                            break;
-                    }
-
-                    videos.add(video);
+                try {
+                    buscaLives(channelId, videos, connection);
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, "Falha ao recuperar as lives do canal", ex);
                 }
-            }catch (Exception ex) {
+
+                buscaHistoricoVideos(channelId, videos, connection);
+
+                Collections.sort(videos, new Comparator<VideoDTO>() {
+                    @Override
+                    public int compare(VideoDTO o1, VideoDTO o2) {
+                        return o2.getPublicacao().compareTo(o1.getPublicacao());
+                    }
+                });
+
+            } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Erro ao recuperar streamings do YouTube", ex);
             }
 
@@ -306,11 +290,71 @@ public class GoogleService {
         return videos;
     }
 
+    private void buscaHistoricoVideos(String channelId, List<VideoDTO> videos, YouTube connection) throws IOException {
+        List<Channel> channels = connection.channels().list("id,contentDetails").
+                setId(channelId).execute().getItems();
+
+        PlaylistItemListResponse response = connection.playlistItems().list("id,snippet")
+                .setPlaylistId(channels.get(0).getContentDetails().getRelatedPlaylists().getUploads())
+                .setMaxResults(30L).execute();
+
+        for (PlaylistItem result : response.getItems()) {
+            if (result.getSnippet().getResourceId().getVideoId() == null) {
+                continue;
+            }
+
+            VideoDTO video = new VideoDTO(
+                    result.getSnippet().getResourceId().getVideoId(),
+                    result.getSnippet().getTitle(),
+                    result.getSnippet().getDescription(),
+                    new Date(result.getSnippet().getPublishedAt().getValue())
+            );
+
+            video.setThumbnail(result.getSnippet().getThumbnails().getStandard().getUrl());
+
+            if (!videos.contains(video)) {
+                videos.add(video);
+            }
+        }
+    }
+
+    private void buscaLives(String channelId, List<VideoDTO> videos, YouTube connection) throws IOException {
+        LiveBroadcastListResponse lives = connection.liveBroadcasts().list("id,snippet,status")
+                .setMine(true).execute();
+
+        for (LiveBroadcast live : lives.getItems()) {
+            if (live.getSnippet().getChannelId().equals(channelId)) {
+                VideoDTO video = new VideoDTO(
+                        live.getId(),
+                        live.getSnippet().getTitle(),
+                        live.getSnippet().getDescription(),
+                        new Date(live.getSnippet().getPublishedAt().getValue())
+                );
+
+                video.setThumbnail(live.getSnippet().getThumbnails().getStandard().getUrl());
+
+                video.setAoVivo("live".equals(live.getStatus().getLifeCycleStatus()));
+
+                if (live.getSnippet().getScheduledStartTime() != null) {
+                    Date scheduledStartTime = new Date(live.getSnippet().getScheduledStartTime().getValue());
+
+                    if (scheduledStartTime.getTime() > System.currentTimeMillis()) {
+                        video.setAgendamento(scheduledStartTime);
+                    }
+                }
+
+                if (!videos.contains(video)) {
+                    videos.add(video);
+                }
+            }
+        }
+    }
+
     public List<VideoDTO> buscaStreamsAtivosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
 
-        for (VideoDTO video : buscaVideosYouTube(chave, true)){
-            if (video.isAoVivo()){
+        for (VideoDTO video : buscaVideosYouTube(chave, true)) {
+            if (video.isAoVivo()) {
                 videos.add(video);
             }
         }
@@ -321,8 +365,8 @@ public class GoogleService {
     public List<VideoDTO> buscaStreamsAgendadosYouTube(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
 
-        for (VideoDTO video : buscaVideosYouTube(chave)){
-            if (video.isAgendado()){
+        for (VideoDTO video : buscaVideosYouTube(chave)) {
+            if (video.isAgendado()) {
                 videos.add(video);
             }
         }
