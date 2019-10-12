@@ -31,33 +31,33 @@ public class FirebaseService {
     private static final Logger LOGGER = Logger.getLogger(FirebaseService.class.getName());
 
     @EJB
-    private ParametroService paramService;
+    private FirebaseTokenProvider tokenProvider;
 
     private static final ObjectMapper om = new ObjectMapper();
 
     @Asynchronous
     public void pushNotifications(Igreja igreja, MensagemPushDTO push, List<Destination> destinations) {
 
-        String chave = paramService.get(igreja.getChave(), TipoParametro.PUSH_ANDROID_KEY);
-
         for (Destination destination : destinations) {
+            String token = tokenProvider.getToken(igreja.getChave(), destination.getVersion());
+
             doSendNotification(new Requisicao(
                     destination.getTo(),
                     push.getTitle(),
                     push.getMessage(),
                     destination.getBadge(),
                     push.getCustomData()
-            ), chave);
+            ), token);
         }
     }
 
-    private boolean doSendNotification(Requisicao requisicao, String chave) {
+    private boolean doSendNotification(Requisicao requisicao, String token) {
         try {
             HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://fcm.googleapis.com/fcm/send").openConnection();
 
             urlConnection.setRequestMethod("POST");
             urlConnection.addRequestProperty("Content-Type", "application/json");
-            urlConnection.addRequestProperty("Authorization", "key=" + chave);
+            urlConnection.addRequestProperty("Authorization", "key=" + token);
             urlConnection.setDoOutput(true);
 
             urlConnection.connect();
@@ -86,6 +86,7 @@ public class FirebaseService {
     @RequiredArgsConstructor
     public static class Destination {
         private final String to;
+        private final String version;
         private final Long badge;
     }
 

@@ -82,7 +82,7 @@ public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
         }
 
         page = filtro.getPagina();
-        query = new StringBuilder("select min(d.tipo), d.pushkey, max(d.chave), max(d.id_membro) ").append(from).append(where).append(" group by d.pushkey order by d.pushkey").toString();
+        query = new StringBuilder("select min(d.tipo), d.pushkey, max(d.chave), max(d.id_membro), max(d.versao) ").append(from).append(where).append(" group by d.pushkey order by d.pushkey").toString();
         countQuery = QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(distinct d.pushkey) ").append(from).append(where).toString());
     }
 

@@ -31,6 +31,7 @@ public class NotificacaoDispatcherService {
     private static final int INSTALATION_ID = 1;
     private static final int CHAVE_DISPOSITIVO = 2;
     private static final int ID_MEMBRO = 3;
+    private static final int VERSAO = 4;
 
     @EJB
     private DAOService daoService;
@@ -109,9 +110,9 @@ public class NotificacaoDispatcherService {
             }else if (dispositivo[TIPO].equals(TipoDispositivo.IPB.ordinal())){
                 destinationIPB.add(new IPBNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
             } else if (dispositivo[TIPO].equals(TipoDispositivo.ANDROID_FIREBASE.ordinal())) {
-                destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], count));
+                destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], (String) dispositivo[VERSAO], count));
             } else if (dispositivo[TIPO].equals(TipoDispositivo.IPHONE_FIREBASE.ordinal())) {
-                destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], count));
+                destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], (String) dispositivo[VERSAO], count));
             }
 
             ids.add((String) dispositivo[INSTALATION_ID]);
