@@ -21,16 +21,15 @@ import java.util.Date;
 @Table(name = "tb_estatistica_acesso")
 @EqualsAndHashCode(of = {"igreja", "data", "funcionalidade"})
 @NamedQueries({
-        @NamedQuery(name = "EstatisticaAcesso.findByIgrejaAndFuncionalidade", query = "select ea from EstatisticaAcesso ea where ea.igreja.chave = :igreja and ea.funcionalidade = :funcionalidade order by ea.data"),
-        @NamedQuery(name = "EstatisticaAcesso.findOnLine", query = "select new br.gafs.calvinista.entity.EstatisticaAcesso(i, CURRENT_DATE, ra.funcionalidade, (select count(su) from RegistroAcesso su where su.igreja = ra.igreja and su.data between :inicio and :termino and su.funcionalidade = ra.funcionalidade and su.status = :sucesso), (select count(fa) from RegistroAcesso fa where fa.igreja = ra.igreja and fa.data between :inicio and :termino and fa.funcionalidade = ra.funcionalidade and fa.status = :falha)) from RegistroAcesso ra, Igreja i where i.chave = ra.igreja and i.status = :statusIgreja group by i, ra.funcionalidade "),
+        @NamedQuery(name = "EstatisticaAcesso.findByIgrejaAndFuncionalidade", query = "select ea from EstatisticaAcesso ea where ea.igreja = :igreja and ea.funcionalidade = :funcionalidade order by ea.data"),
+        @NamedQuery(name = "EstatisticaAcesso.findOnLine", query = "select new br.gafs.calvinista.entity.EstatisticaAcesso(ii.chave, CURRENT_DATE, ra.funcionalidade, (select count(su) from RegistroAcesso su where su.igreja = ra.igreja and su.data between :inicio and :termino and su.funcionalidade = ra.funcionalidade and su.status = :sucesso), (select count(fa) from RegistroAcesso fa where fa.igreja = ra.igreja and fa.data between :inicio and :termino and fa.funcionalidade = ra.funcionalidade and fa.status = :falha)) from RegistroAcesso ra, Igreja ii where ii.chave = ra.igreja and ii.status = :statusIgreja group by ii.chave, ra.funcionalidade "),
         @NamedQuery(name = "EstatisticaAcesso.removeAntigas", query = "delete from EstatisticaAcesso e where e.data < :limite")
 })
 public class EstatisticaAcesso implements IEntity {
     @Id
-    @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "chave_igreja")
-    private Igreja igreja;
+    @Column(name = "chave_igreja")
+    private String igreja;
 
     @Id
     @Column(name = "data")
@@ -51,7 +50,7 @@ public class EstatisticaAcesso implements IEntity {
 
     @Override
     public EstatisticaAcessoId getId() {
-        return new EstatisticaAcessoId(igreja.getChave(), data, funcionalidade);
+        return new EstatisticaAcessoId(igreja, data, funcionalidade);
     }
 
 }

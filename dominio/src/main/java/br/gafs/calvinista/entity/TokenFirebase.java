@@ -1,8 +1,10 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +18,8 @@ import javax.persistence.Table;
 
 @Getter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Table(name = "tb_token_firebase")
 public class TokenFirebase implements IEntity {

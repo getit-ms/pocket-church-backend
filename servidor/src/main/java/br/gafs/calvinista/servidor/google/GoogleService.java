@@ -331,7 +331,10 @@ public class GoogleService {
                         new Date(live.getSnippet().getPublishedAt().getValue())
                 );
 
-                video.setThumbnail(live.getSnippet().getThumbnails().getStandard().getUrl());
+                if (live.getSnippet().getThumbnails() != null &&
+                        live.getSnippet().getThumbnails().getStandard() != null) {
+                    video.setThumbnail(live.getSnippet().getThumbnails().getStandard().getUrl());
+                }
 
                 video.setAoVivo("live".equals(live.getStatus().getLifeCycleStatus()));
 

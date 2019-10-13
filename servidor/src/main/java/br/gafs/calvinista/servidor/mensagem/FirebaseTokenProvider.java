@@ -31,9 +31,7 @@ public class FirebaseTokenProvider {
     @PostConstruct
     @Schedule(hour = "*")
     public void cacheTokens() {
-        List<TokenFirebase> tokens = daoService.findAll(TokenFirebase.class);
-
-        this.tokens = new TokensDTO(tokens);
+        this.tokens = new TokensDTO(daoService.findAll(TokenFirebase.class));
     }
 
     public String getToken(String chaveIgreja, String versao) {
@@ -66,7 +64,7 @@ public class FirebaseTokenProvider {
         }
 
         public VersoesDTO getIgreja(String chaveIgreja) {
-            if (versoes.containsKey(chaveIgreja)) {
+            if (!versoes.containsKey(chaveIgreja)) {
                 return versoes.get(null);
             }
 
@@ -120,9 +118,11 @@ public class FirebaseTokenProvider {
         }
 
         public boolean matches(TokenVersaoDTO versao) {
-            return major <= versao.major &&
-                    minor <= versao.minor &&
-                    bugfix <= versao.bugfix;
+            // atual deve ser menor ou igual a versao
+
+            return major < versao.major ||
+                    (major == versao.major && minor < versao.minor) ||
+                    (major == versao.major && minor == versao.minor && bugfix <= versao.bugfix);
         }
 
         @Override

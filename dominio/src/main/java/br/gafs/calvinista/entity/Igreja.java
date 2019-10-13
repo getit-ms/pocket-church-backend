@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
@@ -31,6 +32,7 @@ import java.util.List;
 @Getter
 @Entity
 @Cacheable
+@NoArgsConstructor
 @ToString(of = "chave")
 @Table(name = "tb_igreja")
 @EqualsAndHashCode(of = "chave")
@@ -109,6 +111,10 @@ public class Igreja implements IEntity {
     @JsonIgnore
     public String getId() {
         return chave;
+    }
+
+    public Igreja(String chave) {
+        this.chave = chave;
     }
     
     public void ativa(){
