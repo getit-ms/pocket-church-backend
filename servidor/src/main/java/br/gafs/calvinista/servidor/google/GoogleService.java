@@ -310,11 +310,15 @@ public class GoogleService {
                     new Date(result.getSnippet().getPublishedAt().getValue())
             );
 
-            video.setThumbnail(result.getSnippet().getThumbnails().getStandard().getUrl());
+            if (result.getSnippet().getThumbnails() != null &&
+                    result.getSnippet().getThumbnails().getStandard() != null) {
+                video.setThumbnail(result.getSnippet().getThumbnails().getStandard().getUrl());
 
-            if (!videos.contains(video)) {
-                videos.add(video);
+                if (!videos.contains(video)) {
+                    videos.add(video);
+                }
             }
+
         }
     }
 
@@ -331,11 +335,6 @@ public class GoogleService {
                         new Date(live.getSnippet().getPublishedAt().getValue())
                 );
 
-                if (live.getSnippet().getThumbnails() != null &&
-                        live.getSnippet().getThumbnails().getStandard() != null) {
-                    video.setThumbnail(live.getSnippet().getThumbnails().getStandard().getUrl());
-                }
-
                 video.setAoVivo("live".equals(live.getStatus().getLifeCycleStatus()));
 
                 if (live.getSnippet().getScheduledStartTime() != null) {
@@ -346,8 +345,13 @@ public class GoogleService {
                     }
                 }
 
-                if (!videos.contains(video)) {
-                    videos.add(video);
+                if (live.getSnippet().getThumbnails() != null &&
+                        live.getSnippet().getThumbnails().getStandard() != null) {
+                    video.setThumbnail(live.getSnippet().getThumbnails().getStandard().getUrl());
+
+                    if (!videos.contains(video)) {
+                        videos.add(video);
+                    }
                 }
             }
         }
