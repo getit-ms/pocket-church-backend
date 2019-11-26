@@ -583,19 +583,30 @@ public class AppServiceImpl implements AppService {
             List<Membro> todos = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.
                     create(entidade.getEmail().toLowerCase(), entidade.getIgreja().getChave()));
 
-            if (todos.size() > 1) {
-                Collections.sort(todos, new Comparator<Membro>() {
-                    @Override
-                    public int compare(Membro o1, Membro o2) {
-                        return o1.getId().compareTo(o2.getId());
-                    }
-                });
+            if (!todos.isEmpty()) {
+                if (todos.size() > 1) {
+                    Collections.sort(todos, new Comparator<Membro>() {
+                        @Override
+                        public int compare(Membro o1, Membro o2) {
+                            return o1.getId().compareTo(o2.getId());
+                        }
+                    });
 
-                entidade = todos.get(0);
-                for (int i=1;i<todos.size();i++) {
-                    Membro outro = todos.get(i);
+                    for (int i = 1; i < todos.size(); i++) {
+                        Membro outro = todos.get(i);
+                        outro.exclui();
+                        daoService.update(outro);
+                    }
+                }
+
+                if (entidade.getId() < todos.get(0).getId()) {
+                    Membro outro = todos.get(0);
                     outro.exclui();
                     daoService.update(outro);
+                } else if (!entidade.getId().equals(todos.get(0).getId())){
+                    entidade.exclui();
+                    daoService.update(entidade);
+                    entidade = todos.get(0);
                 }
             }
 
