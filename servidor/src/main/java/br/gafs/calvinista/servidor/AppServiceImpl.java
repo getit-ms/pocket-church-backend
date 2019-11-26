@@ -340,6 +340,8 @@ public class AppServiceImpl implements AppService {
             throw new ServiceException("mensagens.MSG-015");
         }
 
+        entidade = trataEmailsReplicados(entidade);
+
         boolean gerarSenha = entidade.isSenhaUndefined();
 
         entidade.membro();
@@ -568,9 +570,37 @@ public class AppServiceImpl implements AppService {
     public Membro aprovaCadastroContato(Long membro) {
         Membro entidade = buscaMembro(membro);
 
+        entidade = trataEmailsReplicados(entidade);
+
         entidade.ativo();
 
         return daoService.update(entidade);
+    }
+
+    private Membro trataEmailsReplicados(Membro entidade) {
+        // Tratamento para e-mails cadastrados de forma replicada
+        if (!StringUtil.isEmpty(entidade.getEmail())) {
+            List<Membro> todos = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.
+                    create(entidade.getEmail().toLowerCase(), entidade.getIgreja().getChave()));
+
+            if (todos.size() > 1) {
+                Collections.sort(todos, new Comparator<Membro>() {
+                    @Override
+                    public int compare(Membro o1, Membro o2) {
+                        return o1.getId().compareTo(o2.getId());
+                    }
+                });
+
+                entidade = todos.get(0);
+                for (int i=1;i<todos.size();i++) {
+                    Membro outro = todos.get(i);
+                    outro.exclui();
+                    daoService.update(outro);
+                }
+            }
+
+        }
+        return entidade;
     }
 
     @Override

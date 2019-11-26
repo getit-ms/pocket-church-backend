@@ -32,7 +32,7 @@ public class MembroValidation implements ValidadorServico<Membro> {
 
     @Override
     public void valida(Membro entidade) throws ServiceException, ServiceExceptionList {
-        if (!StringUtil.isEmpty(entidade.getEmail())) {
+        if (!StringUtil.isEmpty(entidade.getEmail()) && (entidade.isContato() || entidade.isMembro())) {
             Membro outro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.
                     createSingle(entidade.getEmail().toLowerCase(), entidade.getIgreja().getChave()));
             if (outro != null && !outro.getId().equals(entidade.getId())){
