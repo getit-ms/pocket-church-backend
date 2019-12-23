@@ -58,23 +58,27 @@ public class BatchService {
     @PostConstruct
     @Schedule(hour = "*/12", persistent = false)
     public void autentica() {
-        LOGGER.info("Preparando para autenticar para batch");
+        try {
+            LOGGER.info("Preparando para autenticar para batch");
 
-        EasyRESTREsponse<AgenteDTO> response =
-                client.requestJSON("acesso/login")
-                        .put(new LoginDTO(
-                                (String) parametroService.get(Parametro.GLOBAL, TipoParametro.UUID_APP_BATCH),
-                                (String) parametroService.get(Parametro.GLOBAL, TipoParametro.TOKEN_ACESSO_APP_BATCH),
-                                VERSAO
-                        ), AgenteDTO.class);
+            EasyRESTREsponse<AgenteDTO> response =
+                    client.requestJSON("acesso/login")
+                            .put(new LoginDTO(
+                                    (String) parametroService.get(Parametro.GLOBAL, TipoParametro.UUID_APP_BATCH),
+                                    (String) parametroService.get(Parametro.GLOBAL, TipoParametro.TOKEN_ACESSO_APP_BATCH),
+                                    VERSAO
+                            ), AgenteDTO.class);
 
-        if (response.isSucesso()) {
-            this.tokenConexao = response.getBody().getTokenConexao();
+            if (response.isSucesso()) {
+                this.tokenConexao = response.getBody().getTokenConexao();
 
-            LOGGER.info("Autenticação batch realizada com sucesso");
-        } else {
-            LOGGER.error("Não foi possível realizar a autenticação batch. " +
-                    response.getStatus() + " " + response.getError());
+                LOGGER.info("Autenticação batch realizada com sucesso");
+            } else {
+                LOGGER.error("Não foi possível realizar a autenticação batch. " +
+                        response.getStatus() + " " + response.getError());
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Não foi possível realizar a autenticação batch. ", ex);
         }
     }
 
