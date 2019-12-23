@@ -56,7 +56,7 @@ public class BatchService {
     private String tokenConexao;
 
     @PostConstruct
-    @Schedule(hour = "*/12")
+    @Schedule(hour = "*/12", persistent = false)
     public void autentica() {
         LOGGER.info("Preparando para autenticar para batch");
 
@@ -123,6 +123,11 @@ public class BatchService {
 
     EntradasBuilder entradas() {
         return new EntradasBuilder();
+    }
+
+    public void processaDevocional(String igreja, Long devocional) {
+        executeService("processa-devocional", "Processamento de Devocional " + igreja + " " + devocional,
+                entradas().set("IGREJA", igreja).set("DEVOCIONAL", devocional.toString()));
     }
 
     static class EntradasBuilder extends HashMap<String, List<String>> {

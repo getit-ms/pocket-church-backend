@@ -17,7 +17,7 @@ public class IgrejaService {
     @EJB
     private DAOService daoService;
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void refreshStatus() {
         List<String> strings = new ArrayList<>(status.keySet());
         for (String chave : strings) {
@@ -39,7 +39,7 @@ public class IgrejaService {
         }
     }
 
-    @Schedule(hour = "0")
+    @Schedule(hour = "0", persistent = false)
     public void clearStatus() {
         synchronized (status) {
             status.clear();

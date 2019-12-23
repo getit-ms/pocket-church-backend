@@ -29,7 +29,7 @@ public class FirebaseTokenProvider {
     private TokensDTO tokens;
 
     @PostConstruct
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void cacheTokens() {
         this.tokens = new TokensDTO(daoService.findAll(TokenFirebase.class));
     }

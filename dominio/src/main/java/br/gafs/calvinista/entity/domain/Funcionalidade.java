@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -48,6 +47,7 @@ public enum Funcionalidade {
     MANTER_AUDIOS(Tipo.ADMIN, 49),
     CONFIGURAR_FLICKR(Tipo.ADMIN, 50),
     CONFIGURAR_VIDEOS_FACEBOOK(Tipo.ADMIN, 53),
+    MANTEM_DEVOCIONARIO(Tipo.ADMIN, 54),
 
     // Membro
     CONSULTAR_CONTATOS_IGREJA(Tipo.MEMBRO, 19),
@@ -72,7 +72,7 @@ public enum Funcionalidade {
     NOTICIAS(Tipo.PUBLICA, false, 44, 4, 2, 0),
     CONSULTAR_CANTICOS(Tipo.PUBLICA, false, 46, 4, 2, 0),
     AUDIOS(Tipo.PUBLICA, false, 51, 6, 0, 11),
-
+    DEVOCIONARIO(Tipo.PUBLICA, false, 55, 8, 0, 0),
 
     INSTITUCIONAL(Tipo.FIXA, 43),
     INICIO_APLICATIVO(Tipo.FIXA, 39),
@@ -81,26 +81,26 @@ public enum Funcionalidade {
     PREFERENCIAS(Tipo.FIXA, 42),
 
     ;
-    
+
     public final static List<Funcionalidade> FUNCIONALIDADES_APLICATIVO = new ArrayList<Funcionalidade>();
     public final static List<Funcionalidade> FUNCIONALIDADES_PUBLICAS = new ArrayList<Funcionalidade>();
     public final static List<Funcionalidade> FUNCIONALIDADES_ADMINISTRATIVO = new ArrayList<Funcionalidade>();
     public final static List<Funcionalidade> FUNCIONALIDADES_FIXAS = new ArrayList<Funcionalidade>();
 
     static {
-        for (Funcionalidade func : values()){
-            if (func.isAdmin()){
+        for (Funcionalidade func : values()) {
+            if (func.isAdmin()) {
                 FUNCIONALIDADES_ADMINISTRATIVO.add(func);
-            }else if (func.isMembro()){
+            } else if (func.isMembro()) {
                 FUNCIONALIDADES_APLICATIVO.add(func);
-            }else if (func.isPublica()){
+            } else if (func.isPublica()) {
                 FUNCIONALIDADES_PUBLICAS.add(func);
-            }else{
+            } else {
                 FUNCIONALIDADES_FIXAS.add(func);
             }
         }
     }
-    
+
     private final Tipo tipo;
     private final boolean associaMinisterios;
     private final int codigo;
@@ -121,8 +121,8 @@ public enum Funcionalidade {
     public boolean isMembro() {
         return Tipo.MEMBRO.equals(tipo);
     }
-    
-    public boolean isPublica(){
+
+    public boolean isPublica() {
         return Tipo.PUBLICA.equals(tipo);
     }
 
@@ -146,5 +146,5 @@ public enum Funcionalidade {
         PUBLICA,
         FIXA
     }
-    
+
 }

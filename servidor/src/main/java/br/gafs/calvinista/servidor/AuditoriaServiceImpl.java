@@ -66,7 +66,7 @@ public class AuditoriaServiceImpl implements AuditoriaService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*")
+    @Schedule(hour = "*", minute = "*", persistent = false)
     public void flushAuditoria(){
         List<RegistroAuditoria> audit = new ArrayList<RegistroAuditoria>();
 

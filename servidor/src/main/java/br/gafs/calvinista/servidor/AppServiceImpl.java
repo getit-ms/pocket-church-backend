@@ -62,7 +62,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -96,7 +95,7 @@ public class AppServiceImpl implements AppService {
     private FacebookService facebookService;
 
     @EJB
-    private ParametroService  paramService;
+    private ParametroService paramService;
 
     @EJB
     private ProcessamentoService processamentoService;
@@ -138,15 +137,15 @@ public class AppServiceImpl implements AppService {
 
     @Override
     @AllowAdmin
-    public StatusAdminDTO buscaStatus(){
+    public StatusAdminDTO buscaStatus() {
         StatusAdminDTO status = new StatusAdminDTO();
         status.setVersiculoDiario(buscaVersiculoDiario());
 
-        if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)){
+        if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_PEDIDOS_ORACAO)) {
             Number pedidos = daoService.findWith(new FiltroPedidoOracao(null, sessaoBean.getChaveIgreja(),
                     new FiltroPedidoOracaoDTO(null, null, Arrays.asList(StatusPedidoOracao.PENDENTE), 1, 1)).getCountQuery());
 
-            if (pedidos.intValue() > 0){
+            if (pedidos.intValue() > 0) {
                 status.addNotificacao("mensagens.MSG-036", pedidos.intValue(),
                         new QueryParameters("quantidade", pedidos),
                         "/oracao");
@@ -160,29 +159,29 @@ public class AppServiceImpl implements AppService {
             Number pendentes = daoService.findWith(new FiltroMembro(true, sessaoBean.getChaveIgreja(),
                     new FiltroMembroDTO(null, null, null, 1, 1, null, true)).getCountQuery());
 
-            if (pendentes.intValue() > 0){
+            if (pendentes.intValue() > 0) {
                 status.addNotificacao("mensagens.MSG-058", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         temPermissaoAcessoMembros ? "/contato?pendentes=true" : "/membro?pendentes=true");
             }
         }
 
-        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
+        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)) {
             Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null,
                     new FiltroInscricaoDTO(TipoEvento.EVENTO, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
-            if (pendentes.intValue() > 0){
+            if (pendentes.intValue() > 0) {
                 status.addNotificacao("mensagens.MSG-059", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         "/evento");
             }
         }
 
-        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)){
+        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)) {
             Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null,
                     new FiltroInscricaoDTO(TipoEvento.EBD, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
-            if (pendentes.intValue() > 0){
+            if (pendentes.intValue() > 0) {
                 status.addNotificacao("mensagens.MSG-060", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         "/ebd");
@@ -197,7 +196,7 @@ public class AppServiceImpl implements AppService {
         BuscaPaginadaDTO<NotificationSchedule> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveIgreja(),
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdMembro(), filtro));
 
-        if (filtro.getPagina().equals(1)){
+        if (filtro.getPagina().equals(1)) {
             notificacaoService.marcaNotificacoesComoLidas(
                     sessaoBean.getChaveIgreja(),
                     sessaoBean.getChaveDispositivo(),
@@ -209,13 +208,13 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public void clearNotificacoes(List<Long> excecoes){
+    public void clearNotificacoes(List<Long> excecoes) {
         if (excecoes == null || excecoes.isEmpty()) {
             // Evita erros de SQL por causa de lista vazia
             excecoes = Arrays.asList(-1L);
         }
 
-        if (sessaoBean.getIdMembro() != null){
+        if (sessaoBean.getIdMembro() != null) {
             daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_MEMBRO.
                     create(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), excecoes));
         }
@@ -225,18 +224,18 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public void removeNotificacao(Long notificacao){
+    public void removeNotificacao(Long notificacao) {
         SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), notificacao));
 
-        if (sn != null && (sn.getMembro() == null || sn.getMembro().equals(sessaoBean.getIdMembro()))){
+        if (sn != null && (sn.getMembro() == null || sn.getMembro().equals(sessaoBean.getIdMembro()))) {
             daoService.delete(SentNotification.class, sn.getId());
         }
 
-        if (sessaoBean.getIdMembro() != null){
+        if (sessaoBean.getIdMembro() != null) {
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_MEMBRO.
                     create(notificacao, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
-            for (SentNotification sn0 : sns){
+            for (SentNotification sn0 : sns) {
                 daoService.delete(SentNotification.class, sn0.getId());
             }
         }
@@ -249,7 +248,7 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.RELEASE_NOTES.create(tipo));
     }
 
-    private VersiculoDiario buscaVersiculoDiario(){
+    private VersiculoDiario buscaVersiculoDiario() {
         return daoService.findWith(QueryAdmin.VERSICULOS_POR_STATUS.
                 createSingle(sessaoBean.getChaveIgreja(), StatusVersiculoDiario.ATIVO));
     }
@@ -263,14 +262,14 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public Chamado solicita(Chamado chamado) {
-        if (sessaoBean.isAdmin()){
+        if (sessaoBean.isAdmin()) {
             chamado.setTipo(TipoChamado.SUPORTE);
 
             if (sessaoBean.getIdMembro() == null ||
-                    !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)){
+                    !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)) {
                 throw new ServiceException("mensagens.MSG-403");
             }
-        }else if (chamado.isSuporte()){
+        } else if (chamado.isSuporte()) {
             throw new ServiceException("mensagens.MSG-403");
         }
 
@@ -301,7 +300,7 @@ public class AppServiceImpl implements AppService {
         Chamado chamado = daoService.find(Chamado.class, id);
         if (chamado == null || !chamado.getIgrejaSolicitante().getChave().equals(sessaoBean.getChaveIgreja()) ||
                 (chamado.isSuporte() && (sessaoBean.getIdMembro() == null ||
-                        !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)))){
+                        !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)))) {
             throw new ServiceException("mensagens.MSG-403");
         }
         return chamado;
@@ -347,7 +346,7 @@ public class AppServiceImpl implements AppService {
         entidade.membro();
         entidade = daoService.update(entidade);
 
-        if (gerarSenha){
+        if (gerarSenha) {
             String senha = SenhaUtil.geraSenha(8);
 
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
@@ -415,7 +414,7 @@ public class AppServiceImpl implements AppService {
     public void removeMembro(Long membro) {
         Membro entidade = buscaMembro(membro);
 
-        if (!entidade.isMembro()){
+        if (!entidade.isMembro()) {
             entidade.exclui();
             daoService.update(entidade);
         }
@@ -427,7 +426,7 @@ public class AppServiceImpl implements AppService {
     public void redefinirSenha(Long membro) {
         Membro entidade = buscaMembro(membro);
 
-        if (entidade.isMembro()){
+        if (entidade.isMembro()) {
             String senha = SenhaUtil.geraSenha(8);
 
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
@@ -487,7 +486,7 @@ public class AppServiceImpl implements AppService {
 
         Acesso acesso = buscaAcessoAdmin(membro);
         if (acesso == null) {
-            if (!entidade.isMembro()){
+            if (!entidade.isMembro()) {
                 entidade = darAcessoMembro(membro);
             }
 
@@ -497,13 +496,75 @@ public class AppServiceImpl implements AppService {
         acesso.setPerfis(perfis);
         acesso.setMinisterios(ministerios);
 
-        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)){
+        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)) {
             if (entidade.getId().equals(sessaoBean.getIdMembro())) {
                 throw new ServiceException("mensagens.MSG-015");
             }
         }
 
         return daoService.update(acesso);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTEM_DEVOCIONARIO)
+    public BuscaPaginadaDTO<DiaDevocionario> buscaTodos(FiltroDevocionarioDTO filtro) {
+        return daoService.findWith(new FiltroDevocionario(sessaoBean.getChaveIgreja(), filtro));
+    }
+
+    @Override
+    public BuscaPaginadaDTO<DiaDevocionario> buscaPublicados(FiltroDevocionarioPublicadoDTO filtro) {
+        AcessoMarkerContext.funcionalidade(Funcionalidade.DEVOCIONARIO);
+
+        return buscaTodos(filtro);
+    }
+
+    @Override
+    public DiaDevocionario buscaDiaDevocionario(Long id) {
+        return daoService.find(DiaDevocionario.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTEM_DEVOCIONARIO)
+    public DiaDevocionario cadastra(DiaDevocionario diaDevocionario) {
+        diaDevocionario.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        diaDevocionario.setArquivo(arquivoService.buscaArquivo(diaDevocionario.getArquivo().getId()));
+        if (trataTrocaPDF(diaDevocionario)) {
+
+            diaDevocionario.processando();
+
+            batchServie.processaDevocional(diaDevocionario.getChaveIgreja(), diaDevocionario.getId());
+        }
+        return daoService.create(diaDevocionario);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTEM_DEVOCIONARIO)
+    public DiaDevocionario atualiza(DiaDevocionario diaDevocionario) {
+        diaDevocionario.setArquivo(arquivoService.buscaArquivo(diaDevocionario.getArquivo().getId()));
+        diaDevocionario.setUltimaAlteracao(DateUtil.getDataAtual());
+        if (trataTrocaPDF(diaDevocionario)) {
+            diaDevocionario.processando();
+
+            batchServie.processaBoletim(diaDevocionario.getChaveIgreja(), diaDevocionario.getId());
+        }
+        return daoService.update(diaDevocionario);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTEM_DEVOCIONARIO)
+    public void removeDiaDevocionario(Long dia) {
+        DiaDevocionario entidade = buscaDiaDevocionario(dia);
+
+        if (entidade != null) {
+            arquivoService.registraDesuso(entidade.getArquivo().getId());
+
+            if (entidade.getThumbnail() != null) {
+                arquivoService.registraDesuso(entidade.getThumbnail().getId());
+            }
+
+            daoService.delete(DiaDevocionario.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), entidade.getId()));
+        }
     }
 
     @Audit
@@ -603,7 +664,7 @@ public class AppServiceImpl implements AppService {
                     Membro outro = todos.get(0);
                     outro.exclui();
                     daoService.update(outro);
-                } else if (!entidade.getId().equals(todos.get(0).getId())){
+                } else if (!entidade.getId().equals(todos.get(0).getId())) {
                     entidade.exclui();
                     daoService.update(entidade);
                     entidade = todos.get(0);
@@ -726,7 +787,7 @@ public class AppServiceImpl implements AppService {
     public Boletim cadastra(Boletim boletim) throws IOException {
         boletim.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
-        if (trataTrocaPDF(boletim)){
+        if (trataTrocaPDF(boletim)) {
 
             boletim.processando();
 
@@ -737,12 +798,12 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_CIFRAS,Funcionalidade.MANTER_CANTICOS})
+    @AllowAdmin({Funcionalidade.MANTER_CIFRAS, Funcionalidade.MANTER_CANTICOS})
     public Cifra cadastra(Cifra cifra) throws IOException {
         cifra.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
 
-        if (trataTrocaPDF(cifra)){
+        if (trataTrocaPDF(cifra)) {
 
             cifra.processando();
 
@@ -766,11 +827,11 @@ public class AppServiceImpl implements AppService {
 
     @Override
     @AllowAdmin(Funcionalidade.MANTER_CIFRAS)
-    public String extraiTexto(Long idArquivo){
+    public String extraiTexto(Long idArquivo) {
         try {
             File file = EntityFileManager.get(arquivoService.buscaArquivo(idArquivo), "dados");
 
-            if (!file.exists()){
+            if (!file.exists()) {
                 throw new ServiceException("mensagens.MSG-403");
             }
 
@@ -790,12 +851,12 @@ public class AppServiceImpl implements AppService {
 
     private boolean trataTrocaPDF(final ArquivoPDF pdf) {
         if (!pdf.getPDF().isUsed()) {
-            if (pdf.getId() != null){
+            if (pdf.getId() != null) {
                 ArquivoPDF old = daoService.find(pdf.getClass(), new RegistroIgrejaId(sessaoBean.getChaveIgreja(), pdf.getId()));
                 List<Arquivo> pages = new ArrayList<Arquivo>();
                 if (old != null) {
                     arquivoService.registraDesuso(old.getPDF().getId());
-                    if (old.getThumbnail() != null){
+                    if (old.getThumbnail() != null) {
                         arquivoService.registraDesuso(old.getThumbnail().getId());
                     }
 
@@ -823,7 +884,7 @@ public class AppServiceImpl implements AppService {
     public Boletim atualiza(Boletim boletim) throws IOException {
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
         boletim.setUltimaAlteracao(DateUtil.getDataAtual());
-        if (trataTrocaPDF(boletim)){
+        if (trataTrocaPDF(boletim)) {
             boletim.processando();
 
             batchServie.processaBoletim(boletim.getChaveIgreja(), boletim.getId());
@@ -833,10 +894,10 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_CIFRAS,Funcionalidade.MANTER_CANTICOS})
+    @AllowAdmin({Funcionalidade.MANTER_CIFRAS, Funcionalidade.MANTER_CANTICOS})
     public Cifra atualiza(Cifra cifra) throws IOException {
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
-        if (trataTrocaPDF(cifra)){
+        if (trataTrocaPDF(cifra)) {
 
             cifra.processando();
 
@@ -878,14 +939,14 @@ public class AppServiceImpl implements AppService {
     public void removeBoletim(Long boletim) {
         Boletim entidade = buscaBoletim(boletim);
 
-        if (entidade != null){
+        if (entidade != null) {
             for (Arquivo page : entidade.getPaginas()) {
                 arquivoService.registraDesuso(page.getId());
             }
 
             arquivoService.registraDesuso(entidade.getBoletim().getId());
 
-            if (entidade.getThumbnail() != null){
+            if (entidade.getThumbnail() != null) {
                 arquivoService.registraDesuso(entidade.getThumbnail().getId());
             }
 
@@ -895,7 +956,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_CIFRAS,Funcionalidade.MANTER_CANTICOS})
+    @AllowAdmin({Funcionalidade.MANTER_CIFRAS, Funcionalidade.MANTER_CANTICOS})
     public void removeCifra(Long cifra) {
         Cifra entidade = buscaCifra(cifra);
 
@@ -928,7 +989,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTER_DADOS_INSTITUCIONAIS)
     public Institucional atualiza(Institucional institucional) {
-        if (institucional.getDivulgacao() != null){
+        if (institucional.getDivulgacao() != null) {
             institucional.setDivulgacao(arquivoService.buscaArquivo(institucional.getDivulgacao().getId()));
             arquivoService.registraUso(institucional.getDivulgacao().getId());
         }
@@ -984,7 +1045,7 @@ public class AppServiceImpl implements AppService {
         return estudo;
     }
 
-    private void scheduleRelatorioEstudo(Estudo estudo){
+    private void scheduleRelatorioEstudo(Estudo estudo) {
         try {
             Template template = daoService.find(Template.class, estudo.getIgreja().getChave());
 
@@ -1016,7 +1077,7 @@ public class AppServiceImpl implements AppService {
     private void trataAtualizacaoPDFEstudo(Estudo estudo) {
         if (estudo.getPDF() != null) {
             estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
-            if (trataTrocaPDF(estudo)){
+            if (trataTrocaPDF(estudo)) {
                 estudo.processando();
 
                 batchServie.processaEstudo(estudo.getChaveIgreja(), estudo.getId());
@@ -1137,7 +1198,7 @@ public class AppServiceImpl implements AppService {
     public void enviar(Notificacao notificacao) {
         notificacao.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
 
-        if (StringUtil.isEmpty(notificacao.getTitulo())){
+        if (StringUtil.isEmpty(notificacao.getTitulo())) {
             notificacao.setTitulo(
                     MessageFormat.format(
                             (String) paramService.get(notificacao.getIgreja().getChave(), TipoParametro.PUSH_TITLE_NOTIFICACAO),
@@ -1150,7 +1211,7 @@ public class AppServiceImpl implements AppService {
 
         FiltroDispositivoNotificacaoDTO filtro = new FiltroDispositivoNotificacaoDTO(notificacao.getIgreja());
         filtro.setApenasMembros(notificacao.isApenasMembros());
-        for (Ministerio m : notificacao.getMinisteriosAlvo()){
+        for (Ministerio m : notificacao.getMinisteriosAlvo()) {
             filtro.getMinisterios().add(m.getId());
         }
 
@@ -1236,7 +1297,7 @@ public class AppServiceImpl implements AppService {
     public void removeVotacao(Long votacao) {
         Votacao entidade = buscaVotacao(votacao);
 
-        if (entidade != null){
+        if (entidade != null) {
             daoService.execute(QueryAdmin.REMOVER_VOTOS.create(sessaoBean.getChaveIgreja(), votacao));
             daoService.execute(QueryAdmin.REMOVER_RESPOSTAS_OPCAO.create(sessaoBean.getChaveIgreja(), votacao));
             daoService.execute(QueryAdmin.REMOVER_RESPOSTAS_QUESTAO.create(sessaoBean.getChaveIgreja(), votacao));
@@ -1338,7 +1399,7 @@ public class AppServiceImpl implements AppService {
 
         AgendamentoAtendimento atendimento = daoService.create(new AgendamentoAtendimento(membro, horario, data));
 
-        if (!sessaoBean.isAdmin()){
+        if (!sessaoBean.isAdmin()) {
             enviaPush(new FiltroDispositivoNotificacaoDTO(atendimento.getIgreja(), atendimento.getCalendario().getPastor().getId()),
                     (String) paramService.get(atendimento.getIgreja().getChave(), TipoParametro.PUSH_TITLE_AGENDAMENTO),
                     MessageFormat.format(
@@ -1411,7 +1472,7 @@ public class AppServiceImpl implements AppService {
         agendamento = daoService.update(agendamento);
 
         if (sessaoBean.isAdmin() ||
-                agendamento.getCalendario().getPastor().getId().equals(sessaoBean.getIdMembro())){
+                agendamento.getCalendario().getPastor().getId().equals(sessaoBean.getIdMembro())) {
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getIgreja(),
                             agendamento.getMembro().getId()),
                     (String) paramService.get(agendamento.getIgreja().getChave(), TipoParametro.PUSH_TITLE_CANCELAMENTO_AGENDAMENTO),
@@ -1428,7 +1489,7 @@ public class AppServiceImpl implements AppService {
                                     agendamento.getIgreja().getLocale(),
                                     agendamento.getIgreja().getTimezone())),
                     TipoNotificacao.ACONSELHAMENTO, false);
-        }else{
+        } else {
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getIgreja(),
                             agendamento.getCalendario().getPastor().getId()),
                     (String) paramService.get(agendamento.getIgreja().getChave(), TipoParametro.PUSH_TITLE_CANCELAMENTO_AGENDAMENTO_MEMBRO),
@@ -1748,7 +1809,7 @@ public class AppServiceImpl implements AppService {
     public VersiculoDiario cadastra(VersiculoDiario versiculoDiario) {
         versiculoDiario.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         Number minimo = daoService.findWith(QueryAdmin.MENOR_ENVIO_VERSICULOS.createSingle(sessaoBean.getChaveIgreja()));
-        if (minimo != null){
+        if (minimo != null) {
             versiculoDiario.setEnvios(minimo.intValue());
         }
         return daoService.create(versiculoDiario);
@@ -1770,7 +1831,7 @@ public class AppServiceImpl implements AppService {
         VersiculoDiario entidade = buscaVersiculo(versiculo);
         entidade.habilitado();
         Number minimo = daoService.findWith(QueryAdmin.MENOR_ENVIO_VERSICULOS.createSingle(sessaoBean.getChaveIgreja()));
-        if (minimo != null){
+        if (minimo != null) {
             entidade.setEnvios(minimo.intValue());
         }
         return daoService.update(entidade);
@@ -1810,7 +1871,7 @@ public class AppServiceImpl implements AppService {
             Membro membro = buscaMembro(sessaoBean.getIdMembro());
 
             Number qtde = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento.getId()));
-            if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()){
+            if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()) {
                 throw new ServiceException("mensagens.MSG-034");
             }
 
@@ -1823,7 +1884,7 @@ public class AppServiceImpl implements AppService {
 
                     if (!outrasInscricoes.isEmpty() && !outrasInscricoes.contains(inscricao)) {
                         throw new ServiceException("O e-mail " + inscricao.getEmailInscrito() + " já está matriculado em " +
-                                outrasInscricoes.get(0).getEvento().getNome()+". Por favor, procure nossa equipe no estande EBD, aos domingos.");
+                                outrasInscricoes.get(0).getEvento().getNome() + ". Por favor, procure nossa equipe no estande EBD, aos domingos.");
                     }
                 }
 
@@ -1831,7 +1892,7 @@ public class AppServiceImpl implements AppService {
                 cadastradas.add(daoService.create(inscricao));
             }
 
-            if (sessaoBean.isAdmin()){
+            if (sessaoBean.isAdmin()) {
                 for (InscricaoEvento inscricao : cadastradas) {
                     inscricao.confirmada();
                     daoService.update(inscricao);
@@ -1844,14 +1905,14 @@ public class AppServiceImpl implements AppService {
                 }
 
                 ConfiguracaoIgrejaDTO configuracao = buscaConfiguracao();
-                if (configuracao != null && configuracao.isHabilitadoPagSeguro()){
+                if (configuracao != null && configuracao.isHabilitadoPagSeguro()) {
                     String referencia = sessaoBean.getChaveIgreja().toUpperCase() +
                             Long.toString(System.currentTimeMillis(), 36).toUpperCase();
 
                     PagSeguroService.Pedido pedido = new PagSeguroService.Pedido(referencia,
                             new PagSeguroService.Solicitante(membro.getNome(), membro.getEmail()));
 
-                    for (InscricaoEvento inscricao : inscricoes){
+                    for (InscricaoEvento inscricao : inscricoes) {
                         pedido.add(new PagSeguroService.ItemPedido(
                                 Long.toString(inscricao.getId(), 36).toUpperCase(),
                                 MessageFormat.format(
@@ -1902,27 +1963,27 @@ public class AppServiceImpl implements AppService {
         ValidationException validation = ValidationException.build();
 
         if (!StringUtil.isEmpty(configuracao.getTituloAniversario()) &&
-                configuracao.getTituloAniversario().length() > 30){
+                configuracao.getTituloAniversario().length() > 30) {
             validation.add("tituloAniversario", "mensagens.MSG-010");
         }
 
         if (!StringUtil.isEmpty(configuracao.getTituloBoletim()) &&
-                configuracao.getTituloBoletim().length() > 30){
+                configuracao.getTituloBoletim().length() > 30) {
             validation.add("tituloBoletim", "mensagens.MSG-010");
         }
 
         if (!StringUtil.isEmpty(configuracao.getTituloVersiculoDiario()) &&
-                configuracao.getTituloVersiculoDiario().length() > 30){
+                configuracao.getTituloVersiculoDiario().length() > 30) {
             validation.add("tituloVersiculoDiario", "mensagens.MSG-010");
         }
 
         if (!StringUtil.isEmpty(configuracao.getTextoAniversario()) &&
-                configuracao.getTextoAniversario().length() > 250){
+                configuracao.getTextoAniversario().length() > 250) {
             validation.add("textoAniversario", "mensagens.MSG-010");
         }
 
         if (!StringUtil.isEmpty(configuracao.getTextoBoletim()) &&
-                configuracao.getTextoBoletim().length() > 250){
+                configuracao.getTextoBoletim().length() > 250) {
             validation.add("textoBoletim", "mensagens.MSG-010");
         }
 
@@ -2053,7 +2114,7 @@ public class AppServiceImpl implements AppService {
             paramService.salvaConfiguracaoYouTube(config, sessaoBean.getChaveIgreja());
 
             Institucional institucional = recuperaInstitucional();
-            if (!institucional.getRedesSociais().containsKey("youtube")){
+            if (!institucional.getRedesSociais().containsKey("youtube")) {
                 institucional.getRedesSociais().put("youtube", "https://www.youtube.com/channel/" + config.getIdCanal());
                 daoService.update(institucional);
             }
@@ -2180,6 +2241,7 @@ public class AppServiceImpl implements AppService {
         plano.alterado();
         return daoService.update(plano);
     }
+
     private void preencheRelacionamentos(PlanoLeituraBiblica plano) {
         List<DiaLeituraBiblica> dias = new ArrayList<DiaLeituraBiblica>();
         for (DiaLeituraBiblica dia : plano.getDias()) {
@@ -2195,7 +2257,7 @@ public class AppServiceImpl implements AppService {
     public void removePlanoLeitura(Long idPlano) {
         PlanoLeituraBiblica plano = buscaPlanoLeitura(idPlano);
 
-        if (plano != null){
+        if (plano != null) {
             daoService.execute(QueryAdmin.REMOVE_OPCAO_PLANO.create(sessaoBean.getChaveIgreja(), idPlano));
             daoService.execute(QueryAdmin.REMOVE_MARCACAO_PLANO.create(sessaoBean.getChaveIgreja(), idPlano));
 
@@ -2219,9 +2281,9 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowMembro(Funcionalidade.CONSULTAR_PLANOS_LEITURA_BIBLICA)
     public BuscaPaginadaDTO<LeituraBibliaDTO> buscaPlanoSelecionado(Date ultimaAlteracao, int pagina, int total) {
-        if (ultimaAlteracao == null){
+        if (ultimaAlteracao == null) {
             ultimaAlteracao = DateUtil.getDataZero();
-        }else if (ultimaAlteracao.getTime() > System.currentTimeMillis()){
+        } else if (ultimaAlteracao.getTime() > System.currentTimeMillis()) {
             ultimaAlteracao = new Date();
         }
 
@@ -2229,7 +2291,7 @@ public class AppServiceImpl implements AppService {
                 LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(),
                 sessaoBean.getIdMembro(), new Date(ultimaAlteracao.getTime() + 1), total));
 
-        for (LeituraBibliaDTO leitura : busca.getResultados()){
+        for (LeituraBibliaDTO leitura : busca.getResultados()) {
             leitura.setLido((MarcacaoLeituraBiblica) daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
                     createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), leitura.getDia().getId())));
         }
@@ -2242,7 +2304,7 @@ public class AppServiceImpl implements AppService {
     public PlanoLeituraBiblica buscaPlanoSelecionado() {
         OpcaoLeituraBiblica opcao = daoService.findWith(QueryAdmin.OPCAO_PLANO_LEITURA_SELECIONADA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
-        if (opcao != null){
+        if (opcao != null) {
             return opcao.getPlanoLeitura();
         }
 
@@ -2254,7 +2316,7 @@ public class AppServiceImpl implements AppService {
     public void desselecionaPlano() {
         OpcaoLeituraBiblica opcao = daoService.findWith(QueryAdmin.OPCAO_PLANO_LEITURA_SELECIONADA.createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
 
-        if (opcao != null){
+        if (opcao != null) {
             opcao.encerra();
             daoService.update(opcao);
         }
@@ -2266,7 +2328,7 @@ public class AppServiceImpl implements AppService {
         MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
                 createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
 
-        if (marcacao != null){
+        if (marcacao != null) {
             daoService.delete(MarcacaoLeituraBiblica.class, marcacao.getId());
 
             return new LeituraBibliaDTO(marcacao.getDia(), false);
@@ -2283,10 +2345,10 @@ public class AppServiceImpl implements AppService {
         MarcacaoLeituraBiblica marcacao = daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
                 createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dia));
 
-        if (marcacao == null){
+        if (marcacao == null) {
             DiaLeituraBiblica diaLeitura = daoService.find(DiaLeituraBiblica.class, dia);
 
-            if (diaLeitura != null){
+            if (diaLeitura != null) {
                 marcacao = daoService.create(new MarcacaoLeituraBiblica(
                         daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro())),
                         diaLeitura));
@@ -2520,34 +2582,33 @@ public class AppServiceImpl implements AppService {
         flickrService.devinculaFlickr(sessaoBean.getChaveIgreja());
     }
 
-    @Schedule(hour = "*", minute = "0/15")
+    @Schedule(hour = "*", minute = "0/15", persistent = false)
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
             ConfiguracaoIgrejaDTO configuracao = paramService.buscaConfiguracao(igreja.getChave());
-            if (configuracao != null && configuracao.isPagSeguroConfigurado()){
+            if (configuracao != null && configuracao.isPagSeguroConfigurado()) {
                 List<String> referencias = daoService.findWith(QueryAdmin.REFERENCIAS_INSCRICOES_PENDENTES.create(igreja.getChave()));
 
-                for (String referencia : referencias){
+                for (String referencia : referencias) {
                     atualizaSituacaoPagSeguro(referencia, configuracao);
                 }
             }
         }
     }
 
-    public void atualizaSituacaoPagSeguro(String referencia, ConfiguracaoIgrejaDTO configuracao){
-        switch (pagSeguroService.getStatusPagamento(referencia, configuracao)){
-            case PAGO:
-            {
+    public void atualizaSituacaoPagSeguro(String referencia, ConfiguracaoIgrejaDTO configuracao) {
+        switch (pagSeguroService.getStatusPagamento(referencia, configuracao)) {
+            case PAGO: {
                 List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
 
-                if (!inscricoes.isEmpty()){
+                if (!inscricoes.isEmpty()) {
                     Membro membro = inscricoes.get(0).getMembro();
                     Evento evento = inscricoes.get(0).getEvento();
                     Institucional institucional = daoService.find(Institucional.class, evento.getIgreja().getChave());
                     BigDecimal total = BigDecimal.ZERO;
 
-                    for (InscricaoEvento inscricao : inscricoes){
+                    for (InscricaoEvento inscricao : inscricoes) {
                         inscricao.confirmada();
                         daoService.update(inscricao);
                         total = total.add(inscricao.getValor());
@@ -2574,10 +2635,9 @@ public class AppServiceImpl implements AppService {
 
             }
             break;
-            case CANCELADO:
-            {
+            case CANCELADO: {
                 List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
-                for (InscricaoEvento inscricao : inscricoes){
+                for (InscricaoEvento inscricao : inscricoes) {
                     inscricao.cancelada();
                     daoService.update(inscricao);
                     scheduleRelatoriosInscritos(inscricao.getEvento());
@@ -2587,7 +2647,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaVersiculos() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
@@ -2595,14 +2655,14 @@ public class AppServiceImpl implements AppService {
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
 
             VersiculoDiario atual = daoService.findWith(QueryAdmin.VERSICULOS_POR_STATUS.createSingle(igreja.getId(), StatusVersiculoDiario.ATIVO));
-            if (atual == null || !DateUtil.equalsSemHoras(atual.getUltimoEnvio(), new Date())){
-                if (atual != null){
+            if (atual == null || !DateUtil.equalsSemHoras(atual.getUltimoEnvio(), new Date())) {
+                if (atual != null) {
                     atual.habilitado();
                     atual = daoService.update(atual);
                 }
 
                 VersiculoDiario versiculo = daoService.findWith(QueryAdmin.SORTEIA_VERSICULO.createSingle(igreja.getId()));
-                if (versiculo != null){
+                if (versiculo != null) {
                     versiculo.ativo();
                     atual = daoService.update(versiculo);
                 }
@@ -2610,9 +2670,9 @@ public class AppServiceImpl implements AppService {
 
             String titulo = paramService.get(igreja.getChave(), TipoParametro.PUSH_TITLE_VERSICULO_DIARIO);
 
-            if (atual != null && atual.isAtivo()){
-                for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
-                    if (hev.getHoraInt().equals(hora)){
+            if (atual != null && atual.isAtivo()) {
+                for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()) {
+                    if (hev.getHoraInt().equals(hora)) {
                         enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev),
                                 titulo, atual.getVersiculo(), TipoNotificacao.VERSICULO, true);
                         break;
@@ -2622,32 +2682,32 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaLembreteLeituraBiblica() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
 
-            for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
-                if (hev.getHoraInt().equals(hora)){
+            for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()) {
+                if (hev.getHoraInt().equals(hora)) {
                     String titulo = paramService.get(igreja.getChave(), TipoParametro.PUSH_TITLE_LEMBRETE_LEITURA_BIBLICA);
 
                     FiltroPlanoLeituraBiblicaDTO filtro = new FiltroPlanoLeituraBiblicaDTO();
                     BuscaPaginadaDTO<PlanoLeituraBiblica> busca;
-                    do{
+                    do {
                         busca = daoService.findWith(new FiltroPlanoLeituraBiblica(igreja.getId(), false, filtro));
 
-                        for (PlanoLeituraBiblica plano : busca){
+                        for (PlanoLeituraBiblica plano : busca) {
                             DiaLeituraBiblica dia = daoService.findWith(QueryAdmin.DIA_PLANO.createSingle(igreja.getId(), plano.getId(), cal.getTime()));
-                            if (dia != null && !StringUtil.isEmpty(dia.getDescricao())){
+                            if (dia != null && !StringUtil.isEmpty(dia.getDescricao())) {
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, hev, plano.getId()),
                                         titulo, dia.getDescricao(), TipoNotificacao.PLANO_LEITURA, false);
                             }
                         }
 
                         filtro.setPagina(filtro.getPagina() + 1);
-                    }while(busca.isHasProxima());
+                    } while (busca.isHasProxima());
 
                     break;
                 }
@@ -2655,7 +2715,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaParabensAniversario() {
         LOGGER.info("Iniciando envio de notificações de aniversário.");
 
@@ -2667,12 +2727,12 @@ public class AppServiceImpl implements AppService {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
 
-            if (hora.equals(12)){
+            if (hora.equals(12)) {
                 LOGGER.info("Prepara envio de notificações de aniversário para " + igreja.getChave());
 
                 List<Membro> aniversariantes = daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(igreja.getChave()));
 
-                for (Membro membro : aniversariantes){
+                for (Membro membro : aniversariantes) {
                     String titulo = paramService.get(igreja.getChave(), TipoParametro.PUSH_TITLE_ANIVERSARIO);
 
                     String texto = MessageFormat.format(
@@ -2687,7 +2747,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesPublicacoes() {
         LOGGER.info("Iniciando envio de notificações de publicações.");
 
@@ -2720,7 +2780,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesBoletins() {
         LOGGER.info("Iniciando envio de notificações de boletins.");
 
@@ -2753,13 +2813,13 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesEstudos() {
         LOGGER.info("Iniciando envio de notificações de estudos.");
 
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_ESTUDOS_A_DIVULGAR.create());
 
-        LOGGER.info(igrejas.size() +" igrejas encontrada para notificação de estudos.");
+        LOGGER.info(igrejas.size() + " igrejas encontrada para notificação de estudos.");
 
         for (Igreja igreja : igrejas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
@@ -2786,13 +2846,13 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesNoticias() {
         LOGGER.info("Iniciando envio de notificações de notícia.");
 
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create());
 
-        LOGGER.info(igrejas.size() +" igrejas encontrada para notificação de notícias.");
+        LOGGER.info(igrejas.size() + " igrejas encontrada para notificação de notícias.");
 
         for (Igreja igreja : igrejas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
@@ -2819,39 +2879,39 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*/5")
+    @Schedule(hour = "*", minute = "*/5", persistent = false)
     public void enviaNotificacoesYouTubeAoVivo() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
             ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
-            if (config.isConfigurado()){
-                try{
+            if (config.isConfigurado()) {
+                try {
                     List<VideoDTO> streamings = googleService.buscaStreamsAtivosYouTube(igreja.getChave());
 
-                    for (VideoDTO video : streamings){
-                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()){
+                    for (VideoDTO video : streamings) {
+                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()) {
                             Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
 
-                            try{
+                            try {
                                 String titulo = config.getTituloAoVivo();
 
                                 String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
-                            }catch(Exception e){
+                            } catch (Exception e) {
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
                                 throw e;
                             }
                         }
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + igreja.getChave(), e);
                 }
             }
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesYouTubeAgendados() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
@@ -2860,19 +2920,19 @@ public class AppServiceImpl implements AppService {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
-            if (config.isConfigurado()){
-                try{
+            if (config.isConfigurado()) {
+                try {
                     List<VideoDTO> streamings = googleService.buscaStreamsAgendadosYouTube(igreja.getChave());
 
-                    for (VideoDTO video : streamings){
+                    for (VideoDTO video : streamings) {
                         if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
                                 DateUtil.equalsSemHoras(DateUtil.getDataAtual(), video.getAgendamento()) &&
                                 // Verifica se está em horário útil para fazer a notificação
-                                horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO){
+                                horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
 
                             Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
 
-                            try{
+                            try {
                                 String horario = mensagemBuilder.formataHora(video.getAgendamento(), igreja.getLocale(), igreja.getTimezone());
 
                                 String titulo = MessageFormat.format(config.getTituloAoVivo(), video.getTitulo(), horario);
@@ -2881,13 +2941,13 @@ public class AppServiceImpl implements AppService {
                                         video.getTitulo(), horario);
 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
-                            }catch(Exception e){
+                            } catch (Exception e) {
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
                                 throw e;
                             }
                         }
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos agendados para " + igreja.getChave(), e);
                 }
             }
@@ -2912,7 +2972,6 @@ public class AppServiceImpl implements AppService {
         notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null,
                 new QueryParameters("tipo", tipo).set("compartilhavel", compartilhavel)), filtro);
     }
-
 
 
 }

@@ -245,4 +245,10 @@ public interface AppService extends Serializable {
     List<EstatisticaDispositivo> buscaEstatisticasDispositivos();
     List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade);
 
+    BuscaPaginadaDTO<DiaDevocionario> buscaTodos(FiltroDevocionarioDTO filtro);
+    BuscaPaginadaDTO<DiaDevocionario> buscaPublicados(FiltroDevocionarioPublicadoDTO filtro);
+    DiaDevocionario buscaDiaDevocionario(Long id);
+    DiaDevocionario cadastra(DiaDevocionario diaDevocionario);
+    DiaDevocionario atualiza(DiaDevocionario entidade);
+    void removeDiaDevocionario(Long dia);
 }

@@ -65,7 +65,7 @@ public class MensagemServiceImpl implements MensagemService {
     private static List<String> DISPOSITIVOS_LIDOS = new ArrayList<String>();
     private static List<RegistroIgrejaId> MEMBROS_LIDOS = new ArrayList<RegistroIgrejaId>();
 
-    @Schedule(minute = "*/5", hour = "*")
+    @Schedule(minute = "*/5", hour = "*", persistent = false)
     public void enviaPushAgendados(){
         List<NotificationSchedule> notificacoes = daoService.
                 findWith(QueryNotificacao.NOTIFICACOES_A_EXECUTAR.create(NotificationType.PUSH));
@@ -117,7 +117,7 @@ public class MensagemServiceImpl implements MensagemService {
     }
 
 
-    @Schedule(hour = "*", minute = "0/5")
+    @Schedule(hour = "*", minute = "0/5", persistent = false)
     public void flushNotificacoesLidas(){
         {
             Set<String> flush = new HashSet<String>();
@@ -202,7 +202,7 @@ public class MensagemServiceImpl implements MensagemService {
                 createSingle(chaveIgreja, chaveDispositivo));
     }
 
-    @Schedule(minute = "*/5", hour = "*")
+    @Schedule(minute = "*/5", hour = "*", persistent = false)
     public void enviaEmailsAgendados(){
         List<NotificationSchedule> notificacoes = daoService.
                 findWith(QueryNotificacao.NOTIFICACOES_A_EXECUTAR.create(NotificationType.EMAIL));
