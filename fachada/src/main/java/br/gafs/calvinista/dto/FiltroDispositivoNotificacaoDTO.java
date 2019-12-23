@@ -12,6 +12,7 @@ import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dto.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.List;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     @JsonView(Resumido.class)
     private List<Long> ministerios = new ArrayList<Long>();
