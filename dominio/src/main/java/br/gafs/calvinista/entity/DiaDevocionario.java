@@ -1,5 +1,6 @@
 package br.gafs.calvinista.entity;
 
+import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.calvinista.entity.domain.StatusDiaDevocionario;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
@@ -106,4 +107,17 @@ public class DiaDevocionario implements ArquivoPDF {
     public void processando() {
         status = StatusDiaDevocionario.PROCESSANDO;
     }
+
+    public boolean isPublicado() {
+        return StatusBoletim.PUBLICADO.equals(status);
+    }
+
+    public boolean isProcessando() {
+        return StatusBoletim.PROCESSANDO.equals(status);
+    }
+
+    public boolean isRejeitado() {
+        return StatusBoletim.REJEITADO.equals(status);
+    }
+
 }
