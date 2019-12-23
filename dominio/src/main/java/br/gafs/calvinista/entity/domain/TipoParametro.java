@@ -42,6 +42,8 @@ public enum TipoParametro {
     PUSH_BODY_ANIVERSARIO(TipoValor.VALOR, String.class, "Olá, {0}.\nNo dia do seu aniversário queremos desejar a você muitas bençãos de Deus, junto aos seus queridos. Parabéns! Felicidades!\nSão os votos da sua {1}."),
     PUSH_TITLE_PUBLICACAO(TipoValor.VALOR, String.class, "Nova Publicação!"),
     PUSH_BODY_PUBLICACAO(TipoValor.VALOR, String.class, "Veja agora a nova publicação ''{1}'' da {0}."),
+    PUSH_TITLE_DEVOCIONARIO(TipoValor.VALOR, String.class, "Lembrete de Devocionário!"),
+    PUSH_BODY_DEVOCIONARIO(TipoValor.VALOR, String.class, "Veja agora o devocional de hoje da {0}."),
     PUSH_TITLE_BOLETIM(TipoValor.VALOR, String.class, "Novo Boletim!"),
     PUSH_BODY_BOLETIM(TipoValor.VALOR, String.class, "Veja agora a nova edição do Boletim ''{1}'' da {0}."),
     PUSH_TITLE_ESTUDO(TipoValor.VALOR, String.class, "Novo Estudo!"),

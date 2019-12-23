@@ -41,6 +41,10 @@ public class FiltroDispositivoNotificacao implements Queries.NativeQuery {
             where.append(" and mi.id_ministerio in ").append(mins);
         }
 
+        if (filtro.isDevocionario()) {
+            where.append(" and p.deseja_receber_notificacoes_devocionario = true");
+        }
+
         if (filtro.isApenasMembros()){
             where.append(" and d.id_membro is not null");
         }

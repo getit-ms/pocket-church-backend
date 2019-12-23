@@ -21,4 +21,5 @@ public enum TipoNotificacao {
     PEDIDO_ORACAO,
     PLANO_LEITURA,
     YOUTUBE,
+    DEVOCIONARIO,
 }

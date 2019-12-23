@@ -12,6 +12,7 @@ import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.dto.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +25,7 @@ import java.util.List;
  * @author Gabriel
  */
 @Data
+@Builder
 @NoArgsConstructor
 public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     @JsonView(Resumido.class)
@@ -46,6 +48,8 @@ public class FiltroDispositivoNotificacaoDTO implements DTO, Cloneable {
     private boolean desejaReceberNotificacoesVideos;
     @JsonView(Resumido.class)
     private Long idPlanoLeiuraBiblica;
+    @JsonView(Resumido.class)
+    private boolean devocionario;
 
     public FiltroDispositivoNotificacaoDTO(Igreja igreja) {
         this.igreja = igreja;

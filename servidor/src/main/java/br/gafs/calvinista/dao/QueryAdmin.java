@@ -222,6 +222,15 @@ public enum QueryAdmin {
         }
 
     },
+    IGREJAS_ATIVAS_COM_DEVOCIONARIO_A_DIVULGAR("DiaDevocionario.findIgrejaByStatusAndDataPublicacao"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusIgreja", StatusIgreja.ATIVO)
+                    .set("statusDiaDevocionario", StatusDiaDevocionario.PUBLICADO)
+                    .set("data", DateUtil.retirarHora(DateUtil.getDataAtual()));
+        }
+    },
     IGREJAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("Boletim.findIgrejaByStatusAndDataPublicacao"){
 
         @Override
@@ -371,6 +380,13 @@ public enum QueryAdmin {
                     set("data", DateUtil.getDataAtual());
         }
 
+    },
+    DEVOCIONARIO_POR_IGREJA_DATA("DiaDevocionario.findByIgrejaAndData", "igreja", "data") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("data", DateUtil.retirarHora((Date) args[1]));
+        }
     },
     BOLETIM_A_DIVULGAR_POR_IGREJA("Boletim.findUltimoADivulgar", "igreja"){
 

@@ -2781,6 +2781,37 @@ public class AppServiceImpl implements AppService {
     }
 
     @Schedule(hour = "*", persistent = false)
+    public void enviaNotificacoesDevocionarios() {
+        LOGGER.info("Iniciando envio de notificações de devocionário.");
+
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS_COM_DEVOCIONARIO_A_DIVULGAR.create());
+
+        LOGGER.info(igrejas.size() + " igrejas encontradas para envio de notificações de devocionário.");
+
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                LOGGER.info("Preparando envio de notificações de devocionário para " + igreja.getChave());
+
+                String titulo = paramService.get(igreja.getChave(), TipoParametro.PUSH_TITLE_DEVOCIONARIO);
+
+                String texto = MessageFormat.format(
+                        (String) paramService.get(igreja.getChave(), TipoParametro.PUSH_BODY_DEVOCIONARIO),
+                        igreja.getNome());
+
+                enviaPush(FiltroDispositivoNotificacaoDTO.builder().igreja(igreja).devocionario(true).build(),
+                        titulo, texto, TipoNotificacao.DEVOCIONARIO, false);
+
+                daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
+            } else {
+                LOGGER.info("Hora fora do limite de envio de notificações de devocionário para " + igreja.getChave());
+            }
+        }
+    }
+
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesBoletins() {
         LOGGER.info("Iniciando envio de notificações de boletins.");
 
