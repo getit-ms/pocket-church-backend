@@ -529,26 +529,41 @@ public class AppServiceImpl implements AppService {
     public DiaDevocionario cadastra(DiaDevocionario diaDevocionario) {
         diaDevocionario.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         diaDevocionario.setArquivo(arquivoService.buscaArquivo(diaDevocionario.getArquivo().getId()));
-        if (trataTrocaPDF(diaDevocionario)) {
 
+        boolean trocouPDF = trataTrocaPDF(diaDevocionario);
+
+        if (trocouPDF) {
             diaDevocionario.processando();
-
-            batchServie.processaDevocional(diaDevocionario.getChaveIgreja(), diaDevocionario.getId());
         }
-        return daoService.create(diaDevocionario);
+
+        DiaDevocionario salvo = daoService.create(diaDevocionario);
+
+        if (trocouPDF) {
+            batchServie.processaDevocional(diaDevocionario.getChaveIgreja(), salvo.getId());
+        }
+
+        return salvo;
     }
 
     @Override
     @AllowAdmin(Funcionalidade.MANTEM_DEVOCIONARIO)
     public DiaDevocionario atualiza(DiaDevocionario diaDevocionario) {
+        diaDevocionario.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         diaDevocionario.setArquivo(arquivoService.buscaArquivo(diaDevocionario.getArquivo().getId()));
-        diaDevocionario.setUltimaAlteracao(DateUtil.getDataAtual());
-        if (trataTrocaPDF(diaDevocionario)) {
-            diaDevocionario.processando();
 
-            batchServie.processaBoletim(diaDevocionario.getChaveIgreja(), diaDevocionario.getId());
+        boolean trocouPDF = trataTrocaPDF(diaDevocionario);
+
+        if (trocouPDF) {
+            diaDevocionario.processando();
         }
-        return daoService.update(diaDevocionario);
+
+        DiaDevocionario salvo = daoService.update(diaDevocionario);
+
+        if (trocouPDF) {
+            batchServie.processaDevocional(diaDevocionario.getChaveIgreja(), salvo.getId());
+        }
+
+        return salvo;
     }
 
     @Override
@@ -787,13 +802,19 @@ public class AppServiceImpl implements AppService {
     public Boletim cadastra(Boletim boletim) throws IOException {
         boletim.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
-        if (trataTrocaPDF(boletim)) {
 
+        boolean trataPDF = trataTrocaPDF(boletim);
+        if (trataPDF) {
             boletim.processando();
+        }
 
+        Boletim entidade = daoService.create(boletim);
+
+        if (trataPDF) {
             batchServie.processaBoletim(boletim.getChaveIgreja(), boletim.getId());
         }
-        return daoService.create(boletim);
+
+        return entidade;
     }
 
     @Audit
@@ -803,15 +824,18 @@ public class AppServiceImpl implements AppService {
         cifra.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
 
-        if (trataTrocaPDF(cifra)) {
-
+        boolean trataPDF = trataTrocaPDF(cifra);
+        if (trataPDF) {
             cifra.processando();
-
-            batchServie.processaCifra(cifra.getChaveIgreja(), cifra.getId());
-
         }
 
-        return daoService.create(cifra);
+        Cifra salvo = daoService.create(cifra);
+
+        if (trataPDF) {
+            batchServie.processaCifra(cifra.getChaveIgreja(), cifra.getId());
+        }
+
+        return salvo;
     }
 
     @Override
@@ -1036,11 +1060,15 @@ public class AppServiceImpl implements AppService {
 
         estudo.setMembro(buscaMembro(sessaoBean.getIdMembro()));
 
-        trataAtualizacaoPDFEstudo(estudo);
+        boolean trataPDF = trataAtualizacaoPDFEstudo(estudo);
 
         estudo = daoService.create(estudo);
 
         scheduleRelatorioEstudo(estudo);
+
+        if (trataPDF) {
+            batchServie.processaEstudo(estudo.getChaveIgreja(), estudo.getId());
+        }
 
         return estudo;
     }
@@ -1066,25 +1094,33 @@ public class AppServiceImpl implements AppService {
 
         estudo.alterado();
 
-        trataAtualizacaoPDFEstudo(estudo);
+        boolean trataPDF = trataAtualizacaoPDFEstudo(estudo);
 
         estudo = daoService.update(estudo);
+
         scheduleRelatorioEstudo(estudo);
+
+        if (trataPDF) {
+            batchServie.processaEstudo(estudo.getChaveIgreja(), estudo.getId());
+        }
 
         return estudo;
     }
 
-    private void trataAtualizacaoPDFEstudo(Estudo estudo) {
+    private boolean trataAtualizacaoPDFEstudo(Estudo estudo) {
         if (estudo.getPDF() != null) {
             estudo.setPdf(arquivoService.buscaArquivo(estudo.getPDF().getId()));
+
             if (trataTrocaPDF(estudo)) {
                 estudo.processando();
 
-                batchServie.processaEstudo(estudo.getChaveIgreja(), estudo.getId());
+                return true;
             }
         } else {
             estudo.publicado();
         }
+
+        return false;
     }
 
     @Override
