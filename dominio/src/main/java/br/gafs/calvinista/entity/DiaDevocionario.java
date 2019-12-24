@@ -109,15 +109,15 @@ public class DiaDevocionario implements ArquivoPDF {
     }
 
     public boolean isPublicado() {
-        return StatusBoletim.PUBLICADO.equals(status);
+        return StatusDiaDevocionario.PUBLICADO.equals(status);
     }
 
     public boolean isProcessando() {
-        return StatusBoletim.PROCESSANDO.equals(status);
+        return StatusDiaDevocionario.PROCESSANDO.equals(status);
     }
 
     public boolean isRejeitado() {
-        return StatusBoletim.REJEITADO.equals(status);
+        return StatusDiaDevocionario.REJEITADO.equals(status);
     }
 
 }
