@@ -129,6 +129,7 @@ public class BatchService {
         return new EntradasBuilder();
     }
 
+    @Asynchronous
     public void processaDevocional(String igreja, Long devocional) {
         executeService("processa-devocional", "Processamento de Devocional " + igreja + " " + devocional,
                 entradas().set("IGREJA", igreja).set("DEVOCIONAL", devocional.toString()));
