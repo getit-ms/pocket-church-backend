@@ -46,7 +46,7 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     @GeneratedValue(generator = "seq_arquivo", strategy = GenerationType.SEQUENCE)
     private Long id;
     
-    @JsonView(Detalhado.class)
+    @JsonView(Resumido.class)
     @Column(name = "nome", length = 150, nullable = false, updatable = false)
     private String nome;
     
