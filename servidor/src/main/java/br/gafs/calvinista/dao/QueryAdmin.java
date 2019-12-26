@@ -183,7 +183,7 @@ public enum QueryAdmin {
         protected int extractResultLimit(Object... args) {
             return 10;
         }
-    }, 
+    },
     UPDATE_BOLETINS_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"){
 
         @Override
@@ -192,7 +192,7 @@ public enum QueryAdmin {
                     .set("data", DateUtil.getDataAtual())
                     .set("tipo", TipoBoletim.BOLETIM);
         }
-        
+
     },
     UPDATE_PUBLICACOES_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja"){
 

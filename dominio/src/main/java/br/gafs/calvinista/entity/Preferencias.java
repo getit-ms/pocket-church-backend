@@ -79,6 +79,12 @@ public class Preferencias implements IEntity {
     private boolean desejaReceberLembreteLeitura = true;
 
     @Setter
+    @Enumerated(EnumType.ORDINAL)
+    @View.MergeViews(View.Edicao.class)
+    @Column(name = "hora_lembrete_leitura")
+    private HorasEnvioNotificacao horaLembreteLeitura = HorasEnvioNotificacao._14_00;
+
+    @Setter
     @View.MergeViews(View.Edicao.class)
     @Column(name = "deseja_receber_notificacoes_devocionario")
     private boolean desejaReceberNotificacoesDevocionario = true;
@@ -86,8 +92,8 @@ public class Preferencias implements IEntity {
     @Setter
     @Enumerated(EnumType.ORDINAL)
     @View.MergeViews(View.Edicao.class)
-    @Column(name = "hora_lembrete_leitura")
-    private HorasEnvioNotificacao horaLembreteLeitura = HorasEnvioNotificacao._14_00;
+    @Column(name = "hora_notificacoes_devocionario")
+    private HorasEnvioNotificacao horaNotificacoesDevocional = HorasEnvioNotificacao._14_00;
 
     @Setter
     @ManyToMany
@@ -144,5 +150,6 @@ public class Preferencias implements IEntity {
         outro.setMinisteriosInteresse(ministeriosInteresse);
         outro.setHoraVersiculoDiario(horaVersiculoDiario);
         outro.setHoraLembreteLeitura(horaLembreteLeitura);
+        outro.setHoraNotificacoesDevocional(horaNotificacoesDevocional);
     }
 }

@@ -2828,23 +2828,25 @@ public class AppServiceImpl implements AppService {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
-            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
-                LOGGER.info("Preparando envio de notificações de devocionário para " + igreja.getChave());
+            for (HorasEnvioNotificacao hora : HorasEnvioNotificacao.values()) {
+                if (hora.getHoraInt().equals(horaAtual)) {
+                    LOGGER.info("Preparando envio de notificações de devocionário para " + igreja.getChave());
 
-                String titulo = paramService.get(igreja.getChave(), TipoParametro.PUSH_TITLE_DEVOCIONARIO);
+                    String titulo = paramService.get(igreja.getChave(), TipoParametro.PUSH_TITLE_DEVOCIONARIO);
 
-                String texto = MessageFormat.format(
-                        (String) paramService.get(igreja.getChave(), TipoParametro.PUSH_BODY_DEVOCIONARIO),
-                        igreja.getNome());
+                    String texto = MessageFormat.format(
+                            (String) paramService.get(igreja.getChave(), TipoParametro.PUSH_BODY_DEVOCIONARIO),
+                            igreja.getNome());
 
-                enviaPush(FiltroDispositivoNotificacaoDTO.builder().igreja(igreja).devocionario(true).build(),
-                        titulo, texto, TipoNotificacao.DEVOCIONARIO, false);
-
-                daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
-            } else {
-                LOGGER.info("Hora fora do limite de envio de notificações de devocionário para " + igreja.getChave());
+                    enviaPush(FiltroDispositivoNotificacaoDTO.builder()
+                                    .igreja(igreja)
+                                    .hora(hora)
+                                    .devocionario(true)
+                                    .build(),
+                            titulo, texto, TipoNotificacao.DEVOCIONARIO, false);
+                }
             }
-        }
+    }
     }
 
     @Schedule(hour = "*", persistent = false)

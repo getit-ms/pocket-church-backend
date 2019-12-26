@@ -1,6 +1,5 @@
 package br.gafs.calvinista.entity;
 
-import br.gafs.calvinista.entity.domain.StatusBoletim;
 import br.gafs.calvinista.entity.domain.StatusDiaDevocionario;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
@@ -22,9 +21,8 @@ import java.util.List;
 @Table(name = "tb_dia_devocionario")
 @EqualsAndHashCode(of = {"id", "chaveIgreja"})
 @NamedQueries({
-        @NamedQuery(name = "DiaDevocionario.findIgrejaByStatusAndDataPublicacao", query = "select i from DiaDevocionario dd inner join dd.igreja i where i.status = :statusIgreja and dd.status = :statusDiaDevocionario and dd.data = :data and dd.divulgado = false group by i"),
+        @NamedQuery(name = "DiaDevocionario.findIgrejaByStatusAndDataPublicacao", query = "select i from DiaDevocionario dd inner join dd.igreja i where i.status = :statusIgreja and dd.status = :statusDiaDevocionario and dd.data = :data group by i"),
         @NamedQuery(name = "DiaDevocionario.findByIgrejaAndData", query = "select dd from DiaDevocionario dd inner join dd.igreja i where i.chave = :igreja and dd.data = :data"),
-        @NamedQuery(name = "DiaDevocionario.updateNaoDivulgadosByIgreja", query = "update DiaDevocionario dd set dd.divulgado = true where dd.data = :data and dd.igreja.chave = :igreja"),
 })
 public class DiaDevocionario implements ArquivoPDF {
     @Id
@@ -50,10 +48,6 @@ public class DiaDevocionario implements ArquivoPDF {
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
     private Igreja igreja;
-
-    @JsonView(View.Detalhado.class)
-    @Column(name = "divulgado", nullable = false)
-    private boolean divulgado;
 
     @JsonView(View.Detalhado.class)
     @Enumerated(EnumType.ORDINAL)
