@@ -23,6 +23,7 @@ import br.gafs.pocket.corporate.security.AuditoriaInterceptor;
 import br.gafs.pocket.corporate.service.AcessoService;
 import br.gafs.pocket.corporate.service.ArquivoService;
 import br.gafs.pocket.corporate.service.MensagemService;
+import br.gafs.pocket.corporate.service.ParametroService;
 import br.gafs.pocket.corporate.util.JWTManager;
 import br.gafs.pocket.corporate.util.MensagemBuilder;
 import br.gafs.util.senha.SenhaUtil;
@@ -47,7 +48,7 @@ public class AcessoServiceImpl implements AcessoService {
     private DAOService daoService;
 
     @EJB
-    private ParametroServiceImpl paramService;
+    private ParametroService paramService;
     
     @EJB
     private MensagemService mensagemService;
