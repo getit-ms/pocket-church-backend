@@ -312,7 +312,7 @@ public enum QueryAdmin {
         }
 
     },
-    BOLETIM_A_DIVULGAR_POR_EMPRESA("Boletim.findUltimoADivulgar", "empresa"){
+    BOLETIM_A_DIVULGAR_POR_EMPRESA("BoletimInformativo.findUltimoADivulgar", "empresa"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
@@ -322,7 +322,7 @@ public enum QueryAdmin {
                     set("data", DateUtil.getDataAtual());
         }
     },
-    PUBLICACAO_A_DIVULGAR_POR_EMPRESA("Boletim.findUltimoADivulgar", "empresa"){
+    PUBLICACAO_A_DIVULGAR_POR_EMPRESA("BoletimInformativo.findUltimoADivulgar", "empresa"){
 
         @Override
         protected QueryParameters extractArguments(Object... args) {
