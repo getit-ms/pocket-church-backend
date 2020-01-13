@@ -9,6 +9,7 @@ import br.gafs.pocket.corporate.dto.FiltroColaboradorDTO;
 import br.gafs.pocket.corporate.entity.domain.StatusColaborador;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
+import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
@@ -35,8 +36,14 @@ public class FiltroColaborador extends AbstractPaginatedFiltro<FiltroColaborador
         }
 
         if (filtro.isAcessoRecente()) {
-            where.append(" abd exists (select d from Dispositivo d where d.colaborador = m and d.ultimoAcesso >= :limiteAcesso)");
+            where.append(" and exists (select d from Dispositivo d where d.colaborador = m and d.tipo in :tiposDispositivo and d.ultimoAcesso >= :limiteAcesso)");
             args.put("limiteAcesso", DateUtil.decrementaMeses(new Date(), 1));
+            args.put("tiposDispositivo", Arrays.asList(
+                    TipoDispositivo.ANDROID,
+                    TipoDispositivo.ANDROID_FIREBASE,
+                    TipoDispositivo.IPHONE,
+                    TipoDispositivo.IPHONE_FIREBASE
+            ));
         }
 
         if (!StringUtil.isEmpty(filtro.getFiltro())) {
