@@ -56,7 +56,7 @@ public class BatchService {
     private String tokenConexao;
 
     @PostConstruct
-    @Schedule(hour = "*/12")
+    @Schedule(hour = "*/12", persistent = false)
     public void autentica() {
         LOGGER.info("Preparando para autenticar para batch");
 

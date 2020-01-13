@@ -43,7 +43,7 @@ public class FlickrService {
 
     private static final Map<String, CacheDTO<OAuth1RequestToken>> CACHE_TOKEN = new HashMap<>();
 
-    @Schedule(minute = "*/15", hour = "*")
+    @Schedule(minute = "*/15", hour = "*", persistent = false)
     public void clearCache() {
         List<String> expired = new ArrayList<>();
 

@@ -77,7 +77,7 @@ public class DispositivoService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*")
+    @Schedule(hour = "*", minute = "*", persistent = false)
     public void doFlushAcessos() {
         LOGGER.info("Iniciando flush de acessos de dispositivos");
 

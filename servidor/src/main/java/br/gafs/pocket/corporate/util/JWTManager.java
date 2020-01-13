@@ -33,7 +33,7 @@ public class JWTManager {
     private SignatureAlgorithm algorithm;
 
     @PostConstruct
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void prepara() {
         algorithm = getSignatureAlgorithm((String) parametroService.get(Parametro.GLOBAL, TipoParametro.JWT_KEY_ALGORITHM));
         key = new SecretKeySpec(Base64.getDecoder().decode((String) parametroService.get(Parametro.GLOBAL, TipoParametro.JWT_KEY)), algorithm.getValue());

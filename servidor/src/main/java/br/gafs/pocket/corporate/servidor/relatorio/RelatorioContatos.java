@@ -35,9 +35,11 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
             new WritableFont(WritableFont.TIMES, 10));
 
     private Empresa empresa;
+    private boolean acessoRecente;
 
-    public RelatorioContatos(Empresa empresa){
+    public RelatorioContatos(Empresa empresa, boolean acessoRecente){
         this.empresa = empresa;
+        this.acessoRecente = acessoRecente;
     }
 
     @Override
@@ -82,6 +84,8 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
 
     private void createLinhas(WritableSheet sheet, ProcessamentoService.ProcessamentoTool tool) throws WriteException {
         final FiltroColaboradorDTO filtro = new FiltroColaboradorDTO();
+
+        filtro.setAcessoRecente(acessoRecente);
 
         int i = 0;
         BuscaPaginadaDTO<Colaborador> resultado;

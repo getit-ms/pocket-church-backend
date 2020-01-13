@@ -2040,7 +2040,7 @@ public class AppServiceImpl implements AppService {
         flickrService.devinculaFlickr(sessaoBean.getChaveEmpresa());
     }
 
-    @Schedule(hour = "*", minute = "0/15")
+    @Schedule(hour = "*", minute = "0/15", persistent = false)
     public void verificaPagSeguro() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
@@ -2107,7 +2107,7 @@ public class AppServiceImpl implements AppService {
         }
     }
     
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaMensagensDia() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
@@ -2142,7 +2142,7 @@ public class AppServiceImpl implements AppService {
         }
     }
     
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaParabensAniversario() {
         LOGGER.info("Iniciando envio de notificações de aniversário.");
 
@@ -2175,7 +2175,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesPublicacoes() {
         LOGGER.info("Iniciando envio de notificações de publicações.");
 
@@ -2208,7 +2208,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesBoletins() {
         LOGGER.info("Iniciando envio de notificações de boletins.");
 
@@ -2241,7 +2241,7 @@ public class AppServiceImpl implements AppService {
         }
     }
     
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesDocumentos() {
         LOGGER.info("Iniciando envio de notificações de documentos.");
 
@@ -2275,7 +2275,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesNoticias() {
         LOGGER.info("Iniciando envio de notificações de notícia.");
 
@@ -2308,7 +2308,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesClassificados() {
         LOGGER.info("Iniciando envio de notificações de classificados.");
 
@@ -2341,7 +2341,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*/5")
+    @Schedule(hour = "*", minute = "*/5", persistent = false)
     public void enviaNotificacoesYouTubeAoVivo() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
@@ -2373,7 +2373,7 @@ public class AppServiceImpl implements AppService {
         }
     }
     
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesYouTubeAgendados() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {

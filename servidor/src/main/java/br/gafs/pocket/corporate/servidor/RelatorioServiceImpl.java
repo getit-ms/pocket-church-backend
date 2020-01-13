@@ -71,8 +71,8 @@ public class RelatorioServiceImpl implements RelatorioService {
 
     @Override
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
-    public File exportaContatos() throws IOException, InterruptedException {
-        return export(new RelatorioContatos(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa())), "xls");
+    public File exportaContatos(boolean acessoRecente) throws IOException, InterruptedException {
+        return export(new RelatorioContatos(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()), acessoRecente), "xls");
     }
 
     @Override

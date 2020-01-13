@@ -21,7 +21,7 @@ public class EstatisticaService {
     @EJB
     private DAOService daoService;
 
-    @Schedule(hour = "*", minute = "*/30")
+    @Schedule(hour = "*", minute = "*/30", persistent = false)
     public void registraEstatisticasDispositivosEmpresas() {
         LOGGER.info("Iniciando registro de estatísticas de dispositivos.");
 
@@ -34,7 +34,7 @@ public class EstatisticaService {
         LOGGER.info("Estatísticas de dispositivos registradas com sucesso.");
     }
 
-    @Schedule(hour = "*", minute = "*/30")
+    @Schedule(hour = "*", minute = "*/30", persistent = false)
     public void registraEstatisticasAcessoEmpresas() {
         LOGGER.info("Iniciando registro de estatísticas de acesso.");
 
@@ -47,7 +47,7 @@ public class EstatisticaService {
         LOGGER.info("Estatísticas de acesso registradas com sucesso.");
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void removeEstatisticasDisositivosEmpresasAntigas() {
         LOGGER.info("Iniciando remoção de estatísticas de dispositivos antigas.");
 
@@ -56,7 +56,7 @@ public class EstatisticaService {
         LOGGER.info("Estatísticas de dispositivos antigas removidas com sucesso.");
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void removeEstatisticasAcessoEmpresasAntigas() {
         LOGGER.info("Iniciando remoção de estatísticas de acesso antigas.");
 
@@ -65,7 +65,7 @@ public class EstatisticaService {
         LOGGER.info("Estatísticas de acesso antigas removidas com sucesso.");
     }
 
-    @Schedule(hour = "*")
+    @Schedule(hour = "*", persistent = false)
     public void removeRegistrosAcessoEmpresasAntigas() {
         LOGGER.info("Iniciando remoção de registros de acesso antigas.");
 

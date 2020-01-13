@@ -10,8 +10,10 @@ import br.gafs.pocket.corporate.entity.domain.StatusColaborador;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
+import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -30,6 +32,11 @@ public class FiltroColaborador extends AbstractPaginatedFiltro<FiltroColaborador
         
         if (!admin){
             where.append(" and m.dadosDisponiveis = true");
+        }
+
+        if (filtro.isAcessoRecente()) {
+            where.append(" abd exists (select d from Dispositivo d where d.colaborador = m and d.ultimoAcesso >= :limiteAcesso)");
+            args.put("limiteAcesso", DateUtil.decrementaMeses(new Date(), 1));
         }
 
         if (!StringUtil.isEmpty(filtro.getFiltro())) {

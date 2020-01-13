@@ -22,6 +22,7 @@ public class FiltroColaboradorDTO implements DTO {
     private String nome;
     private String email;
     private String filtro;
+    private boolean acessoRecente;
     private Integer pagina = 1;
     private Integer total = 10;
     private List<Long> perfis;

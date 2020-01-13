@@ -64,7 +64,7 @@ public class ArquivoServiceImpl implements ArquivoService {
         return daoService.update(new Arquivo(empresa, fileName, fileData));
     }
 
-    @Schedule(hour = "0", minute = "0", second = "0")
+    @Schedule(hour = "0", minute = "0", second = "0", persistent = false)
     public void removeArquivosEmDesuso() {
         List<Arquivo> arquivos = daoService.findWith(QueryAdmin.ARQUIVOS_VENCIDOS.create());
         for (Arquivo arquivo : arquivos) {

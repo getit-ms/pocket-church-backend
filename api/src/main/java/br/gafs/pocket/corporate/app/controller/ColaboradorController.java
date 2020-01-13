@@ -55,9 +55,11 @@ public class ColaboradorController {
             @QueryParam("email") @DefaultValue("") final String email,
             @QueryParam("filtro") @DefaultValue("") final String filtro,
             @QueryParam("perfil") List<Long> perfis,
+            @QueryParam("acessoRecente") Boolean acessoRecente,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total){
-        return Response.status(Response.Status.OK).entity(appService.busca(new FiltroColaboradorDTO(nome, email, filtro, pagina, total, perfis))).build();
+        return Response.status(Response.Status.OK).entity(appService.busca(
+                new FiltroColaboradorDTO(nome, email, filtro, acessoRecente != null && acessoRecente, pagina, total, perfis))).build();
     }
 
     @GET
@@ -122,8 +124,8 @@ public class ColaboradorController {
     @GET
     @Path("exportar.xls")
     @Produces({"application/xls", MediaType.APPLICATION_JSON})
-    public Response exportaInscricoes() throws IOException, InterruptedException {
-        File file = relatorioService.exportaContatos();
+    public Response exportaInscricoes(@QueryParam("acessoRecente") Boolean acessoRecente) throws IOException, InterruptedException {
+        File file = relatorioService.exportaContatos(acessoRecente != null && acessoRecente);
 
         response.addHeader("Content-Type", "application/xls");
         response.addHeader("Content-Length", "" + file.length());

@@ -35,7 +35,7 @@ public class ConfiguradorEmailService implements ConfiguradorSMTP {
         EmailUtil.setConfigurador(this);
     }
 
-    @Schedule(hour = "*", minute = "*/30")
+    @Schedule(hour = "*", minute = "*/30", persistent = false)
     public void carregaDados() {
         this.parametros = paramService.buscaParametrosGlobais();
     }
