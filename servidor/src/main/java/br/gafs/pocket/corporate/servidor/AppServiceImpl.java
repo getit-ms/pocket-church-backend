@@ -1868,6 +1868,20 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    public String getVersaoApp(TipoDispositivo tipoDispositivo) {
+        switch (tipoDispositivo) {
+            case ANDROID:
+            case ANDROID_FIREBASE:
+                return paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.VERSAO_APP_ANDROID);
+            case IPHONE:
+            case IPHONE_FIREBASE:
+                return paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.VERSAO_APP_IOS);
+        }
+
+        return null;
+    }
+
+    @Override
     public List<CategoriaAudio> buscaCategoriasAudio() {
         if (sessaoBean.isAdmin()) {
             return daoService.findWith(QueryAdmin.CATEGORIA_AUDIO.create(sessaoBean.getChaveEmpresa()));

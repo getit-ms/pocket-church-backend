@@ -9,6 +9,7 @@ import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.pocket.corporate.dto.*;
 import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
+import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
 import br.gafs.pocket.corporate.entity.domain.TipoVersao;
 
 import java.io.File;
@@ -195,4 +196,6 @@ public interface AppService extends Serializable {
     List<QuantidadeDispositivoDTO> buscaQuantidadesDispositivos();
     List<EstatisticaDispositivo> buscaEstatisticasDispositivos();
     List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade);
+
+    String getVersaoApp(TipoDispositivo tipoDispositivo);
 }
