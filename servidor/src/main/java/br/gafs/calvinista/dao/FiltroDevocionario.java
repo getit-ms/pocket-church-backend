@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class FiltroDevocionario extends AbstractPaginatedFiltro<FiltroDevocionarioDTO> {
 
-    public FiltroDevocionario(String igreja, FiltroDevocionarioDTO filtro) {
+    public FiltroDevocionario(String igreja, boolean admin, FiltroDevocionarioDTO filtro) {
         super(filtro);
 
         StringBuilder query = new StringBuilder("from DiaDevocionario dd where dd.igreja.chave = :chaveIgreja ");
@@ -24,6 +24,10 @@ public class FiltroDevocionario extends AbstractPaginatedFiltro<FiltroDevocionar
         if (filtro.getDataInicio() != null) {
             query.append(" and dd.data >= :dataInicio");
             args.put("dataInicio", DateUtil.getDataPrimeiraHoraDia(filtro.getDataInicio()));
+        }
+
+        if (!admin) {
+            query.append(" and (dd.agendado = false or dd.data <= :hoje)");
         }
 
         if (filtro.getDataTermino() != null) {

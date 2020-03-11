@@ -13,6 +13,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -21,6 +22,9 @@ import java.util.List;
 @IdClass(RegistroIgrejaId.class)
 @ToString(of = {"id", "igreja"})
 @EqualsAndHashCode(of = {"id", "igreja"})
+@NamedQueries({
+        @NamedQuery(name = "Cifra.findPDFByStatus", query = "select c from Cifra c where c.status = :status")
+})
 public class Cifra implements ArquivoPDF {
     @Id
     @JsonView(View.Resumido.class)
@@ -48,6 +52,11 @@ public class Cifra implements ArquivoPDF {
     @Enumerated(EnumType.ORDINAL)
     @JsonView(View.Resumido.class)
     private StatusCifra status = StatusCifra.PROCESSANDO;
+
+    @Setter
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ultima_alteracao")
+    private Date ultimaAlteracao = new Date();
 
     @Column(name = "tipo")
     @Enumerated(EnumType.ORDINAL)
@@ -89,7 +98,7 @@ public class Cifra implements ArquivoPDF {
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
-    
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
@@ -104,4 +113,5 @@ public class Cifra implements ArquivoPDF {
     public void processando() {
         status = StatusCifra.PROCESSANDO;
     }
+
 }

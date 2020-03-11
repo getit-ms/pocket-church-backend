@@ -23,6 +23,7 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "DiaDevocionario.findIgrejaByStatusAndDataPublicacao", query = "select i from DiaDevocionario dd inner join dd.igreja i where i.status = :statusIgreja and dd.status = :statusDiaDevocionario and dd.data = :data group by i"),
         @NamedQuery(name = "DiaDevocionario.findByIgrejaAndData", query = "select dd from DiaDevocionario dd inner join dd.igreja i where i.chave = :igreja and dd.data = :data"),
+        @NamedQuery(name = "DiaDevocionario.findPDFByStatus", query = "select dd from DiaDevocionario dd where dd.status = :status")
 })
 public class DiaDevocionario implements ArquivoPDF {
     @Id
@@ -42,6 +43,10 @@ public class DiaDevocionario implements ArquivoPDF {
     @JsonView(View.Resumido.class)
     @View.JsonTemporal(View.JsonTemporalType.DATE)
     private Date data;
+
+    @JsonView(View.Resumido.class)
+    @Column(name = "agendado")
+    private boolean agendado;
 
     @Setter
     @ManyToOne

@@ -294,12 +294,7 @@ public enum QueryAdmin {
             return super.extractArguments(args).set("status", StatusBoletim.PROCESSANDO);
         }
 
-        @Override
-        protected int extractResultLimit(Object... args) {
-            return 5;
-        }
-        
-    }, 
+    },
     ESTUDOS_PROCESSANDO("Estudo.findPDFByStatus"){
 
         @Override
@@ -307,9 +302,20 @@ public enum QueryAdmin {
             return super.extractArguments(args).set("status", StatusEstudo.PROCESSANDO);
         }
 
+    },
+    CIFRAS_PROCESSANDO("Cifra.findPDFByStatus"){
+
         @Override
-        protected int extractResultLimit(Object... args) {
-            return 5;
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusCifra.PROCESSANDO);
+        }
+
+    },
+    DEVOCIONARIOS_PROCESSANDO("DiaDevocionario.findPDFByStatus"){
+
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args).set("status", StatusDiaDevocionario.PROCESSANDO);
         }
 
     },

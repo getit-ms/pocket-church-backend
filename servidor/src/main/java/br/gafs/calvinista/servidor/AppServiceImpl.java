@@ -508,7 +508,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowAdmin(Funcionalidade.MANTEM_DEVOCIONARIO)
     public BuscaPaginadaDTO<DiaDevocionario> buscaTodos(FiltroDevocionarioDTO filtro) {
-        return daoService.findWith(new FiltroDevocionario(sessaoBean.getChaveIgreja(), filtro));
+        return daoService.findWith(new FiltroDevocionario(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
     }
 
     @Override
@@ -550,6 +550,7 @@ public class AppServiceImpl implements AppService {
     public DiaDevocionario atualiza(DiaDevocionario diaDevocionario) {
         diaDevocionario.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
         diaDevocionario.setArquivo(arquivoService.buscaArquivo(diaDevocionario.getArquivo().getId()));
+        diaDevocionario.setUltimaAlteracao(DateUtil.getDataAtual());
 
         boolean trocouPDF = trataTrocaPDF(diaDevocionario);
 
@@ -921,13 +922,15 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_CIFRAS, Funcionalidade.MANTER_CANTICOS})
     public Cifra atualiza(Cifra cifra) throws IOException {
         cifra.setCifra(arquivoService.buscaArquivo(cifra.getCifra().getId()));
+        cifra.setUltimaAlteracao(DateUtil.getDataAtual());
+
         if (trataTrocaPDF(cifra)) {
 
             cifra.processando();
 
             batchServie.processaCifra(cifra.getChaveIgreja(), cifra.getId());
-
         }
+
         return daoService.update(cifra);
     }
 
@@ -2846,7 +2849,7 @@ public class AppServiceImpl implements AppService {
                             titulo, texto, TipoNotificacao.DEVOCIONARIO, false);
                 }
             }
-    }
+        }
     }
 
     @Schedule(hour = "*", persistent = false)
@@ -2879,6 +2882,108 @@ public class AppServiceImpl implements AppService {
             } else {
                 LOGGER.info("Hora fora do limite de envio de notificações de boletins para " + igreja.getChave());
             }
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/5", persistent = false)
+    public void verificaProcessamentosDemorados() {
+        LOGGER.info("Iniciando verificação de processamentos de PDFs demorando");
+
+        // Boletins
+        List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_PROCESSANDO.create());
+
+        List<Boletim> boletinsEmpacados = new ArrayList<>();
+        for (Boletim boletim : boletins) {
+            if (boletim.getUltimaAlteracao().before(DateUtil.decrementaMinutos(DateUtil.getDataAtual(), 15))) {
+                boletinsEmpacados.add(boletim);
+            }
+        }
+
+        if (!boletinsEmpacados.isEmpty()) {
+
+        }
+
+        // Estudos
+        List<Estudo> estudos = daoService.findWith(QueryAdmin.ESTUDOS_PROCESSANDO.create());
+
+        List<Estudo> estudosEmpacados = new ArrayList<>();
+        for (Estudo estudo : estudos) {
+            if (estudo.getUltimaAlteracao().before(DateUtil.decrementaMinutos(DateUtil.getDataAtual(), 15))) {
+                estudosEmpacados.add(estudo);
+            }
+        }
+
+        // Devocionários
+        List<DiaDevocionario> devocionarios = daoService.findWith(QueryAdmin.DEVOCIONARIOS_PROCESSANDO.create());
+
+        List<DiaDevocionario> devocionariosEmpacados = new ArrayList<>();
+        for (DiaDevocionario devocionario : devocionarios) {
+            if (devocionario.getUltimaAlteracao().before(DateUtil.decrementaMinutos(DateUtil.getDataAtual(), 15))) {
+                devocionariosEmpacados.add(devocionario);
+            }
+        }
+
+        // Cifras
+        List<Cifra> cifras = daoService.findWith(QueryAdmin.CIFRAS_PROCESSANDO.create());
+
+        List<Cifra> cifrasEmpacadas = new ArrayList<>();
+        for (Cifra cifra : cifras) {
+            if (cifra.getUltimaAlteracao().before(DateUtil.decrementaMinutos(DateUtil.getDataAtual(), 15))) {
+                cifrasEmpacadas.add(cifra);
+            }
+        }
+
+        if (!boletinsEmpacados.isEmpty() ||
+                !estudosEmpacados.isEmpty() ||
+                !devocionariosEmpacados.isEmpty() ||
+                !cifrasEmpacadas.isEmpty()) {
+            StringBuilder mensagem = new StringBuilder("Existem PDFs travados no processamento: <br/><br/>");
+
+            if (!boletinsEmpacados.isEmpty()) {
+                mensagem.append("BOLETINS: <br/>");
+
+                for (Boletim boletim : boletinsEmpacados) {
+                    mensagem.append(boletim.getChaveIgreja().toUpperCase())
+                            .append(" ").append(boletim.getId()).append("<br/>");
+                }
+
+                mensagem.append("<br/>");
+            }
+
+            if (!estudosEmpacados.isEmpty()) {
+                mensagem.append("ESTUDOS: <br/>");
+
+                for (Estudo estudo : estudosEmpacados) {
+                    mensagem.append(estudo.getChaveIgreja().toUpperCase())
+                            .append(" ").append(estudo.getId()).append("<br/>");
+                }
+
+                mensagem.append("<br/>");
+            }
+
+            if (!cifrasEmpacadas.isEmpty()) {
+                mensagem.append("CIFRAS: <br/>");
+
+                for (Cifra cifra : cifrasEmpacadas) {
+                    mensagem.append(cifra.getChaveIgreja().toUpperCase())
+                            .append(" ").append(cifra.getId()).append("<br/>");
+                }
+
+                mensagem.append("<br/>");
+            }
+
+            if (!devocionariosEmpacados.isEmpty()) {
+                mensagem.append("DEVOCIONÁRIO: <br/>");
+
+                for (DiaDevocionario devocionario : devocionariosEmpacados) {
+                    mensagem.append(devocionario.getChaveIgreja().toUpperCase())
+                            .append(" ").append(devocionario.getId()).append("<br/>");
+                }
+
+                mensagem.append("<br/>");
+            }
+
+            EmailUtil.alertAdm(mensagem.toString(), "URGENTE! PDFs TRAVADOS!");
         }
     }
 
