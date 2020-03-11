@@ -28,6 +28,7 @@ public class FiltroDevocionario extends AbstractPaginatedFiltro<FiltroDevocionar
 
         if (!admin) {
             query.append(" and (dd.agendado = false or dd.data <= :hoje)");
+            args.put("hoje", DateUtil.getDataUltimaHoraDia(DateUtil.getDataAtual()));
         }
 
         if (filtro.getDataTermino() != null) {

@@ -44,8 +44,9 @@ public class DiaDevocionario implements ArquivoPDF {
     @View.JsonTemporal(View.JsonTemporalType.DATE)
     private Date data;
 
-    @JsonView(View.Resumido.class)
     @Column(name = "agendado")
+    @JsonView(View.Resumido.class)
+    @View.MergeViews(View.Edicao.class)
     private boolean agendado;
 
     @Setter
