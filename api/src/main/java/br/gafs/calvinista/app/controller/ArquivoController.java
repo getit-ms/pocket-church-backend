@@ -119,10 +119,11 @@ public class ArquivoController {
             @HeaderParam("Range") String range,
             @PathParam("arquivo") Long identificador,
             @PathParam("filename") String filename) throws IOException {
-        if (StringUtil.isEmpty(range)) {
+        boolean validRangeHeader = !StringUtil.isEmpty(range) && range.matches("[Bb][Yy][Tt][Ee][Ss]=\\d+-\\d*");
+
+        if (!validRangeHeader) {
             return downloadFile(identificador, filename);
         }
-
 
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
 
@@ -130,32 +131,31 @@ public class ArquivoController {
                 arquivo.getFilename().equals(filename))){
             File file = EntityFileManager.get(arquivo, "dados");
 
-            String[] ranges = range.split( "=" )[1].split( "-" );
+            long from = 0, to;
 
-            int from = Integer.parseInt( ranges[0] );
+            String[] fromTo = range.split("=")[1].split("-");
+            from = Integer.parseInt( fromTo[0] );
 
-            // Chunk media if the range upper bound is unspecified
-            int to = Math.min((int) file.length(), chunk_size + from) - 1;
-
-            final int len = to - from + 1;
+            if (fromTo.length > 1) {
+                to = Math.min(Integer.parseInt( fromTo[1] ), file.length() - 1);
+            } else {
+                to = Math.min((from + chunk_size), file.length()) - 1;
+            }
 
             final String responseRange = String.format( "bytes %d-%d/%d", from, to, file.length() );
 
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             response.addHeader( "Accept-Ranges", "bytes" );
             response.addHeader( "Content-Range", responseRange );
+            response.addHeader("Content-Length", ((to - from) + 1) + "");
+
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
-            response.addHeader("Content-Length", "" + len);
             response.addHeader("Content-Disposition",
                     "attachment; filename=\""+arquivo.getNome()+"\"");
 
-            final RandomAccessFile raf = new RandomAccessFile( file, "r" );
+            ArquivoUtil.transfer(from, to, file, response.getOutputStream(), chunk_size);
 
-            raf.seek( from );
-
-            ArquivoUtil.transfer(raf, len, response.getOutputStream());
-
-            return Response.noContent().build();
+            return Response.status(HttpServletResponse.SC_PARTIAL_CONTENT).build();
         }
 
         return Response.status(Status.NOT_FOUND).build();
