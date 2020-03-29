@@ -77,7 +77,9 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     }
     
     public String getFilename(){
-        return StringUtil.formataValor(nome, true, false).replace(" ", "_");
+        return StringUtil.formataValor(nome, true, false)
+                .replaceAll("[^a-zA-Z0-9_\\.]", "_")
+                .replace(" ", "_");
     }
     
     public void used(){
