@@ -12,25 +12,26 @@ public class ArquivoUtil {
     private final static Logger LOGGER = Logger.getLogger(ArquivoUtil.class.getName());
     public static final int BUFF_LIMIT = 1024 * 1024 * 2;
 
-    public static void transfer(InputStream is, OutputStream os){
-        try{
+    public static void transfer(InputStream is, OutputStream os) {
+        try {
             int size;
-            byte[] cache = new byte[5000];
-            while ((size = is.read(cache)) > 0){
+            byte[] cache = new byte[256 * 1024];
+            while ((size = is.read(cache)) > 0) {
                 os.write(cache, 0, size);
             }
 
+            os.flush();
             is.close();
             os.close();
-        }catch(Exception e){
-            LOGGER.log(Level.SEVERE, "Problema ao transferir dados", e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Erro ao transferir arquivo.", e);
         }
     }
 
     public static void transfer(long from, long to, File file, OutputStream outputStream, int buffSize) throws IOException {
-        final RandomAccessFile raf = new RandomAccessFile( file, "r" );
+        final RandomAccessFile raf = new RandomAccessFile(file, "r");
 
-        raf.seek( from );
+        raf.seek(from);
 
         long len = (to - from) + 1;
 
@@ -58,7 +59,7 @@ public class ArquivoUtil {
             while (len > 0) {
                 size = raf.read(cache, 0, Math.min(len, cache.length));
 
-                outputStream.write(cache, 0,size);
+                outputStream.write(cache, 0, size);
 
                 outputStream.flush();
 

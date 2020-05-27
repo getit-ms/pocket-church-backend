@@ -55,7 +55,7 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response iniciaLogin(final @PathParam("email") String email){
-        return Response.status(Response.Status.OK).entity(acessoService.inciaLogin(email)).build();
+        return Response.status(Response.Status.OK).entity(acessoService.inciaLogin(email.trim())).build();
     }
 
     @PUT
@@ -63,7 +63,7 @@ public class AcessoController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizaLogin(final RequisicaoLoginDTO req){
-        Membro membro = acessoService.login(req.getUsername(),
+        Membro membro = acessoService.login(req.getUsername().trim(),
                 SenhaUtil.encryptSHA256(req.getPassword()), req.getTipoDispositivo(), req.getVersion());
         return Response.status(Response.Status.OK).entity(acesso(membro, req.getTipoDispositivo(), req.getVersion())).build();
     }
@@ -153,8 +153,8 @@ public class AcessoController {
     @Path("senha/redefinir/{email}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response solicitarRedefinirSenha(@PathParam("email") String email) throws UnsupportedEncodingException {
-        acessoService.solicitaRedefinicaoSenha(email);
+    public Response solicitarRedefinirSenha(@PathParam("email") @DefaultValue("") String email) throws UnsupportedEncodingException {
+        acessoService.solicitaRedefinicaoSenha(email.trim());
         return Response.ok().build();
     }
     

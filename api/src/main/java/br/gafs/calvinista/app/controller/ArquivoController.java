@@ -7,7 +7,9 @@ package br.gafs.calvinista.app.controller;
 
 import br.gafs.calvinista.app.util.ArquivoUtil;
 import br.gafs.calvinista.entity.Arquivo;
+import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ArquivoService;
+import br.gafs.calvinista.service.ParametroService;
 import br.gafs.file.EntityFileManager;
 import br.gafs.util.string.StringUtil;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -27,23 +29,24 @@ import java.io.*;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @RequestScoped
 @Path("/arquivo")
 public class ArquivoController {
     private final static Logger LOGGER = Logger.getLogger(ArquivoController.class.getName());
-    private final int chunk_size = 1024 * 1024 * 2; // 2 MB chunks
-    
+
     @EJB
     private ArquivoService arquivoService;
-    
+
+    @EJB
+    private ParametroService paramService;
+
     @Context
     private HttpServletResponse response;
-    
+
     @POST
-    @Path("/upload") 
+    @Path("/upload")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadFile(
@@ -61,7 +64,7 @@ public class ArquivoController {
     }
 
     @GET
-    @Path("/download/{arquivo}") 
+    @Path("/download/{arquivo}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM})
     public Response downloadFile(@PathParam("arquivo") Long identificador) throws IOException {
         return downloadFile(identificador, null);
@@ -76,13 +79,15 @@ public class ArquivoController {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
 
         if (arquivo != null && (StringUtil.isEmpty(filename) ||
-                arquivo.getFilename().equals(filename))){
+                arquivo.getFilename().equals(filename))) {
             File file = EntityFileManager.get(arquivo, "dados");
 
+            response.setHeader("Cache-Control", "public, max-age=3600000, post-check=3600000, pre-check=3600000");
+            response.setHeader("Last-Modified", "Sun, 06 Nov 2005 15:32:08 GMT");
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+arquivo.getNome()+"\"");
+                    "attachment; filename=\"" + arquivo.getNome() + "\"");
             ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
             return Response.noContent().build();
         }
@@ -105,6 +110,8 @@ public class ArquivoController {
             return Response.ok()
                     .status(Response.Status.PARTIAL_CONTENT)
                     .header(HttpHeaders.CONTENT_LENGTH, file.length())
+                    .header("Cache-Control", "public, max-age=3600000, post-check=3600000, pre-check=3600000")
+                    .header("Last-Modified", "Sun, 06 Nov 2005 15:32:08 GMT")
                     .header("Accept-Ranges", "bytes")
                     .build();
         }
@@ -119,7 +126,8 @@ public class ArquivoController {
             @HeaderParam("Range") String range,
             @PathParam("arquivo") Long identificador,
             @PathParam("filename") String filename) throws IOException {
-        boolean validRangeHeader = !StringUtil.isEmpty(range) && range.matches("[Bb][Yy][Tt][Ee][Ss]=\\d+-\\d*");
+        boolean validRangeHeader = !StringUtil.isEmpty(range) &&
+                range.matches("[Bb][Yy][Tt][Ee][Ss]=\\d+-\\d*");
 
         if (!validRangeHeader) {
             return downloadFile(identificador, filename);
@@ -128,40 +136,44 @@ public class ArquivoController {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
 
         if (arquivo != null && (StringUtil.isEmpty(filename) ||
-                arquivo.getFilename().equals(filename))){
+                arquivo.getFilename().equals(filename))) {
             File file = EntityFileManager.get(arquivo, "dados");
 
-            long from = 0, to;
+            long from = 0, to, chunkSize = paramService.get(arquivo.getChaveIgreja(), TipoParametro.STREAM_CHUNK_SIZE);
 
-            String[] fromTo = range.split("=")[1].split("-");
-            from = Integer.parseInt( fromTo[0] );
+            if (validRangeHeader) {
+                String[] fromTo = range.split("=")[1].split("-");
+                from = Integer.parseInt( fromTo[0] );
 
-            if (fromTo.length > 1) {
-                to = Math.min(Integer.parseInt( fromTo[1] ), file.length() - 1);
+                if (fromTo.length > 1) {
+                    to = Math.min(Integer.parseInt( fromTo[1] ), file.length() - 1);
+                } else {
+                    to = Math.min((from + chunkSize), file.length()) - 1;
+                }
             } else {
-                to = Math.min((from + chunk_size), file.length()) - 1;
+                to = Math.min((from + chunkSize), file.length()) - 1;
             }
 
-            final String responseRange = String.format( "bytes %d-%d/%d", from, to, file.length() );
+            final String responseRange = String.format("bytes %d-%d/%d", from, to, file.length());
 
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-            response.addHeader( "Accept-Ranges", "bytes" );
-            response.addHeader( "Content-Range", responseRange );
+            response.addHeader("Accept-Ranges", "bytes");
+            response.addHeader("Content-Range", responseRange);
             response.addHeader("Content-Length", ((to - from) + 1) + "");
 
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
             response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+arquivo.getNome()+"\"");
+                    "attachment; filename=\"" + arquivo.getNome() + "\"");
 
-            ArquivoUtil.transfer(from, to, file, response.getOutputStream(), chunk_size);
+            ArquivoUtil.transfer(from, to, file, response.getOutputStream(), (int) chunkSize);
 
-            return Response.status(HttpServletResponse.SC_PARTIAL_CONTENT).build();
+            return Response.noContent().build();
         }
 
         return Response.status(Status.NOT_FOUND).build();
     }
-    
-    private byte[] read(InputStream is){
+
+    private byte[] read(InputStream is) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ArquivoUtil.transfer(is, baos);
         return baos.toByteArray();
