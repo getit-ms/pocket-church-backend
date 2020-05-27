@@ -175,7 +175,20 @@ public enum TipoParametro {
     
     static {
         converters.put(String.class, new HashMap());
-        
+
+        converters.get(String.class).put(Long.class, new Converter<String, Long>(){
+
+            @Override
+            public Long sourceToTarget(String source) {
+                return Long.parseLong(source);
+            }
+
+            @Override
+            public String targetToSource(Long target) {
+                return target.toString();
+            }
+
+        });
         converters.get(String.class).put(Integer.class, new Converter<String, Integer>(){
             
             @Override
