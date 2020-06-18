@@ -61,7 +61,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
                 @Override
                 public BuscaPaginadaDTO execute(DAOService daoService) {
                     return daoService.findWith(new FiltroInscricao(evento.getId(),
-                            igreja.getChave(), null, filtro));
+                            igreja.getChave(), null, null, filtro));
                 }
             });
             inscricoes.addAll(busca.getResultados());

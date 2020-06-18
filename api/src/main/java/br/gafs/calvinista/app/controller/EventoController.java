@@ -11,6 +11,7 @@ import br.gafs.calvinista.dto.FiltroEventoDTO;
 import br.gafs.calvinista.dto.FiltroEventoFuturoDTO;
 import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
+import br.gafs.calvinista.entity.CampoEvento;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
@@ -82,7 +83,8 @@ public class EventoController {
             @PathParam("evento") Long evento, 
             @QueryParam("pagina") @DefaultValue("1") Integer pagina, 
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaTodas(evento, new FiltroInscricaoDTO(null, null, pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaTodas(evento,
+                new FiltroInscricaoDTO(null, null, pagina, total))).build();
     }
 
     @GET
@@ -147,6 +149,9 @@ public class EventoController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response cadastra(final Evento evento){
+        for (CampoEvento campo : evento.getCampos()) {
+            campo.setEvento(evento);
+        }
         return Response.status(Response.Status.OK).entity(appService.cadastra(evento)).build();
     }
     
@@ -195,6 +200,9 @@ public class EventoController {
     public Response atualiza(final Evento evento){
         Evento entidade = appService.buscaEvento(evento.getId());
         MergeUtil.merge(evento, View.Edicao.class).into(entidade);
+        for (CampoEvento campo : entidade.getCampos()) {
+            campo.setEvento(entidade);
+        }
         return Response.status(Response.Status.OK).entity(appService.atualiza(entidade)).build();
     }
     

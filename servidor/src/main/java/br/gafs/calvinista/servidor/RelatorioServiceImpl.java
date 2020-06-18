@@ -50,7 +50,7 @@ public class RelatorioServiceImpl implements RelatorioService {
     private File export(ProcessamentoRelatorioCache.Relatorio relatorio, String type) throws IOException, InterruptedException {
         File file = ProcessamentoRelatorioCache.file(relatorio, type);
 
-        if (!file.exists() || System.currentTimeMillis() - file.lastModified() > LIMITE_CACHE){
+        if (!file.exists() || System.currentTimeMillis() - file.lastModified() > LIMITE_CACHE) {
             processamentoService.execute(new ProcessamentoRelatorioCache(relatorio, type));
         }
 
@@ -58,14 +58,14 @@ public class RelatorioServiceImpl implements RelatorioService {
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS})
+    @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public File exportaInscritos(Long id, String tipo) throws IOException, InterruptedException {
         return export(new RelatorioInscritos(appService.buscaEvento(id),
                 daoService.find(Template.class, sessaoBean.getChaveIgreja())), tipo);
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS})
+    @AllowAdmin({Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public File exportaInscritos(TipoEvento tipo) throws IOException, InterruptedException {
         return export(new RelatorioTodosInscritos(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), tipo), "xls");
     }

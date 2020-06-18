@@ -20,7 +20,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -119,6 +121,11 @@ public class Evento implements IEntity {
             @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Arquivo banner;
+
+    @JsonView(View.Detalhado.class)
+    @View.MergeViews(View.Edicao.class)
+    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CampoEvento> campos = new ArrayList<>();
     
     @ManyToOne
     @JoinColumn(name = "chave_igreja")

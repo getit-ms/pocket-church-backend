@@ -5,5 +5,6 @@ package br.gafs.calvinista.entity.domain;
  */
 public enum TipoEvento {
     EVENTO,
-    EBD
+    EBD,
+    CULTO
 }

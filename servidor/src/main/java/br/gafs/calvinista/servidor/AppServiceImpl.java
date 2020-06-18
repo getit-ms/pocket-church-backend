@@ -167,7 +167,7 @@ public class AppServiceImpl implements AppService {
         }
 
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)) {
-            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null,
+            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null, null,
                     new FiltroInscricaoDTO(TipoEvento.EVENTO, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
             if (pendentes.intValue() > 0) {
@@ -178,7 +178,7 @@ public class AppServiceImpl implements AppService {
         }
 
         if (sessaoBean.temPermissao(Funcionalidade.MANTER_EBD)) {
-            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null,
+            Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveIgreja(), null, null,
                     new FiltroInscricaoDTO(TipoEvento.EBD, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
             if (pendentes.intValue() > 0) {
@@ -1705,7 +1705,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public Evento cadastra(Evento evento) {
         evento.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
 
@@ -1733,7 +1733,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public Evento atualiza(Evento evento) {
         evento.alterado();
 
@@ -1748,16 +1748,25 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public Evento buscaEvento(Long evento) {
         Evento entidade = daoService.find(Evento.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento));
         entidade.setVagasRestantes(entidade.getLimiteInscricoes() - ((Number) daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento))).intValue());
 
-        if (TipoEvento.EVENTO.equals(entidade.getTipo())) {
-            AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_EVENTO);
-        } else {
-            AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_EBD);
+        if (sessaoBean.isAdmin()) {
+            switch (entidade.getTipo()) {
+                case CULTO:
+                    AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_CULTO);
+                    break;
+                case EBD:
+                    AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_EBD);
+                    break;
+                case EVENTO:
+                default:
+                    AcessoMarkerContext.funcionalidade(Funcionalidade.REALIZAR_INSCRICAO_EVENTO);
+                    break;
+            }
         }
 
         return entidade;
@@ -1765,7 +1774,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public void removeEvento(Long evento) {
         Evento entidade = buscaEvento(evento);
 
@@ -1775,9 +1784,9 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public BuscaPaginadaDTO<Evento> buscaTodos(FiltroEventoDTO filtro) {
-        BuscaPaginadaDTO<Object[]> dados = daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.isAdmin(), filtro));
+        BuscaPaginadaDTO<Object[]> dados = daoService.findWith(new FiltroEvento(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), sessaoBean.isAdmin(), filtro));
 
         List<Evento> eventos = new ArrayList<>();
         for (Object[] tupla : dados) {
@@ -1797,26 +1806,27 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public BuscaPaginadaDTO<Evento> buscaFuturos(FiltroEventoFuturoDTO filtro) {
         return buscaTodos(filtro);
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public BuscaPaginadaDTO<InscricaoEvento> buscaTodas(Long evento, FiltroInscricaoDTO filtro) {
-        return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
+        return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveIgreja(),
+                sessaoBean.getIdMembro(), sessaoBean.getChaveDispositivo(), filtro));
     }
 
     @Override
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public BuscaPaginadaDTO<InscricaoEvento> buscaMinhas(Long evento, FiltroMinhasInscricoesDTO filtro) {
         return buscaTodas(evento, filtro);
     }
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public void confirmaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
@@ -1830,7 +1840,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public void cancelaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
@@ -1902,12 +1912,20 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD})
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD})
+    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
+    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> inscricoes) {
         if (!inscricoes.isEmpty()) {
             Evento evento = inscricoes.get(0).getEvento();
-            Membro membro = buscaMembro(sessaoBean.getIdMembro());
+            Membro membro = null;
+
+            if (sessaoBean.getIdMembro() != null) {
+                membro = buscaMembro(sessaoBean.getIdMembro());
+            } else if (evento.getTipo() != TipoEvento.CULTO) {
+                throw new ServiceException("mensagens.MSG-403");
+            }
+
+            Dispositivo dispositivo = daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo());
 
             Number qtde = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento.getId()));
             if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()) {
@@ -1928,6 +1946,7 @@ public class AppServiceImpl implements AppService {
                 }
 
                 inscricao.setMembro(membro);
+                inscricao.setDispositivo(dispositivo);
                 cadastradas.add(daoService.create(inscricao));
             }
 
@@ -1949,7 +1968,9 @@ public class AppServiceImpl implements AppService {
                             Long.toString(System.currentTimeMillis(), 36).toUpperCase();
 
                     PagSeguroService.Pedido pedido = new PagSeguroService.Pedido(referencia,
-                            new PagSeguroService.Solicitante(membro.getNome(), membro.getEmail()));
+                            new PagSeguroService.Solicitante(
+                                    membro != null ? membro.getNome() : inscricoes.get(0).getNomeInscrito(),
+                                    membro != null ? membro.getEmail() : inscricoes.get(0).getEmailInscrito()));
 
                     for (InscricaoEvento inscricao : inscricoes) {
                         pedido.add(new PagSeguroService.ItemPedido(
@@ -1973,17 +1994,19 @@ public class AppServiceImpl implements AppService {
                     Locale locale = Locale.forLanguageTag(evento.getIgreja().getLocale());
                     NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
 
-                    notificacaoService.sendNow(
-                            mensagemBuilder.email(
-                                    evento.getIgreja(),
-                                    TipoParametro.EMAIL_SUBJECT_PAGAMENTO_INSCRICAO,
-                                    TipoParametro.EMAIL_BODY_PAGAMENTO_INSCRICAO,
-                                    membro.getNome(),
-                                    evento.getNome(),
-                                    nformat.format(pedido.getTotal()),
-                                    checkout
-                            ),
-                            new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
+                    if (membro != null) {
+                        notificacaoService.sendNow(
+                                mensagemBuilder.email(
+                                        evento.getIgreja(),
+                                        TipoParametro.EMAIL_SUBJECT_PAGAMENTO_INSCRICAO,
+                                        TipoParametro.EMAIL_BODY_PAGAMENTO_INSCRICAO,
+                                        membro.getNome(),
+                                        evento.getNome(),
+                                        nformat.format(pedido.getTotal()),
+                                        checkout
+                                ),
+                                new FiltroEmailDTO(evento.getIgreja(), membro.getId()));
+                    }
 
                     return new ResultadoInscricaoDTO(checkout);
                 }

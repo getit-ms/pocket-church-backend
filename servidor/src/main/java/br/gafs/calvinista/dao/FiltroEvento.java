@@ -8,8 +8,10 @@ package br.gafs.calvinista.dao;
 import br.gafs.calvinista.dto.FiltroEventoDTO;
 import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
+import br.gafs.exceptions.ServiceException;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
 import lombok.Getter;
@@ -30,7 +32,7 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
     private int page;
     private int resultLimit;
 
-    public FiltroEvento(String igreja, boolean admin, FiltroEventoDTO filtro) {
+    public FiltroEvento(String igreja, Long membro, boolean admin, FiltroEventoDTO filtro) {
         String fromCount = "from tb_evento e";
         String from = fromCount + " left join tb_inscricao_evento ie on e.id_evento = ie.id_evento and e.chave_igreja = ie.chave_igreja and ie.status in (#statusInscricaoConfirmada, #statusInscricaoPendente)";
 
@@ -39,6 +41,10 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
         Map<String, Object> args = new QueryParameters()
                 .set("statusInscricaoPendente", StatusInscricaoEvento.PENDENTE.ordinal())
                 .set("statusInscricaoConfirmada", StatusInscricaoEvento.CONFIRMADA.ordinal());
+
+        if (filtro.getTipo() != TipoEvento.CULTO && membro == null) {
+            throw new ServiceException("mensagens.MSG-403");
+        }
 
         if (filtro.getTipo() != null){
             where.append(" and e.tipo = #tipo");

@@ -48,6 +48,7 @@ public enum Funcionalidade {
     CONFIGURAR_FLICKR(Tipo.ADMIN, 50),
     CONFIGURAR_VIDEOS_FACEBOOK(Tipo.ADMIN, 53),
     MANTEM_DEVOCIONARIO(Tipo.ADMIN, 54),
+    MANTER_INSCRICAO_CULTO(Tipo.ADMIN, 56),
 
     // Membro
     CONSULTAR_CONTATOS_IGREJA(Tipo.MEMBRO, 19),
@@ -73,6 +74,7 @@ public enum Funcionalidade {
     CONSULTAR_CANTICOS(Tipo.PUBLICA, false, 46, 4, 2, 0),
     AUDIOS(Tipo.PUBLICA, false, 51, 6, 0, 11),
     DEVOCIONARIO(Tipo.PUBLICA, false, 55, 8, 0, 0),
+    REALIZAR_INSCRICAO_CULTO(Tipo.PUBLICA, 57),
 
     INSTITUCIONAL(Tipo.FIXA, 43),
     INICIO_APLICATIVO(Tipo.FIXA, 39),

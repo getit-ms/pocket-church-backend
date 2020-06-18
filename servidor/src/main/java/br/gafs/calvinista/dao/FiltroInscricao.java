@@ -11,8 +11,10 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
+import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
+import br.gafs.exceptions.ServiceException;
 import br.gafs.query.Queries;
 import java.util.Arrays;
 import java.util.Map;
@@ -23,7 +25,7 @@ import java.util.Map;
  */
 public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO> {
 
-    public FiltroInscricao(Long evento, String igreja, Long membro, FiltroInscricaoDTO filtro) {
+    public FiltroInscricao(Long evento, String igreja, Long membro, String dispositivo, FiltroInscricaoDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from InscricaoEvento ie where ie.evento.igreja.chave = :chaveIgreja and ie.status in :status");
@@ -41,8 +43,15 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
         if (filtro.getStatus() != null) {
             args.put("status", filtro.getStatus());
         } else if (filtro instanceof FiltroMinhasInscricoesDTO){
-            query.append(" and ie.membro.id = :membro");
-            args.put("membro", membro);
+            if (membro != null) {
+                query.append(" and ie.membro.id = :membro");
+                args.put("membro", membro);
+            } else if (filtro.getTipoEvento() == TipoEvento.CULTO){
+                query.append(" and ie.dispositivo.chave = :dispositivo");
+                args.put("dispositivo", dispositivo);
+            } else {
+                throw new ServiceException("mensagens.MSG-403");
+            }
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE, StatusInscricaoEvento.CANCELADA));
         }else{
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE));
