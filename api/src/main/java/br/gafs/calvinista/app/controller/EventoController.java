@@ -170,7 +170,7 @@ public class EventoController {
             }
 
             InscricaoEvento insc = new InscricaoEvento(entidade);
-            MergeUtil.merge(inscricao, View.Edicao.class).into(insc);
+            MergeUtil.merge(inscricao, View.Cadastro.class).into(insc);
             merged.add(insc);
 
             for (ValorInscricaoEvento valor : insc.getValores()) {
