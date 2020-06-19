@@ -12,4 +12,7 @@ public enum FormatoCampoEvento {
     NUMERO_INTEIRO,
     NUMERO_REAL,
     MONETARIO,
+
+    // anexo
+    IMAGEM,
 }
