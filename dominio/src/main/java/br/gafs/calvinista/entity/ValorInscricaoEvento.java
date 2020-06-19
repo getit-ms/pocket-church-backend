@@ -1,6 +1,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.calvinista.entity.domain.FormatoCampoEvento;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
@@ -21,6 +22,10 @@ public class ValorInscricaoEvento implements IEntity {
     @Id
     @Column(name = "nome")
     private String nome;
+
+    @Column(name = "formato")
+    @Enumerated(EnumType.ORDINAL)
+    private FormatoCampoEvento formato;
 
     @Column(name = "valor_texto")
     private String valorTexto;
