@@ -17,6 +17,7 @@ import java.util.Date;
 @Entity
 @ToString(of = "nome")
 @EqualsAndHashCode(of = "nome")
+@IdClass(ValorInscricaoEventoId.class)
 @Table(name = "tb_valores_inscricao_evento")
 public class ValorInscricaoEvento implements IEntity {
     @Id
@@ -49,6 +50,7 @@ public class ValorInscricaoEvento implements IEntity {
     })
     private Arquivo valorAnexo;
 
+    @Id
     @Setter
     @ManyToOne
     @JsonIgnore
