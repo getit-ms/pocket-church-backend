@@ -74,7 +74,7 @@ public enum Funcionalidade {
     CONSULTAR_CANTICOS(Tipo.PUBLICA, false, 46, 4, 2, 0),
     AUDIOS(Tipo.PUBLICA, false, 51, 6, 0, 11),
     DEVOCIONARIO(Tipo.PUBLICA, false, 55, 8, 0, 0),
-    REALIZAR_INSCRICAO_CULTO(Tipo.PUBLICA, 57),
+    REALIZAR_INSCRICAO_CULTO(Tipo.PUBLICA, false, 57, 8, 1, 0),
 
     INSTITUCIONAL(Tipo.FIXA, 43),
     INICIO_APLICATIVO(Tipo.FIXA, 39),

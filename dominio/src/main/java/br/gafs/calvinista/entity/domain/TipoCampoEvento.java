@@ -4,5 +4,6 @@ public enum TipoCampoEvento {
     TEXTO,
     DATA,
     NUMERO,
-    MULTIPLA_ESCOLHA
+    MULTIPLA_ESCOLHA,
+    ANEXO
 }
