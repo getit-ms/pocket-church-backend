@@ -14,6 +14,7 @@ import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
 import br.gafs.calvinista.entity.CampoEvento;
 import br.gafs.calvinista.entity.Evento;
 import br.gafs.calvinista.entity.InscricaoEvento;
+import br.gafs.calvinista.entity.ValorInscricaoEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
@@ -35,7 +36,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response.Status;
 
 /**
  *
@@ -172,6 +172,10 @@ public class EventoController {
             InscricaoEvento insc = new InscricaoEvento(entidade);
             MergeUtil.merge(inscricao, View.Edicao.class).into(insc);
             merged.add(insc);
+
+            for (ValorInscricaoEvento valor : insc.getValores()) {
+                valor.setInscricao(insc);
+            }
         }
         return Response.status(Response.Status.OK).entity(appService.realizaInscricao(merged)).build();
     }

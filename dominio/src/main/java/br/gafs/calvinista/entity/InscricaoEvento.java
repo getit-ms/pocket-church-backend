@@ -17,9 +17,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Gabriel
@@ -100,19 +100,6 @@ public class InscricaoEvento implements IEntity {
     @Column(name = "telefone_inscrito", length = 50, nullable = false)
     private String telefoneInscrito;
 
-    @ElementCollection
-    @Column(name = "valor")
-    @View.MergeViews(View.Edicao.class)
-    @MapKeyColumn(name = "nome")
-    @CollectionTable(name = "tb_valores_inscricao_evento",
-            joinColumns = {
-                    @JoinColumn(name = "id_inscricao", referencedColumnName = "id_inscricao"),
-                    @JoinColumn(name = "id_evento", referencedColumnName = "id_evento"),
-                    @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
-            }
-    )
-    private Map<String, String> valores = new HashMap<>();
-
     @Setter
     @Column(name = "referencia_checkout")
     private String referenciaCheckout;
@@ -131,6 +118,9 @@ public class InscricaoEvento implements IEntity {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusInscricaoEvento status = StatusInscricaoEvento.PENDENTE;
+
+    @OneToMany(mappedBy = "inscricao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ValorInscricaoEvento> valores = new ArrayList<>();
 
     public InscricaoEvento(Evento evento) {
         this.evento = evento;

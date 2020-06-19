@@ -1934,6 +1934,12 @@ public class AppServiceImpl implements AppService {
 
             List<InscricaoEvento> cadastradas = new ArrayList<InscricaoEvento>();
             for (InscricaoEvento inscricao : inscricoes) {
+                for (ValorInscricaoEvento valor : inscricao.getValores()) {
+                    if (valor.getValorAnexo() != null) {
+                        arquivoService.registraUso(valor.getValorAnexo().getId());
+                        valor.setValorAnexo(daoService.find(Arquivo.class, valor.getValorAnexo().getId()));
+                    }
+                }
 
                 if (evento.isEBD()) {
                     List<InscricaoEvento> outrasInscricoes = daoService.findWith(QueryAdmin.BUSCA_NSCRICOES_EMAIL
