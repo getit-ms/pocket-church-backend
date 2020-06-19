@@ -81,7 +81,7 @@ public class InscricaoEvento implements IEntity {
     @Setter
     @NotEmpty
     @Length(max = 150)
-    @View.MergeViews(View.Edicao.class)
+    @View.MergeViews(View.Cadastro.class)
     @Column(name = "nome_inscrito", length = 255, nullable = false)
     private String nomeInscrito;
 
@@ -89,14 +89,14 @@ public class InscricaoEvento implements IEntity {
     @Email
     @NotEmpty
     @Length(max = 150)
-    @View.MergeViews(View.Edicao.class)
+    @View.MergeViews(View.Cadastro.class)
     @Column(name = "email_inscrito", length = 150, nullable = false)
     private String emailInscrito;
 
     @Setter
     @NotEmpty
     @Length(max = 50)
-    @View.MergeViews(View.Edicao.class)
+    @View.MergeViews(View.Cadastro.class)
     @Column(name = "telefone_inscrito", length = 50, nullable = false)
     private String telefoneInscrito;
 
@@ -119,6 +119,7 @@ public class InscricaoEvento implements IEntity {
     @Column(name = "status", nullable = false)
     private StatusInscricaoEvento status = StatusInscricaoEvento.PENDENTE;
 
+    @View.MergeViews(View.Cadastro.class)
     @OneToMany(mappedBy = "inscricao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ValorInscricaoEvento> valores = new ArrayList<>();
 
