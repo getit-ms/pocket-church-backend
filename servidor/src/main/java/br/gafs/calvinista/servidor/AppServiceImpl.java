@@ -1937,7 +1937,8 @@ public class AppServiceImpl implements AppService {
                 for (ValorInscricaoEvento valor : inscricao.getValores()) {
                     if (valor.getValorAnexo() != null) {
                         arquivoService.registraUso(valor.getValorAnexo().getId());
-                        valor.setValorAnexo(daoService.find(Arquivo.class, valor.getValorAnexo().getId()));
+                        valor.setValorAnexo(daoService.find(Arquivo.class,
+                                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), valor.getValorAnexo().getId())));
                     }
                 }
 
