@@ -44,19 +44,6 @@ public class ArquivoServiceImpl implements ArquivoService {
     }
 
     @Override
-    @AllowMembro
-    @AllowAdmin({
-            Funcionalidade.MANTER_MEMBROS,
-            Funcionalidade.MANTER_BOLETINS,
-            Funcionalidade.MANTER_PUBLICACOES,
-            Funcionalidade.MANTER_ESTUDOS,
-            Funcionalidade.MANTER_DADOS_INSTITUCIONAIS,
-            Funcionalidade.MANTER_EVENTOS,
-            Funcionalidade.MANTER_EBD,
-            Funcionalidade.MANTER_CIFRAS,
-            Funcionalidade.MANTER_CANTICOS,
-            Funcionalidade.MANTER_NOTICIAS
-    })
     public Arquivo upload(String fileName, byte[] fileData) {
         return cadastra(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()), fileName, fileData);
     }
