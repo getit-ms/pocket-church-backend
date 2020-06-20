@@ -46,11 +46,9 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
             if (membro != null) {
                 query.append(" and ie.membro.id = :membro");
                 args.put("membro", membro);
-            } else if (filtro.getTipoEvento() == TipoEvento.CULTO){
-                query.append(" and ie.dispositivo.chave = :dispositivo");
-                args.put("dispositivo", dispositivo);
             } else {
-                throw new ServiceException("mensagens.MSG-403");
+                query.append(" and ie.dispositivo.chave = :dispositivo and ie.membro is null");
+                args.put("dispositivo", dispositivo);
             }
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE, StatusInscricaoEvento.CANCELADA));
         }else{
