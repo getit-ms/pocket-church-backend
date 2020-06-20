@@ -1748,8 +1748,6 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public Evento buscaEvento(Long evento) {
         Evento entidade = daoService.find(Evento.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento));
         entidade.setVagasRestantes(entidade.getLimiteInscricoes() - ((Number) daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento))).intValue());
@@ -1806,7 +1804,6 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public BuscaPaginadaDTO<Evento> buscaFuturos(FiltroEventoFuturoDTO filtro) {
         return buscaTodos(filtro);
     }
@@ -1819,7 +1816,6 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public BuscaPaginadaDTO<InscricaoEvento> buscaMinhas(Long evento, FiltroMinhasInscricoesDTO filtro) {
         return buscaTodas(evento, filtro);
     }
@@ -1912,8 +1908,6 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
-    @AllowMembro({Funcionalidade.REALIZAR_INSCRICAO_EVENTO, Funcionalidade.REALIZAR_INSCRICAO_EBD, Funcionalidade.REALIZAR_INSCRICAO_CULTO})
     public ResultadoInscricaoDTO realizaInscricao(List<InscricaoEvento> inscricoes) {
         if (!inscricoes.isEmpty()) {
             Evento evento = inscricoes.get(0).getEvento();
