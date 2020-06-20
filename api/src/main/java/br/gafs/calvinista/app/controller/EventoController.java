@@ -173,8 +173,10 @@ public class EventoController {
             MergeUtil.merge(inscricao, View.Cadastro.class).into(insc);
             merged.add(insc);
 
-            for (ValorInscricaoEvento valor : insc.getValores()) {
-                valor.setInscricao(insc);
+            if (insc.getValores() != null) {
+                for (ValorInscricaoEvento valor : insc.getValores()) {
+                    valor.setInscricao(insc);
+                }
             }
         }
         return Response.status(Response.Status.OK).entity(appService.realizaInscricao(merged)).build();

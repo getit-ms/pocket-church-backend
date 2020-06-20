@@ -50,7 +50,7 @@ public class InscricaoEvento implements IEntity {
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "id_membro", referencedColumnName = "id_membro"),
-            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Membro membro;
 
@@ -74,7 +74,7 @@ public class InscricaoEvento implements IEntity {
     @JsonIgnore
     @JoinColumns({
             @JoinColumn(name = "id_evento", referencedColumnName = "id_evento"),
-            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
     })
     private Evento evento;
 
