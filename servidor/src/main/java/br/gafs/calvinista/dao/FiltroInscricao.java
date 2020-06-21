@@ -47,7 +47,7 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
                 query.append(" and m.id = :membro");
                 args.put("membro", membro);
             } else {
-                query.append(" and ie.dispositivo.chave = :dispositivo and m.id is null");
+                query.append(" and ie.dispositivo.chave = :dispositivo");
                 args.put("dispositivo", dispositivo);
             }
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE, StatusInscricaoEvento.CANCELADA));
