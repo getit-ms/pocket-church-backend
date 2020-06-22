@@ -1928,11 +1928,13 @@ public class AppServiceImpl implements AppService {
 
             List<InscricaoEvento> cadastradas = new ArrayList<InscricaoEvento>();
             for (InscricaoEvento inscricao : inscricoes) {
-                for (ValorInscricaoEvento valor : inscricao.getValores()) {
-                    if (valor.getValorAnexo() != null) {
-                        arquivoService.registraUso(valor.getValorAnexo().getId());
-                        valor.setValorAnexo(daoService.find(Arquivo.class,
-                                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), valor.getValorAnexo().getId())));
+                if (inscricao.getValores() != null) {
+                    for (ValorInscricaoEvento valor : inscricao.getValores()) {
+                        if (valor.getValorAnexo() != null) {
+                            arquivoService.registraUso(valor.getValorAnexo().getId());
+                            valor.setValorAnexo(daoService.find(Arquivo.class,
+                                    new RegistroIgrejaId(sessaoBean.getChaveIgreja(), valor.getValorAnexo().getId())));
+                        }
                     }
                 }
 
