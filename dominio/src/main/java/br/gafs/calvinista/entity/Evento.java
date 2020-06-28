@@ -160,7 +160,8 @@ public class Evento implements IEntity {
     }
     
     public String getFilename(){
-        return StringUtil.formataValor(nome, true, false).replace(" ", "_");
+        return StringUtil.formataValor(nome, true, false)
+                .replace(" ", "_").replace("/", "-");
     }
     
     public boolean isComPagamento(){
