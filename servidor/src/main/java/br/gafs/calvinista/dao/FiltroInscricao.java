@@ -57,7 +57,7 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select ie ").append(query).append(" order by ie.data").toString());
+        setQuery(new StringBuilder("select ie ").append(query).append(" order by lower(ie.nomeInscrito), ie.data").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(ie) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
