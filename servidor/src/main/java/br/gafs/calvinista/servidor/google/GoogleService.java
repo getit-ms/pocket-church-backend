@@ -294,12 +294,13 @@ public class GoogleService {
         List<Channel> channels = connection.channels().list("id,contentDetails").
                 setId(channelId).execute().getItems();
 
-        PlaylistItemListResponse response = connection.playlistItems().list("id,snippet")
+        PlaylistItemListResponse response = connection.playlistItems().list("id,snippet,status")
                 .setPlaylistId(channels.get(0).getContentDetails().getRelatedPlaylists().getUploads())
                 .setMaxResults(30L).execute();
 
         for (PlaylistItem result : response.getItems()) {
-            if (result.getSnippet().getResourceId().getVideoId() == null) {
+            if (result.getSnippet().getResourceId().getVideoId() == null
+                    || !"public".equals(result.getStatus().getPrivacyStatus())) {
                 continue;
             }
 
@@ -328,6 +329,10 @@ public class GoogleService {
 
         for (LiveBroadcast live : lives.getItems()) {
             if (live.getSnippet().getChannelId().equals(channelId)) {
+                if (!"public".equals(live.getStatus().getPrivacyStatus())) {
+                    return;
+                }
+
                 VideoDTO video = new VideoDTO(
                         live.getId(),
                         live.getSnippet().getTitle(),
