@@ -90,7 +90,7 @@ public class Evento implements IEntity {
     
     @View.MergeViews(View.Edicao.class)
     @Column(name = "exige_pagamento", nullable = false)
-    private boolean exigePagamento = true;
+    private boolean exigePagamento = false;
     
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
