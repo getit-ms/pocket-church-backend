@@ -6,6 +6,7 @@ import br.gafs.calvinista.entity.domain.TipoCampoEvento;
 import br.gafs.calvinista.entity.domain.TipoValidacaoCampo;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -56,6 +57,7 @@ public class CampoEvento implements IEntity {
 
     @ElementCollection
     @Column(name = "opcao")
+    @JsonView(View.Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @CollectionTable(name = "tb_opcoes_campo_evento",
             joinColumns = @JoinColumn(name = "id_campo_evento", referencedColumnName = "id_campo_evento")
@@ -64,6 +66,7 @@ public class CampoEvento implements IEntity {
 
     @ElementCollection
     @Column(name = "valor")
+    @JsonView(View.Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @MapKeyColumn(name = "tipo")
     @MapKeyEnumerated(EnumType.ORDINAL)
