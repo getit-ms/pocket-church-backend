@@ -73,7 +73,7 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
 
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(select.append(from).append(where).append(groupBy).append(" order by e.data_hora_inicio, e.nome").toString());
+        setQuery(select.append(from).append(where).append(groupBy).append(" order by e.data_hora_inicio desc, e.nome").toString());
         setCountQuery(QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(*) ").append(fromCount).append(where).toString(), argsCount));
         setResultLimit(filtro.getTotal());
     }
