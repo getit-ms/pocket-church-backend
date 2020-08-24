@@ -177,6 +177,8 @@ public class EventoController {
                 for (ValorInscricaoEvento valor : insc.getValores()) {
                     valor.setInscricao(insc);
                 }
+            } else {
+                insc.setValores(new ArrayList<ValorInscricaoEvento>());
             }
         }
         return Response.status(Response.Status.OK).entity(appService.realizaInscricao(merged)).build();

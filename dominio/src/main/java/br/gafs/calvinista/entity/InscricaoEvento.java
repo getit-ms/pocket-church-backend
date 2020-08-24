@@ -119,6 +119,7 @@ public class InscricaoEvento implements IEntity {
     @Column(name = "status", nullable = false)
     private StatusInscricaoEvento status = StatusInscricaoEvento.PENDENTE;
 
+    @Setter
     @View.MergeViews(View.Cadastro.class)
     @OneToMany(mappedBy = "inscricao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ValorInscricaoEvento> valores = new ArrayList<>();
