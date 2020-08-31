@@ -107,6 +107,7 @@ public class PedidoOracao implements IEntity {
     private String chaveIgreja;
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
 

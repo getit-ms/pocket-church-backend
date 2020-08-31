@@ -84,6 +84,7 @@ public class RespostaVotacao implements IEntity {
     private List<RespostaQuestao> respostas = new ArrayList<RespostaQuestao>();
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja", insertable = false, updatable = false)
     private Igreja igreja;
 

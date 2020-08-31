@@ -1,6 +1,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,7 @@ public class EventoCalendario implements IEntity {
     private String chaveIgreja;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
 

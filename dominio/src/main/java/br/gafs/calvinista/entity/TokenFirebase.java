@@ -1,6 +1,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,6 +37,7 @@ public class TokenFirebase implements IEntity {
     private String token;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
 }

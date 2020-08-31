@@ -68,6 +68,7 @@ public class AgendamentoAtendimento implements IEntity {
     private String chaveIgreja;
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
     private Igreja igreja;
     

@@ -6,6 +6,7 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -49,6 +50,7 @@ public class SentNotification implements IEntity {
     private Membro membro;
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
     

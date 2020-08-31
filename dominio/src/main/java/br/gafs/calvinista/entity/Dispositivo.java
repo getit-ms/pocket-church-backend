@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -66,6 +68,7 @@ public class Dispositivo implements IEntity {
     private String versao = "unknown";
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
     private Igreja igreja;
     

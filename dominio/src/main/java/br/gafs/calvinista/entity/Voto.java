@@ -70,6 +70,7 @@ public class Voto implements IEntity {
     private Membro membro;
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja", insertable = false, updatable = false)
     private Igreja igreja;
 

@@ -22,6 +22,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -62,6 +64,7 @@ public class RegistroAuditoria implements IEntity {
     private Membro membro;
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja", insertable = false, updatable = false)
     private Igreja igreja;
     

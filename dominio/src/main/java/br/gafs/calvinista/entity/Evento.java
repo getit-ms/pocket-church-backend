@@ -128,6 +128,7 @@ public class Evento implements IEntity {
     private List<CampoEvento> campos = new ArrayList<>();
     
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_igreja")
     private Igreja igreja;
 
