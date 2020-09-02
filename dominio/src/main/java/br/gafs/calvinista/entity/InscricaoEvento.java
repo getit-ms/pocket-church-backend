@@ -16,6 +16,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,10 +86,9 @@ public class InscricaoEvento implements IEntity {
     @Column(name = "nome_inscrito", length = 255, nullable = false)
     private String nomeInscrito;
 
-    @Setter
-    @Email
     @NotEmpty
     @Length(max = 150)
+    @Pattern(regexp = ".+@.+")
     @View.MergeViews(View.Cadastro.class)
     @Column(name = "email_inscrito", length = 150, nullable = false)
     private String emailInscrito;
@@ -129,6 +129,14 @@ public class InscricaoEvento implements IEntity {
         this.valor = evento.getValor();
         if (!evento.isComPagamento()) {
             confirmada();
+        }
+    }
+
+    public void setEmailInscrito(String emailInscrito) {
+        if (emailInscrito != null) {
+            this.emailInscrito = emailInscrito.trim();
+        } else {
+            this.emailInscrito = null;
         }
     }
 
