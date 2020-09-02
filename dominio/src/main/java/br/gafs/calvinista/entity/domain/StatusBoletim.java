@@ -11,6 +11,6 @@ package br.gafs.calvinista.entity.domain;
  */
 public enum StatusBoletim {
     PROCESSANDO,
-    PUBLICADO,
+    FINALIZADO,
     REJEITADO
 }
