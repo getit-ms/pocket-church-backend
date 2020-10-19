@@ -6,11 +6,11 @@ insert into tb_item_evento(id_item_evento, chave_empresa, tipo, titulo, data_hor
 
 -- BOLETIM_INFORMATIVO
 insert into tb_item_evento(id_item_evento, chave_empresa, tipo, titulo, data_hora, status, id_ilustracao, id_autor)
-    select to_char(id_boletim_informativo, '9999999999999'), chave_empresa, 'BOLETIM_INFORMATIVO', titulo, data_publicacao, DECODE(1, 0, 1), id_thumbnail, id_autor from tb_boletim_informativo;
+    select to_char(id_boletim, '9999999999999'), chave_empresa, 'BOLETIM_INFORMATIVO', titulo, data_publicacao, case when status = 1 then 0 else 1 end, id_thumbnail, id_autor from tb_boletim;
 
 -- DOCUMENTO
 insert into tb_item_evento(id_item_evento, chave_empresa, tipo, titulo, data_hora, status, id_ilustracao, id_autor)
-    select to_char(id_documento, '9999999999999'), chave_empresa, 'DOCUMENTO', titulo, data_publicacao, DECODE(1, 0, 1), id_thumbnail, id_colaborador from tb_documento;
+    select to_char(id_documento, '9999999999999'), chave_empresa, 'DOCUMENTO', titulo, data_publicacao, case when status = 1 then 0 else 1 end, id_thumbnail, id_colaborador from tb_documento;
 
 -- EVENTO_INSCRICAO
 insert into tb_item_evento(id_item_evento, chave_empresa, tipo, titulo, data_hora, status, id_ilustracao)
@@ -19,6 +19,6 @@ insert into tb_item_evento(id_item_evento, chave_empresa, tipo, titulo, data_hor
 
 -- EVENTO_CALENDARIO
 insert into tb_item_evento(id_item_evento, chave_empresa, tipo, titulo, data_hora, status)
-    select id_evento, chave_empresa, 'EVENTO_CALENDARIO',
+    select id, chave_empresa, 'EVENTO_CALENDARIO',
     case when length(descricao) > 150 then substr(descricao, 150) else descricao end,
     data_inicio, 0 from tb_evento_calendario;

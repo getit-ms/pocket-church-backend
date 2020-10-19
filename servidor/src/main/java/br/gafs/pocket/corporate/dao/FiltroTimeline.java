@@ -28,7 +28,7 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from ItemEvento ie where ie.empresa.chave = :chaveEmpresa")
-                .append(" and ie.status = :status and ie.dataHora <= :data");
+                .append(" and ie.status = :status and ie.dataHora <= :dataHora");
         Map<String, Object> args = new QueryParameters("chaveEmpresa", empresa)
                 .set("status", StatusItemEvento.PUBLICADO)
                 .set("dataHora", DateUtil.getDataAtual());

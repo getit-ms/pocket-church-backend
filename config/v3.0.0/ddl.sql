@@ -20,10 +20,10 @@ create table tb_item_evento (
             references tb_colaborador(chave_empresa, id_colaborador)
 );
 
-alter table tb_boletim_informativo
-    add column id_autor;
+alter table tb_boletim
+    add column id_autor bigint;
 
-alter table tb_boletim_informativo
+alter table tb_boletim
     add constraint fk_autor_boletim_informativo
         foreign key (chave_empresa, id_autor)
             references tb_colaborador(chave_empresa, id_colaborador);
@@ -38,9 +38,15 @@ alter table tb_audio
     rename column autor to autoria;
 
 alter table tb_audio
-    add column id_autor;
+    add column id_autor bigint;
 
 alter table tb_audio
     add constraint fk_autor_audio
         foreign key (chave_empresa, id_autor)
             references tb_colaborador(chave_empresa, id_colaborador);
+
+create index idx_item_evento
+    on tb_item_evento(chave_empresa, tipo, id_item_evento);
+
+create index idx_item_evento_data
+    on tb_item_evento(chave_empresa, status, data_hora);
