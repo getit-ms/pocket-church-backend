@@ -3,6 +3,7 @@ package br.gafs.pocket.corporate.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,6 +26,7 @@ public class ItemEvento implements IEntity {
     private String id;
 
     @Id
+    @JsonIgnore
     @Column(name = "chave_empresa", insertable = false, updatable = false)
     private String chaveEmpresa;
 
@@ -62,6 +64,7 @@ public class ItemEvento implements IEntity {
     private Colaborador autor;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_empresa")
     private Empresa empresa;
 
