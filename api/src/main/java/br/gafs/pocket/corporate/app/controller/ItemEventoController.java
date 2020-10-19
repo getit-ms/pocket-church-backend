@@ -51,8 +51,8 @@ public class ItemEventoController {
             @PathParam("dataInicio") final String dataInicio,
             @PathParam("dataTermino") final String dataTermino) {
         return Response.status(Response.Status.OK).entity(appService.buscaPeriodoCalendario(
-                DateUtil.parseData(dataInicio, "yyyy-MM-dd'T'HH:mm:ss.SSS"),
-                DateUtil.parseData(dataTermino, "yyyy-MM-dd'T'HH:mm:ss.SSS")
+                DateUtil.getDataPrimeiraHoraDia(DateUtil.parseData(dataInicio, "yyyy-MM-dd")),
+                DateUtil.getDataUltimaHoraDia(DateUtil.parseData(dataTermino, "yyyy-MM-dd"))
         )).build();
     }
 
