@@ -45,6 +45,7 @@ public class ItemEvento implements IEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataHora;
 
+    @JsonIgnore
     @Column(name = "status")
     @Enumerated(EnumType.ORDINAL)
     private StatusItemEvento status;
