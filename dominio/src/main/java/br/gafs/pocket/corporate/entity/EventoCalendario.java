@@ -1,6 +1,9 @@
 package br.gafs.pocket.corporate.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
+import br.gafs.util.string.StringUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +22,7 @@ import java.util.Date;
         @NamedQuery(name = "EventoCalendario.countByEmpresa", query = "select count(ec) from EventoCalendario ec where ec.empresa.chave = :empresa"),
         @NamedQuery(name = "EventoCalendario.findByEmpresa", query = "select ec from EventoCalendario ec where ec.empresa.chave = :empresa order by ec.inicio, ec.id")
 })
-public class EventoCalendario implements IEntity {
+public class EventoCalendario implements IEntity, IItemEvento {
     @Id
     @Column(name = "id")
     private String id;
@@ -62,5 +65,17 @@ public class EventoCalendario implements IEntity {
         this.local = local;
         this.ultimaAtualizacao = new Date();
         this.id = id;
+    }
+
+    @Override
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId())
+                .empresa(getEmpresa())
+                .tipo(TipoItemEvento.EVENTO_CALENDARIO)
+                .titulo(getDescricao().length() > 150 ? getDescricao().substring(150) : getDescricao())
+                .dataHora(getInicio())
+                .status(StatusItemEvento.PUBLICADO)
+                .build();
     }
 }

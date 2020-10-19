@@ -7,7 +7,9 @@ package br.gafs.pocket.corporate.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.pocket.corporate.entity.domain.StatusDocumento;
+import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoDocumento;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.view.View;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
@@ -42,7 +44,7 @@ import java.util.List;
     @NamedQuery(name = "Documento.findPDFByStatus", query = "select e from Documento e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
     @NamedQuery(name = "Documento.updateStatus", query = "update Documento e set e.status = :status where e.id = :documento and e.empresa.chave = :empresa")
 })
-public class Documento implements IEntity, ArquivoPDF {
+public class Documento implements IEntity, ArquivoPDF, IItemEvento {
 
     @Id
     @JsonView(View.Resumido.class)
@@ -125,8 +127,8 @@ public class Documento implements IEntity, ArquivoPDF {
     
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
-    @Column(name = "autor", nullable = false)
-    private String autor;
+    @Column(name = "autoria", nullable = false)
+    private String autoria;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "ultima_alteracao")
@@ -229,5 +231,23 @@ public class Documento implements IEntity, ArquivoPDF {
         } else {
             return TipoDocumento.PDF;
         }
+    }
+
+    @Override
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .empresa(getEmpresa())
+                .tipo(TipoItemEvento.DOCUMENTO)
+                .titulo(getTitulo())
+                .dataHora(getDataPublicacao())
+                .ilustracao(getThumbnail())
+                .autor(getColaborador())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

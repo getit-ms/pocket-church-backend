@@ -410,6 +410,13 @@ public enum QueryAdmin {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
+    },
+    ITENS_PERIODO_CALENDARIO("ItemEvento.findByPeriodo", "chaveEmpresa", "dataInicio", "dataTermino"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("status", StatusItemEvento.PUBLICADO);
+        }
     };
 
     private final String query;

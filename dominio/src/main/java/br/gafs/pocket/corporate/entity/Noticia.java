@@ -1,8 +1,11 @@
 package br.gafs.pocket.corporate.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoNoticia;
 import br.gafs.pocket.corporate.view.View;
+import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
@@ -28,7 +31,7 @@ import java.util.Date;
         @NamedQuery(name = "Noticia.updateNaoDivulgadosByEmpresa", query = "update Noticia n set n.divulgado = true where n.empresa.chave = :empresa and n.dataPublicacao <= :data and n.tipo = :tipoNoticia"),
         @NamedQuery(name = "Noticia.findUltimaADivulgar", query = "select n from Noticia n where n.empresa.chave = :empresa and n.dataPublicacao <= :data and n.tipo = :tipoNoticia and n.divulgado = false order by n.dataPublicacao desc"),
 })
-public class Noticia implements IEntity {
+public class Noticia implements IEntity, IItemEvento {
     @Id
     @JsonView(View.Resumido.class)
     @Column(name = "id_noticia")
@@ -105,4 +108,25 @@ public class Noticia implements IEntity {
     @JsonIgnore
     @JoinColumn(name = "chave_empresa", nullable = false)
     private Empresa empresa;
+
+    @Override
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .empresa(getEmpresa())
+                .tipo(TipoItemEvento.NOTICIA)
+                .titulo(getTitulo())
+                .dataHora(getDataPublicacao())
+                .ilustracao(getIlustracao())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
+    }
+
+    private boolean isPublicado() {
+        return DateUtil.getDataAtual().after(dataPublicacao);
+    }
 }

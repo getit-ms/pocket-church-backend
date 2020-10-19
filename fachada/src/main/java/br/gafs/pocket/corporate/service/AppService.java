@@ -198,4 +198,8 @@ public interface AppService extends Serializable {
     List<EstatisticaAcesso> buscaEstatisticasAcessoFuncionalidade(Funcionalidade funcionalidade);
 
     String getVersaoApp(TipoDispositivo tipoDispositivo);
+
+    BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro);
+    List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino);
+
 }

@@ -6,7 +6,9 @@
 package br.gafs.pocket.corporate.entity;
 
 import br.gafs.pocket.corporate.entity.domain.StatusBoletimInformativo;
+import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoBoletimInformativo;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.view.View;
 import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,7 +41,7 @@ import java.util.List;
     @NamedQuery(name = "BoletimInformativo.findByStatus", query = "select b from BoletimInformativo b where b.status = :status order by b.dataPublicacao"),
     @NamedQuery(name = "BoletimInformativo.updateStatus", query = "update BoletimInformativo b set b.status = :status where b.id = :boletim and b.empresa.chave = :empresa")
 })
-public class BoletimInformativo implements ArquivoPDF {
+public class BoletimInformativo implements ArquivoPDF, IItemEvento {
 
     @Id
     @JsonView(View.Resumido.class)
@@ -117,6 +119,14 @@ public class BoletimInformativo implements ArquivoPDF {
     })
     private List<Arquivo> paginas = new ArrayList<Arquivo>();
 
+    @ManyToOne
+    @JsonView(View.Resumido.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_autor", referencedColumnName = "id_colaborador"),
+            @JoinColumn(name = "chave_empresa", referencedColumnName = "chave_empresa", insertable = false, updatable = false),
+    })
+    private Colaborador autor;
+
     @Id
     @JsonIgnore
     @Column(name = "chave_empresa", insertable = false, updatable = false)
@@ -172,5 +182,23 @@ public class BoletimInformativo implements ArquivoPDF {
     @JsonIgnore
     public Arquivo getPDF() {
         return boletim;
+    }
+
+    @Override
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .empresa(getEmpresa())
+                .tipo(TipoItemEvento.BOLETIM_INFORMATIVO)
+                .titulo(getTitulo())
+                .dataHora(getDataPublicacao())
+                .ilustracao(getThumbnail())
+                .autor(getAutor())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

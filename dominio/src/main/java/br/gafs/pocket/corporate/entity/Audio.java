@@ -1,7 +1,9 @@
 package br.gafs.pocket.corporate.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoAudio;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -11,6 +13,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * Created by Gabriel on 23/07/2018.
@@ -22,7 +25,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "tb_audio")
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroEmpresaId.class)
-public class Audio implements IEntity {
+public class Audio implements IEntity, IItemEvento {
 
     @Id
     @JsonView(View.Resumido.class)
@@ -43,14 +46,19 @@ public class Audio implements IEntity {
     @Length(max = 150)
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
-    @Column(name = "autor", length = 150)
-    private String autor;
+    @Column(name = "autoria", length = 150)
+    private String autoria;
 
     @Setter
     @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "descricao")
     private String descricao;
+
+    @Column(name = "data_hora")
+    @JsonView(View.Resumido.class)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataHora = new Date();
 
     @Setter
     @NotNull
@@ -117,6 +125,14 @@ public class Audio implements IEntity {
 
     @Setter
     @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "id_autor", referencedColumnName = "id_colaborador"),
+            @JoinColumn(name = "chave_empresa", referencedColumnName = "chave_empresa", insertable = false, updatable = false),
+    })
+    private Colaborador autor;
+
+    @Setter
+    @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_empresa", nullable = false)
     private Empresa empresa;
@@ -125,4 +141,18 @@ public class Audio implements IEntity {
     @JsonIgnore
     @Column(name = "chave_empresa", insertable = false, updatable = false)
     private String chaveEmpresa;
+
+    @Override
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .empresa(getEmpresa())
+                .tipo(TipoItemEvento.AUDIO)
+                .titulo(getNome())
+                .dataHora(getDataHora())
+                .ilustracao(getCapa())
+                .autor(getAutor())
+                .status(StatusItemEvento.PUBLICADO)
+                .build();
+    }
 }

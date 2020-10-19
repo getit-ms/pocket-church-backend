@@ -1,8 +1,8 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.pocket.corporate.servidor;
 
 import br.gafs.bundle.ResourceBundleUtil;
@@ -58,7 +58,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -71,8 +70,8 @@ public class AppServiceImpl implements AppService {
     private static final Integer HORA_MAXIMA_NOTIFICACAO = 22;
 
     @EJB
-    private DAOService daoService;
-    
+    private CustomDAOService daoService;
+
     @EJB
     private ArquivoService arquivoService;
 
@@ -99,7 +98,7 @@ public class AppServiceImpl implements AppService {
 
     @EJB
     private MensagemBuilder mensagemBuilder;
-    
+
     @Inject
     private SessaoBean sessaoBean;
 
@@ -125,29 +124,29 @@ public class AppServiceImpl implements AppService {
         }
         return template;
     }
-    
+
     @Override
     @AllowAdmin
-    public StatusAdminDTO buscaStatus(){
+    public StatusAdminDTO buscaStatus() {
         StatusAdminDTO status = new StatusAdminDTO();
         status.setMensagemDia(buscaMensagemDia());
 
-        if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_CONTATOS_COLABORADORES)){
+        if (sessaoBean.temPermissao(Funcionalidade.CONSULTAR_CONTATOS_COLABORADORES)) {
             Number contatos = daoService.findWith(new FiltroContatoColaborador(null, sessaoBean.getChaveEmpresa(),
                     new FiltroContatoColaboradorDTO(null, null, Arrays.asList(StatusContatoColaborador.PENDENTE), 1, 10)).getCountQuery());
 
-            if (contatos.intValue() > 0){
+            if (contatos.intValue() > 0) {
                 status.addNotificacao("mensagens.MSG-036", contatos.intValue(),
                         new QueryParameters("quantidade", contatos),
                         "/contato");
             }
         }
 
-        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)){
+        if (sessaoBean.temPermissao(Funcionalidade.MANTER_EVENTOS)) {
             Number pendentes = daoService.findWith(new FiltroInscricao(null, sessaoBean.getChaveEmpresa(), null,
                     new FiltroInscricaoDTO(TipoEvento.EVENTO, Collections.singletonList(StatusInscricaoEvento.PENDENTE), 1, 1)).getCountQuery());
 
-            if (pendentes.intValue() > 0){
+            if (pendentes.intValue() > 0) {
                 status.addNotificacao("mensagens.MSG-059", pendentes.intValue(),
                         new QueryParameters("quantidade", pendentes),
                         "/evento");
@@ -161,26 +160,26 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaDTO<NotificationSchedule> buscaNotificacoes(FiltroNotificacoesDTO filtro) {
         BuscaPaginadaDTO<NotificationSchedule> busca = daoService.findWith(new FiltroNotificacoes(sessaoBean.getChaveEmpresa(),
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdColaborador(), filtro));
-        
-        if (filtro.getPagina().equals(1)){
+
+        if (filtro.getPagina().equals(1)) {
             notificacaoService.marcaNotificacoesComoLidas(
                     sessaoBean.getChaveEmpresa(),
                     sessaoBean.getChaveDispositivo(),
                     sessaoBean.getIdColaborador()
             );
         }
-        
+
         return busca;
     }
 
     @Override
-    public void clearNotificacoes(List<Long> excecoes){
+    public void clearNotificacoes(List<Long> excecoes) {
         if (excecoes == null || excecoes.isEmpty()) {
             // Evita erros de SQL por causa de lista vazia
             excecoes = Arrays.asList(-1L);
         }
 
-        if (sessaoBean.getIdColaborador() != null){
+        if (sessaoBean.getIdColaborador() != null) {
             daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_COLABORADOR.
                     create(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), excecoes));
         }
@@ -188,61 +187,61 @@ public class AppServiceImpl implements AppService {
         daoService.execute(QueryNotificacao.CLEAR_NOTIFICACOES_DISPOSITIVO.
                 create(sessaoBean.getChaveEmpresa(), sessaoBean.getChaveDispositivo(), excecoes));
     }
-    
+
     @Override
-    public void removeNotificacao(Long notificacao){
+    public void removeNotificacao(Long notificacao) {
         SentNotification sn = daoService.find(SentNotification.class, new SentNotificationId(sessaoBean.getChaveDispositivo(), notificacao));
-        
-        if (sn != null && (sn.getColaborador() == null || sn.getColaborador().equals(sessaoBean.getIdColaborador()))){
+
+        if (sn != null && (sn.getColaborador() == null || sn.getColaborador().equals(sessaoBean.getIdColaborador()))) {
             daoService.delete(SentNotification.class, sn.getId());
         }
 
-        if (sessaoBean.getIdColaborador() != null){
+        if (sessaoBean.getIdColaborador() != null) {
             List<SentNotification> sns = daoService.findWith(QueryNotificacao.NOTIFICACAO_COLABORADOR.
                     create(notificacao, sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()));
 
-            for (SentNotification sn0 : sns){
+            for (SentNotification sn0 : sns) {
                 daoService.delete(SentNotification.class, sn0.getId());
             }
         }
     }
-    
+
     @Override
     @AllowAdmin
     @AllowColaborador
     public List<ReleaseNotes> buscaReleaseNotes(TipoVersao tipo) {
         return daoService.findWith(QueryAdmin.RELEASE_NOTES.create(tipo));
     }
-    
-    private MensagemDia buscaMensagemDia(){
+
+    private MensagemDia buscaMensagemDia() {
         return daoService.findWith(QueryAdmin.MENSAGEM_DIAS_POR_STATUS.
                 createSingle(sessaoBean.getChaveEmpresa(), StatusMensagemDia.ATIVO));
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public List<Colaborador> buscaGerentes() {
         return daoService.findWith(QueryAdmin.GERENTES_ATIVOS.
                 create(sessaoBean.getChaveEmpresa()));
     }
-    
+
     @Audit
     @Override
     public Chamado solicita(Chamado chamado) {
-        if (sessaoBean.isAdmin()){
+        if (sessaoBean.isAdmin()) {
             chamado.setTipo(TipoChamado.SUPORTE);
-            
+
             if (sessaoBean.getIdColaborador() == null ||
-                    !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)){
+                    !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)) {
                 throw new ServiceException("mensagens.MSG-403");
             }
-        }else if (chamado.isSuporte()){
+        } else if (chamado.isSuporte()) {
             throw new ServiceException("mensagens.MSG-403");
         }
 
         chamado.setDispositivoSolicitante(daoService.find(Dispositivo.class, sessaoBean.getChaveDispositivo()));
         chamado = daoService.create(chamado);
-        
+
         EmailUtil.sendMail(
                 MessageFormat.format(ResourceBundleUtil._default().getPropriedade("CHAMADO_MESSAGE"),
                         chamado.getDescricao(), chamado.getEmpresaSolicitante().getNome(),
@@ -257,28 +256,28 @@ public class AppServiceImpl implements AppService {
         if (chamado.getDescricao().startsWith("Chamado automático")) {
             daoService.delete(Chamado.class, chamado.getId());
         }
-        
+
         return chamado;
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)
     public Chamado buscaChamado(Long id) {
         Chamado chamado = daoService.find(Chamado.class, id);
         if (chamado == null || !chamado.getEmpresaSolicitante().getChave().equals(sessaoBean.getChaveEmpresa()) ||
                 (chamado.isSuporte() && (sessaoBean.getIdColaborador() == null ||
-                !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)))){
+                        !sessaoBean.temPermissao(Funcionalidade.ABERTURA_CHAMADO_SUPORTE)))) {
             throw new ServiceException("mensagens.MSG-403");
         }
         return chamado;
     }
-    
+
     @Override
     public BuscaPaginadaDTO<Chamado> busca(FiltroChamadoDTO filtro) {
         return daoService.findWith(new FiltroChamado(sessaoBean.getChaveEmpresa(),
                 sessaoBean.getChaveDispositivo(), sessaoBean.getIdColaborador(), sessaoBean.isAdmin(), filtro));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
@@ -316,29 +315,29 @@ public class AppServiceImpl implements AppService {
     public List<LotacaoColaborador> buscaLotacoesColaborador() {
         return daoService.findWith(QueryAdmin.LOTACAO_COLABORADOR.create(sessaoBean.getChaveEmpresa()));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Colaborador darAcessoColaborador(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
-        
+
         if (entidade.getId().equals(sessaoBean.getIdColaborador())) {
             throw new ServiceException("mensagens.MSG-015");
         }
-        
+
         boolean gerarSenha = entidade.isSenhaUndefined();
-        
+
         entidade.colaborador();
         entidade = daoService.update(entidade);
-        
-        if (gerarSenha){
+
+        if (gerarSenha) {
             String senha = paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.SENHA_PADRAO);
 
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
-            
+
             entidade = daoService.update(entidade);
-            
+
             notificacaoService.sendNow(
                     mensagemBuilder.email(
                             entidade.getEmpresa(),
@@ -348,22 +347,22 @@ public class AppServiceImpl implements AppService {
                     ),
                     new FiltroEmailDTO(entidade.getEmpresa(), entidade.getId()));
         }
-        
+
         return entidade;
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_FUNCIONALIDADES_APLICATIVO)
     public List<Funcionalidade> getFuncionalidadesHabilitadasAplicativo() {
         return daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()).getFuncionalidadesAplicativo();
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_FUNCIONALIDADES_APLICATIVO)
     public List<Funcionalidade> getFuncionalidadesAplicativo() {
         return daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()).getPlano().getFuncionalidadesColaborador();
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_FUNCIONALIDADES_APLICATIVO)
@@ -372,35 +371,35 @@ public class AppServiceImpl implements AppService {
         empresa.setFuncionalidadesAplicativo(funcionalidades);
         daoService.update(empresa);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Colaborador retiraAcessoColaborador(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
-        
+
         if (entidade.getId().equals(sessaoBean.getIdColaborador())) {
             throw new ServiceException("mensagens.MSG-015");
         }
-        
+
         entidade.contato();
         return daoService.update(entidade);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Acesso buscaAcessoAdmin(Long colaborador) {
         return daoService.find(Acesso.class, new AcessoId(new RegistroEmpresaId(
                 sessaoBean.getChaveEmpresa(), colaborador)));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
     public void removeColaborador(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
-        
-        if (!entidade.isColaborador()){
+
+        if (!entidade.isColaborador()) {
             entidade.exclui();
             daoService.update(entidade);
         }
@@ -412,7 +411,7 @@ public class AppServiceImpl implements AppService {
     public void redefinirSenha(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
 
-        if (entidade.isColaborador()){
+        if (entidade.isColaborador()) {
             String senha = paramService.get(sessaoBean.getChaveEmpresa(), TipoParametro.SENHA_PADRAO);
 
             entidade.setSenha(SenhaUtil.encryptSHA256(senha));
@@ -433,58 +432,58 @@ public class AppServiceImpl implements AppService {
     public Opcao buscaOpcao(Long id) {
         return daoService.find(Opcao.class, id);
     }
-    
+
     @Override
     public Questao buscaQuestao(Long id) {
         return daoService.find(Questao.class, id);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public Acesso darAcessoAdmin(Long colaborador, List<Perfil> perfis) {
         Colaborador entidade = buscaColaborador(colaborador);
-        
+
         Acesso acesso = buscaAcessoAdmin(colaborador);
         if (acesso == null) {
-            if (!entidade.isColaborador()){
+            if (!entidade.isColaborador()) {
                 entidade = darAcessoColaborador(colaborador);
             }
-            
+
             acesso = daoService.create(new Acesso(entidade));
         }
-        
+
         acesso.setPerfis(perfis);
 
-        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)){
+        if (!acesso.possuiPermissao(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)) {
             if (entidade.getId().equals(sessaoBean.getIdColaborador())) {
                 throw new ServiceException("mensagens.MSG-015");
             }
         }
-        
+
         return daoService.update(acesso);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_COLABORADORES)
     public void retiraAcessoAdmin(Long colaborador) {
         Colaborador entidade = buscaColaborador(colaborador);
-        
+
         if (entidade.getId().equals(sessaoBean.getIdColaborador())) {
             throw new ServiceException("mensagens.MSG-015");
         }
-        
+
         entidade.retiraAdmin();
         entidade.colaborador();
         daoService.update(entidade);
     }
-    
+
     @Override
     public Empresa buscaPorChave(String chave) {
         return daoService.find(Empresa.class, chave);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_COLABORADORES)
@@ -504,7 +503,7 @@ public class AppServiceImpl implements AppService {
 
         return daoService.update(colaborador);
     }
-    
+
     @Override
     @AllowAdmin({
             Funcionalidade.MANTER_COLABORADORES,
@@ -516,7 +515,7 @@ public class AppServiceImpl implements AppService {
     public Colaborador buscaColaborador(Long colaborador) {
         return daoService.find(Colaborador.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), colaborador));
     }
-    
+
     @Override
     @AllowAdmin({
             Funcionalidade.MANTER_COLABORADORES,
@@ -528,7 +527,7 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaDTO<Colaborador> busca(FiltroColaboradorDTO filtro) {
         return daoService.findWith(new FiltroColaborador(sessaoBean.isAdmin(), sessaoBean.getChaveEmpresa(), filtro));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
@@ -536,20 +535,20 @@ public class AppServiceImpl implements AppService {
         perfil.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         return daoService.create(perfil);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
     public Perfil atualiza(Perfil perfil) {
         return daoService.update(perfil);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
     public Perfil buscaPerfil(Long perfil) {
         return daoService.find(Perfil.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), perfil));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_PERFIS)
@@ -557,16 +556,16 @@ public class AppServiceImpl implements AppService {
         Perfil entidade = buscaPerfil(perfil);
         daoService.delete(Perfil.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
     }
-    
+
     @Override
     @AllowAdmin({
-        Funcionalidade.MANTER_PERFIS,
-        Funcionalidade.MANTER_COLABORADORES
+            Funcionalidade.MANTER_PERFIS,
+            Funcionalidade.MANTER_COLABORADORES
     })
     public List<Perfil> buscaPerfis() {
         return daoService.findWith(QueryAdmin.PERFIS.create(sessaoBean.getChaveEmpresa()));
     }
-    
+
     @Override
     @AllowAdmin
     public File buscaAjuda(String path) {
@@ -577,12 +576,12 @@ public class AppServiceImpl implements AppService {
 
     private boolean trataTrocaPDF(final ArquivoPDF pdf) {
         if (!pdf.getPDF().isUsed()) {
-            if (pdf.getId() != null){
+            if (pdf.getId() != null) {
                 ArquivoPDF old = daoService.find(pdf.getClass(), new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), pdf.getId()));
                 List<Arquivo> pages = new ArrayList<Arquivo>();
                 if (old != null) {
                     arquivoService.registraDesuso(old.getPDF().getId());
-                    if (old.getThumbnail() != null){
+                    if (old.getThumbnail() != null) {
                         arquivoService.registraDesuso(old.getThumbnail().getId());
                     }
 
@@ -609,10 +608,13 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public BoletimInformativo cadastra(BoletimInformativo boletimInformativo) throws IOException {
         boletimInformativo.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+        boletimInformativo.setAutor(daoService.find(Colaborador.class, new RegistroEmpresaId(
+                sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()
+        )));
         boletimInformativo.setBoletim(arquivoService.buscaArquivo(boletimInformativo.getBoletim().getId()));
         boletimInformativo.setUltimaAlteracao(DateUtil.getDataAtual());
 
-        if (trataTrocaPDF(boletimInformativo)){
+        if (trataTrocaPDF(boletimInformativo)) {
             boletimInformativo.processando();
 
             batchService.processaBoletim(boletimInformativo.getChaveEmpresa(), boletimInformativo.getId());
@@ -627,36 +629,36 @@ public class AppServiceImpl implements AppService {
     public BoletimInformativo atualiza(BoletimInformativo boletimInformativo) throws IOException {
         boletimInformativo.setBoletim(arquivoService.buscaArquivo(boletimInformativo.getBoletim().getId()));
         boletimInformativo.setUltimaAlteracao(DateUtil.getDataAtual());
-        if (trataTrocaPDF(boletimInformativo)){
+        if (trataTrocaPDF(boletimInformativo)) {
             boletimInformativo.processando();
 
             batchService.processaBoletim(boletimInformativo.getChaveEmpresa(), boletimInformativo.getId());
         }
         return daoService.update(boletimInformativo);
     }
-    
+
     @Override
     public BoletimInformativo buscaBoletim(Long boletim) {
         return daoService.find(BoletimInformativo.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), boletim));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public void removeBoletim(Long boletim) {
         BoletimInformativo entidade = buscaBoletim(boletim);
-        
-        if (entidade != null){
+
+        if (entidade != null) {
             for (Arquivo page : entidade.getPaginas()) {
                 arquivoService.registraDesuso(page.getId());
             }
-            
+
             arquivoService.registraDesuso(entidade.getBoletim().getId());
-            
-            if (entidade.getThumbnail() != null){
+
+            if (entidade.getThumbnail() != null) {
                 arquivoService.registraDesuso(entidade.getThumbnail().getId());
             }
-            
+
             daoService.delete(BoletimInformativo.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
         }
     }
@@ -671,19 +673,19 @@ public class AppServiceImpl implements AppService {
     public BuscaPaginadaDTO<BoletimInformativo> buscaPublicados(FiltroBoletimPublicadoDTO filtro) {
         return buscaTodos(filtro);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_DADOS_INSTITUCIONAIS)
     public Institucional atualiza(Institucional institucional) {
-        if (institucional.getDivulgacao() != null){
+        if (institucional.getDivulgacao() != null) {
             institucional.setDivulgacao(arquivoService.buscaArquivo(institucional.getDivulgacao().getId()));
             arquivoService.registraUso(institucional.getDivulgacao().getId());
         }
-        
+
         return daoService.update(institucional);
     }
-    
+
     @Override
     public Institucional recuperaInstitucional() {
         Institucional institucional = daoService.find(Institucional.class, sessaoBean.getChaveEmpresa());
@@ -734,7 +736,7 @@ public class AppServiceImpl implements AppService {
     private void trataAtualizacaoPDFDocumento(Documento documento) {
         if (documento.getPDF() != null) {
             documento.setPdf(arquivoService.buscaArquivo(documento.getPDF().getId()));
-            if (trataTrocaPDF(documento)){
+            if (trataTrocaPDF(documento)) {
                 documento.processando();
 
                 batchService.processaEstudo(documento.getChaveEmpresa(), documento.getId());
@@ -743,8 +745,8 @@ public class AppServiceImpl implements AppService {
             documento.publicado();
         }
     }
-    
-    private void scheduleRelatorioDocumento(Documento documento){
+
+    private void scheduleRelatorioDocumento(Documento documento) {
         try {
             Template template = daoService.find(Template.class, documento.getEmpresa().getChave());
 
@@ -755,7 +757,7 @@ public class AppServiceImpl implements AppService {
             e.printStackTrace();
         }
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_DOCUMENTOS)
@@ -772,12 +774,12 @@ public class AppServiceImpl implements AppService {
 
         return documento;
     }
-    
+
     @Override
     public Documento buscaDocumento(Long documento) {
         return daoService.find(Documento.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), documento));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_DOCUMENTOS)
@@ -785,7 +787,7 @@ public class AppServiceImpl implements AppService {
         Documento entidade = buscaDocumento(documento);
         daoService.delete(Documento.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_DOCUMENTOS)
     public BuscaPaginadaDocumentoDTO buscaTodos(FiltroDocumentoDTO filtro) {
@@ -801,7 +803,7 @@ public class AppServiceImpl implements AppService {
 
         return documentos;
     }
-    
+
     @Override
     public BuscaPaginadaDocumentoDTO buscaPublicados(FiltroDocumentoPublicadoDTO filtro) {
         return buscaTodos(filtro);
@@ -809,7 +811,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS,Funcionalidade.MANTER_CLASSIFICADOS})
+    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS, Funcionalidade.MANTER_CLASSIFICADOS})
     public Noticia cadastra(Noticia noticia) {
         noticia.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         noticia.setAutor(buscaColaborador(sessaoBean.getIdColaborador()));
@@ -825,7 +827,7 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS,Funcionalidade.MANTER_CLASSIFICADOS})
+    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS, Funcionalidade.MANTER_CLASSIFICADOS})
     public Noticia atualiza(Noticia noticia) {
 
         if (noticia.getIlustracao() != null) {
@@ -860,14 +862,14 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS,Funcionalidade.MANTER_CLASSIFICADOS})
+    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS, Funcionalidade.MANTER_CLASSIFICADOS})
     public void removeNoticia(Long noticia) {
         Noticia entidade = buscaNoticia(noticia);
         daoService.delete(Noticia.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
     }
 
     @Override
-    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS,Funcionalidade.MANTER_CLASSIFICADOS})
+    @AllowAdmin({Funcionalidade.MANTER_NOTICIAS, Funcionalidade.MANTER_CLASSIFICADOS})
     public BuscaPaginadaDTO<Noticia> buscaTodos(FiltroNoticiaDTO filtro) {
         return daoService.findWith(new FiltroNoticia(sessaoBean.getChaveEmpresa(), sessaoBean.isAdmin(), filtro));
     }
@@ -883,7 +885,7 @@ public class AppServiceImpl implements AppService {
     public void enviar(Notificacao notificacao) {
         notificacao.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
 
-        for (int i=0;i<notificacao.getLotacoes().size();) {
+        for (int i = 0; i < notificacao.getLotacoes().size(); ) {
             LotacaoColaborador lotacao = daoService.find(LotacaoColaborador.class, new RegistroEmpresaId(
                     sessaoBean.getChaveEmpresa(), notificacao.getLotacoes().get(i).getId()
             ));
@@ -895,8 +897,8 @@ public class AppServiceImpl implements AppService {
                 i++;
             }
         }
-        
-        if (StringUtil.isEmpty(notificacao.getTitulo())){
+
+        if (StringUtil.isEmpty(notificacao.getTitulo())) {
             notificacao.setTitulo(
                     MessageFormat.format(
                             (String) paramService.get(notificacao.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_NOTIFICACAO),
@@ -904,9 +906,9 @@ public class AppServiceImpl implements AppService {
                     )
             );
         }
-        
+
         notificacao = daoService.create(notificacao);
-        
+
         FiltroDispositivoNotificacaoDTO filtro = new FiltroDispositivoNotificacaoDTO(notificacao.getEmpresa());
         filtro.setApenasGerentes(notificacao.isApenasGerentes());
 
@@ -916,7 +918,7 @@ public class AppServiceImpl implements AppService {
 
         enviaPush(filtro, notificacao.getTitulo(), notificacao.getMensagem(), TipoNotificacao.NOTIFICACAO, false);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     @AllowColaborador(Funcionalidade.RESPONDER_ENQUETE)
@@ -930,7 +932,7 @@ public class AppServiceImpl implements AppService {
         ResultadoEnqueteDTO dto = new ResultadoEnqueteDTO(entidade);
         for (Questao questao : entidade.getQuestoes()) {
             ResultadoQuestaoDTO rq = dto.init(questao);
-            
+
             for (Opcao o : questao.getOpcoes()) {
                 try {
                     rq.resultado(o, ((Number) daoService.findWith(QueryAdmin.RESULTADOS_OPCAO.createSingle(o.getId()))).intValue());
@@ -938,18 +940,18 @@ public class AppServiceImpl implements AppService {
                     rq.resultado(o, 0);
                 }
             }
-            
+
             rq.brancos(nullToZero(daoService.findWith(QueryAdmin.BRANCOS_QUESTAO.createSingle(questao.getId()))).intValue());
             rq.nulos(nullToZero(daoService.findWith(QueryAdmin.NULOS_QUESTAO.createSingle(questao.getId()))).intValue());
         }
-        
+
         return dto;
     }
-    
+
     private Number nullToZero(Object val) {
         return val == null ? 0 : (Number) val;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
@@ -958,7 +960,7 @@ public class AppServiceImpl implements AppService {
         preencheRelacionamentos(enquete);
         return daoService.update(enquete);
     }
-    
+
     private void preencheRelacionamentos(Enquete enquete) {
         List<Questao> questoes = new ArrayList<Questao>();
         for (Questao questao : enquete.getQuestoes()) {
@@ -973,7 +975,7 @@ public class AppServiceImpl implements AppService {
         }
         enquete.setQuestoes(questoes);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
@@ -981,30 +983,30 @@ public class AppServiceImpl implements AppService {
         preencheRelacionamentos(enquete);
         return daoService.update(enquete);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     @AllowColaborador(Funcionalidade.RESPONDER_ENQUETE)
     public Enquete buscaEnquete(Long enquete) {
         return daoService.find(Enquete.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), enquete));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public void removeEnquete(Long enquete) {
         Enquete entidade = buscaEnquete(enquete);
-        
-        if (entidade != null){
+
+        if (entidade != null) {
             daoService.execute(QueryAdmin.REMOVER_VOTOS.create(sessaoBean.getChaveEmpresa(), enquete));
             daoService.execute(QueryAdmin.REMOVER_RESPOSTAS_OPCAO.create(sessaoBean.getChaveEmpresa(), enquete));
             daoService.execute(QueryAdmin.REMOVER_RESPOSTAS_QUESTAO.create(sessaoBean.getChaveEmpresa(), enquete));
             daoService.execute(QueryAdmin.REMOVER_RESPOSTAS_ENQUETE.create(sessaoBean.getChaveEmpresa(), enquete));
         }
-        
+
         daoService.delete(Enquete.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_ENQUETES)
     public BuscaPaginadaDTO<Enquete> buscaTodas(FiltroEnqueteDTO filtro) {
@@ -1020,13 +1022,13 @@ public class AppServiceImpl implements AppService {
 
         return new BuscaPaginadaDTO<>(enquetes, busca.getTotalResultados(), busca.getPagina(), filtro.getTotal());
     }
-    
+
     @Override
     @AllowColaborador(Funcionalidade.RESPONDER_ENQUETE)
     public BuscaPaginadaDTO<Enquete> buscaAtivas(FiltroEnqueteAtivaDTO filtro) {
         return buscaTodas(filtro);
     }
-    
+
     @Audit
     @Override
     @AllowColaborador(Funcionalidade.RESPONDER_ENQUETE)
@@ -1034,7 +1036,7 @@ public class AppServiceImpl implements AppService {
         daoService.create(resposta);
         daoService.create(new RespostaEnqueteColaborador(resposta.getEnquete(), buscaColaborador(sessaoBean.getIdColaborador())));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONSULTAR_CONTATOS_COLABORADORES)
@@ -1053,19 +1055,19 @@ public class AppServiceImpl implements AppService {
 
         return entidade;
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.CONSULTAR_CONTATOS_COLABORADORES)
     public BuscaPaginadaDTO<ContatoColaborador> buscaTodos(FiltroContatoColaboradorDTO filtro) {
         return daoService.findWith(new FiltroContatoColaborador(sessaoBean.getIdColaborador(), sessaoBean.getChaveEmpresa(), filtro));
     }
-    
+
     @Override
     @AllowColaborador(Funcionalidade.ENVIAR_CONTATO_COLABORADOR)
     public BuscaPaginadaDTO<ContatoColaborador> buscaMeus(FiltroMeusContatosColaboradorDTO filtro) {
         return buscaTodos(filtro);
     }
-    
+
     @Audit
     @Override
     @AllowColaborador(Funcionalidade.ENVIAR_CONTATO_COLABORADOR)
@@ -1073,7 +1075,7 @@ public class AppServiceImpl implements AppService {
         contato.setSolicitante(buscaColaborador(sessaoBean.getIdColaborador()));
         return daoService.create(contato);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
@@ -1086,17 +1088,17 @@ public class AppServiceImpl implements AppService {
                     new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), colaborador)), idHorario, data).getId());
         }
     }
-    
+
     private AgendamentoAtendimento _agenda(Colaborador colaborador, Long idHorario, Date data) {
         HorarioAtendimento horario = daoService.find(HorarioAtendimento.class, idHorario);
-        
+
         if (!sessaoBean.getChaveEmpresa().equals(horario.getCalendario().getEmpresa().getChave())) {
             throw new ServiceException("mensagens.MSG-604");
         }
-        
+
         AgendamentoAtendimento atendimento = daoService.create(new AgendamentoAtendimento(colaborador, horario, data));
-        
-        if (!sessaoBean.isAdmin()){
+
+        if (!sessaoBean.isAdmin()) {
             enviaPush(new FiltroDispositivoNotificacaoDTO(atendimento.getEmpresa(), atendimento.getCalendario().getGerente().getId()),
                     (String) paramService.get(atendimento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_AGENDAMENTO),
                     MessageFormat.format(
@@ -1113,22 +1115,22 @@ public class AppServiceImpl implements AppService {
                                     atendimento.getEmpresa().getTimezone())),
                     TipoNotificacao.AGENDAMENTO, false);
         }
-        
+
         return atendimento;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public AgendamentoAtendimento confirma(Long id) {
         AgendamentoAtendimento agendamento = buscaAgendamento(id);
-        
+
         if (!sessaoBean.isAdmin()
                 && !agendamento.getCalendario().getGerente().getId().equals(sessaoBean.getIdColaborador())) {
             throw new ServiceException("mensagens.MSG-604");
         }
-        
+
         agendamento.confirmado();
         agendamento = daoService.update(agendamento);
 
@@ -1150,26 +1152,26 @@ public class AppServiceImpl implements AppService {
 
         return agendamento;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public AgendamentoAtendimento cancela(Long id) {
         AgendamentoAtendimento agendamento = buscaAgendamento(id);
-        
+
         if (!sessaoBean.isAdmin()
                 && !agendamento.getColaborador().getId().equals(sessaoBean.getIdColaborador())
                 && !agendamento.getCalendario().getGerente().getId().equals(sessaoBean.getIdColaborador())) {
             throw new ServiceException("mensagens.MSG-604");
         }
-        
+
         agendamento.cancelado();
-        
+
         agendamento = daoService.update(agendamento);
 
         if (sessaoBean.isAdmin() ||
-                agendamento.getCalendario().getGerente().getId().equals(sessaoBean.getIdColaborador())){
+                agendamento.getCalendario().getGerente().getId().equals(sessaoBean.getIdColaborador())) {
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getEmpresa(),
                             agendamento.getColaborador().getId()),
                     (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_CANCELAMENTO_AGENDAMENTO),
@@ -1186,7 +1188,7 @@ public class AppServiceImpl implements AppService {
                                     agendamento.getEmpresa().getLocale(),
                                     agendamento.getEmpresa().getTimezone())),
                     TipoNotificacao.AGENDAMENTO, false);
-        }else{
+        } else {
             enviaPush(new FiltroDispositivoNotificacaoDTO(agendamento.getEmpresa(),
                             agendamento.getCalendario().getGerente().getId()),
                     (String) paramService.get(agendamento.getEmpresa().getChave(), TipoParametro.PUSH_TITLE_CANCELAMENTO_AGENDAMENTO_COLABORADOR),
@@ -1204,16 +1206,16 @@ public class AppServiceImpl implements AppService {
                                     agendamento.getEmpresa().getTimezone())),
                     TipoNotificacao.AGENDAMENTO, false);
         }
-        
+
         return agendamento;
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public AgendamentoAtendimento buscaAgendamento(Long agendamento) {
         return daoService.find(AgendamentoAtendimento.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), agendamento));
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public List<AgendamentoAtendimento> buscaAgendamentos(CalendarioAtendimento calendario, Date dataInicio, Date dataTermino) {
@@ -1222,13 +1224,13 @@ public class AppServiceImpl implements AppService {
                 create(sessaoBean.getChaveEmpresa(), calendario.getId(),
                         dataInicio.before(dataAtual) ? dataAtual : dataInicio, dataTermino));
     }
-    
+
     @Override
     @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public BuscaPaginadaDTO<AgendamentoAtendimento> buscaMeusAgendamentos(FiltroMeusAgendamentoDTO filtro) {
         return daoService.findWith(new FiltroMeusAgendamentos(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), filtro));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
@@ -1237,13 +1239,13 @@ public class AppServiceImpl implements AppService {
         calendario.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         return daoService.create(calendario);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public CalendarioAtendimento buscaCalendario(Long calendario) {
         return daoService.find(CalendarioAtendimento.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), calendario));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
@@ -1252,51 +1254,51 @@ public class AppServiceImpl implements AppService {
         entidade.inativa();
         daoService.update(entidade);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public List<CalendarioAtendimento> buscaCalendarios() {
         return daoService.findWith(QueryAdmin.CALENDARIOS.create(sessaoBean.getChaveEmpresa()));
     }
-    
+
     private HorarioAtendimento buscaHorario(Long calendario, Long horario) {
         HorarioAtendimento h = daoService.find(HorarioAtendimento.class, horario);
-        
+
         if (!h.getCalendario().getId().equals(calendario)) {
             throw new ServiceException("mensagens.MSG-604");
         }
-        
+
         return h;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void cadastra(Long idCalendario, HorarioAtendimento horario) {
         CalendarioAtendimento calendario = buscaCalendario(idCalendario);
         horario.setCalendario(calendario);
-        
+
         for (DiaSemana ds : horario.getDiasSemana()) {
             HorarioAtendimento copia = horario.copy();
             copia.setDiasSemana(Arrays.asList(ds));
             daoService.create(copia);
         }
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void removeDia(Long calendario, Long idHorario, Date data) {
         removePeriodo(calendario, idHorario, data, data);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     public void removePeriodo(Long calendario, Long idHorario, Date inicio, Date termino) {
         HorarioAtendimento horario = buscaHorario(calendario, idHorario);
-        
+
         if (termino != null) {
             HorarioAtendimento futuro = horario.copy();
             futuro.setDataInicio(DateUtil.incrementaDias(termino, 1));
@@ -1315,7 +1317,7 @@ public class AppServiceImpl implements AppService {
                 daoService.create(futuro);
             }
         }
-        
+
         horario.setDataFim(DateUtil.decrementaDia(inicio, 1));
         if ((horario.getDataInicio() == null || DateUtil.
                 compareSemHoras(horario.getDataInicio(), horario.getDataFim()) <= 0)
@@ -1325,27 +1327,27 @@ public class AppServiceImpl implements AppService {
             daoService.delete(HorarioAtendimento.class, horario.getId());
         }
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_AGENDA)
     @AllowColaborador(Funcionalidade.REALIZAR_AGENDAMENTO)
     public List<EventoAgendaDTO> buscaAgenda(Long idCalendario, Date dataInicio, Date dataTermino) {
         Date dataAtual = DateUtil.incrementaHoras(DateUtil.getDataAtual(), 3);
-        
+
         dataInicio = dataAtual.before(dataInicio) ? dataInicio : dataAtual;
-        
+
         CalendarioAtendimento calendario = buscaCalendario(idCalendario);
-        
+
         List<EventoAgendaDTO> eventos = new ArrayList<EventoAgendaDTO>();
         List<HorarioAtendimento> horarios = daoService.
                 findWith(QueryAdmin.HORARIOS_POR_PERIODO.
                         create(idCalendario, dataInicio, dataTermino));
-        
+
         TimeZone timeZone = TimeZone.getTimeZone(calendario.getEmpresa().getTimezone());
         Calendar cal = Calendar.getInstance(timeZone);
         for (Date data = dataInicio;
-                DateUtil.compareSemHoras(data, dataTermino) <= 0;
-                data = DateUtil.incrementaDias(data, 1)) {
+             DateUtil.compareSemHoras(data, dataTermino) <= 0;
+             data = DateUtil.incrementaDias(data, 1)) {
             cal.setTime(data);
             for (HorarioAtendimento horario : horarios) {
                 if (horario.contains(cal)) {
@@ -1360,7 +1362,7 @@ public class AppServiceImpl implements AppService {
         }
         return eventos;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
@@ -1376,7 +1378,7 @@ public class AppServiceImpl implements AppService {
         scheduleRelatoriosInscritos(evento);
         return evento;
     }
-    
+
     private void scheduleRelatoriosInscritos(Evento evento) {
         try {
             Template template = daoService.find(Template.class, evento.getEmpresa().getChave());
@@ -1388,7 +1390,7 @@ public class AppServiceImpl implements AppService {
             e.printStackTrace();
         }
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
@@ -1404,7 +1406,7 @@ public class AppServiceImpl implements AppService {
         scheduleRelatoriosInscritos(evento);
         return evento;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
@@ -1414,18 +1416,18 @@ public class AppServiceImpl implements AppService {
         entidade.setVagasRestantes(entidade.getLimiteInscricoes() - ((Number) daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento))).intValue());
         return entidade;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
     public void removeEvento(Long evento) {
         Evento entidade = buscaEvento(evento);
-        
+
         entidade.inativo();
-        
+
         daoService.update(entidade);
     }
-    
+
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
     public BuscaPaginadaDTO<Evento> buscaTodos(FiltroEventoDTO filtro) {
@@ -1447,65 +1449,79 @@ public class AppServiceImpl implements AppService {
 
         return new BuscaPaginadaDTO<>(eventos, dados.getTotalResultados(), dados.getPagina(), filtro.getTotal());
     }
-    
+
+    @Override
+    @AllowColaborador
+    public BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro) {
+        return daoService.findWith(new FiltroTimeline(sessaoBean.getChaveEmpresa(), filtro));
+    }
+
+    @Override
+    @AllowColaborador
+    public List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino) {
+        return daoService.findWith(QueryAdmin.ITENS_PERIODO_CALENDARIO.create(
+                sessaoBean.getChaveEmpresa(), dataInicio, dataTermino
+        ));
+    }
+
     @Override
     @AllowColaborador({Funcionalidade.REALIZAR_INSCRICAO_EVENTO})
     public BuscaPaginadaDTO<Evento> buscaFuturos(FiltroEventoFuturoDTO filtro) {
         return buscaTodos(filtro);
     }
-    
+
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
     public BuscaPaginadaDTO<InscricaoEvento> buscaTodas(Long evento, FiltroInscricaoDTO filtro) {
         return daoService.findWith(new FiltroInscricao(evento, sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), filtro));
     }
-    
+
     @Override
     @AllowColaborador({Funcionalidade.REALIZAR_INSCRICAO_EVENTO})
     public BuscaPaginadaDTO<InscricaoEvento> buscaMinhas(Long evento, FiltroMinhasInscricoesDTO filtro) {
         return buscaTodas(evento, filtro);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
     public void confirmaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), evento)));
-        
+
         entidade.confirmada();
-        
+
         daoService.update(entidade);
-        
+
         scheduleRelatoriosInscritos(entidade.getEvento());
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
     public void cancelaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), evento)));
-        
+
         entidade.cancelada();
-        
+
         daoService.update(entidade);
-        
+
         scheduleRelatoriosInscritos(entidade.getEvento());
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
     public MensagemDia cadastra(MensagemDia mensagemDia) {
         mensagemDia.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
         Number minimo = daoService.findWith(QueryAdmin.MENOR_ENVIO_MENSAGEM_DIAS.createSingle(sessaoBean.getChaveEmpresa()));
-        if (minimo != null){
+        if (minimo != null) {
             mensagemDia.setEnvios(minimo.intValue());
         }
         return daoService.create(mensagemDia);
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
@@ -1542,18 +1558,18 @@ public class AppServiceImpl implements AppService {
         MensagemDia entidade = buscaMensagemDia(mensagemDia);
         entidade.habilitado();
         Number minimo = daoService.findWith(QueryAdmin.MENOR_ENVIO_MENSAGEM_DIAS.createSingle(sessaoBean.getChaveEmpresa()));
-        if (minimo != null){
+        if (minimo != null) {
             entidade.setEnvios(minimo.intValue());
         }
         return daoService.update(entidade);
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
     public MensagemDia buscaMensagemDia(Long mensagemDia) {
         return daoService.find(MensagemDia.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), mensagemDia));
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
@@ -1561,17 +1577,17 @@ public class AppServiceImpl implements AppService {
         MensagemDia entidade = buscaMensagemDia(mensagemDia);
         daoService.delete(MensagemDia.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), entidade.getId()));
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.MANTER_MENSAGENS_DIA)
     public BuscaPaginadaDTO<MensagemDia> busca(FiltroMensagemDiaDTO filtro) {
         return daoService.findWith(new FiltroMensagemDia(sessaoBean.getChaveEmpresa(), filtro));
     }
-    
+
     private boolean temAgendamento(CalendarioAtendimento calendario, Date dti, Date dtf) {
         return daoService.findWith(QueryAdmin.AGENDAMENTO_EM_CHOQUE.createSingle(calendario.getId(), dti, dtf)) != null;
     }
-    
+
     @Audit
     @Override
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS})
@@ -1580,39 +1596,39 @@ public class AppServiceImpl implements AppService {
         if (!inscricoes.isEmpty()) {
             Evento evento = inscricoes.get(0).getEvento();
             Colaborador colaborador = buscaColaborador(sessaoBean.getIdColaborador());
-            
+
             Number qtde = daoService.findWith(QueryAdmin.BUSCA_QUANTIDADE_INSCRICOES.createSingle(evento.getId()));
-            if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()){
+            if (qtde.intValue() + inscricoes.size() > evento.getLimiteInscricoes()) {
                 throw new ServiceException("mensagens.MSG-034");
             }
-            
+
             List<InscricaoEvento> cadastradas = new ArrayList<InscricaoEvento>();
             for (InscricaoEvento inscricao : inscricoes) {
                 inscricao.setColaborador(colaborador);
                 cadastradas.add(daoService.create(inscricao));
             }
 
-            if (sessaoBean.isAdmin()){
+            if (sessaoBean.isAdmin()) {
                 for (InscricaoEvento inscricao : cadastradas) {
                     inscricao.confirmada();
                     daoService.update(inscricao);
                 }
             } else if (evento.isComPagamento()) {
                 BigDecimal valorTotal = BigDecimal.ZERO;
-                
+
                 for (InscricaoEvento inscricao : cadastradas) {
                     valorTotal = valorTotal.add(inscricao.getValor());
                 }
-                
+
                 ConfiguracaoEmpresaDTO configuracao = buscaConfiguracao();
-                if (configuracao != null && configuracao.isHabilitadoPagSeguro()){
+                if (configuracao != null && configuracao.isHabilitadoPagSeguro()) {
                     String referencia = sessaoBean.getChaveEmpresa().toUpperCase() +
                             Long.toString(System.currentTimeMillis(), 36).toUpperCase();
-                    
+
                     PagSeguroService.Pedido pedido = new PagSeguroService.Pedido(referencia,
                             new PagSeguroService.Solicitante(colaborador.getNome(), colaborador.getEmail()));
-                    
-                    for (InscricaoEvento inscricao : inscricoes){
+
+                    for (InscricaoEvento inscricao : inscricoes) {
                         pedido.add(new PagSeguroService.ItemPedido(
                                 Long.toString(inscricao.getId(), 36).toUpperCase(),
                                 MessageFormat.format(
@@ -1622,18 +1638,18 @@ public class AppServiceImpl implements AppService {
                                 inscricao.getValor()
                         ));
                     }
-                    
+
                     String checkout = pagSeguroService.realizaCheckout(pedido, configuracao);
-                    
+
                     for (InscricaoEvento inscricao : cadastradas) {
                         inscricao.setChaveCheckout(checkout);
                         inscricao.setReferenciaCheckout(referencia);
                         daoService.update(inscricao);
                     }
-                    
+
                     Locale locale = Locale.forLanguageTag(evento.getEmpresa().getLocale());
                     NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
-                    
+
                     notificacaoService.sendNow(
                             mensagemBuilder.email(
                                     evento.getEmpresa(),
@@ -1645,66 +1661,66 @@ public class AppServiceImpl implements AppService {
                                     checkout
                             ),
                             new FiltroEmailDTO(evento.getEmpresa(), colaborador.getId()));
-                    
+
                     return new ResultadoInscricaoDTO(checkout);
                 }
             }
-            
+
             scheduleRelatoriosInscritos(evento);
         }
-        
+
         return new ResultadoInscricaoDTO();
     }
-    
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR)
     public ConfiguracaoEmpresaDTO atualiza(ConfiguracaoEmpresaDTO configuracao) {
         ValidationException validation = ValidationException.build();
-        
+
         if (!StringUtil.isEmpty(configuracao.getTituloAniversario()) &&
-                configuracao.getTituloAniversario().length() > 30){
+                configuracao.getTituloAniversario().length() > 30) {
             validation.add("tituloAniversario", "mensagens.MSG-010");
         }
-        
+
         if (!StringUtil.isEmpty(configuracao.getTituloBoletim()) &&
-                configuracao.getTituloBoletim().length() > 30){
+                configuracao.getTituloBoletim().length() > 30) {
             validation.add("tituloBoletim", "mensagens.MSG-010");
         }
-        
+
         if (!StringUtil.isEmpty(configuracao.getTituloMensagemDia()) &&
-                configuracao.getTituloMensagemDia().length() > 30){
+                configuracao.getTituloMensagemDia().length() > 30) {
             validation.add("tituloMensagemDia", "mensagens.MSG-010");
         }
-        
+
         if (!StringUtil.isEmpty(configuracao.getTextoAniversario()) &&
-                configuracao.getTextoAniversario().length() > 150){
+                configuracao.getTextoAniversario().length() > 150) {
             validation.add("textoAniversario", "mensagens.MSG-010");
         }
-        
+
         if (!StringUtil.isEmpty(configuracao.getTextoBoletim()) &&
-                configuracao.getTextoBoletim().length() > 150){
+                configuracao.getTextoBoletim().length() > 150) {
             validation.add("textoBoletim", "mensagens.MSG-010");
         }
-        
+
         validation.validate();
-        
+
         paramService.salvaConfiguracao(configuracao, sessaoBean.getChaveEmpresa());
         return buscaConfiguracao();
     }
-    
+
     @Override
     @AllowAdmin(Funcionalidade.CONFIGURAR)
     public ConfiguracaoEmpresaDTO buscaConfiguracao() {
         return paramService.buscaConfiguracao(sessaoBean.getChaveEmpresa());
     }
-    
+
     @Override
     public void verificaPagSeguroPorCodigo(String code) {
         ConfiguracaoEmpresaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveEmpresa());
         atualizaSituacaoPagSeguro(pagSeguroService.buscaReferenciaPorCodigo(code, configuracao), configuracao);
     }
-    
+
     @Override
     public void verificaPagSeguroPorIdTransacao(String transactionId) {
         ConfiguracaoEmpresaDTO configuracao = paramService.buscaConfiguracao(sessaoBean.getChaveEmpresa());
@@ -1771,13 +1787,13 @@ public class AppServiceImpl implements AppService {
         try {
             googleService.saveCredentialsYouTube(sessaoBean.getChaveEmpresa(),
                     ResourceBundleUtil._default().getPropriedade("OAUTH_YOUTUBE_REDIRECT_URL"), code);
-            
+
             ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(sessaoBean.getChaveEmpresa());
             config.setIdCanal(googleService.buscaIdCanalYouTube(sessaoBean.getChaveEmpresa()));
             paramService.salvaConfiguracaoYouTube(config, sessaoBean.getChaveEmpresa());
-            
+
             Institucional institucional = recuperaInstitucional();
-            if (!institucional.getRedesSociais().containsKey("youtube")){
+            if (!institucional.getRedesSociais().containsKey("youtube")) {
                 institucional.getRedesSociais().put("youtube", "https://www.youtube.com/channel/" + config.getIdCanal());
                 daoService.update(institucional);
             }
@@ -1903,6 +1919,9 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
     public Audio cadastra(Audio audio) {
         audio.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
+        audio.setAutor(daoService.find(Colaborador.class, new RegistroEmpresaId(
+                sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()
+        )));
 
         audio.setTipo(TipoAudio.LOCAL);
 
@@ -2059,37 +2078,36 @@ public class AppServiceImpl implements AppService {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
             ConfiguracaoEmpresaDTO configuracao = paramService.buscaConfiguracao(empresa.getChave());
-            if (configuracao != null && configuracao.isPagSeguroConfigurado()){
+            if (configuracao != null && configuracao.isPagSeguroConfigurado()) {
                 List<String> referencias = daoService.findWith(QueryAdmin.REFERENCIAS_INSCRICOES_PENDENTES.create(empresa.getChave()));
-                
-                for (String referencia : referencias){
+
+                for (String referencia : referencias) {
                     atualizaSituacaoPagSeguro(referencia, configuracao);
                 }
             }
         }
     }
 
-    public void atualizaSituacaoPagSeguro(String referencia, ConfiguracaoEmpresaDTO configuracao){
-        switch (pagSeguroService.getStatusPagamento(referencia, configuracao)){
-            case PAGO:
-            {
+    public void atualizaSituacaoPagSeguro(String referencia, ConfiguracaoEmpresaDTO configuracao) {
+        switch (pagSeguroService.getStatusPagamento(referencia, configuracao)) {
+            case PAGO: {
                 List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
-                
-                if (!inscricoes.isEmpty()){
+
+                if (!inscricoes.isEmpty()) {
                     Colaborador colaborador = inscricoes.get(0).getColaborador();
                     Evento evento = inscricoes.get(0).getEvento();
                     Institucional institucional = daoService.find(Institucional.class, evento.getEmpresa().getChave());
                     BigDecimal total = BigDecimal.ZERO;
-                    
-                    for (InscricaoEvento inscricao : inscricoes){
+
+                    for (InscricaoEvento inscricao : inscricoes) {
                         inscricao.confirmada();
                         daoService.update(inscricao);
                         total = total.add(inscricao.getValor());
                     }
-                    
+
                     Locale locale = Locale.forLanguageTag(evento.getEmpresa().getLocale());
                     NumberFormat nformat = NumberFormat.getCurrencyInstance(locale);
-                    
+
                     notificacaoService.sendNow(
                             mensagemBuilder.email(
                                     evento.getEmpresa(),
@@ -2101,17 +2119,16 @@ public class AppServiceImpl implements AppService {
                                     institucional.getEmail()
                             ),
                             new FiltroEmailDTO(evento.getEmpresa(), colaborador.getId()));
-                    
-                    
+
+
                     scheduleRelatoriosInscritos(evento);
                 }
-                
+
             }
             break;
-            case CANCELADO:
-            {
+            case CANCELADO: {
                 List<InscricaoEvento> inscricoes = daoService.findWith(QueryAdmin.INSCRICOES_POR_REFERENCIA.create(referencia));
-                for (InscricaoEvento inscricao : inscricoes){
+                for (InscricaoEvento inscricao : inscricoes) {
                     inscricao.cancelada();
                     daoService.update(inscricao);
                     scheduleRelatoriosInscritos(inscricao.getEvento());
@@ -2120,23 +2137,23 @@ public class AppServiceImpl implements AppService {
             }
         }
     }
-    
+
     @Schedule(hour = "*", persistent = false)
     public void enviaMensagensDia() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
-            
+
             MensagemDia atual = daoService.findWith(QueryAdmin.MENSAGEM_DIAS_POR_STATUS.createSingle(empresa.getId(), StatusMensagemDia.ATIVO));
-            if (atual == null || !DateUtil.equalsSemHoras(atual.getUltimoEnvio(), new Date())){
-                if (atual != null){
+            if (atual == null || !DateUtil.equalsSemHoras(atual.getUltimoEnvio(), new Date())) {
+                if (atual != null) {
                     atual.habilitado();
                     atual = daoService.update(atual);
                 }
-                
+
                 MensagemDia mensagemDia = daoService.findWith(QueryAdmin.SORTEIA_MENSAGEM_DIA.createSingle(empresa.getId()));
-                if (mensagemDia != null){
+                if (mensagemDia != null) {
                     mensagemDia.ativo();
                     atual = daoService.update(mensagemDia);
                 }
@@ -2144,9 +2161,9 @@ public class AppServiceImpl implements AppService {
 
             String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_MENSAGEM_DIA);
 
-            if (atual != null && atual.isAtivo()){
-                for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()){
-                    if (hev.getHoraInt().equals(hora)){
+            if (atual != null && atual.isAtivo()) {
+                for (HorasEnvioNotificacao hev : HorasEnvioNotificacao.values()) {
+                    if (hev.getHoraInt().equals(hora)) {
                         enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, hev),
                                 titulo, atual.getMensagem(), TipoNotificacao.MENSAGEM_DIA, true);
                         break;
@@ -2155,7 +2172,7 @@ public class AppServiceImpl implements AppService {
             }
         }
     }
-    
+
     @Schedule(hour = "*", persistent = false)
     public void enviaParabensAniversario() {
         LOGGER.info("Iniciando envio de notificações de aniversário.");
@@ -2167,13 +2184,13 @@ public class AppServiceImpl implements AppService {
         for (Empresa empresa : empresas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
             Integer hora = cal.get(Calendar.HOUR_OF_DAY);
-            
-            if (hora.equals(12)){
+
+            if (hora.equals(12)) {
                 LOGGER.info("Prepara envio de notificações de aniversário para " + empresa.getChave());
 
                 List<Colaborador> aniversariantes = daoService.findWith(QueryAdmin.ANIVERSARIANTES.create(empresa.getChave()));
-                
-                for (Colaborador colaborador : aniversariantes){
+
+                for (Colaborador colaborador : aniversariantes) {
                     String titulo = paramService.get(empresa.getChave(), TipoParametro.PUSH_TITLE_ANIVERSARIO);
 
                     String texto = MessageFormat.format(
@@ -2254,14 +2271,14 @@ public class AppServiceImpl implements AppService {
             }
         }
     }
-    
+
     @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesDocumentos() {
         LOGGER.info("Iniciando envio de notificações de documentos.");
 
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS_COM_DOCUMENTOS_A_DIVULGAR.create());
 
-        LOGGER.info(empresas.size() +" empresas encontrada para notificação de documentos.");
+        LOGGER.info(empresas.size() + " empresas encontrada para notificação de documentos.");
 
         for (Empresa empresa : empresas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
@@ -2295,7 +2312,7 @@ public class AppServiceImpl implements AppService {
 
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create(TipoNoticia.NOTICIA));
 
-        LOGGER.info(empresas.size() +" empresas encontrada para notificação de notícias.");
+        LOGGER.info(empresas.size() + " empresas encontrada para notificação de notícias.");
 
         for (Empresa empresa : empresas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
@@ -2328,7 +2345,7 @@ public class AppServiceImpl implements AppService {
 
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR.create(TipoNoticia.CLASSIFICADOS));
 
-        LOGGER.info(empresas.size() +" empresas encontrada para notificação de notícias.");
+        LOGGER.info(empresas.size() + " empresas encontrada para notificação de notícias.");
 
         for (Empresa empresa : empresas) {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
@@ -2360,55 +2377,55 @@ public class AppServiceImpl implements AppService {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
             ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(empresa.getChave());
-            if (config.isConfigurado()){
-                try{
+            if (config.isConfigurado()) {
+                try {
                     List<VideoDTO> streamings = googleService.buscaStreamsAtivosYouTube(empresa.getChave());
-                    
-                    for (VideoDTO video : streamings){
-                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()){
+
+                    for (VideoDTO video : streamings) {
+                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()) {
                             Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
 
-                            try{
+                            try {
                                 String titulo = config.getTituloAoVivo();
 
                                 String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
-                            }catch(Exception e){
+                            } catch (Exception e) {
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
                                 throw e;
                             }
                         }
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + empresa.getChave(), e);
                 }
             }
         }
     }
-    
+
     @Schedule(hour = "*", persistent = false)
     public void enviaNotificacoesYouTubeAgendados() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
             ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(empresa.getChave());
-            
+
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
             Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
-            
-            if (config.isConfigurado()){
-                try{
+
+            if (config.isConfigurado()) {
+                try {
                     List<VideoDTO> streamings = googleService.buscaStreamsAgendadosYouTube(empresa.getChave());
-                    
-                    for (VideoDTO video : streamings){
+
+                    for (VideoDTO video : streamings) {
                         if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
                                 DateUtil.equalsSemHoras(DateUtil.getDataAtual(), video.getAgendamento()) &&
                                 // Verifica se está em horário útil para fazer a notificação
-                                horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO){
-                            
+                                horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+
                             Persister.save(new NotificacaoYouTubeAgendado(video), video.getId());
 
-                            try{
+                            try {
                                 String horario = mensagemBuilder.formataHora(video.getAgendamento(), empresa.getLocale(), empresa.getTimezone());
 
                                 String titulo = MessageFormat.format(config.getTituloAoVivo(), video.getTitulo(), horario);
@@ -2417,38 +2434,37 @@ public class AppServiceImpl implements AppService {
                                         video.getTitulo(), horario);
 
                                 enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
-                            }catch(Exception e){
+                            } catch (Exception e) {
                                 Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
                                 throw e;
                             }
                         }
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos agendados para " + empresa.getChave(), e);
                 }
             }
         }
     }
-    
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificacaoYouTubeAoVivo {
         private VideoDTO video;
     }
-    
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificacaoYouTubeAgendado {
         private VideoDTO video;
     }
-    
+
     private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem, TipoNotificacao tipo, boolean compartilhavel) {
         notificacaoService.sendNow(new MensagemPushDTO(titulo, mensagem, null, null, null,
                 new QueryParameters("tipo", tipo).set("compartilhavel", compartilhavel)), filtro);
     }
-    
-    
-    
+
+
 }

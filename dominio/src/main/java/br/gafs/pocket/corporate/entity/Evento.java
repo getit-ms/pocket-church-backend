@@ -7,7 +7,9 @@ package br.gafs.pocket.corporate.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.pocket.corporate.entity.domain.StatusEvento;
+import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoEvento;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.view.View;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
@@ -33,7 +35,7 @@ import java.util.Date;
 @Table(name = "tb_evento")
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroEmpresaId.class)
-public class Evento implements IEntity {
+public class Evento implements IEntity, IItemEvento {
     @Id
     @Column(name = "id_evento")
     @SequenceGenerator(name = "seq_evento", sequenceName = "seq_evento")
@@ -168,4 +170,20 @@ public class Evento implements IEntity {
         status = StatusEvento.INATIVO;
     }
 
+    @Override
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .empresa(getEmpresa())
+                .tipo(TipoItemEvento.EVENTO_INSCRICAO)
+                .titulo(getNome())
+                .dataHora(getDataHoraInicio())
+                .ilustracao(getBanner())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
+    }
 }
