@@ -2405,7 +2405,6 @@ public class AppServiceImpl implements AppService {
             if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
                 ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(empresa.getChave());
 
-                Date inicioSincronizacao = DateUtil.getDataAtual();
                 if (config.isConfigurado()) {
                     try {
                         List<Video> videos = daoService.findWith(QueryAdmin.VIDEOS_EMPRESA.create(empresa.getChave()));
@@ -2427,8 +2426,6 @@ public class AppServiceImpl implements AppService {
                                 }
                             }
                         }
-
-                        daoService.execute(QueryAdmin.REMOVE_VIDEOS_ANTIGOS.create(empresa.getChave(), inicioSincronizacao));
                     } catch (Exception e) {
                         LOGGER.log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + empresa.getChave(), e);
                     }
