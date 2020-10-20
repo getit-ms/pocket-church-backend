@@ -110,6 +110,7 @@ public class Noticia implements IEntity, IItemEvento {
     private Empresa empresa;
 
     @Override
+    @JsonIgnore
     public ItemEvento getItemEvento() {
         return ItemEvento.builder()
                 .id(getId().toString())

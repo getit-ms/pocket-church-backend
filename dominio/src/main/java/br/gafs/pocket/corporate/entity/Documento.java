@@ -234,6 +234,7 @@ public class Documento implements IEntity, ArquivoPDF, IItemEvento {
     }
 
     @Override
+    @JsonIgnore
     public ItemEvento getItemEvento() {
         return ItemEvento.builder()
                 .id(getId().toString())

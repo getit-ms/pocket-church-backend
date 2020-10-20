@@ -4,6 +4,7 @@ import br.gafs.bean.IEntity;
 import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.util.string.StringUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,6 +69,7 @@ public class EventoCalendario implements IEntity, IItemEvento {
     }
 
     @Override
+    @JsonIgnore
     public ItemEvento getItemEvento() {
         return ItemEvento.builder()
                 .id(getId())

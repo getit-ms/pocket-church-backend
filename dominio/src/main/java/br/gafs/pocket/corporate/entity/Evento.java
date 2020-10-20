@@ -171,6 +171,7 @@ public class Evento implements IEntity, IItemEvento {
     }
 
     @Override
+    @JsonIgnore
     public ItemEvento getItemEvento() {
         return ItemEvento.builder()
                 .id(getId().toString())

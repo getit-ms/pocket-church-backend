@@ -50,6 +50,9 @@ public class ItemEvento implements IEntity {
     @Enumerated(EnumType.ORDINAL)
     private StatusItemEvento status;
 
+    @Column(name = "url_ilustracao")
+    private String urlIlustracao;
+
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "id_ilustracao", referencedColumnName = "id_arquivo"),

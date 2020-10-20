@@ -417,7 +417,9 @@ public enum QueryAdmin {
             return super.extractArguments(args)
                     .set("status", StatusItemEvento.PUBLICADO);
         }
-    };
+    },
+    VIDEOS_ANTIGOS("Video.findVideoNaoSincronizados", "empresa", "dataAtualizacao"),
+    VIDEOS_EMPRESA("Video.findByEmpresa", "empresa");
 
     private final String query;
     private final String[] parameters;

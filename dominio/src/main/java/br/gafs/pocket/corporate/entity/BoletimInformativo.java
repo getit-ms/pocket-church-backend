@@ -185,6 +185,7 @@ public class BoletimInformativo implements ArquivoPDF, IItemEvento {
     }
 
     @Override
+    @JsonIgnore
     public ItemEvento getItemEvento() {
         return ItemEvento.builder()
                 .id(getId().toString())

@@ -177,7 +177,7 @@ public interface AppService extends Serializable {
 
     String buscaURLAutenticacaoYouTube() throws IOException;
     void iniciaConfiguracaoYouTube(String code);
-    List<VideoDTO> buscaVideos();
+    List<Video> buscaVideos();
     ConfiguracaoYouTubeEmpresaDTO buscaConfiguracaoYouTube();
     void desvinculaYouTube();
     ConfiguracaoEmpresaDTO buscaConfiguracao();

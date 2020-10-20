@@ -7,6 +7,7 @@ package br.gafs.pocket.corporate.servidor;
 
 import br.gafs.bean.IEntity;
 import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.pocket.corporate.dao.CustomDAOService;
 import br.gafs.pocket.corporate.util.Persister;
 import br.gafs.dao.DAOService;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class ProcessamentoService {
     private final Pool pool = new Pool();
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Resource
     private SessionContext sctx;

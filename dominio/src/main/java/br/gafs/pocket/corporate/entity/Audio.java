@@ -143,6 +143,7 @@ public class Audio implements IEntity, IItemEvento {
     private String chaveEmpresa;
 
     @Override
+    @JsonIgnore
     public ItemEvento getItemEvento() {
         return ItemEvento.builder()
                 .id(getId().toString())

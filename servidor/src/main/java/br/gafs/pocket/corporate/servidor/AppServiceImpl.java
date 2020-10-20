@@ -27,6 +27,7 @@ import br.gafs.pocket.corporate.servidor.flickr.FlickrService;
 import br.gafs.pocket.corporate.servidor.google.GoogleService;
 import br.gafs.pocket.corporate.servidor.pagseguro.PagSeguroService;
 import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoRelatorioCache;
+import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoSincronizacaoYouTube;
 import br.gafs.pocket.corporate.servidor.relatorio.RelatorioDocumento;
 import br.gafs.pocket.corporate.servidor.relatorio.RelatorioInscritos;
 import br.gafs.pocket.corporate.util.MensagemBuilder;
@@ -1844,13 +1845,8 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public List<VideoDTO> buscaVideos() {
-        try {
-            return googleService.buscaVideosYouTube(sessaoBean.getChaveEmpresa());
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-            return Collections.emptyList();
-        }
+    public List<Video> buscaVideos() {
+        return daoService.findWith(QueryAdmin.VIDEOS_EMPRESA.create(sessaoBean.getChaveEmpresa()));
     }
 
     @Override
@@ -2373,33 +2369,72 @@ public class AppServiceImpl implements AppService {
     }
 
     @Schedule(hour = "*", minute = "*/5", persistent = false)
+    public void sincronizaVideosYouTube() {
+        List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
+        for (Empresa empresa : empresas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(empresa.getChave());
+
+                if (config.isConfigurado()) {
+                    try {
+                        List<Video> videos = googleService.buscaVideosYouTube(empresa.getChave());
+
+                        processamentoService.execute(
+                                new ProcessamentoSincronizacaoYouTube(empresa, videos)
+                        );
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + empresa.getChave(), e);
+                    }
+                }
+            } else {
+                LOGGER.info(empresa.getChave() + " fora do horário para sincronizção de vídeos.");
+            }
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/5", persistent = false)
     public void enviaNotificacoesYouTubeAoVivo() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
-            ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(empresa.getChave());
-            if (config.isConfigurado()) {
-                try {
-                    List<VideoDTO> streamings = googleService.buscaStreamsAtivosYouTube(empresa.getChave());
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
-                    for (VideoDTO video : streamings) {
-                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()) {
-                            Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                ConfiguracaoYouTubeEmpresaDTO config = paramService.buscaConfiguracaoYouTube(empresa.getChave());
 
-                            try {
-                                String titulo = config.getTituloAoVivo();
+                Date inicioSincronizacao = DateUtil.getDataAtual();
+                if (config.isConfigurado()) {
+                    try {
+                        List<Video> videos = daoService.findWith(QueryAdmin.VIDEOS_EMPRESA.create(empresa.getChave()));
 
-                                String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
+                        for (Video video : videos) {
+                            if (video.isAoVivo() && !video.isAgendado() &&
+                                    !Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()) {
+                                Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
 
-                                enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
-                            } catch (Exception e) {
-                                Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
-                                throw e;
+                                try {
+                                    String titulo = config.getTituloAoVivo();
+
+                                    String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
+
+                                    enviaPush(new FiltroDispositivoNotificacaoDTO(empresa, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
+                                } catch (Exception e) {
+                                    Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
+                                    throw e;
+                                }
                             }
                         }
+
+                        daoService.execute(QueryAdmin.REMOVE_VIDEOS_ANTIGOS.create(empresa.getChave(), inicioSincronizacao));
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + empresa.getChave(), e);
                     }
-                } catch (Exception e) {
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + empresa.getChave(), e);
                 }
+            } else {
+                LOGGER.info(empresa.getChave() + " fora do horário para notificação de vídeos on-line.");
             }
         }
     }
@@ -2415,10 +2450,10 @@ public class AppServiceImpl implements AppService {
 
             if (config.isConfigurado()) {
                 try {
-                    List<VideoDTO> streamings = googleService.buscaStreamsAgendadosYouTube(empresa.getChave());
+                    List<Video> streamings = daoService.findWith(QueryAdmin.VIDEOS_EMPRESA.create(empresa.getChave()));
 
-                    for (VideoDTO video : streamings) {
-                        if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
+                    for (Video video : streamings) {
+                        if (video.isAgendado() && !Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
                                 DateUtil.equalsSemHoras(DateUtil.getDataAtual(), video.getAgendamento()) &&
                                 // Verifica se está em horário útil para fazer a notificação
                                 horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
@@ -2451,14 +2486,14 @@ public class AppServiceImpl implements AppService {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificacaoYouTubeAoVivo {
-        private VideoDTO video;
+        private Video video;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificacaoYouTubeAgendado {
-        private VideoDTO video;
+        private Video video;
     }
 
     private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem, TipoNotificacao tipo, boolean compartilhavel) {
