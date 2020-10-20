@@ -24,17 +24,23 @@ public class ProcessamentoSincronizacaoYouTube implements ProcessamentoService.P
 
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-        final Video video = videos.remove(0);
+        int i = 0;
 
-        tool.transactional(new ProcessamentoService.ExecucaoTransacional<Video>() {
-            @Override
-            public Video execute(DAOService daoService) {
-                video.setEmpresa(empresa);
-                video.setDataAtualizacao(dataSincronizacao);
+        while (i < 10 && !videos.isEmpty()) {
+            final Video video = videos.remove(0);
 
-                return daoService.update(video);
-            }
-        });
+            tool.transactional(new ProcessamentoService.ExecucaoTransacional<Video>() {
+                @Override
+                public Video execute(DAOService daoService) {
+                    video.setEmpresa(empresa);
+                    video.setDataAtualizacao(dataSincronizacao);
+
+                    return daoService.update(video);
+                }
+            });
+
+            i++;
+        }
 
         return videos.size();
     }

@@ -419,7 +419,9 @@ public enum QueryAdmin {
         }
     },
     VIDEOS_ANTIGOS("Video.findVideoNaoSincronizados", "empresa", "dataAtualizacao"),
-    VIDEOS_EMPRESA("Video.findByEmpresa", "empresa");
+    VIDEOS_EMPRESA("Video.findByEmpresa", "empresa"),
+    GALERIA_FOTOS_ANTIGOS("GaleriaFotos.findNaoSincronizados", "empresa", "sincronizacao"),
+    GALERIA_FOTOS_EMPRESA("GaleriaFotos.findByEmpresa", "empresa");
 
     private final String query;
     private final String[] parameters;

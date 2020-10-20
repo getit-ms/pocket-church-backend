@@ -1,13 +1,12 @@
 package br.gafs.pocket.corporate.servidor.flickr;
 
+import br.gafs.dao.BuscaPaginadaDTO;
+import br.gafs.exceptions.ServiceException;
 import br.gafs.pocket.corporate.dto.FiltroFotoDTO;
-import br.gafs.pocket.corporate.dto.FotoDTO;
-import br.gafs.pocket.corporate.dto.GaleriaDTO;
+import br.gafs.pocket.corporate.entity.GaleriaFotos;
 import br.gafs.pocket.corporate.entity.domain.TipoParametro;
 import br.gafs.pocket.corporate.service.ParametroService;
 import br.gafs.pocket.corporate.servidor.google.CacheDTO;
-import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.exceptions.ServiceException;
 import br.gafs.util.string.StringUtil;
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
@@ -67,7 +66,7 @@ public class FlickrService {
         }
     }
 
-    public BuscaPaginadaDTO<GaleriaDTO> buscaGaleriaFotos(String chaveEmpresa, Integer pagina) {
+    public BuscaPaginadaDTO<GaleriaFotos> buscaGaleriaFotos(String chaveEmpresa, Integer pagina) {
         String id = parametroService.get(chaveEmpresa, TipoParametro.FLICKR_ID);
 
         if (!StringUtil.isEmpty(id)) {
@@ -77,10 +76,10 @@ public class FlickrService {
 
                 Photosets photoSets = f.getPhotosetsInterface().getList(id, ITENS_POR_PAGINA, pagina, null);
 
-                List<GaleriaDTO> galerias = new ArrayList<>();
+                List<GaleriaFotos> galerias = new ArrayList<>();
 
                 for (Photoset set : photoSets.getPhotosets()) {
-                    galerias.add(GaleriaDTO.builder()
+                    galerias.add(GaleriaFotos.builder()
                             .id(set.getId())
                             .nome(set.getTitle())
                             .descricao(set.getDescription())
@@ -88,7 +87,7 @@ public class FlickrService {
                             .dataAtualizacao(StringUtil.isEmpty(set.getDateUpdate()) ?
                                     new Date(Long.parseLong(set.getDateCreate())) :
                                     new Date(Long.parseLong(set.getDateUpdate())))
-                            .fotoPrimaria(FotoDTO.builder()
+                            .fotoPrimaria(GaleriaFotos.Foto.builder()
                                     .id(set.getPrimaryPhoto().getId())
                                     .farm(set.getPrimaryPhoto().getFarm())
                                     .secret(set.getPrimaryPhoto().getSecret())
@@ -107,7 +106,7 @@ public class FlickrService {
         return new BuscaPaginadaDTO(Collections.emptyList(), 0, 1, 30);
     }
 
-    public BuscaPaginadaDTO<FotoDTO> buscaFotos(String chaveEmpresa, FiltroFotoDTO filtro) {
+    public BuscaPaginadaDTO<GaleriaFotos.Foto> buscaFotos(String chaveEmpresa, FiltroFotoDTO filtro) {
         String id = parametroService.get(chaveEmpresa, TipoParametro.FLICKR_ID);
 
         if (!StringUtil.isEmpty(id)) {
@@ -122,10 +121,10 @@ public class FlickrService {
 
                 LOGGER.info("Consulta de fotos de galeira com o Flickr realizada com sucesso. Total de resultados " + photosFlickr.size());
 
-                List<FotoDTO> fotos = new ArrayList<>();
+                List<GaleriaFotos.Foto> fotos = new ArrayList<>();
 
                 for (Photo p : photosFlickr) {
-                    fotos.add(FotoDTO.builder()
+                    fotos.add(GaleriaFotos.Foto.builder()
                             .id(p.getId())
                             .titulo(p.getTitle())
                             .server(p.getServer())

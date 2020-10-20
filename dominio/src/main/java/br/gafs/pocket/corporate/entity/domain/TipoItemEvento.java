@@ -7,5 +7,6 @@ public enum TipoItemEvento {
     NOTICIA,
     EVENTO_CALENDARIO,
     EVENTO_INSCRICAO,
-    VIDEO
+    VIDEO,
+    FOTOS
 }

@@ -7,7 +7,6 @@ package br.gafs.pocket.corporate.servidor;
 
 import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.dao.DAOService;
 import br.gafs.dao.QueryParameters;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.file.EntityFileManager;
@@ -27,6 +26,7 @@ import br.gafs.pocket.corporate.servidor.flickr.FlickrService;
 import br.gafs.pocket.corporate.servidor.google.GoogleService;
 import br.gafs.pocket.corporate.servidor.pagseguro.PagSeguroService;
 import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoRelatorioCache;
+import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoSincronizacaoFlickr;
 import br.gafs.pocket.corporate.servidor.processamento.ProcessamentoSincronizacaoYouTube;
 import br.gafs.pocket.corporate.servidor.relatorio.RelatorioDocumento;
 import br.gafs.pocket.corporate.servidor.relatorio.RelatorioInscritos;
@@ -2034,12 +2034,12 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina) {
-        return flickrService.buscaGaleriaFotos(sessaoBean.getChaveEmpresa(), pagina);
+    public BuscaPaginadaDTO<GaleriaFotos> buscaGaleriasFotos(Integer pagina) {
+        return daoService.findWith(QueryAdmin.GALERIA_FOTOS_EMPRESA.createPaginada(pagina, sessaoBean.getChaveEmpresa()));
     }
 
     @Override
-    public BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro) {
+    public BuscaPaginadaDTO<GaleriaFotos.Foto> buscaFotos(FiltroFotoDTO filtro) {
         return flickrService.buscaFotos(sessaoBean.getChaveEmpresa(), filtro);
     }
 
@@ -2391,6 +2391,27 @@ public class AppServiceImpl implements AppService {
                 }
             } else {
                 LOGGER.info(empresa.getChave() + " fora do horário para sincronizção de vídeos.");
+            }
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/5", persistent = false)
+    public void sincronizaFotosFlickr() {
+        List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
+        for (Empresa empresa : empresas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(empresa.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                try {
+                    processamentoService.execute(
+                            new ProcessamentoSincronizacaoFlickr(empresa)
+                    );
+                } catch (InterruptedException e) {
+                    LOGGER.log(Level.SEVERE, empresa.getChave() + " falha ao sincronizar fotos do flickr.");
+                }
+            } else {
+                LOGGER.info(empresa.getChave() + " fora do horário para sincronizção de fotos do flickr.");
             }
         }
     }
