@@ -1,4 +1,4 @@
-alter table tb_item_evento add column apresentacao type text;
+alter table tb_item_evento alter column apresentacao type text;
 
 create table tb_galeria_fotos (
     id_galeria_fotos varchar(150),

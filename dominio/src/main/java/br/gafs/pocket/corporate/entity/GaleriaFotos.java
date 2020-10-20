@@ -16,7 +16,7 @@ import java.util.Date;
 
 @Entity
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tb_galeria_fotos")
 @IdClass(GaleriaFotosId.class)
 @EqualsAndHashCode(of = {"id", "empresa"})
