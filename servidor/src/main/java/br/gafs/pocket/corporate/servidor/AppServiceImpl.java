@@ -37,6 +37,7 @@ import br.gafs.util.email.EmailUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
 import com.mpatric.mp3agic.Mp3File;
+import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -214,7 +215,8 @@ public class AppServiceImpl implements AppService {
         return daoService.findWith(QueryAdmin.RELEASE_NOTES.create(tipo));
     }
 
-    private MensagemDia buscaMensagemDia() {
+    @Getter
+    public MensagemDia buscaMensagemDia() {
         return daoService.findWith(QueryAdmin.MENSAGEM_DIAS_POR_STATUS.
                 createSingle(sessaoBean.getChaveEmpresa(), StatusMensagemDia.ATIVO));
     }

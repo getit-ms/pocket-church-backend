@@ -36,6 +36,7 @@ public class FlickrService {
 
     public static final int ITENS_POR_PAGINA = 30;
     private static final long TIMEOUT_TOKEN = 300000;
+    private static final long MILLIS_SECOND = 1000;
 
     @EJB
     private ParametroService parametroService;
@@ -85,8 +86,8 @@ public class FlickrService {
                             .descricao(set.getDescription())
                             .quantidadeFotos(set.getPhotoCount())
                             .dataAtualizacao(StringUtil.isEmpty(set.getDateUpdate()) ?
-                                    new Date(Long.parseLong(set.getDateCreate())) :
-                                    new Date(Long.parseLong(set.getDateUpdate())))
+                                    new Date(Long.parseLong(set.getDateCreate()) * MILLIS_SECOND) :
+                                    new Date(Long.parseLong(set.getDateUpdate()) * MILLIS_SECOND))
                             .fotoPrimaria(GaleriaFotos.Foto.builder()
                                     .id(set.getPrimaryPhoto().getId())
                                     .farm(set.getPrimaryPhoto().getFarm())

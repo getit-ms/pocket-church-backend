@@ -36,6 +36,13 @@ public class MensagemDiaController {
     private AppService appService;
 
     @GET
+    @Path("hoje")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMensagemHoje(){
+        return Response.status(Response.Status.OK).entity(appService.buscaMensagemDia()).build();
+    }
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(
             @QueryParam("filtro") @DefaultValue("") String filtro,

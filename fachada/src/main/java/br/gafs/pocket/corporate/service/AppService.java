@@ -202,4 +202,5 @@ public interface AppService extends Serializable {
     BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro);
     List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino);
 
+    MensagemDia buscaMensagemDia();
 }
