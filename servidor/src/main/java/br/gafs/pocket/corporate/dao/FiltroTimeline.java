@@ -36,7 +36,7 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select ie ").append(query).append(" order by " +
-                "]ie.dataHora desc, ie.tipo, ie.id desc ").toString());
+                "ie.dataHoraPublicacao desc, ie.tipo, ie.id desc ").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(ie) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
