@@ -126,6 +126,8 @@ public class GaleriaFotos implements IEntity, IItemEvento {
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Foto implements Serializable {
         private String id;
         private String server;

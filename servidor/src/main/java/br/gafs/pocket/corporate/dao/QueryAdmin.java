@@ -422,7 +422,12 @@ public enum QueryAdmin {
     VIDEOS_EMPRESA("Video.findByEmpresa", "empresa"),
     GALERIA_FOTOS_ANTIGOS("GaleriaFotos.findNaoSincronizados", "empresa", "sincronizacao"),
     COUNT_GALERIA_FOTOS_EMPRESA("GaleriaFotos.countByEmpresa", "empresa"),
-    GALERIA_FOTOS_EMPRESA("GaleriaFotos.findByEmpresa", COUNT_GALERIA_FOTOS_EMPRESA, "empresa");
+    GALERIA_FOTOS_EMPRESA("GaleriaFotos.findByEmpresa", COUNT_GALERIA_FOTOS_EMPRESA, "empresa") {
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return 10;
+        }
+    };
 
     private final String query;
     private final String[] parameters;
