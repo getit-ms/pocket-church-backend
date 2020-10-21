@@ -178,7 +178,8 @@ public class Evento implements IEntity, IItemEvento {
                 .empresa(getEmpresa())
                 .tipo(TipoItemEvento.EVENTO_INSCRICAO)
                 .titulo(getNome())
-                .dataHora(getDataHoraInicio())
+                .dataHoraPublicacao(getDataInicioInscricao())
+                .dataHoraReferencia(getDataHoraInicio())
                 .ilustracao(getBanner())
                 .status(
                         isPublicado() ?

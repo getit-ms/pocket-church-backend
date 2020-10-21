@@ -122,7 +122,8 @@ public class Noticia implements IEntity, IItemEvento {
                 )
                 .apresentacao(getResumo())
                 .titulo(getTitulo())
-                .dataHora(getDataPublicacao())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
                 .ilustracao(getIlustracao())
                 .status(
                         isPublicado() ?

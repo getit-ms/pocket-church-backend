@@ -18,7 +18,7 @@ import java.util.Date;
 @Table(name = "tb_item_evento")
 @EqualsAndHashCode(of = {"id", "chaveEmpresa", "tipo"})
 @NamedQueries({
-        @NamedQuery(name = "ItemEvento.findByPeriodo", query = "select ie from ItemEvento ie where ie.empresa.chave = :chaveEmpresa and ie.status = :status and ie.dataHora between :dataInicio and :dataTermino order by ie.dataHora, ie.tipo, ie.id")
+        @NamedQuery(name = "ItemEvento.findByPeriodo", query = "select ie from ItemEvento ie where ie.empresa.chave = :chaveEmpresa and ie.status = :status and ie.dataHoraReferencia between :dataInicio and :dataTermino order by ie.dataHoraReferencia, ie.tipo, ie.id")
 })
 public class ItemEvento implements IEntity {
     @Id
@@ -41,9 +41,13 @@ public class ItemEvento implements IEntity {
     @Column(name = "apresentacao")
     private String apresentacao;
 
-    @Column(name = "data_hora")
+    @Column(name = "data_hora_publicacao")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date dataHora;
+    private Date dataHoraPublicacao;
+
+    @Column(name = "data_hora_referencia")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataHoraReferencia;
 
     @JsonIgnore
     @Column(name = "status")

@@ -241,7 +241,8 @@ public class Documento implements IEntity, ArquivoPDF, IItemEvento {
                 .empresa(getEmpresa())
                 .tipo(TipoItemEvento.DOCUMENTO)
                 .titulo(getTitulo())
-                .dataHora(getDataPublicacao())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
                 .ilustracao(getThumbnail())
                 .autor(getColaborador())
                 .status(

@@ -28,14 +28,15 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from ItemEvento ie where ie.empresa.chave = :chaveEmpresa")
-                .append(" and ie.status = :status and ie.dataHora <= :dataHora");
+                .append(" and ie.status = :status and ie.dataHoraPublicacao <= :dataHoraPublicacao");
         Map<String, Object> args = new QueryParameters("chaveEmpresa", empresa)
                 .set("status", StatusItemEvento.PUBLICADO)
-                .set("dataHora", DateUtil.getDataAtual());
+                .set("dataHoraPublicacao", DateUtil.getDataAtual());
         
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select ie ").append(query).append(" order by ie.dataHora desc, ie.tipo, ie.id desc ").toString());
+        setQuery(new StringBuilder("select ie ").append(query).append(" order by " +
+                "]ie.dataHora desc, ie.tipo, ie.id desc ").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(ie) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());

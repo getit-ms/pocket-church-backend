@@ -76,7 +76,9 @@ public class EventoCalendario implements IEntity, IItemEvento {
                 .empresa(getEmpresa())
                 .tipo(TipoItemEvento.EVENTO_CALENDARIO)
                 .titulo(getDescricao().length() > 150 ? getDescricao().substring(150) : getDescricao())
-                .dataHora(getInicio())
+                .apresentacao(getDescricao())
+                .dataHoraPublicacao(getInicio())
+                .dataHoraReferencia(getInicio())
                 .status(StatusItemEvento.PUBLICADO)
                 .build();
     }

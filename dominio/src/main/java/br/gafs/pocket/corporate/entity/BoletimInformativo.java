@@ -192,7 +192,8 @@ public class BoletimInformativo implements ArquivoPDF, IItemEvento {
                 .empresa(getEmpresa())
                 .tipo(TipoItemEvento.BOLETIM_INFORMATIVO)
                 .titulo(getTitulo())
-                .dataHora(getDataPublicacao())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
                 .ilustracao(getThumbnail())
                 .autor(getAutor())
                 .status(
