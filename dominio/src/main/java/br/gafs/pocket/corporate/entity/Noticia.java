@@ -115,7 +115,12 @@ public class Noticia implements IEntity, IItemEvento {
         return ItemEvento.builder()
                 .id(getId().toString())
                 .empresa(getEmpresa())
-                .tipo(TipoItemEvento.NOTICIA)
+                .tipo(
+                        tipo == TipoNoticia.NOTICIA ?
+                                TipoItemEvento.NOTICIA :
+                                TipoItemEvento.CLASSIFICADOS
+                )
+                .apresentacao(getResumo())
                 .titulo(getTitulo())
                 .dataHora(getDataPublicacao())
                 .ilustracao(getIlustracao())
