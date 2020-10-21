@@ -22,7 +22,8 @@ import java.util.Date;
 @EqualsAndHashCode(of = {"id", "empresa"})
 @NamedQueries({
         @NamedQuery(name = "GaleriaFotos.findNaoSincronizados", query = "select gf from GaleriaFotos gf where gf.empresa.chave = :empresa and gf.sincronizacao < :sincronizacao"),
-        @NamedQuery(name = "GaleriaFotos.findByEmpresa", query = "select gf from GaleriaFotos gf where gf.empresa.chave = :empresa order by gf.dataAtualizacao desc")
+        @NamedQuery(name = "GaleriaFotos.findByEmpresa", query = "select gf from GaleriaFotos gf where gf.empresa.chave = :empresa order by gf.dataAtualizacao desc"),
+        @NamedQuery(name = "GaleriaFotos.countByEmpresa", query = "select count(gf.id) from GaleriaFotos gf where gf.empresa.chave = :empresa")
 })
 public class GaleriaFotos implements IEntity, IItemEvento {
     private static final ObjectMapper OM = new ObjectMapper();

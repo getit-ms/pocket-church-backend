@@ -9,11 +9,14 @@ import br.gafs.pocket.corporate.servidor.ProcessamentoService;
 import br.gafs.pocket.corporate.servidor.flickr.FlickrService;
 import lombok.RequiredArgsConstructor;
 
+import javax.naming.InitialContext;
 import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class ProcessamentoSincronizacaoFlickr implements ProcessamentoService.Processamento {
+    public static final String FLICKR_SERVICE_LOOKUP = "java:global/pocket-corporate-app/pocket-corporate-servidor/FlickrService";
+
     private final Empresa empresa;
     private final Date dataSincronizacao = new Date();
     private Integer pagina = 1;
@@ -25,7 +28,7 @@ public class ProcessamentoSincronizacaoFlickr implements ProcessamentoService.Pr
 
     @Override
     public int step(ProcessamentoService.ProcessamentoTool tool) throws Exception {
-        final FlickrService flickrService = tool.getSessionContext().getBusinessObject(FlickrService.class);
+        final FlickrService flickrService = InitialContext.doLookup(FLICKR_SERVICE_LOOKUP);
 
         boolean hasProxima = tool.transactional(new ProcessamentoService.ExecucaoTransacional<Boolean>() {
             @Override

@@ -2395,7 +2395,7 @@ public class AppServiceImpl implements AppService {
         }
     }
 
-    @Schedule(hour = "*", minute = "*/5", persistent = false)
+    @Schedule(hour = "*", minute = "*/20", persistent = false)
     public void sincronizaFotosFlickr() {
         List<Empresa> empresas = daoService.findWith(QueryAdmin.EMPRESAS_ATIVAS.create());
         for (Empresa empresa : empresas) {
