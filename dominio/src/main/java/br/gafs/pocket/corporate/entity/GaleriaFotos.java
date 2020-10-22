@@ -95,6 +95,7 @@ public class GaleriaFotos implements IEntity, IItemEvento {
                 .titulo(getNome())
                 .status(StatusItemEvento.PUBLICADO)
                 .dataHoraPublicacao(getDataAtualizacao())
+                .dataHoraReferencia(getDataAtualizacao())
                 .urlIlustracao(getFotoPrimaria().toString())
                 .build();
     }

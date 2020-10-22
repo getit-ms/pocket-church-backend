@@ -74,6 +74,7 @@ public class Video implements IEntity, IItemEvento {
                 .empresa(getEmpresa())
                 .tipo(TipoItemEvento.VIDEO)
                 .titulo(getTitulo())
+                .apresentacao(getDescricao())
                 .status(StatusItemEvento.PUBLICADO)
                 .dataHoraPublicacao(getAgendamento() != null ? getAgendamento() : getPublicacao())
                 .dataHoraReferencia(getAgendamento() != null ? getAgendamento() : getPublicacao())

@@ -2014,6 +2014,7 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AllowColaborador
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
     public Audio buscaAudio(Long audio) {
         return daoService.find(Audio.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), audio));
