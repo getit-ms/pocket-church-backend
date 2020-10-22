@@ -39,7 +39,7 @@ public class Banner implements IEntity {
     @ManyToOne
     @View.MergeViews({View.Edicao.class, View.Cadastro.class})
     @JoinColumns({
-            @JoinColumn(name = "id_banner", referencedColumnName = "id_arquivo"),
+            @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo"),
             @JoinColumn(name = "chave_empresa", referencedColumnName = "chave_empresa", insertable = false, updatable = false),
     })
     private Arquivo banner;
