@@ -943,16 +943,9 @@ public class AppServiceImpl implements AppService {
                     rq.resultado(o, 0);
                 }
             }
-
-            rq.brancos(nullToZero(daoService.findWith(QueryAdmin.BRANCOS_QUESTAO.createSingle(questao.getId()))).intValue());
-            rq.nulos(nullToZero(daoService.findWith(QueryAdmin.NULOS_QUESTAO.createSingle(questao.getId()))).intValue());
         }
 
         return dto;
-    }
-
-    private Number nullToZero(Object val) {
-        return val == null ? 0 : (Number) val;
     }
 
     @Audit
@@ -1882,6 +1875,23 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    @AllowColaborador(Funcionalidade.ANIVERSARIANTES)
+    public List<Colaborador> buscaAniversariantesHoje() {
+        Empresa empresa = daoService.find(Empresa.class, sessaoBean.getChaveEmpresa());
+
+        TimeZone timeZone = TimeZone.getTimeZone(empresa.getTimezone());
+        Calendar dateCal = Calendar.getInstance(timeZone);
+        dateCal.setTime(new Date());
+
+        int mes = dateCal.get(Calendar.MONTH) + 1;
+        int dia = dateCal.get(Calendar.DAY_OF_MONTH);
+
+        int aniversario = mes * 100 + dia;
+
+        return daoService.findWith(QueryAdmin.PROXIMOS_ANIVERSARIANTES.create(empresa.getChave(), aniversario, aniversario));
+    }
+
+    @Override
     public String getVersaoApp(TipoDispositivo tipoDispositivo) {
         switch (tipoDispositivo) {
             case ANDROID:
@@ -2034,6 +2044,48 @@ public class AppServiceImpl implements AppService {
         }
 
         return busca;
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner buscaBanner(Long id) {
+        return daoService.find(Banner.class,
+                new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), id));
+    }
+
+    @Override
+    @AllowColaborador
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public List<Banner> buscaBanners() {
+        return daoService.findAll(Banner.class);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner cadastra(Banner banner) {
+        banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
+        arquivoService.registraUso(banner.getBanner().getId());
+
+        banner.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveDispositivo()));
+
+        return daoService.create(banner);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner atualiza(Banner banner) {
+        banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
+        arquivoService.registraUso(banner.getBanner().getId());
+
+        banner.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveDispositivo()));
+
+        return daoService.create(banner);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public void removeBanner(Long id) {
+        daoService.delete(Banner.class, new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), id));
     }
 
     @Override

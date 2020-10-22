@@ -43,8 +43,6 @@ import lombok.ToString;
 @NamedQueries({
     @NamedQuery(name = "RespostaQuestao.removerPorEnquete", query = "delete from RespostaQuestao rq where rq.enquete.enquete.id = :idEnquete and rq.enquete.empresa.chave = :chaveEmpresa"),
     @NamedQuery(name = "RespostaQuestao.findCountByOpcao", query = "select count(ro.id) from RespostaQuestao rq inner join rq.opcoes ro where ro.opcao.id = :opcao"),
-    @NamedQuery(name = "RespostaQuestao.findCountNulos", query = "select sum(rq.nulos) from RespostaQuestao rq where rq.questao.id = :questao"),
-    @NamedQuery(name = "RespostaQuestao.findCountBrancos", query = "select sum(rq.brancos) from RespostaQuestao rq where rq.questao.id = :questao")
 })
 public class RespostaQuestao implements IEntity {
     @Id
@@ -72,14 +70,6 @@ public class RespostaQuestao implements IEntity {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_resposta_questao")
     private List<RespostaOpcao> opcoes = new ArrayList<RespostaOpcao>();
-    
-    @Min(0)
-    @Column(name = "branco")
-    private Integer brancos = 0;
-    
-    @Min(0)
-    @Column(name = "nulo")
-    private Integer nulos = 0;
 
     public RespostaQuestao(RespostaEnquete enquete, Questao questao) {
         this.enquete = enquete;
@@ -87,7 +77,7 @@ public class RespostaQuestao implements IEntity {
     }
 
     public Integer getQuantidadeRespostaEnqueteColaboradores() {
-        return brancos + nulos + opcoes.size();
+        return opcoes.size();
     }
     
 }

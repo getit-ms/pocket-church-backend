@@ -37,10 +37,13 @@ public class ItemEventoController {
     @JsonView(View.Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(
+            @QueryParam("autor") final Long autor,
+            @QueryParam("semAutor") final Boolean semAutor,
+            @QueryParam("filtro") final String filtro,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total) {
         return Response.status(Response.Status.OK).entity(appService.buscaTimeline(
-                new FiltroTimelineDTO(pagina, total))).build();
+                new FiltroTimelineDTO(autor, semAutor != null && semAutor, filtro, pagina, total))).build();
     }
 
     @GET

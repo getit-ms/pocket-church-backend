@@ -32,6 +32,18 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
         Map<String, Object> args = new QueryParameters("chaveEmpresa", empresa)
                 .set("status", StatusItemEvento.PUBLICADO)
                 .set("dataHoraPublicacao", DateUtil.getDataAtual());
+
+        if (filtro.getAutor() != null) {
+            query.append(" and ie.autor.id = :autor");
+            args.put("autor", filtro.getAutor());
+        } else if (filtro.isSemAutor()) {
+            query.append(" and ie.autor is null");
+        }
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
+            query.append(" and lower(ie.titulo) like :filtro");
+            args.put("filtro", filtro.getFiltro().toLowerCase());
+        }
         
         setArguments(args);
         setPage(filtro.getPagina());

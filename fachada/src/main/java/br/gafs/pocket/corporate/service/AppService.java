@@ -192,6 +192,7 @@ public interface AppService extends Serializable {
     List<CalendarioGoogleDTO> buscaVisoesCalendar() throws IOException;
 
     List<Colaborador> buscaProximosAniversariantes();
+    List<Colaborador> buscaAniversariantesHoje();
 
     List<QuantidadeDispositivoDTO> buscaQuantidadesDispositivos();
     List<EstatisticaDispositivo> buscaEstatisticasDispositivos();
@@ -203,4 +204,10 @@ public interface AppService extends Serializable {
     List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino);
 
     MensagemDia buscaMensagemDia();
+
+    List<Banner> buscaBanners();
+    Banner buscaBanner(Long id);
+    Banner cadastra(Banner banner);
+    Banner atualiza(Banner banner);
+    void removeBanner(Long id);
 }

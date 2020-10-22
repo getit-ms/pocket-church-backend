@@ -110,8 +110,6 @@ public enum QueryAdmin {
     }, 
     HORARIOS_POR_PERIODO("HorarioAtendimento.findByCalendarioAndPeriodo", "idCalendario", "dataInicio", "dataFim"), 
     RESULTADOS_OPCAO("RespostaQuestao.findCountByOpcao", "opcao"), 
-    BRANCOS_QUESTAO("RespostaQuestao.findCountBrancos", "questao"), 
-    NULOS_QUESTAO("RespostaQuestao.findCountNulos", "questao"), 
     COLABORADOR_POR_EMAIL_EMPRESA("Colaborador.findByEmailEmpresa", "email", "empresa"){
 
         @Override

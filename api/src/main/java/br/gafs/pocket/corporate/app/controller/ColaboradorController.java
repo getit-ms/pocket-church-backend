@@ -98,7 +98,17 @@ public class ColaboradorController {
     @JsonView(Colaborador.Aniversariante.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAniversariantes(){
-        return Response.status(Response.Status.OK).entity(appService.buscaProximosAniversariantes()).build();
+        return Response.status(Response.Status.OK)
+                .entity(appService.buscaProximosAniversariantes()).build();
+    }
+
+    @GET
+    @Path("aniversariantes/hoje")
+    @JsonView(Colaborador.Aniversariante.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAniversariantesHoje(){
+        return Response.status(Response.Status.OK)
+                .entity(appService.buscaAniversariantesHoje()).build();
     }
 
     @PUT

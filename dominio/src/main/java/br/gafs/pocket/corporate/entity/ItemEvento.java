@@ -18,7 +18,7 @@ import java.util.Date;
 @Table(name = "tb_item_evento")
 @EqualsAndHashCode(of = {"id", "chaveEmpresa", "tipo"})
 @NamedQueries({
-        @NamedQuery(name = "ItemEvento.findByPeriodo", query = "select ie from ItemEvento ie where ie.empresa.chave = :chaveEmpresa and ie.status = :status and ie.dataHoraReferencia between :dataInicio and :dataTermino order by ie.dataHoraReferencia, ie.tipo, ie.id")
+        @NamedQuery(name = "ItemEvento.findByPeriodo", query = "select ie from ItemEvento ie where ie.empresa.chave = :chaveEmpresa and ie.status = :status and ie.dataHoraReferencia between :dataInicio and :dataTermino order by ie.dataHoraReferencia, ie.tipo, ie.id"),
 })
 public class ItemEvento implements IEntity {
     @Id

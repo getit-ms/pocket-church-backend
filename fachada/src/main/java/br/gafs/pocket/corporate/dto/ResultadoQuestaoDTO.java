@@ -35,18 +35,6 @@ public class ResultadoQuestaoDTO implements DTO {
         return this;
     }
 
-    public ResultadoQuestaoDTO brancos(int resultado){
-        totais.add(new ResultadoOpcaoDTO("Brancos", resultado));
-        Collections.sort(totais);
-        return this;
-    }
-
-    public ResultadoQuestaoDTO nulos(int resultado){
-        totais.add(new ResultadoOpcaoDTO("Nulos", resultado));
-        Collections.sort(totais);
-        return this;
-    }
-
     public int getTotalTotais(){
         int total = 0;
         for (ResultadoOpcaoDTO opcao : totais){

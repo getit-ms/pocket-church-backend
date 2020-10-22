@@ -43,6 +43,7 @@ public enum Funcionalidade {
     CONFIGURAR_GOOGLE_CALENDAR(Tipo.ADMIN, 36),
     MANTER_AUDIOS(Tipo.ADMIN, 49),
     CONFIGURAR_FLICKR(Tipo.ADMIN, 50),
+    MANTER_BANNERS(Tipo.ADMIN, 55),
 
     // Colaborador
     CONSULTAR_CONTATOS_EMPRESA(Tipo.COLABORADOR, 19),

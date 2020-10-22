@@ -50,13 +50,7 @@ public class Questao implements IEntity, Comparable<Questao> {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "questao", length = 250, nullable = false)
     private String questao;
-    
-    @Min(1)
-    @NotNull
-    @View.MergeViews(View.Edicao.class)
-    @Column(name = "quantidade_votos", nullable = false)
-    private Integer quantidadeRespostasEnqueteColaborador = 1;
-    
+
     @View.MergeViews(View.Edicao.class)
     @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Opcao> opcoes = new ArrayList<Opcao>();
