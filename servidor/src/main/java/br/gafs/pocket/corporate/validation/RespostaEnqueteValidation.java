@@ -33,7 +33,7 @@ public class RespostaEnqueteValidation implements ValidadorServico<RespostaEnque
         for (RespostaQuestao rq : entidade.getRespostas()){
             Questao questao = daoService.find(Questao.class, rq.getQuestao().getId());
             
-            if (!questao.getQuantidadeRespostasEnqueteColaborador().equals(rq.getQuantidadeRespostaEnqueteColaboradores())){
+            if (rq.getQuantidadeRespostaEnqueteColaboradores() != 1){
                 throw new ServiceException("mensagens.MSG-032");
             }
         }
