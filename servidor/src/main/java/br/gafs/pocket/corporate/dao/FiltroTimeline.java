@@ -42,7 +42,7 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
 
         if (!StringUtil.isEmpty(filtro.getFiltro())) {
             query.append(" and lower(ie.titulo) like :filtro");
-            args.put("filtro", filtro.getFiltro().toLowerCase());
+            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
         
         setArguments(args);

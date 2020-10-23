@@ -7,8 +7,10 @@ package br.gafs.pocket.corporate.app.controller;
 
 import br.gafs.pocket.corporate.app.util.ArquivoUtil;
 import br.gafs.pocket.corporate.entity.Arquivo;
+import br.gafs.pocket.corporate.entity.domain.TipoParametro;
 import br.gafs.pocket.corporate.service.ArquivoService;
 import br.gafs.file.EntityFileManager;
+import br.gafs.pocket.corporate.service.ParametroService;
 import br.gafs.util.string.StringUtil;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -38,7 +40,10 @@ public class ArquivoController {
     
     @EJB
     private ArquivoService arquivoService;
-    
+
+    @EJB
+    private ParametroService paramService;
+
     @Context
     private HttpServletResponse response;
     
@@ -76,13 +81,15 @@ public class ArquivoController {
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
 
         if (arquivo != null && (StringUtil.isEmpty(filename) ||
-                arquivo.getFilename().equals(filename))){
+                arquivo.getFilename().equals(filename))) {
             File file = EntityFileManager.get(arquivo, "dados");
 
+            response.setHeader("Cache-Control", "public, max-age=3600000, post-check=3600000, pre-check=3600000");
+            response.setHeader("Last-Modified", "Sun, 06 Nov 2005 15:32:08 GMT");
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
             response.addHeader("Content-Length", "" + file.length());
             response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+arquivo.getNome()+"\"");
+                    "attachment; filename=\"" + arquivo.getNome() + "\"");
             ArquivoUtil.transfer(new FileInputStream(file), response.getOutputStream());
             return Response.noContent().build();
         }
@@ -105,6 +112,8 @@ public class ArquivoController {
             return Response.ok()
                     .status(Response.Status.PARTIAL_CONTENT)
                     .header(HttpHeaders.CONTENT_LENGTH, file.length())
+                    .header("Cache-Control", "public, max-age=3600000, post-check=3600000, pre-check=3600000")
+                    .header("Last-Modified", "Sun, 06 Nov 2005 15:32:08 GMT")
                     .header("Accept-Ranges", "bytes")
                     .build();
         }
@@ -119,41 +128,46 @@ public class ArquivoController {
             @HeaderParam("Range") String range,
             @PathParam("arquivo") Long identificador,
             @PathParam("filename") String filename) throws IOException {
-        if (StringUtil.isEmpty(range)) {
+        boolean validRangeHeader = !StringUtil.isEmpty(range) &&
+                range.matches("[Bb][Yy][Tt][Ee][Ss]=\\d+-\\d*");
+
+        if (!validRangeHeader) {
             return downloadFile(identificador, filename);
         }
-
 
         Arquivo arquivo = arquivoService.buscaArquivo(identificador);
 
         if (arquivo != null && (StringUtil.isEmpty(filename) ||
-                arquivo.getFilename().equals(filename))){
+                arquivo.getFilename().equals(filename))) {
             File file = EntityFileManager.get(arquivo, "dados");
 
-            String[] ranges = range.split( "=" )[1].split( "-" );
+            long from = 0, to, chunkSize = paramService.get(arquivo.getChaveEmpresa(), TipoParametro.STREAM_CHUNK_SIZE);
 
-            int from = Integer.parseInt( ranges[0] );
+            if (validRangeHeader) {
+                String[] fromTo = range.split("=")[1].split("-");
+                from = Integer.parseInt( fromTo[0] );
 
-            // Chunk media if the range upper bound is unspecified
-            int to = Math.min((int) file.length(), chunk_size + from) - 1;
+                if (fromTo.length > 1) {
+                    to = Math.min(Integer.parseInt( fromTo[1] ), file.length() - 1);
+                } else {
+                    to = Math.min((from + chunkSize), file.length()) - 1;
+                }
+            } else {
+                to = Math.min((from + chunkSize), file.length()) - 1;
+            }
 
-            final int len = to - from + 1;
-
-            final String responseRange = String.format( "bytes %d-%d/%d", from, to, file.length() );
+            final String responseRange = String.format("bytes %d-%d/%d", from, to, file.length());
 
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-            response.addHeader( "Accept-Ranges", "bytes" );
-            response.addHeader( "Content-Range", responseRange );
+            response.addHeader("Accept-Ranges", "bytes");
+            response.addHeader("Content-Range", responseRange);
+            response.addHeader("Content-Length", ((to - from) + 1) + "");
+
             response.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
-            response.addHeader("Content-Length", "" + len);
             response.addHeader("Content-Disposition",
-                    "attachment; filename=\""+arquivo.getNome()+"\"");
+                    "attachment; filename=\"" + arquivo.getNome() + "\"");
 
-            final RandomAccessFile raf = new RandomAccessFile( file, "r" );
-
-            raf.seek( from );
-
-            ArquivoUtil.transfer(raf, len, response.getOutputStream());
+            ArquivoUtil.transfer(from, to, file, response.getOutputStream(), (int) chunkSize);
 
             return Response.noContent().build();
         }

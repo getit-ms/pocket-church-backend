@@ -154,7 +154,9 @@ public enum TipoParametro {
     TOKEN_ACESSO_APP_BATCH(TipoValor.VALOR, String.class, "fe0b2a7d-1a19-4ef0-890c-a0226f9ceb06"),
 
     VERSAO_APP_ANDROID(TipoValor.VALOR, String.class, null),
-    VERSAO_APP_IOS(TipoValor.VALOR, String.class, null),;
+    VERSAO_APP_IOS(TipoValor.VALOR, String.class, null),
+
+    STREAM_CHUNK_SIZE(TipoValor.VALOR, Long.class, "240000");
 
     private final TipoValor tipoValor;
     private final Class<?> runtimeType;
