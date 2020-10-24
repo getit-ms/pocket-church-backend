@@ -16,11 +16,10 @@ import java.util.Date;
 import java.util.Random;
 
 /**
- *
  * @author Gabriel
  */
 public enum QueryAdmin {
-    REFERENCIAS_INSCRICOES_PENDENTES("InscricaoEvento.findReferenciasByStatusAndEmpresa", "empresa"){
+    REFERENCIAS_INSCRICOES_PENDENTES("InscricaoEvento.findReferenciasByStatusAndEmpresa", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusInscricaoEvento.PENDENTE);
@@ -33,17 +32,15 @@ public enum QueryAdmin {
     REMOVER_RESPOSTAS_QUESTAO("RespostaQuestao.removerPorEnquete", "chaveEmpresa", "idEnquete"),
     REMOVER_RESPOSTAS_ENQUETE("RespostaEnquete.removerPorEnquete", "chaveEmpresa", "idEnquete"),
     REGISTRA_USO_ARQUIVO("Arquivo.registraUso", "arquivo", "empresa"),
-    REGISTRA_DESUSO_ARQUIVO("Arquivo.registraDesuso", "arquivo", "empresa"){
-
+    REGISTRA_DESUSO_ARQUIVO("Arquivo.registraDesuso", "arquivo", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("timeout", new Date(System.currentTimeMillis() + DateUtil.MILESIMOS_POR_DIA));
         }
-        
+
     },
     PERFIS("Perfil.findByEmpresa", "idEmpresa"),
-    AGENDAMENTOS_ATENDIMENTO("AgendamentoAtendimento.findByStatusCalendarioPeriodo"){
-
+    AGENDAMENTOS_ATENDIMENTO("AgendamentoAtendimento.findByStatusCalendarioPeriodo") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return new QueryParameters("idCalendario", args[1]).
@@ -55,115 +52,105 @@ public enum QueryAdmin {
                             StatusAgendamentoAtendimento.CONFIRMADO
                     ));
         }
-        
-    }, 
-    CALENDARIOS("CalendarioAtendimento.findByEmpresa", "idEmpresa"){
 
+    },
+    CALENDARIOS("CalendarioAtendimento.findByEmpresa", "idEmpresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return new QueryParameters("idEmpresa", args[0]).set("status", StatusCalendario.ATIVO);
         }
-        
-    }, 
-    AGENDAMENTO_EM_CHOQUE("AgendamentoAtendimento.findAgendamentoEmChoque"){
-        
+
+    },
+    AGENDAMENTO_EM_CHOQUE("AgendamentoAtendimento.findAgendamentoEmChoque") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return new QueryParameters("status", Arrays.asList(
-                        StatusAgendamentoAtendimento.CONFIRMADO,
-                        StatusAgendamentoAtendimento.NAO_CONFIRMADO)).
+                    StatusAgendamentoAtendimento.CONFIRMADO,
+                    StatusAgendamentoAtendimento.NAO_CONFIRMADO)).
                     set("idCalendario", args[0]).
                     set("dataInicio", args[1]).
                     set("dataTermino", args[2]);
         }
-        
-    }, 
-    SORTEIA_MENSAGEM_DIA("MensagemDia.sorteiaByEmpresa", "idEmpresa"){
+
+    },
+    SORTEIA_MENSAGEM_DIA("MensagemDia.sorteiaByEmpresa", "idEmpresa") {
         private Random rand = new Random(System.currentTimeMillis());
-        
+
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
                     set("status", StatusMensagemDia.HABILITADO).
                     set("rand", rand.nextInt(1000) + 1);
         }
-        
-    }, 
-    EMPRESAS_ATIVAS("Empresa.findAtivas"){
 
+    },
+    EMPRESAS_ATIVAS("Empresa.findAtivas") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return new QueryParameters("status", Arrays.asList(StatusEmpresa.ATIVO));
         }
-        
-    }, 
-    ARQUIVOS_VENCIDOS("Arquivo.findVencidos"),
-    GERENTES_ATIVOS("Colaborador.findGerente"){
 
+    },
+    ARQUIVOS_VENCIDOS("Arquivo.findVencidos"),
+    GERENTES_ATIVOS("Colaborador.findGerente") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return new QueryParameters("chaveEmpresa", args[0]).
                     set("statusCalendario", StatusCalendario.ATIVO).
                     set("status", Arrays.asList(StatusColaborador.CONTATO, StatusColaborador.COLABORADOR));
         }
-        
-    }, 
-    HORARIOS_POR_PERIODO("HorarioAtendimento.findByCalendarioAndPeriodo", "idCalendario", "dataInicio", "dataFim"), 
-    RESULTADOS_OPCAO("RespostaQuestao.findCountByOpcao", "opcao"), 
-    COLABORADOR_POR_EMAIL_EMPRESA("Colaborador.findByEmailEmpresa", "email", "empresa"){
 
+    },
+    HORARIOS_POR_PERIODO("HorarioAtendimento.findByCalendarioAndPeriodo", "idCalendario", "dataInicio", "dataFim"),
+    RESULTADOS_OPCAO("RespostaQuestao.findCountByOpcao", "opcao"),
+    COLABORADOR_POR_EMAIL_EMPRESA("Colaborador.findByEmailEmpresa", "email", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
                     set("status", Arrays.asList(StatusColaborador.CONTATO, StatusColaborador.COLABORADOR));
         }
-        
-    },
-    BUSCA_QUANTIDADE_INSCRICOES("InscricaoEvento.quantidadeInscricoesEvento", "idEvento"){
 
+    },
+    BUSCA_QUANTIDADE_INSCRICOES("InscricaoEvento.quantidadeInscricoesEvento", "idEvento") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", Arrays.asList(
-                            StatusInscricaoEvento.CONFIRMADA,
-                            StatusInscricaoEvento.PENDENTE));
+                    StatusInscricaoEvento.CONFIRMADA,
+                    StatusInscricaoEvento.PENDENTE));
         }
-        
-    }, 
-    PREFERENCIAS_POR_COLABORADOR("Preferencias.findByColaborador", "colaborador", "empresa"),
-    CALENDARIO_ATIVO_POR_GERENTE("CalendarioAtendimeto.findByGerenteAndEmpresaAndStatus", "empresa", "gerente"){
 
+    },
+    PREFERENCIAS_POR_COLABORADOR("Preferencias.findByColaborador", "colaborador", "empresa"),
+    CALENDARIO_ATIVO_POR_GERENTE("CalendarioAtendimeto.findByGerenteAndEmpresaAndStatus", "empresa", "gerente") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusCalendario.ATIVO);
         }
-        
-    }, 
-    MENOR_ENVIO_MENSAGEM_DIAS("MensagemDia.findMenorEnvioByEmpresaAndStatus", "empresa"){
 
+    },
+    MENOR_ENVIO_MENSAGEM_DIAS("MensagemDia.findMenorEnvioByEmpresaAndStatus", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusMensagemDia.HABILITADO);
         }
-        
-    }, 
-    RELEASE_NOTES("ReleaseNotes.findByTipo", "tipo"){
+
+    },
+    RELEASE_NOTES("ReleaseNotes.findByTipo", "tipo") {
         @Override
         protected int extractResultLimit(Object... args) {
             return 10;
         }
-    }, 
-    UPDATE_BOLETINS_NAO_DIVULGADOS("BoletimInformativo.updateNaoDivulgadosByEmpresa", "empresa"){
-
+    },
+    UPDATE_BOLETINS_NAO_DIVULGADOS("BoletimInformativo.updateNaoDivulgadosByEmpresa", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
                     .set("data", DateUtil.getDataAtual())
                     .set("tipo", TipoBoletimInformativo.BOLETIM);
         }
-        
-    },
-    UPDATE_PUBLICACOES_NAO_DIVULGADOS("BoletimInformativo.updateNaoDivulgadosByEmpresa", "empresa"){
 
+    },
+    UPDATE_PUBLICACOES_NAO_DIVULGADOS("BoletimInformativo.updateNaoDivulgadosByEmpresa", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
@@ -172,8 +159,7 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_DOCUMENTOS_NAO_DIVULGADOS("Documento.updateNaoDivulgadosByEmpresa", "empresa"){
-
+    UPDATE_DOCUMENTOS_NAO_DIVULGADOS("Documento.updateNaoDivulgadosByEmpresa", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -181,8 +167,7 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_NOTICIAS_NAO_DIVULGADAS("Noticia.updateNaoDivulgadosByEmpresa", "empresa", "tipoNoticia"){
-
+    UPDATE_NOTICIAS_NAO_DIVULGADAS("Noticia.updateNaoDivulgadosByEmpresa", "empresa", "tipoNoticia") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -190,8 +175,7 @@ public enum QueryAdmin {
         }
 
     },
-    EMPRESAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("BoletimInformativo.findEmpresaByStatusAndDataPublicacao"){
-
+    EMPRESAS_ATIVAS_COM_BOLETINS_A_DIVULGAR("BoletimInformativo.findEmpresaByStatusAndDataPublicacao") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -200,10 +184,9 @@ public enum QueryAdmin {
                     set("tipo", TipoBoletimInformativo.BOLETIM).
                     set("data", DateUtil.getDataAtual());
         }
-        
-    },
-    EMPRESAS_ATIVAS_COM_PUBLICACOES_A_DIVULGAR("BoletimInformativo.findEmpresaByStatusAndDataPublicacao"){
 
+    },
+    EMPRESAS_ATIVAS_COM_PUBLICACOES_A_DIVULGAR("BoletimInformativo.findEmpresaByStatusAndDataPublicacao") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -214,8 +197,7 @@ public enum QueryAdmin {
         }
 
     },
-    EMPRESAS_ATIVAS_COM_DOCUMENTOS_A_DIVULGAR("Documento.findEmpresaNaoDivultadosByDataPublicacao"){
-
+    EMPRESAS_ATIVAS_COM_DOCUMENTOS_A_DIVULGAR("Documento.findEmpresaNaoDivultadosByDataPublicacao") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -224,8 +206,7 @@ public enum QueryAdmin {
         }
 
     },
-    EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR("Noticia.findEmpresaNaoDivultadosByDataPublicacao", "tipoNoticia"){
-
+    EMPRESAS_ATIVAS_COM_NOTICIAS_A_DIVULGAR("Noticia.findEmpresaNaoDivultadosByDataPublicacao", "tipoNoticia") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -234,20 +215,19 @@ public enum QueryAdmin {
         }
 
     },
-    ANIVERSARIANTES("AniversarioColaborador.findAniversariantes", "empresa"){
+    ANIVERSARIANTES("AniversarioColaborador.findAniversariantes", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusColaborador.EXCLUIDO);
         }
     },
-    PROXIMOS_ANIVERSARIANTES("AniversarioColaborador.findProximosAniversariantes", "empresa", "inicio", "fim"){
+    PROXIMOS_ANIVERSARIANTES("AniversarioColaborador.findProximosAniversariantes", "empresa", "inicio", "fim") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusColaborador.EXCLUIDO);
         }
     },
-    BOLETINS_PROCESSANDO("BoletimInformativo.findByStatus"){
-
+    BOLETINS_PROCESSANDO("BoletimInformativo.findByStatus") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusBoletimInformativo.PROCESSANDO);
@@ -257,10 +237,9 @@ public enum QueryAdmin {
         protected int extractResultLimit(Object... args) {
             return 5;
         }
-        
-    }, 
-    DOCUMENTOS_PROCESSANDO("Documento.findPDFByStatus"){
 
+    },
+    DOCUMENTOS_PROCESSANDO("Documento.findPDFByStatus") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("status", StatusDocumento.PROCESSANDO);
@@ -275,7 +254,7 @@ public enum QueryAdmin {
     UPDATE_STATUS_BOLETIM("BoletimInformativo.updateStatus", "empresa", "boletim", "status"),
     UPDATE_STATUS_DOCUMENTO("Documento.updateStatus", "empresa", "documento", "status"),
     COUNT_LEITURA_SELECIONADA("MarcacaoLeituraBiblica.countLeituraSelecionada", "chaveEmpresa", "idColaborador", "ultimaAlteracao"),
-    INSCRICOES_EVENTOS_ATIVOS("InscricaoEvento.findAtivosByEmpresa", "tipo", "chaveEmpresa"){
+    INSCRICOES_EVENTOS_ATIVOS("InscricaoEvento.findAtivosByEmpresa", "tipo", "chaveEmpresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).set("statusInscricao", StatusInscricaoEvento.CONFIRMADA).set("statusEvento", StatusEvento.ATIVO);
@@ -290,8 +269,7 @@ public enum QueryAdmin {
     CATEGORIA_USADAS_DOCUMENTO("CategoriaDocumento.findUsadasByEmpresa", "empresa"),
     CATEGORIA_USADAS_AUDIO("CategoriaAudio.findUsadasByEmpresa", "empresa"),
     MENUS_EMPRESA_FUNCIONALIDADES("Menu.findByEmpresaAndFuncionalidades", "empresa", "funcionalidades"),
-    NOTICIA_A_DIVULGAR_POR_EMPRESA("Noticia.findUltimaADivulgar", "empresa"){
-
+    NOTICIA_A_DIVULGAR_POR_EMPRESA("Noticia.findUltimaADivulgar", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -300,8 +278,7 @@ public enum QueryAdmin {
         }
 
     },
-    CLASSIFICADOS_A_DIVULGAR_POR_EMPRESA("Noticia.findUltimaADivulgar", "empresa"){
-
+    CLASSIFICADOS_A_DIVULGAR_POR_EMPRESA("Noticia.findUltimaADivulgar", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -310,8 +287,7 @@ public enum QueryAdmin {
         }
 
     },
-    BOLETIM_A_DIVULGAR_POR_EMPRESA("BoletimInformativo.findUltimoADivulgar", "empresa"){
-
+    BOLETIM_A_DIVULGAR_POR_EMPRESA("BoletimInformativo.findUltimoADivulgar", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -320,8 +296,7 @@ public enum QueryAdmin {
                     set("data", DateUtil.getDataAtual());
         }
     },
-    PUBLICACAO_A_DIVULGAR_POR_EMPRESA("BoletimInformativo.findUltimoADivulgar", "empresa"){
-
+    PUBLICACAO_A_DIVULGAR_POR_EMPRESA("BoletimInformativo.findUltimoADivulgar", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -332,15 +307,13 @@ public enum QueryAdmin {
     },
     REMOVE_EVENTO_CALENDARIO_POR_EMPRESA("EventoCalendario.removeDesatualizadosPorEmpresa", "empresa", "limite"),
     COUNT_EVENTOS_CALENDARIO_EMPRESA("EventoCalendario.countByEmpresa", "empresa"),
-    EVENTOS_CALENDARIO_EMPRESA("EventoCalendario.findByEmpresa", COUNT_EVENTOS_CALENDARIO_EMPRESA, "empresa"){
-
+    EVENTOS_CALENDARIO_EMPRESA("EventoCalendario.findByEmpresa", COUNT_EVENTOS_CALENDARIO_EMPRESA, "empresa") {
         @Override
         protected int extractResultLimit(Object... args) {
             return (int) args[1];
         }
     },
-    DOCUMENTO_A_DIVULGAR_POR_EMPRESA("Documento.findUltimoADivulgar", "empresa"){
-
+    DOCUMENTO_A_DIVULGAR_POR_EMPRESA("Documento.findUltimoADivulgar", "empresa") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -388,32 +361,33 @@ public enum QueryAdmin {
                     .set("statusEmpresa", StatusEmpresa.ATIVO);
         }
     },
-    REMOVE_ESTATISTICAS_DISPOSITIVOS_EMPRESAS_ANTIGAS("EstatisticaDispositivo.removeAntigas"){
+    REMOVE_ESTATISTICAS_DISPOSITIVOS_EMPRESAS_ANTIGAS("EstatisticaDispositivo.removeAntigas") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaMeses(new Date(), 1));
         }
     },
-    REMOVE_ESTATISTICAS_ACESSO_EMPRESAS_ANTIGAS("EstatisticaAcesso.removeAntigas"){
+    REMOVE_ESTATISTICAS_ACESSO_EMPRESAS_ANTIGAS("EstatisticaAcesso.removeAntigas") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaMeses(new Date(), 1));
         }
     },
-    REMOVE_REGISTROS_ACESSO_EMPRESAS_ANTIGAS("RegistroAcesso.removeAntigas"){
+    REMOVE_REGISTROS_ACESSO_EMPRESAS_ANTIGAS("RegistroAcesso.removeAntigas") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
     },
-    ITENS_PERIODO_CALENDARIO("ItemEvento.findByPeriodo", "chaveEmpresa", "dataInicio", "dataTermino"){
+    ITENS_PERIODO_CALENDARIO("ItemEvento.findByPeriodo", "chaveEmpresa", "colaborador", "dataInicio", "dataTermino") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
-                    .set("status", StatusItemEvento.PUBLICADO);
+                    .set("status", StatusItemEvento.PUBLICADO)
+                    .set("statusComentario", StatusComentarioItemEvento.PUBLICADO);
         }
     },
     VIDEOS_ANTIGOS("Video.findVideoNaoSincronizados", "empresa", "dataAtualizacao"),
@@ -424,6 +398,21 @@ public enum QueryAdmin {
         @Override
         protected int extractResultLimit(Object... args) {
             return 10;
+        }
+    },
+    COMENTARIOS_DENUNCIADOS("ComentarioItemEvento.findDenunciados", "empresa"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusComentario", StatusComentarioItemEvento.PUBLICADO)
+                    .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
+        }
+    },
+    DENUNCIADOS_COMENTARIO("DenunciaComentarioItemEvento.findByComentario", "empresa", "comentario"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
         }
     };
 
@@ -441,29 +430,29 @@ public enum QueryAdmin {
         this.countQuery = countQuery;
     }
 
-    public Queries.NamedQuery create(Object... args){
+    public Queries.NamedQuery create(Object... args) {
         return QueryUtil.create(Queries.NamedQuery.class,
                 query, extractArguments(args), extractResultLimit(args));
     }
 
-    public Queries.SingleNamedQuery createSingle(Object... args){
+    public Queries.SingleNamedQuery createSingle(Object... args) {
         return QueryUtil.create(Queries.SingleNamedQuery.class,
                 query, extractArguments(args));
     }
 
-    public Queries.PaginatedNamedQuery createPaginada(int pagina, Object... args){
+    public Queries.PaginatedNamedQuery createPaginada(int pagina, Object... args) {
         return QueryUtil.create(Queries.PaginatedNamedQuery.class,
                 query, extractArguments(args), extractResultLimit(args),
                 pagina, getCountQuery().createSingle(args));
     }
 
-    protected int extractResultLimit(Object... args){
+    protected int extractResultLimit(Object... args) {
         return -1;
     }
 
-    protected QueryParameters extractArguments(Object... args){
+    protected QueryParameters extractArguments(Object... args) {
         QueryParameters arguments = new QueryParameters();
-        for (int i=0;i<parameters.length && i<args.length;i++){
+        for (int i = 0; i < parameters.length && i < args.length; i++) {
             arguments.put(parameters[i], args[i]);
         }
         return arguments;

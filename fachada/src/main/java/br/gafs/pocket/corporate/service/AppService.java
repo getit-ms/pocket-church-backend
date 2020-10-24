@@ -10,6 +10,7 @@ import br.gafs.pocket.corporate.dto.*;
 import br.gafs.pocket.corporate.entity.*;
 import br.gafs.pocket.corporate.entity.domain.Funcionalidade;
 import br.gafs.pocket.corporate.entity.domain.TipoDispositivo;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoVersao;
 
 import java.io.File;
@@ -202,6 +203,16 @@ public interface AppService extends Serializable {
 
     BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro);
     List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino);
+    void curteItemEvento(String id, TipoItemEvento tipo);
+    void descurteItemEvento(String id, TipoItemEvento tipo);
+    ComentarioItemEvento comenta(String id, TipoItemEvento tipo, ComentarioItemEvento comentario);
+    void removeComentario(Long id);
+    DenunciaComentarioItemEvento denunciaComentario(Long id, DenunciaComentarioItemEvento denuncia);
+    BuscaPaginadaDTO<ComentarioItemEvento> buscaComentarios(FiltroComentarioDTO filtro);
+    List<ComentarioItemEvento> buscaComentarioDenunciados();
+    List<DenunciaComentarioItemEvento> buscaDenunciasComentario(Long id);
+    void atendeDenuncia(Long id);
+    void rejeitaDenuncia(Long id);
 
     MensagemDia buscaMensagemDia();
 

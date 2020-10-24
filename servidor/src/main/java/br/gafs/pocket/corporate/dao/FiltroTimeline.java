@@ -10,12 +10,14 @@ import br.gafs.dao.QueryUtil;
 import br.gafs.pocket.corporate.dto.FiltroBoletimDTO;
 import br.gafs.pocket.corporate.dto.FiltroTimelineDTO;
 import br.gafs.pocket.corporate.entity.domain.StatusBoletimInformativo;
+import br.gafs.pocket.corporate.entity.domain.StatusComentarioItemEvento;
 import br.gafs.pocket.corporate.entity.domain.StatusItemEvento;
 import br.gafs.pocket.corporate.entity.domain.TipoBoletimInformativo;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,7 +26,7 @@ import java.util.Map;
  */
 public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
 
-    public FiltroTimeline(String empresa, FiltroTimelineDTO filtro) {
+    public FiltroTimeline(String empresa, Long colaborador, FiltroTimelineDTO filtro) {
         super(filtro);
         
         StringBuilder query = new StringBuilder("from ItemEvento ie where ie.empresa.chave = :chaveEmpresa")
@@ -44,10 +46,14 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
             query.append(" and lower(ie.titulo) like :filtro");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
-        
-        setArguments(args);
+
+        Map<String, Object> argsSelect = new HashMap<>(args);
+        argsSelect.put("statusComentario", StatusComentarioItemEvento.PUBLICADO);
+        argsSelect.put("colaborador", colaborador);
+
+        setArguments(argsSelect);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select ie ").append(query).append(" order by " +
+        setQuery(new StringBuilder("select ie, (select c from CurtidaItemEvento c where c.itemEvento = ie and c.colaborador = :colaborador), (select count(c) from CurtidaItemEvento c where c.itemEvento = ie), (select count(c) from ComentarioItemEvento c where c.itemEvento = ie and c.status = :statusComentario) ").append(query).append(" order by " +
                 "ie.dataHoraPublicacao desc, ie.tipo, ie.id desc ").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(ie) ").append(query).toString(), args));

@@ -5,7 +5,11 @@
  */
 package br.gafs.pocket.corporate.app.controller;
 
+import br.gafs.pocket.corporate.dto.FiltroComentarioDTO;
 import br.gafs.pocket.corporate.dto.FiltroTimelineDTO;
+import br.gafs.pocket.corporate.entity.ComentarioItemEvento;
+import br.gafs.pocket.corporate.entity.DenunciaComentarioItemEvento;
+import br.gafs.pocket.corporate.entity.domain.TipoItemEvento;
 import br.gafs.pocket.corporate.service.AppService;
 import br.gafs.pocket.corporate.view.View;
 import br.gafs.util.date.DateUtil;
@@ -59,4 +63,113 @@ public class ItemEventoController {
         )).build();
     }
 
+    @POST
+    @Path("{tipo}/{id}/curtir")
+    public Response curtir(
+            @PathParam("tipo") TipoItemEvento tipo,
+            @PathParam("id") String id
+    ) {
+        appService.curteItemEvento(id, tipo);
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("{tipo}/{id}/curtir")
+    public Response descurtir(
+            @PathParam("tipo") TipoItemEvento tipo,
+            @PathParam("id") String id
+    ) {
+        appService.descurteItemEvento(id, tipo);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("{tipo}/{id}/comentario")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response curtir(
+            @PathParam("tipo") TipoItemEvento tipo,
+            @PathParam("id") String id,
+            ComentarioItemEvento comentario
+    ) {
+        return Response.ok().entity(appService.comenta(id, tipo, comentario)).build();
+    }
+
+    @GET
+    @Path("{tipo}/{id}/comentario")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response busca(
+            @PathParam("tipo") TipoItemEvento tipo,
+            @PathParam("id") String id,
+            @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
+            @QueryParam("total") @DefaultValue("10") final Integer total) {
+        return Response.status(Response.Status.OK).entity(appService.buscaComentarios(
+                new FiltroComentarioDTO(id, tipo, pagina, total))).build();
+    }
+
+    @DELETE
+    @Path("comentario/{id}")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response curtir(
+            @PathParam("id") Long id
+    ) {
+        appService.removeComentario(id);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("comentario/{comentario}/denuncia")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response curtir(
+            @PathParam("comentario") Long id,
+            DenunciaComentarioItemEvento denuncia
+    ) {
+        return Response.ok().entity(appService.denunciaComentario(id, denuncia)).build();
+    }
+
+    @GET
+    @Path("denuncia")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaDenuncias() {
+        return Response.status(Response.Status.OK).entity(appService.buscaComentarioDenunciados()).build();
+    }
+
+    @GET
+    @Path("comentario/{comentario}/denuncia")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscaDenunciasComentario(
+            @PathParam("comentario") Long id
+    ) {
+        return Response.status(Response.Status.OK).entity(appService.buscaDenunciasComentario(id)).build();
+    }
+
+    @POST
+    @Path("denuncia/{id}")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response atendeDenuncia(
+            @PathParam("id") Long id
+    ) {
+        appService.atendeDenuncia(id);
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @DELETE
+    @Path("denuncia/{id}")
+    @JsonView(View.Resumido.class)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response rejeitaDenuncia(
+            @PathParam("id") Long id
+    ) {
+        appService.rejeitaDenuncia(id);
+        return Response.status(Response.Status.OK).build();
+    }
 }

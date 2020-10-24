@@ -43,10 +43,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Schedule;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
@@ -58,6 +55,7 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author Gabriel
@@ -1449,15 +1447,165 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowColaborador
     public BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro) {
-        return daoService.findWith(new FiltroTimeline(sessaoBean.getChaveEmpresa(), filtro));
+        BuscaPaginadaDTO<Object[]> tuplas = daoService.findWith(new FiltroTimeline(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), filtro));
+
+        return new BuscaPaginadaDTO<>(
+                mapItensEvento(tuplas.getResultados()),
+                tuplas.getTotalPaginas(),
+                tuplas.getPagina(),
+                filtro.getTotal()
+        );
+    }
+
+    private List<ItemEvento> mapItensEvento(List<Object[]> tuplas) {
+        List<ItemEvento> itens = new ArrayList<>();
+
+        for (Object[] tupla : tuplas) {
+            ItemEvento item = (ItemEvento) tupla[0];
+            item.setCurtido(tupla[1] != null);
+            item.setQuantidadeCurtidas(((Number) tupla[2]).intValue());
+            item.setQuantidadeComentarios(((Number) tupla[3]).intValue());
+            itens.add(item);
+        }
+
+        return itens;
     }
 
     @Override
     @AllowColaborador
     public List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino) {
-        return daoService.findWith(QueryAdmin.ITENS_PERIODO_CALENDARIO.create(
-                sessaoBean.getChaveEmpresa(), dataInicio, dataTermino
+        return mapItensEvento(daoService.findWith(QueryAdmin.ITENS_PERIODO_CALENDARIO.create(
+                sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador(), dataInicio, dataTermino
+        )));
+    }
+
+    @Override
+    @AllowColaborador
+    public void curteItemEvento(String id, TipoItemEvento tipo) {
+        ItemEvento itemEvento = daoService.find(ItemEvento.class,
+                new ItemEventoId(id, sessaoBean.getChaveEmpresa(), tipo));
+
+        Colaborador colaborador = daoService.find(Colaborador.class,
+                new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()));
+
+        daoService.create(new CurtidaItemEvento(
+                colaborador, itemEvento
         ));
+    }
+
+    @Override
+    @AllowColaborador
+    public void descurteItemEvento(String id, TipoItemEvento tipo) {
+        daoService.delete(ItemEvento.class,
+                new ItemEventoId(id, sessaoBean.getChaveEmpresa(), tipo));
+    }
+
+    @Override
+    @AllowColaborador
+    public ComentarioItemEvento comenta(String id, TipoItemEvento tipo, ComentarioItemEvento comentario) {
+        comentario.setColaborador(
+                daoService.find(Colaborador.class,
+                        new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()))
+        );
+
+        comentario.setItemEvento(
+                daoService.find(ItemEvento.class,
+                        new ItemEventoId(id, sessaoBean.getChaveEmpresa(), tipo))
+        );
+
+        comentario.setEmpresa(
+                daoService.find(Empresa.class, sessaoBean.getChaveEmpresa())
+        );
+
+        return daoService.create(comentario);
+    }
+
+    @Override
+    @AllowColaborador
+    public void removeComentario(Long id) {
+        daoService.delete(
+                ComentarioItemEvento.class, new RegistroEmpresaId(
+                        sessaoBean.getChaveEmpresa(), id
+                )
+        );
+    }
+
+    @Override
+    @AllowColaborador
+    public DenunciaComentarioItemEvento denunciaComentario(Long id, DenunciaComentarioItemEvento denuncia) {
+        denuncia.setDenunciante(
+                daoService.find(Colaborador.class,
+                        new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()))
+        );
+
+        denuncia.setEmpresa(
+                daoService.find(Empresa.class, sessaoBean.getChaveEmpresa())
+        );
+
+        denuncia.setComentario(
+                daoService.find(ComentarioItemEvento.class,
+                        new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), id))
+        );
+
+        return daoService.create(denuncia);
+    }
+
+    @Override
+    @AllowColaborador
+    public BuscaPaginadaDTO<ComentarioItemEvento> buscaComentarios(FiltroComentarioDTO filtro) {
+        return daoService.findWith(new FiltroComentario(sessaoBean.getChaveEmpresa(), filtro));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public List<ComentarioItemEvento> buscaComentarioDenunciados() {
+        List<Object[]> tuplas = daoService.findWith(QueryAdmin.COMENTARIOS_DENUNCIADOS.create(sessaoBean.getChaveEmpresa()));
+
+        List<ComentarioItemEvento> comentarios = new ArrayList<>();
+        for (Object[] tupla : tuplas) {
+            ComentarioItemEvento comentario = (ComentarioItemEvento) tupla[0];
+            Integer quantidade = ((Number) tupla[1]).intValue();
+            comentario.setQuantidadeDenuncias(quantidade);
+            comentarios.add(comentario);
+        }
+
+        return comentarios;
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public List<DenunciaComentarioItemEvento> buscaDenunciasComentario(Long id) {
+        return daoService.findWith(QueryAdmin.DENUNCIADOS_COMENTARIO.create(
+                sessaoBean.getChaveEmpresa(), id
+        ));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public void atendeDenuncia(Long id) {
+        DenunciaComentarioItemEvento denuncia = daoService.find(DenunciaComentarioItemEvento.class,
+                new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), id));
+
+        Colaborador analista = daoService.find(Colaborador.class,
+                new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()));
+
+        denuncia.atende(analista);
+
+        daoService.update(denuncia);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public void rejeitaDenuncia(Long id) {
+        DenunciaComentarioItemEvento denuncia = daoService.find(DenunciaComentarioItemEvento.class,
+                new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), id));
+
+        Colaborador analista = daoService.find(Colaborador.class,
+                new RegistroEmpresaId(sessaoBean.getChaveEmpresa(), sessaoBean.getIdColaborador()));
+
+        denuncia.rejeita(analista);
+
+        daoService.update(denuncia);
     }
 
     @Override
