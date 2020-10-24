@@ -1451,7 +1451,7 @@ public class AppServiceImpl implements AppService {
 
         return new BuscaPaginadaDTO<>(
                 mapItensEvento(tuplas.getResultados()),
-                tuplas.getTotalPaginas(),
+                tuplas.getTotalResultados(),
                 tuplas.getPagina(),
                 filtro.getTotal()
         );
