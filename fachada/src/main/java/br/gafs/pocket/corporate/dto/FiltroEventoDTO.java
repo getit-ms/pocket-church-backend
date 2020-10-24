@@ -22,6 +22,7 @@ public class FiltroEventoDTO implements DTO {
     private Date dataInicio;
     private Date dataTermino;
     private TipoEvento tipo;
+    private String filtro;
     private Integer pagina = 1;
     private Integer total = 10;
 }

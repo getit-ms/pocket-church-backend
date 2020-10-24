@@ -15,7 +15,7 @@ import br.gafs.util.date.DateUtil;
 public class FiltroEventoFuturoDTO extends FiltroEventoDTO {
 
     public FiltroEventoFuturoDTO(TipoEvento tipo, Integer pagina, Integer total) {
-        super(null, DateUtil.getDataAtual(), tipo, pagina, total);
+        super(null, DateUtil.getDataAtual(), tipo, null, pagina, total);
     }
     
 }

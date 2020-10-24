@@ -51,9 +51,10 @@ public class EnqueteController {
     @JsonView(Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaTodas(
+            @QueryParam("nome") String nome,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaTodas(new FiltroEnqueteDTO(null, pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaTodas(new FiltroEnqueteDTO(null, nome, pagina, total))).build();
     }
 
     @GET

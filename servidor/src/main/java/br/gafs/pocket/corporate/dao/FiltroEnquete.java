@@ -11,19 +11,19 @@ import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 public class FiltroEnquete extends AbstractPaginatedFiltro<FiltroEnqueteDTO> {
 
     public FiltroEnquete(String empresa, Long colaborador, FiltroEnqueteDTO filtro) {
         super(filtro);
-        
+
         StringBuilder query = new StringBuilder(" from Enquete v where v.empresa.chave = :chaveEmpresa");
         Map<String, Object> args = new QueryParameters("chaveEmpresa", empresa);
 
@@ -31,11 +31,16 @@ public class FiltroEnquete extends AbstractPaginatedFiltro<FiltroEnqueteDTO> {
             query.append(" and v.dataInicio <= :data and (v.dataTermino >= :data or v.dataTermino >= :dataLimite)");
             args.put("data", filtro.getData());
             args.put("dataLimite", DateUtil.incrementaDias(filtro.getData(), -30));
-        } else if (filtro.getData() != null){
+        } else if (filtro.getData() != null) {
             query.append(" and v.dataInicio <= :data and v.dataTermino >= :data");
             args.put("data", filtro.getData());
         }
-        
+
+        if (!StringUtil.isEmpty(filtro.getNome())) {
+            query.append(" and lower(v.nome) like :nome");
+            args.put("nome", "%" + filtro.getNome().toLowerCase() + "%");
+        }
+
         setPage(filtro.getPagina());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(v) ").append(query).toString(), args));
@@ -46,5 +51,5 @@ public class FiltroEnquete extends AbstractPaginatedFiltro<FiltroEnqueteDTO> {
         setArguments(selectArgs);
         setResultLimit(filtro.getTotal());
     }
-    
+
 }

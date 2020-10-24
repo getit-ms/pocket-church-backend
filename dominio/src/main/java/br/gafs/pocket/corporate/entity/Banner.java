@@ -59,6 +59,7 @@ public class Banner implements IEntity {
     private String referenciaInterna;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "chave_empresa")
     private Empresa empresa;
 

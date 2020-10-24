@@ -2066,7 +2066,7 @@ public class AppServiceImpl implements AppService {
         banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
         arquivoService.registraUso(banner.getBanner().getId());
 
-        banner.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveDispositivo()));
+        banner.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveEmpresa()));
 
         return daoService.create(banner);
     }
@@ -2076,8 +2076,6 @@ public class AppServiceImpl implements AppService {
     public Banner atualiza(Banner banner) {
         banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
         arquivoService.registraUso(banner.getBanner().getId());
-
-        banner.setEmpresa(daoService.find(Empresa.class, sessaoBean.getChaveDispositivo()));
 
         return daoService.create(banner);
     }

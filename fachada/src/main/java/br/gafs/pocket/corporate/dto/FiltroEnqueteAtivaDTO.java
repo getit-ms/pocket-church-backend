@@ -14,7 +14,7 @@ import br.gafs.util.date.DateUtil;
 public class FiltroEnqueteAtivaDTO extends FiltroEnqueteDTO {
 
     public FiltroEnqueteAtivaDTO(Integer pagina, Integer total) {
-        super(DateUtil.getDataAtual(), pagina, total);
+        super(DateUtil.getDataAtual(), null, pagina, total);
     }
     
 }
