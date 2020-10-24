@@ -28,7 +28,7 @@ create table tb_comentario_item_evento (
             references tb_colaborador(id_colaborador, chave_empresa),
     constraint fk_empresa_comentario
         foreign key (chave_empresa)
-            references tb_empresa(chave_empresa),
+            references tb_empresa(chave_empresa)
 );
 
 create sequence seq_comentario_item_evento increment by 50 start with 50;

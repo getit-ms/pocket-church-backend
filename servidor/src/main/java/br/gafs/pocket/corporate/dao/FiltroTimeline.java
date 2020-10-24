@@ -53,7 +53,7 @@ public class FiltroTimeline extends AbstractPaginatedFiltro<FiltroTimelineDTO> {
 
         setArguments(argsSelect);
         setPage(filtro.getPagina());
-        setQuery(new StringBuilder("select ie, (select c from CurtidaItemEvento c where c.itemEvento = ie and c.colaborador = :colaborador), (select count(c) from CurtidaItemEvento c where c.itemEvento = ie), (select count(c) from ComentarioItemEvento c where c.itemEvento = ie and c.status = :statusComentario) ").append(query).append(" order by " +
+        setQuery(new StringBuilder("select ie, (select c from CurtidaItemEvento c where c.itemEvento = ie and c.colaborador.id = :colaborador), (select count(c) from CurtidaItemEvento c where c.itemEvento = ie), (select count(c) from ComentarioItemEvento c where c.itemEvento = ie and c.status = :statusComentario) ").append(query).append(" order by " +
                 "ie.dataHoraPublicacao desc, ie.tipo, ie.id desc ").toString());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
                 new StringBuilder("select count(ie) ").append(query).toString(), args));
