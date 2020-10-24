@@ -34,6 +34,7 @@ public class CurtidaItemEvento implements IEntity {
 
     @Id
     @JsonIgnore
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_item_evento", insertable = false, updatable = false)
     private TipoItemEvento tipoItemEvento;
 
