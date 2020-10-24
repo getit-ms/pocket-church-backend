@@ -2077,7 +2077,7 @@ public class AppServiceImpl implements AppService {
         banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
         arquivoService.registraUso(banner.getBanner().getId());
 
-        return daoService.create(banner);
+        return daoService.update(banner);
     }
 
     @Override
