@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.gafs.getit.pocketcorporate</groupId>
     <artifactId>pocket-corporate</artifactId>
-    <version>3.0.20-SNAPSHOT</version>
+    <version>3.0.20</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -22,7 +22,7 @@
     
     <scm>
         <connection>scm:git:https://bitbucket.org/getit-team/pocket-corporate-backend</connection>
-        <tag>pocket-corporate-3.0.5</tag>
+        <tag>pocket-corporate-3.0.20</tag>
     </scm>
     
     <dependencyManagement>
