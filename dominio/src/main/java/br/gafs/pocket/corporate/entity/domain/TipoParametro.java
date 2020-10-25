@@ -180,6 +180,19 @@ public enum TipoParametro {
             }
             
         });
+        converters.get(String.class).put(Long.class, new Converter<String, Long>(){
+
+            @Override
+            public Long sourceToTarget(String source) {
+                return Long.parseLong(source);
+            }
+
+            @Override
+            public String targetToSource(Long target) {
+                return target.toString();
+            }
+
+        });
         converters.get(String.class).put(boolean.class, new Converter<String, Boolean>(){
             
             @Override
