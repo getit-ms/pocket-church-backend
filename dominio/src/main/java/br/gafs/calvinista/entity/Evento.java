@@ -21,6 +21,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -179,5 +180,10 @@ public class Evento implements IEntity {
 
     public boolean isEBD() {
         return TipoEvento.EBD.equals(tipo);
+    }
+
+    public List<CampoEvento> getCampos() {
+        Collections.sort(campos);
+        return campos;
     }
 }
