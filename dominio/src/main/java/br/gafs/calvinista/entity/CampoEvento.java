@@ -77,6 +77,16 @@ public class CampoEvento implements IEntity, Comparable<CampoEvento> {
 
     @Override
     public int compareTo(CampoEvento o) {
+        if (getId() == null) {
+            if (o.getId() == null) {
+                return 0;
+            }
+
+            return -1;
+        } else if (o.getId() == null) {
+            return 1;
+        }
+
         return getId().compareTo(o.getId());
     }
 }
