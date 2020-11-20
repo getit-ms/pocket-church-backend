@@ -123,7 +123,7 @@ public class Evento implements IEntity {
     })
     private Arquivo banner;
 
-    @JsonView(View.Detalhado.class)
+    @JsonView(View.Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CampoEvento> campos = new ArrayList<>();
