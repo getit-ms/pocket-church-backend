@@ -475,7 +475,8 @@ public enum QueryAdmin {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
-    };
+    },
+    CAMPOS_EVENTO("Evento.findCamposByEvento", "evento");
 
     private final String query;
     private final String[] parameters;

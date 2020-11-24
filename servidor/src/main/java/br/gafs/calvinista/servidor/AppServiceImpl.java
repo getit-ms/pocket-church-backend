@@ -1797,6 +1797,9 @@ public class AppServiceImpl implements AppService {
             evento.setDataTerminoInscricao((Date) tupla[5]);
             evento.setLimiteInscricoes(((Number) tupla[6]).intValue());
             evento.setVagasRestantes(evento.getLimiteInscricoes() - ((Number) tupla[7]).intValue());
+            evento.setCampos(
+                    daoService.findWith(QueryAdmin.CAMPOS_EVENTO.create(((Number) tupla[0]).longValue()))
+            );
             eventos.add(evento);
         }
 
