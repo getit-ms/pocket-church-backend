@@ -43,6 +43,7 @@ public class ItemEventoController {
     public Response busca(
             @QueryParam("autor") final Long autor,
             @QueryParam("semAutor") final Boolean semAutor,
+            @QueryParam("tipo") final TipoItemEvento tipo,
             @QueryParam("filtro") final String filtro,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
             @QueryParam("total") @DefaultValue("10") final Integer total) {

@@ -120,6 +120,7 @@ public class Noticia implements IEntity, IItemEvento {
                                 TipoItemEvento.NOTICIA :
                                 TipoItemEvento.CLASSIFICADOS
                 )
+                .autor(autor)
                 .apresentacao(getResumo())
                 .titulo(getTitulo())
                 .dataHoraPublicacao(getDataPublicacao())
