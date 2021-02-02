@@ -5,6 +5,7 @@
  */
 package br.gafs.pocket.corporate.app.controller;
 
+import br.gafs.pocket.corporate.app.util.MergeUtil;
 import br.gafs.pocket.corporate.dto.FiltroComentarioDTO;
 import br.gafs.pocket.corporate.dto.FiltroTimelineDTO;
 import br.gafs.pocket.corporate.entity.ComentarioItemEvento;
@@ -89,19 +90,21 @@ public class ItemEventoController {
     @JsonView(View.Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response curtir(
+    public Response comenta(
             @PathParam("tipo") TipoItemEvento tipo,
             @PathParam("id") String id,
             ComentarioItemEvento comentario
     ) {
-        return Response.ok().entity(appService.comenta(id, tipo, comentario)).build();
+        ComentarioItemEvento entidade = new ComentarioItemEvento();
+        MergeUtil.merge(comentario, View.Cadastro.class).into(entidade);
+        return Response.ok().entity(appService.comenta(id, tipo, entidade)).build();
     }
 
     @GET
     @Path("{tipo}/{id}/comentario")
     @JsonView(View.Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response busca(
+    public Response buscaComentarios(
             @PathParam("tipo") TipoItemEvento tipo,
             @PathParam("id") String id,
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
@@ -115,7 +118,7 @@ public class ItemEventoController {
     @JsonView(View.Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response curtir(
+    public Response removeComentario(
             @PathParam("id") Long id
     ) {
         appService.removeComentario(id);
@@ -127,11 +130,13 @@ public class ItemEventoController {
     @JsonView(View.Resumido.class)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response curtir(
+    public Response denunciaComentario(
             @PathParam("comentario") Long id,
             DenunciaComentarioItemEvento denuncia
     ) {
-        return Response.ok().entity(appService.denunciaComentario(id, denuncia)).build();
+        DenunciaComentarioItemEvento entidade = new DenunciaComentarioItemEvento();
+        MergeUtil.merge(denuncia, View.Cadastro.class).into(entidade);
+        return Response.ok().entity(appService.denunciaComentario(id, entidade)).build();
     }
 
     @GET

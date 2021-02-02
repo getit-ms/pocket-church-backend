@@ -179,7 +179,10 @@ public class ColaboradorController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response remove(final Colaborador colaborador){
+    public Response cadastra(final Colaborador colaborador){
+        Colaborador entidade = new Colaborador();
+        MergeUtil.merge(colaborador, View.Cadastro.class).into(entidade);
+        MergeUtil.merge(colaborador.getEndereco(), View.Cadastro.class).into(entidade.getEndereco());
         return Response.status(Response.Status.OK).entity(appService.cadastra(colaborador)).build();
     }
     

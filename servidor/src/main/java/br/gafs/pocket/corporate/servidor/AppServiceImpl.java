@@ -1525,11 +1525,16 @@ public class AppServiceImpl implements AppService {
     @Override
     @AllowColaborador
     public void removeComentario(Long id) {
-        daoService.delete(
-                ComentarioItemEvento.class, new RegistroEmpresaId(
-                        sessaoBean.getChaveEmpresa(), id
-                )
-        );
+        ComentarioItemEvento comentario = daoService.find(ComentarioItemEvento.class, new RegistroEmpresaId(
+                sessaoBean.getChaveEmpresa(), id
+        ));
+
+        if (comentario != null &&
+                    (sessaoBean.isAdmin() || sessaoBean.getIdUsuario().equals(comentario.getColaborador().getId()))) {
+            daoService.delete(ComentarioItemEvento.class, new RegistroEmpresaId(
+                    sessaoBean.getChaveEmpresa(), id
+            ));
+        }
     }
 
     @Override
