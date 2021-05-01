@@ -1846,8 +1846,12 @@ public class AppServiceImpl implements AppService {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
 
-        if (!sessaoBean.isAdmin() && !entidade.getMembro().getId().equals(sessaoBean.getIdMembro())) {
-            throw new ServiceException("mensagens.MSG-403");
+        if (!sessaoBean.isAdmin()) {
+            if (entidade.getMembro() != null && !entidade.getMembro().getId().equals(sessaoBean.getIdMembro())) {
+                throw new ServiceException("mensagens.MSG-403");
+            } else if (!entidade.getDispositivo().getChave().equals(sessaoBean.getChaveDispositivo())) {
+                throw new ServiceException("mensagens.MSG-403");
+            }
         }
 
         entidade.cancelada();
