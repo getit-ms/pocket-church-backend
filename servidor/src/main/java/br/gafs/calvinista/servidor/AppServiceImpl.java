@@ -51,6 +51,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
+import javax.ws.rs.NotAuthorizedException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -1839,10 +1840,15 @@ public class AppServiceImpl implements AppService {
 
     @Audit
     @Override
+    @AllowMembro
     @AllowAdmin({Funcionalidade.MANTER_EVENTOS, Funcionalidade.MANTER_EBD, Funcionalidade.MANTER_INSCRICAO_CULTO})
     public void cancelaInscricao(Long evento, Long inscricao) {
         InscricaoEvento entidade = daoService.find(InscricaoEvento.class,
                 new InscricaoEventoId(inscricao, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), evento)));
+
+        if (!sessaoBean.isAdmin() && !entidade.getMembro().getId().equals(sessaoBean.getIdMembro())) {
+            throw new ServiceException("mensagens.MSG-403");
+        }
 
         entidade.cancelada();
 
