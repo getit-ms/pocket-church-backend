@@ -34,10 +34,10 @@ public class ArquivoServiceImpl implements ArquivoService {
 
     @EJB
     private DAOService daoService;
-    
+
     @Inject
     private SessaoBean sessaoBean;
-    
+
     @Override
     public Arquivo buscaArquivo(Long arquivo) {
         return daoService.find(Arquivo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), arquivo));
@@ -80,6 +80,6 @@ public class ArquivoServiceImpl implements ArquivoService {
     public void registraUso(String igreja, Long idArquivo) {
         daoService.execute(QueryAdmin.REGISTRA_USO_ARQUIVO.create(idArquivo, sessaoBean.getChaveIgreja()));
     }
-    
-    
+
+
 }

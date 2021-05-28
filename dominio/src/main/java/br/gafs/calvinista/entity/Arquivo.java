@@ -33,9 +33,9 @@ import lombok.*;
 @EqualsAndHashCode(of = {"id", "igreja"})
 @EntityListeners(EntityFileManager.class)
 @NamedQueries({
-    @NamedQuery(name = "Arquivo.findVencidos", query = "select a from Arquivo a where a.id not in (select aa.id from Arquivo aa where aa.id = a.id and aa.timeout is null) and a.timeout <= CURRENT_DATE"),
-    @NamedQuery(name = "Arquivo.registraDesuso", query = "update Arquivo a set a.timeout = :timeout where a.id = :arquivo and a.igreja.chave = :igreja"),
-    @NamedQuery(name = "Arquivo.registraUso", query = "update Arquivo a set a.timeout = null where a.id = :arquivo and a.igreja.chave = :igreja"),
+        @NamedQuery(name = "Arquivo.findVencidos", query = "select a from Arquivo a where a.id not in (select aa.id from Arquivo aa where aa.id = a.id and aa.timeout is null) and a.timeout <= CURRENT_DATE"),
+        @NamedQuery(name = "Arquivo.registraDesuso", query = "update Arquivo a set a.timeout = :timeout where a.id = :arquivo and a.igreja.chave = :igreja"),
+        @NamedQuery(name = "Arquivo.registraUso", query = "update Arquivo a set a.timeout = null where a.id = :arquivo and a.igreja.chave = :igreja"),
 })
 public class Arquivo implements IEntity, Comparable<Arquivo> {
     @Id
@@ -45,26 +45,26 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     @SequenceGenerator(name = "seq_arquivo", sequenceName = "seq_arquivo")
     @GeneratedValue(generator = "seq_arquivo", strategy = GenerationType.SEQUENCE)
     private Long id;
-    
+
     @JsonView(Resumido.class)
     @Column(name = "nome", length = 150, nullable = false, updatable = false)
     private String nome;
-    
+
     @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "timeout", updatable = false)
     private Date timeout = new Date(System.currentTimeMillis() + DateUtil.MILESIMOS_POR_DIA);
-    
+
     @Transient
     @JsonIgnore
     @Attachment(load = false, root = "/calvin/files")
     private byte[] dados;
-    
+
     @Id
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
-    
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja")
@@ -75,17 +75,17 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
         this.nome = format(nome);
         this.dados = dados;
     }
-    
+
     public String getFilename(){
         return StringUtil.formataValor(nome, true, false)
                 .replaceAll("[^a-zA-Z0-9_\\.]", "_")
                 .replace(" ", "_");
     }
-    
+
     public void used(){
         timeout = null;
     }
-    
+
     private static String format(String nome){
         if (nome.length() > 150){
             String extension = nome.substring(nome.lastIndexOf("."));
@@ -98,7 +98,7 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
     public boolean isUsed() {
         return timeout == null;
     }
-    
+
     public void clearDados(){
         this.dados = null;
     }
