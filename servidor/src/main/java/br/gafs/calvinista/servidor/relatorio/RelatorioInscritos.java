@@ -8,14 +8,13 @@ import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.Template;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
+import br.gafs.calvinista.servidor.relatorio.dataSource.JRPaginatedDataSource;
 import br.gafs.calvinista.util.ReportUtil;
 import br.gafs.dao.BuscaPaginadaDTO;
 import br.gafs.dao.DAOService;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -30,7 +29,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
     private Template template;
     private Evento evento;
 
-    public RelatorioInscritos(Evento evento, Template template){
+    public RelatorioInscritos(Evento evento, Template template) {
         this.igreja = evento.getIgreja();
         this.template = template;
         this.evento = evento;
@@ -53,27 +52,27 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
 
     @Override
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
-        BuscaPaginadaDTO busca;
-        List<InscricaoEvento> inscricoes = new ArrayList<InscricaoEvento>();
-        final FiltroInscricaoDTO filtro = new FiltroInscricaoDTO(null, null,  1, 30);
-        do{
-            busca = tool.transactional(new ProcessamentoService.ExecucaoTransacional<BuscaPaginadaDTO>() {
-                @Override
-                public BuscaPaginadaDTO execute(DAOService daoService) {
-                    return daoService.findWith(new FiltroInscricao(evento.getId(),
-                            igreja.getChave(), null, null, filtro));
-                }
-            });
-            inscricoes.addAll(busca.getResultados());
-            filtro.setPagina(filtro.getPagina() + 1);
-        }while(busca.isHasProxima());
-
         return ReportUtil.igreja(
                 "report/inscritos_evento.jasper",
-                evento.getNome(), igreja, template)
+                evento.getNome(),
+                evento.getIgreja(),
+                template)
                 .arg("EVENTO", evento)
                 .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                 .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))
-                .collection(inscricoes).build();
+                .dataSource(new JRPaginatedDataSource<>(
+                        new JRPaginatedDataSource.Searcher<InscricaoEvento>() {
+                            @Override
+                            public BuscaPaginadaDTO<InscricaoEvento> search(final Integer pagina) {
+                                return tool.transactional(new ProcessamentoService.ExecucaoTransacional<BuscaPaginadaDTO<InscricaoEvento>>() {
+                                    @Override
+                                    public BuscaPaginadaDTO<InscricaoEvento> execute(DAOService daoService) {
+                                        return daoService.findWith(new FiltroInscricao(evento.getId(),
+                                                igreja.getChave(), null, null, new FiltroInscricaoDTO(null, null, pagina, 30)));
+                                    }
+                                });
+                            }
+                        }
+                )).build();
     }
 }
