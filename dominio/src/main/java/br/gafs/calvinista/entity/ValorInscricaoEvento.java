@@ -12,7 +12,9 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Date;
+import java.util.Locale;
 
 @Getter
 @Entity
@@ -21,6 +23,7 @@ import java.util.Date;
 @IdClass(ValorInscricaoEventoId.class)
 @Table(name = "tb_valores_inscricao_evento")
 public class ValorInscricaoEvento implements IEntity {
+    public static final NumberFormat CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     @Id
     @Column(name = "nome")
     private String nome;
@@ -84,6 +87,10 @@ public class ValorInscricaoEvento implements IEntity {
         }
 
         if (valorNumero != null) {
+            if (formato == FormatoCampoEvento.MONETARIO) {
+                return CURRENCY_FORMATTER.format(valorNumero);
+            }
+
             return valorNumero.toString();
         }
 
