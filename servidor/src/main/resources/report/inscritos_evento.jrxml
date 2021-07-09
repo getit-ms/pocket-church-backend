@@ -20,6 +20,7 @@
 	<field name="data" class="java.util.Date"/>
 	<field name="confirmada" class="java.lang.Boolean"/>
 	<field name="pendente" class="java.lang.Boolean"/>
+	<field name="valoresAdicionaisString" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -114,6 +115,13 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{confirmada} ? $R{evento.inscricao.situacao.confirmada} : $R{evento.inscricao.situacao.pendente}]]></textFieldExpression>
 				<patternExpression><![CDATA[$R{format.data_hora}]]></patternExpression>
+			</textField>
+			<textField>
+				<reportElement style="linha" stretchType="RelativeToBandHeight"
+							   x="0" y="50" width="856" height="0" uuid="1491a3e6-fdd5-40a7-a356-7c4783151398"/>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Left" verticalAlignment="Top"/>
+				<textFieldExpression><![CDATA[$F{valoresAdicionaisString}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

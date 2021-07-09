@@ -3,6 +3,7 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.FormatoCampoEvento;
 import br.gafs.calvinista.view.View;
+import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -75,5 +76,21 @@ public class ValorInscricaoEvento implements IEntity {
         } else {
             this.idValorAnexo = null;
         }
+    }
+
+    public String getValorFormatado() {
+        if (valorData != null) {
+            return DateUtil.formataData(valorData);
+        }
+
+        if (valorNumero != null) {
+            return valorNumero.toString();
+        }
+
+        if (valorAnexo != null) {
+            return valorAnexo.getFilename();
+        }
+
+        return valorTexto;
     }
 }

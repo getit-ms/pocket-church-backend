@@ -140,6 +140,20 @@ public class InscricaoEvento implements IEntity {
         }
     }
 
+    public String getValoresAdicionaisString() {
+        StringBuilder valores = new StringBuilder();
+
+        for (ValorInscricaoEvento val : this.valores) {
+            if (valores.length() > 0) {
+                valores.append(" | ");
+            }
+
+            valores.append(val.getNome()).append(": ").append(val.getValorFormatado());
+        }
+
+        return valores.toString();
+    }
+
     public void confirmada() {
         status = StatusInscricaoEvento.CONFIRMADA;
     }

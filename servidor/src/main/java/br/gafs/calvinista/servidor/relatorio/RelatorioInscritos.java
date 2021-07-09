@@ -55,7 +55,7 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
         return ReportUtil.igreja(
                 "report/inscritos_evento.jasper",
                 evento.getNome(),
-                evento.getIgreja(),
+                igreja,
                 template)
                 .arg("EVENTO", evento)
                 .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
