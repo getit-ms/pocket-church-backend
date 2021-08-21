@@ -475,7 +475,9 @@ public enum QueryAdmin {
             return super.extractArguments(args)
                     .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
-    };
+    },
+    ULTIMO_TERMO("TermoAceite.findByIgreja", "igreja"),
+    ULTIMO_ACEITE("AceiteTermoMembro.findByIgrejaAndMembro", "igreja", "membro");
 
     private final String query;
     private final String[] parameters;

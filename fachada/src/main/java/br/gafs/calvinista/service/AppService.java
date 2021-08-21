@@ -251,4 +251,9 @@ public interface AppService extends Serializable {
     DiaDevocionario cadastra(DiaDevocionario diaDevocionario);
     DiaDevocionario atualiza(DiaDevocionario entidade);
     void removeDiaDevocionario(Long dia);
+
+    TermoAceite buscaUltimoTermo();
+    TermoAceite cadastra(TermoAceite termoAceite);
+    TermoAceite atualiza(TermoAceite entidade);
+    void aceitaTermo();
 }

@@ -46,4 +46,6 @@ public interface AcessoService extends Serializable {
     MenuDTO buscaMenu(int versaoMajor, int versaoMinor, int versaoBugfix);
 
     void trocaFoto(Arquivo arquivo);
+
+    boolean isExigeAceiteTermo();
 }

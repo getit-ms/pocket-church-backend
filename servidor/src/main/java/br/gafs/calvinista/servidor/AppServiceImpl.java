@@ -583,6 +583,48 @@ public class AppServiceImpl implements AppService {
         }
     }
 
+    @Override
+    public TermoAceite buscaUltimoTermo() {
+        return daoService.findWith(QueryAdmin.ULTIMO_TERMO.createSingle(sessaoBean.getChaveIgreja()));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_TERMO_ACEITE)
+    public TermoAceite cadastra(TermoAceite novoTermo) {
+        TermoAceite termo = buscaUltimoTermo();
+
+        novoTermo.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
+        if (termo == null) {
+            novoTermo.setVersao(1);
+        } else {
+            novoTermo.setVersao(termo.getVersao() + 1);
+        }
+
+        return daoService.create(novoTermo);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_TERMO_ACEITE)
+    public TermoAceite atualiza(TermoAceite entidade) {
+        return daoService.update(entidade);
+    }
+
+    @Override
+    @AllowMembro
+    public void aceitaTermo() {
+        TermoAceite termo = buscaUltimoTermo();
+
+        daoService.create(new AceiteTermoMembro(
+                daoService.find(Membro.class, new RegistroIgrejaId(
+                        sessaoBean.getChaveIgreja(),
+                        sessaoBean.getIdMembro()
+                )),
+                termo,
+                sessaoBean.getChaveDispositivo()
+        ));
+    }
+
     @Audit
     @Override
     @AllowAdmin(Funcionalidade.GERENCIAR_ACESSO_MEMBROS)
