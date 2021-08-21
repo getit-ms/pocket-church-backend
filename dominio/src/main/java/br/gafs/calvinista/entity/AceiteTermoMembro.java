@@ -38,11 +38,17 @@ public class AceiteTermoMembro implements Serializable {
     private String dispositivo;
 
     @ManyToOne
-    @JoinColumn(name = "id_membro")
+    @JoinColumns({
+            @JoinColumn(name = "id_membro", referencedColumnName = "id_membro"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
     private Membro membro;
 
     @ManyToOne
-    @JoinColumn(name = "id_termo_aceite")
+    @JoinColumns({
+            @JoinColumn(name = "id_termo_aceite", referencedColumnName = "id_termo_aceite"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+    })
     private TermoAceite termoAceite;
 
     @ManyToOne
