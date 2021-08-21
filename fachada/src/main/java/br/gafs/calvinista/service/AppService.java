@@ -8,6 +8,7 @@ package br.gafs.calvinista.service;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.entity.domain.TipoVersao;
 import br.gafs.dao.BuscaPaginadaDTO;
 
@@ -251,4 +252,18 @@ public interface AppService extends Serializable {
     DiaDevocionario cadastra(DiaDevocionario diaDevocionario);
     DiaDevocionario atualiza(DiaDevocionario entidade);
     void removeDiaDevocionario(Long dia);
+
+    BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro);
+    List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino);
+    void curteItemEvento(String id, TipoItemEvento tipo);
+    void descurteItemEvento(String id, TipoItemEvento tipo);
+    ComentarioItemEvento comenta(String id, TipoItemEvento tipo, ComentarioItemEvento comentario);
+    void removeComentario(Long id);
+    DenunciaComentarioItemEvento denunciaComentario(Long id, DenunciaComentarioItemEvento denuncia);
+    BuscaPaginadaDTO<ComentarioItemEvento> buscaComentarios(FiltroComentarioDTO filtro);
+    List<ComentarioItemEvento> buscaComentarioDenunciados();
+    List<DenunciaComentarioItemEvento> buscaDenunciasComentario(Long id);
+    void atendeDenuncia(Long id);
+    void rejeitaDenuncia(Long id);
+
 }

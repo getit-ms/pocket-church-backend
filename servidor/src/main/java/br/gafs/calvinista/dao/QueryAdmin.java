@@ -476,7 +476,30 @@ public enum QueryAdmin {
                     .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
     },
-    CAMPOS_EVENTO("Evento.findCamposByEvento", "evento");
+    CAMPOS_EVENTO("Evento.findCamposByEvento", "evento"),
+    ITENS_PERIODO_CALENDARIO("ItemEvento.findByPeriodo", "chaveIgreja", "membro", "dataInicio", "dataTermino") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("status", StatusItemEvento.PUBLICADO)
+                    .set("statusComentario", StatusComentarioItemEvento.PUBLICADO);
+        }
+    },
+    COMENTARIOS_DENUNCIADOS("ComentarioItemEvento.findDenunciados", "igreja"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusComentario", StatusComentarioItemEvento.PUBLICADO)
+                    .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
+        }
+    },
+    DENUNCIADOS_COMENTARIO("DenunciaComentarioItemEvento.findByComentario", "igreja", "comentario"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
+        }
+    };
 
     private final String query;
     private final String[] parameters;

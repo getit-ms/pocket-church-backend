@@ -27,7 +27,6 @@ import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
 import br.gafs.calvinista.util.MensagemBuilder;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.dao.DAOService;
 import br.gafs.dao.QueryParameters;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.file.EntityFileManager;
@@ -74,7 +73,7 @@ public class AppServiceImpl implements AppService {
     private static final Integer HORA_MAXIMA_NOTIFICACAO = 22;
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @EJB
     private ArquivoService arquivoService;
@@ -2725,6 +2724,176 @@ public class AppServiceImpl implements AppService {
             }
         }
     }
+
+    @Override
+    @AllowMembro
+    public BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro) {
+        BuscaPaginadaDTO<Object[]> tuplas = daoService.findWith(new FiltroTimeline(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
+
+        return new BuscaPaginadaDTO<>(
+                mapItensEvento(tuplas.getResultados()),
+                tuplas.getTotalResultados(),
+                tuplas.getPagina(),
+                filtro.getTotal()
+        );
+    }
+
+    private List<ItemEvento> mapItensEvento(List<Object[]> tuplas) {
+        List<ItemEvento> itens = new ArrayList<>();
+
+        for (Object[] tupla : tuplas) {
+            ItemEvento item = (ItemEvento) tupla[0];
+            item.setCurtido(tupla[1] != null);
+            item.setQuantidadeCurtidas(((Number) tupla[2]).intValue());
+            item.setQuantidadeComentarios(((Number) tupla[3]).intValue());
+            itens.add(item);
+        }
+
+        return itens;
+    }
+
+    @Override
+    @AllowMembro
+    public List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino) {
+        return mapItensEvento(daoService.findWith(QueryAdmin.ITENS_PERIODO_CALENDARIO.create(
+                sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dataInicio, dataTermino
+        )));
+    }
+
+    @Override
+    @AllowMembro
+    public void curteItemEvento(String id, TipoItemEvento tipo) {
+        ItemEvento itemEvento = daoService.find(ItemEvento.class,
+                new ItemEventoId(id, sessaoBean.getChaveIgreja(), tipo));
+
+        Membro colaborador = daoService.find(Membro.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        daoService.create(new CurtidaItemEvento(
+                colaborador, itemEvento
+        ));
+    }
+
+    @Override
+    @AllowMembro
+    public void descurteItemEvento(String id, TipoItemEvento tipo) {
+        daoService.delete(ItemEvento.class,
+                new ItemEventoId(id, sessaoBean.getChaveIgreja(), tipo));
+    }
+
+    @Override
+    @AllowMembro
+    public ComentarioItemEvento comenta(String id, TipoItemEvento tipo, ComentarioItemEvento comentario) {
+        comentario.setMembro(
+                daoService.find(Membro.class,
+                        new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))
+        );
+
+        comentario.setItemEvento(
+                daoService.find(ItemEvento.class,
+                        new ItemEventoId(id, sessaoBean.getChaveIgreja(), tipo))
+        );
+
+        comentario.setIgreja(
+                daoService.find(Igreja.class, sessaoBean.getChaveIgreja())
+        );
+
+        return daoService.create(comentario);
+    }
+
+    @Override
+    @AllowMembro
+    public void removeComentario(Long id) {
+        ComentarioItemEvento comentario = daoService.find(ComentarioItemEvento.class, new RegistroIgrejaId(
+                sessaoBean.getChaveIgreja(), id
+        ));
+
+        if (comentario != null &&
+                (sessaoBean.isAdmin() || sessaoBean.getIdUsuario().equals(comentario.getMembro().getId()))) {
+            daoService.delete(ComentarioItemEvento.class, new RegistroIgrejaId(
+                    sessaoBean.getChaveIgreja(), id
+            ));
+        }
+    }
+
+    @Override
+    @AllowMembro
+    public DenunciaComentarioItemEvento denunciaComentario(Long id, DenunciaComentarioItemEvento denuncia) {
+        denuncia.setDenunciante(
+                daoService.find(Membro.class,
+                        new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))
+        );
+
+        denuncia.setIgreja(
+                daoService.find(Igreja.class, sessaoBean.getChaveIgreja())
+        );
+
+        denuncia.setComentario(
+                daoService.find(ComentarioItemEvento.class,
+                        new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id))
+        );
+
+        return daoService.create(denuncia);
+    }
+
+    @Override
+    @AllowMembro
+    public BuscaPaginadaDTO<ComentarioItemEvento> buscaComentarios(FiltroComentarioDTO filtro) {
+        return daoService.findWith(new FiltroComentario(sessaoBean.getChaveIgreja(), filtro));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public List<ComentarioItemEvento> buscaComentarioDenunciados() {
+        List<Object[]> tuplas = daoService.findWith(QueryAdmin.COMENTARIOS_DENUNCIADOS.create(sessaoBean.getChaveIgreja()));
+
+        List<ComentarioItemEvento> comentarios = new ArrayList<>();
+        for (Object[] tupla : tuplas) {
+            ComentarioItemEvento comentario = (ComentarioItemEvento) tupla[0];
+            Integer quantidade = ((Number) tupla[1]).intValue();
+            comentario.setQuantidadeDenuncias(quantidade);
+            comentarios.add(comentario);
+        }
+
+        return comentarios;
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public List<DenunciaComentarioItemEvento> buscaDenunciasComentario(Long id) {
+        return daoService.findWith(QueryAdmin.DENUNCIADOS_COMENTARIO.create(
+                sessaoBean.getChaveIgreja(), id
+        ));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public void atendeDenuncia(Long id) {
+        DenunciaComentarioItemEvento denuncia = daoService.find(DenunciaComentarioItemEvento.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+
+        Membro analista = daoService.find(Membro.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        denuncia.atende(analista);
+
+        daoService.update(denuncia);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public void rejeitaDenuncia(Long id) {
+        DenunciaComentarioItemEvento denuncia = daoService.find(DenunciaComentarioItemEvento.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+
+        Membro analista = daoService.find(Membro.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        denuncia.rejeita(analista);
+
+        daoService.update(denuncia);
+    }
+
 
     @Schedule(hour = "*", persistent = false)
     public void enviaVersiculos() {
