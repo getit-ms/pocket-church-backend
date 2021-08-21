@@ -34,7 +34,7 @@ public class AceiteTermoMembro implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataAceite = new Date();
 
-    @Column(name = "dispositivo")
+    @Column(name = "chave_dispositivo")
     private String dispositivo;
 
     @ManyToOne
