@@ -104,6 +104,20 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     @Override
+    public boolean isExigeAceiteTermo() {
+        TermoAceite termo = daoService.findWith(QueryAdmin.ULTIMO_TERMO.createSingle(sessaoBean.getChaveIgreja()));
+
+        if (termo != null) {
+            AceiteTermoMembro aceite = daoService.findWith(QueryAdmin.ULTIMO_ACEITE
+                    .createSingle(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+            return aceite == null || termo.getVersao() > aceite.getTermoAceite().getVersao();
+        }
+
+        return false;
+    }
+
+    @Override
     @AllowMembro
     public void trocaFoto(Arquivo arquivo) {
         Arquivo entidade = daoService.find(Arquivo.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), arquivo.getId()));

@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.gafs.getit.calvinista</groupId>
     <artifactId>calvinista</artifactId>
-    <version>8.2.3</version>
+    <version>9.0.0</version>
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>dominio</module>
         <module>fachada</module>

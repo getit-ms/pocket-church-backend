@@ -213,7 +213,8 @@ public class AcessoController {
     private AcessoDTO acesso(Membro membro, TipoDispositivo tipoDispositivo, String versao){
         return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(),
                 response.getHeader("Set-Authorization"),
-                TipoDispositivo.PC.equals(tipoDispositivo) ? null : getMenu(versao));
+                TipoDispositivo.PC.equals(tipoDispositivo) ? null : getMenu(versao),
+                acessoService.isExigeAceiteTermo());
     }
 
     private MenuDTO getMenu(String versao) {

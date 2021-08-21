@@ -476,7 +476,11 @@ public enum QueryAdmin {
                     .set("limite", DateUtil.decrementaDia(new Date(), 7));
         }
     },
-    CAMPOS_EVENTO("Evento.findCamposByEvento", "evento");
+    CAMPOS_EVENTO("Evento.findCamposByEvento", "evento"),
+    ULTIMO_TERMO("TermoAceite.findByIgreja", "igreja"),
+    ULTIMO_ACEITE("AceiteTermoMembro.findByIgrejaAndMembro", "igreja", "membro"),
+
+    ;
 
     private final String query;
     private final String[] parameters;

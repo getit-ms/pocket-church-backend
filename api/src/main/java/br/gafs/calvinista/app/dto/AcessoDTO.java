@@ -30,11 +30,15 @@ public class AcessoDTO implements DTO {
     private String auth;
     private MenuDTO menu;
 
-    public AcessoDTO(Membro membro, List<Funcionalidade> funcionalidades, String auth, MenuDTO menu) {
+    private boolean exigeAceiteTermo;
+
+    public AcessoDTO(Membro membro, List<Funcionalidade> funcionalidades, String auth,
+                     MenuDTO menu, boolean exigeAceiteTermo) {
         this.membro = membro;
         this.funcionalidades = funcionalidades;
         this.auth = auth;
         this.menu = menu;
+        this.exigeAceiteTermo = exigeAceiteTermo;
     }
 
     public AcessoDTO(Usuario usuario) {
