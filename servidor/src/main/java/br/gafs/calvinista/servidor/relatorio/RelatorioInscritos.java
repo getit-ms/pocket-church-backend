@@ -53,10 +53,10 @@ public class RelatorioInscritos implements ProcessamentoRelatorioCache.Relatorio
     @Override
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         return ReportUtil.igreja(
-                "report/inscritos_evento.jasper",
-                evento.getNome(),
-                igreja,
-                template)
+                        "report/inscritos_evento.jasper",
+                        evento.getNome(),
+                        igreja,
+                        template)
                 .arg("EVENTO", evento)
                 .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                 .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))

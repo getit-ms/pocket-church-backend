@@ -7,6 +7,7 @@ package br.gafs.calvinista.servidor;
 
 import br.gafs.bean.IEntity;
 import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.DAOService;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class ProcessamentoService {
     private final Pool pool = new Pool();
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Resource
     private SessionContext sctx;

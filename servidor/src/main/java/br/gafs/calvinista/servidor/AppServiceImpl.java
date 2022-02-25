@@ -29,7 +29,6 @@ import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
 import br.gafs.calvinista.util.MensagemBuilder;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.dao.DAOService;
 import br.gafs.dao.QueryParameters;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.file.EntityFileManager;
@@ -76,7 +75,7 @@ public class AppServiceImpl implements AppService {
     private static final Integer HORA_MAXIMA_NOTIFICACAO = 22;
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @EJB
     private ArquivoService arquivoService;

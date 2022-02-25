@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
@@ -22,7 +23,6 @@ import br.gafs.calvinista.service.ArquivoService;
 import br.gafs.calvinista.service.MensagemService;
 import br.gafs.calvinista.util.JWTManager;
 import br.gafs.calvinista.util.MensagemBuilder;
-import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.logger.ServiceLoggerInterceptor;
 import br.gafs.util.senha.SenhaUtil;
@@ -36,7 +36,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -45,7 +44,7 @@ import java.util.*;
 public class AcessoServiceImpl implements AcessoService {
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @EJB
     private MensagemService mensagemService;
@@ -69,7 +68,7 @@ public class AcessoServiceImpl implements AcessoService {
     public Usuario admin(String username, String password) {
         Usuario usuario = daoService.findWith(QueryAcesso.AUTENTICA_USUARIO.createSingle(username, password));
 
-        if (usuario != null){
+        if (usuario != null) {
             sessaoBean.admin(usuario.getId());
             return usuario;
         }
@@ -100,7 +99,7 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     @Override
-    public List<Ministerio> buscaMinisterios(){
+    public List<Ministerio> buscaMinisterios() {
         return daoService.findWith(QueryAcesso.MINISTERIOS_ATIVOS.create(sessaoBean.getChaveIgreja()));
     }
 
@@ -209,9 +208,9 @@ public class AcessoServiceImpl implements AcessoService {
     @Audit
     @Override
     public Preferencias salva(Preferencias preferencias) {
-        if (sessaoBean.getIdMembro() != null){
+        if (sessaoBean.getIdMembro() != null) {
             Boolean dadosDisponiveis = preferencias.getDadosDisponiveis();
-            if (dadosDisponiveis != null){
+            if (dadosDisponiveis != null) {
                 Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
                 membro.setDesejaDisponibilizarDados(dadosDisponiveis);
                 daoService.update(membro);
@@ -220,13 +219,13 @@ public class AcessoServiceImpl implements AcessoService {
             List<Preferencias> prefs = daoService.findWith(QueryAdmin.PREFERENCIAS_POR_MEMBRO.
                     create(sessaoBean.getIdMembro(), sessaoBean.getChaveIgreja()));
 
-            for (Preferencias pref : prefs){
+            for (Preferencias pref : prefs) {
                 preferencias.copia(pref);
                 daoService.update(preferencias);
             }
 
             return daoService.update(preferencias);
-        }else{
+        } else {
             return daoService.update(preferencias);
         }
     }
@@ -239,7 +238,7 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public Membro refreshLogin() {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
-        if (membro != null && membro.isMembro()){
+        if (membro != null && membro.isMembro()) {
             sessaoBean.refresh();
             return membro;
         }
@@ -250,7 +249,7 @@ public class AcessoServiceImpl implements AcessoService {
     @Override
     public Usuario refreshAdmin() {
         Usuario usuario = daoService.find(Usuario.class, sessaoBean.getIdUsuario());
-        if (usuario != null){
+        if (usuario != null) {
             sessaoBean.admin(usuario.getId());
             return usuario;
         }
@@ -270,10 +269,10 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     @Override
-    public Membro login(String username, String password, TipoDispositivo tipo, String version){
+    public Membro login(String username, String password, TipoDispositivo tipo, String version) {
         Membro membro = daoService.findWith(QueryAcesso.AUTENTICA_MEMBRO.createSingle(sessaoBean.getChaveIgreja(), username, password));
 
-        if (membro != null && membro.isMembro()){
+        if (membro != null && membro.isMembro()) {
             sessaoBean.login(membro.getId(), tipo, version);
 
             return membro;
@@ -310,7 +309,7 @@ public class AcessoServiceImpl implements AcessoService {
     public void solicitaRedefinicaoSenha(String email) throws UnsupportedEncodingException {
         Membro membro = daoService.findWith(QueryAdmin.MEMBRO_POR_EMAIL_IGREJA.createSingle(email, sessaoBean.getChaveIgreja()));
 
-        if (membro == null || !membro.isMembro()){
+        if (membro == null || !membro.isMembro()) {
             throw new ServiceException("mensagens.MSG-037");
         }
 
@@ -342,7 +341,7 @@ public class AcessoServiceImpl implements AcessoService {
                 (String) reader.get("igreja"),
                 ((Number) reader.get("membro")).longValue()));
 
-        if (membro != null && membro.isMembro()){
+        if (membro != null && membro.isMembro()) {
             String novaSenha = SenhaUtil.geraSenha(8);
             membro.setSenha(SenhaUtil.encryptSHA256(novaSenha));
             membro = daoService.update(membro);

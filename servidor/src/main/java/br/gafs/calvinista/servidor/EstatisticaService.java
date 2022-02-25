@@ -1,12 +1,12 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.EstatisticaAcesso;
 import br.gafs.calvinista.entity.EstatisticaDispositivo;
 import br.gafs.calvinista.entity.RegistroAcesso;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.StatusRegistroAcesso;
-import br.gafs.dao.DAOService;
 
 import javax.ejb.*;
 import java.util.Date;
@@ -19,7 +19,7 @@ public class EstatisticaService {
     private static final Logger LOGGER = Logger.getLogger(EventoCalendarioServiceImpl.class.getName());
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Schedule(hour = "*", minute = "*/30", persistent = false)
     public void registraEstatisticasDispositivosIgrejas() {

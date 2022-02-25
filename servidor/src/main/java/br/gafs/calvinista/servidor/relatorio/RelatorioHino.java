@@ -20,7 +20,7 @@ public class RelatorioHino implements ProcessamentoRelatorioCache.Relatorio {
     private Template template;
     private Hino hino;
 
-    public RelatorioHino(Igreja igreja, Template template, Hino hino){
+    public RelatorioHino(Igreja igreja, Template template, Hino hino) {
         this.hino = hino;
         this.igreja = igreja;
         this.template = template;

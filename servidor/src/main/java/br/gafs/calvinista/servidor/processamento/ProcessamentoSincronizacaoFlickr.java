@@ -1,12 +1,12 @@
 package br.gafs.calvinista.servidor.processamento;
 
-import br.gafs.dao.BuscaPaginadaDTO;
-import br.gafs.dao.DAOService;
 import br.gafs.calvinista.dao.QueryAdmin;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.GaleriaFotos;
+import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.flickr.FlickrService;
+import br.gafs.dao.BuscaPaginadaDTO;
+import br.gafs.dao.DAOService;
 import lombok.RequiredArgsConstructor;
 
 import javax.naming.InitialContext;
@@ -61,7 +61,7 @@ public class ProcessamentoSincronizacaoFlickr implements ProcessamentoService.Pr
             @Override
             public Object execute(DAOService daoService) {
                 List<GaleriaFotos> galerias = daoService.findWith(QueryAdmin.GALERIA_FOTOS_ANTIGOS
-                                .create(igreja.getChave(), dataSincronizacao));
+                        .create(igreja.getChave(), dataSincronizacao));
 
                 for (GaleriaFotos galeria : galerias) {
                     daoService.delete(GaleriaFotos.class, galeria.getId());

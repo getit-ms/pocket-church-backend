@@ -1,11 +1,11 @@
 package br.gafs.calvinista.servidor.processamento;
 
-import br.gafs.dao.DAOService;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Video;
 import br.gafs.calvinista.entity.VideoId;
 import br.gafs.calvinista.servidor.ProcessamentoService;
+import br.gafs.dao.DAOService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Date;

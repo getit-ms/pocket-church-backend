@@ -1,12 +1,12 @@
 package br.gafs.calvinista.servidor.mensagem;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.FiltroDispositivoNotificacao;
 import br.gafs.calvinista.dao.QueryNotificacao;
 import br.gafs.calvinista.dao.RegisterSentNotifications;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
-import br.gafs.dao.DAOService;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
@@ -34,7 +34,7 @@ public class NotificacaoDispatcherService {
     private static final int VERSAO = 4;
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @PersistenceContext
     private EntityManager em;
@@ -105,9 +105,9 @@ public class NotificacaoDispatcherService {
 
             if (dispositivo[TIPO].equals(TipoDispositivo.ANDROID.ordinal())) {
                 destinationAndroid.add(new AndroidNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
-            }else if (dispositivo[TIPO].equals(TipoDispositivo.IPHONE.ordinal())){
+            } else if (dispositivo[TIPO].equals(TipoDispositivo.IPHONE.ordinal())) {
                 destinationIOS.add(new IOSNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
-            }else if (dispositivo[TIPO].equals(TipoDispositivo.IPB.ordinal())){
+            } else if (dispositivo[TIPO].equals(TipoDispositivo.IPB.ordinal())) {
                 destinationIPB.add(new IPBNotificationService.Destination((String) dispositivo[INSTALATION_ID], count));
             } else if (dispositivo[TIPO].equals(TipoDispositivo.ANDROID_FIREBASE.ordinal())) {
                 destinationFirebase.add(new FirebaseService.Destination((String) dispositivo[INSTALATION_ID], (String) dispositivo[VERSAO], count));
@@ -151,7 +151,7 @@ public class NotificacaoDispatcherService {
     private long countNotificacoesNaoLidas(String igreja, String dispositivo, Long membro) {
         if (membro != null) {
             return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_MEMBRO.createSingle(igreja, membro));
-        }else{
+        } else {
             return daoService.findWith(QueryNotificacao.COUNT_NOTIFICACOES_NAO_LIDAS_DISPOSITIVO.createSingle(igreja, dispositivo));
         }
     }

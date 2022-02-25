@@ -119,7 +119,7 @@ public class GoogleService {
     private Credential loadCredentials(String store, String chaveIgreja, Collection<String> scopes) throws IOException {
         Credential credential = flow(store, chaveIgreja, scopes).build().loadCredential(chaveIgreja);
 
-        if (credential.getExpiresInSeconds() < 15) {
+        if (credential != null && credential.getExpiresInSeconds() < 15) {
             credential.refreshToken();
         }
 

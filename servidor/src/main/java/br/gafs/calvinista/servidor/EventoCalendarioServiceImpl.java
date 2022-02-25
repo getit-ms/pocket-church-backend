@@ -1,5 +1,6 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dto.BuscaPaginadaEventosCalendarioDTO;
 import br.gafs.calvinista.dto.EventoCalendarioDTO;
@@ -8,9 +9,7 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.calvinista.servidor.google.GoogleService;
-import br.gafs.dao.DAOService;
 import br.gafs.util.date.DateUtil;
-import br.gafs.util.string.StringUtil;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
@@ -28,7 +27,7 @@ public class EventoCalendarioServiceImpl {
     private static final Logger LOGGER = Logger.getLogger(EventoCalendarioServiceImpl.class.getName());
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @EJB
     private ParametroService paramService;

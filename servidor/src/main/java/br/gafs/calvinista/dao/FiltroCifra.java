@@ -18,7 +18,7 @@ public class FiltroCifra extends AbstractPaginatedFiltro<FiltroCifraDTO> {
 
     public FiltroCifra(boolean admin, String igreja, FiltroCifraDTO filtro) {
         super(filtro);
-        
+
         StringBuilder query = new StringBuilder("from Cifra c where c.igreja.chave = :chaveIgreja and c.tipo = :tipo");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja)
                 .set("tipo", filtro.getTipo());
@@ -27,16 +27,16 @@ public class FiltroCifra extends AbstractPaginatedFiltro<FiltroCifraDTO> {
             query.append(" and c.status = :status");
             args.put("status", StatusCifra.PUBLICADO);
         }
-        
-        if (!StringUtil.isEmpty(filtro.getFiltro())){
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
             query.append(" and lower(concat(c.titulo, c.autor, c.letra)) like :filtro");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
-        
+
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select c ").append(query).append(" order by c.titulo").toString());
-        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
+        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(c) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
     }

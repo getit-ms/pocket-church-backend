@@ -20,7 +20,7 @@ public class RelatorioEstudo implements ProcessamentoRelatorioCache.Relatorio {
     private Template template;
     private Estudo estudo;
 
-    public RelatorioEstudo(Estudo estudo, Template template){
+    public RelatorioEstudo(Estudo estudo, Template template) {
         this.estudo = estudo;
         this.igreja = estudo.getIgreja();
         this.template = template;

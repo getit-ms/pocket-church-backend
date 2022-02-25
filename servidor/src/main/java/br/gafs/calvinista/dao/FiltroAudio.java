@@ -13,17 +13,16 @@ import br.gafs.query.Queries;
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
-public class FiltroAudio extends AbstractPaginatedFiltro<FiltroAudioDTO>{
+public class FiltroAudio extends AbstractPaginatedFiltro<FiltroAudioDTO> {
 
     public FiltroAudio(String igreja, FiltroAudioDTO filtro) {
         super(filtro);
-        
+
         StringBuilder query = new StringBuilder("from Audio a where a.igreja.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
-        
+
         if (filtro.getCategoria() != null) {
             query.append(" and a.categoria.id = :categoria");
             args.put("categoria", filtro.getCategoria());
@@ -32,9 +31,9 @@ public class FiltroAudio extends AbstractPaginatedFiltro<FiltroAudioDTO>{
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select a ").append(query).append(" order by a.nome").toString());
-        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
+        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(a) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
     }
-    
+
 }

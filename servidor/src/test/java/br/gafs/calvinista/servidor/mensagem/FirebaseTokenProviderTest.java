@@ -1,11 +1,11 @@
 package br.gafs.calvinista.servidor.mensagem;
 
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.TokenFirebase;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.dao.DAOService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class FirebaseTokenProviderTest {
 
     public static final String TOKEN_PADRAO = "TOKEN_PADRAO";
     @Mock
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Mock
     private ParametroService parametroService;

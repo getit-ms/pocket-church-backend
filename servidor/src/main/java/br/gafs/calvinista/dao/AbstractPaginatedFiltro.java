@@ -10,13 +10,12 @@ import br.gafs.query.AbstractQuery;
 import br.gafs.query.Queries;
 
 /**
- *
  * @author Gabriel
  */
-public abstract class AbstractPaginatedFiltro<T extends DTO> extends AbstractQuery implements Queries.PaginatedCustomQuery  {
+public abstract class AbstractPaginatedFiltro<T extends DTO> extends AbstractQuery implements Queries.PaginatedCustomQuery {
 
     public AbstractPaginatedFiltro(T filtro) {
-        
+
     }
-    
+
 }

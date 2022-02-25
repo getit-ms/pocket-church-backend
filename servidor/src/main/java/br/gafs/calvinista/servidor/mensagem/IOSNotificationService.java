@@ -28,14 +28,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @Singleton
 @TransactionAttribute(TransactionAttributeType.NEVER)
 public class IOSNotificationService implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(IOSNotificationService.class.getName());
-    
+
     @EJB
     private ParametroService paramService;
 
@@ -103,25 +102,25 @@ public class IOSNotificationService implements Serializable {
 
         return services.get(igreja.getChave());
     }
-    
+
     private void prepareRequests(Map<String, String> requests, MensagemPushDTO notification, String to, Long badge) {
         PayloadBuilder builder = APNS.newPayload();
-        
-        if (!StringUtil.isEmpty(notification.getSound())){
+
+        if (!StringUtil.isEmpty(notification.getSound())) {
             builder.sound(notification.getSound());
         }
-        
+
         builder.customFields(notification.getCustomData());
-        
+
         LOGGER.log(Level.WARNING, "Push iOS: '" + notification.getMessage() + "' para " + to);
 
         builder.badge(badge.intValue());
 
-        if (!StringUtil.isEmpty(notification.getMessage())){
+        if (!StringUtil.isEmpty(notification.getMessage())) {
             builder.alertBody(notification.getMessage());
         }
 
-        if (!StringUtil.isEmpty(notification.getTitle())){
+        if (!StringUtil.isEmpty(notification.getTitle())) {
             builder.alertTitle(notification.getTitle());
         }
 

@@ -21,7 +21,6 @@ import lombok.Setter;
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -47,7 +46,7 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
             throw new ServiceException("mensagens.MSG-403");
         }
 
-        if (filtro.getTipo() != null){
+        if (filtro.getTipo() != null) {
             where.append(" and e.tipo = #tipo");
             argsCount.put("tipo", filtro.getTipo().ordinal());
         }
@@ -57,17 +56,17 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
 
-        if (admin){
-            if (filtro.getDataInicio() != null){
+        if (admin) {
+            if (filtro.getDataInicio() != null) {
                 where.append(" and e.data_hora_inicio >= #dataHoraInicio");
                 argsCount.put("dataHoraInicio", filtro.getDataInicio());
             }
 
-            if (filtro.getDataTermino()!= null){
+            if (filtro.getDataTermino() != null) {
                 where.append(" and e.data_hora_termino >= #dataHoraTermino");
                 argsCount.put("dataHoraTermino", filtro.getDataTermino());
             }
-        }else{
+        } else {
             where.append(" and e.data_hora_termino >= #dataHoraTermino");
             argsCount.put("dataHoraTermino", DateUtil.getDataAtual());
         }
@@ -90,5 +89,5 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
         setCountQuery(QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(*) ").append(fromCount).append(where).toString(), argsCount));
         setResultLimit(filtro.getTotal());
     }
-    
+
 }

@@ -5,6 +5,7 @@
  */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.ParametroId;
@@ -14,7 +15,6 @@ import br.gafs.calvinista.entity.domain.TipoParametro.ParametroSupplier;
 import br.gafs.calvinista.security.AllowUsuario;
 import br.gafs.calvinista.security.Audit;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.dao.DAOService;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -28,7 +28,7 @@ import javax.ejb.Stateless;
 public class ParametroServiceImpl implements ParametroService {
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Override
     public ParametrosGlobaisDTO buscaParametrosGlobais() {

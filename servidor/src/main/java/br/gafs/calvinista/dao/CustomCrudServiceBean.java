@@ -1,9 +1,9 @@
 package br.gafs.calvinista.dao;
 
-import br.gafs.dao.CrudServiceBean;
 import br.gafs.calvinista.entity.IItemEvento;
 import br.gafs.calvinista.entity.ItemEvento;
 import br.gafs.calvinista.entity.ItemEventoId;
+import br.gafs.dao.CrudServiceBean;
 
 import javax.ejb.Stateless;
 

@@ -5,13 +5,12 @@
  */
 package br.gafs.calvinista.util;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Institucional;
 import br.gafs.calvinista.entity.Template;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.dao.DAOService;
 import br.gafs.file.EntityFileManager;
 
 import javax.ejb.EJB;
@@ -21,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- *
  * @author Gabriel
  */
 @Singleton
@@ -29,14 +27,14 @@ public class MensagemBuilder {
 
     public static final String CID_ATTACHMENT_LOGO = "cid:attachment0";
     public static final String CID_ATTACHMENT_BANNER = "cid:attachment1";
-    
+
     @EJB
-    private DAOService daoService;
-    
+    private CustomDAOService daoService;
+
     @EJB
     private ParametroService paramService;
-    
-    public MensagemEmailDTO email(Igreja igreja, TipoParametro subject, TipoParametro email, Object... args){
+
+    public MensagemEmailDTO email(Igreja igreja, TipoParametro subject, TipoParametro email, Object... args) {
         List<Object> allArgs = new ArrayList<Object>();
 
         allArgs.add(igreja.getChave());
@@ -48,7 +46,7 @@ public class MensagemBuilder {
 
         String ssubject = paramService.get(igreja.getChave(), subject);
         String semail = MessageFormat.format(
-                (String)  paramService.get(igreja.getChave(), email),
+                (String) paramService.get(igreja.getChave(), email),
                 allArgs.toArray()
         );
 
@@ -82,18 +80,20 @@ public class MensagemBuilder {
                 attachments.toArray(new MensagemEmailDTO.Anexo[0]),
                 attachmentsNames.toArray(new String[0]));
     }
-    
-    public String formataHora(Date data, String igreja, String timezone){
+
+    public String formataHora(Date data, String igreja, String timezone) {
         return format(data, (String) paramService.get(igreja, TipoParametro.FORMATO_HORA), timezone);
     }
-    public String formataDataHora(Date data, String igreja, String timezone){
+
+    public String formataDataHora(Date data, String igreja, String timezone) {
         return format(data, (String) paramService.get(igreja, TipoParametro.FORMATO_DATA_HORA), timezone);
     }
-    public String formataData(Date data, String igreja, String timezone){
+
+    public String formataData(Date data, String igreja, String timezone) {
         return format(data, (String) paramService.get(igreja, TipoParametro.FORMATO_DATA), timezone);
     }
 
-    private String format(Date data, String pattern, String timezone){
+    private String format(Date data, String pattern, String timezone) {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         formatter.setTimeZone(TimeZone.getTimeZone(timezone));
         return formatter.format(data);
