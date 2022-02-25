@@ -7,7 +7,6 @@ package br.gafs.calvinista.app.controller.infra;
 
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
@@ -18,10 +17,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 @RequestScoped

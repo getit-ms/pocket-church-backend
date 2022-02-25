@@ -6,16 +6,14 @@
 package br.gafs.calvinista.dto;
 
 import br.gafs.util.date.DateUtil;
-import java.util.Date;
 
 /**
- *
  * @author Gabriel
  */
 public class FiltroVotacaoAtivaDTO extends FiltroVotacaoDTO {
 
     public FiltroVotacaoAtivaDTO(Integer pagina, Integer total) {
-        super(DateUtil.getDataAtual(), pagina, total);
+        super(DateUtil.getDataAtual(), null, pagina, total);
     }
-    
+
 }

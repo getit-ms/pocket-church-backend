@@ -1,7 +1,10 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
+import br.gafs.calvinista.entity.domain.StatusItemEvento;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.view.View;
+import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
@@ -27,7 +30,7 @@ import java.util.Date;
         @NamedQuery(name = "Noticia.updateNaoDivulgadosByIgreja", query = "update Noticia n set n.divulgado = true where n.igreja.chave = :igreja and n.dataPublicacao <= :data"),
         @NamedQuery(name = "Noticia.findUltimaADivulgar", query = "select n from Noticia n where n.igreja.chave = :igreja and n.dataPublicacao <= :data and n.divulgado = false order by n.dataPublicacao desc"),
 })
-public class Noticia implements IEntity {
+public class Noticia implements IEntity, IItemEvento {
     @Id
     @JsonView(View.Resumido.class)
     @Column(name = "id_noticia")
@@ -98,4 +101,30 @@ public class Noticia implements IEntity {
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
     private Igreja igreja;
+
+    private boolean isPublicado() {
+        return DateUtil.getDataAtual().after(dataPublicacao);
+    }
+
+    @Override
+    @JsonIgnore
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .igreja(getIgreja())
+                .tipo(TipoItemEvento.NOTICIA)
+                .autor(autor)
+                .apresentacao(getResumo())
+                .titulo(getTitulo())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
+                .ilustracao(getIlustracao())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
+    }
+
 }

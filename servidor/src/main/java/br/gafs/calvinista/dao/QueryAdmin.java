@@ -479,7 +479,47 @@ public enum QueryAdmin {
     CAMPOS_EVENTO("Evento.findCamposByEvento", "evento"),
     ULTIMO_TERMO("TermoAceite.findByIgreja", "igreja"),
     ULTIMO_ACEITE("AceiteTermoMembro.findByIgrejaAndMembro", "igreja", "membro"),
-
+    ITENS_PERIODO_CALENDARIO_PUBLICOS("ItemEvento.findByPeriodoAndTipos", "chaveIgreja", "dataInicio", "dataTermino") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("status", StatusItemEvento.PUBLICADO)
+                    .set("tipos", Arrays.asList(TipoItemEvento.TIPOS_PUBLICOS));
+        }
+    },
+    ITENS_PERIODO_CALENDARIO("ItemEvento.findByPeriodo", "chaveIgreja", "membro", "dataInicio", "dataTermino") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("status", StatusItemEvento.PUBLICADO)
+                    .set("statusComentario", StatusComentarioItemEvento.PUBLICADO);
+        }
+    },
+    VIDEOS_ANTIGOS("Video.findVideoNaoSincronizados", "igreja", "dataAtualizacao"),
+    VIDEOS_IGREJA("Video.findByIgreja", "igreja"),
+    GALERIA_FOTOS_ANTIGOS("GaleriaFotos.findNaoSincronizados", "igreja", "sincronizacao"),
+    COUNT_GALERIA_FOTOS_IGREJA("GaleriaFotos.countByIgreja", "igreja"),
+    GALERIA_FOTOS_IGREJA("GaleriaFotos.findByIgreja", COUNT_GALERIA_FOTOS_IGREJA, "igreja") {
+        @Override
+        protected int extractResultLimit(Object... args) {
+            return 10;
+        }
+    },
+    COMENTARIOS_DENUNCIADOS("ComentarioItemEvento.findDenunciados", "igreja"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusComentario", StatusComentarioItemEvento.PUBLICADO)
+                    .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
+        }
+    },
+    DENUNCIADOS_COMENTARIO("DenunciaComentarioItemEvento.findByComentario", "igreja", "comentario"){
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
+        }
+    }
     ;
 
     private final String query;

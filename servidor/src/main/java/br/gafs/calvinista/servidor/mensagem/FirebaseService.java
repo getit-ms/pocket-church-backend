@@ -2,9 +2,6 @@ package br.gafs.calvinista.servidor.mensagem;
 
 import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.domain.TipoDispositivo;
-import br.gafs.calvinista.entity.domain.TipoParametro;
-import br.gafs.calvinista.service.ParametroService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

@@ -16,7 +16,6 @@ import lombok.ToString;
 import javax.persistence.*;
 
 /**
- *
  * @author Gabriel
  */
 @Data
@@ -38,8 +37,8 @@ public class Template implements IEntity {
     @OneToOne
     @View.MergeViews(View.Resumido.class)
     @JoinColumns({
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false),
-        @JoinColumn(name = "id_logo_pequena", referencedColumnName = "id_arquivo")
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false),
+            @JoinColumn(name = "id_logo_pequena", referencedColumnName = "id_arquivo")
     })
     private Arquivo logoPequena;
 
@@ -72,7 +71,7 @@ public class Template implements IEntity {
     }
 
     @JsonIgnore
-    public Igreja getId(){
+    public Igreja getId() {
         return igreja;
     }
 }

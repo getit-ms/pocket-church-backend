@@ -83,7 +83,7 @@ public class ExecucaoController {
     private boolean isAllowed(File file){
         return file.getName().endsWith(".war") ||
                 file.getName().endsWith(".apk") ||
-                file.getName().endsWith(".??"); // TODO ver extensão do iPhone
+                file.getName().endsWith(".ipa");
     }
     
     private void transfer(InputStream is, OutputStream os){

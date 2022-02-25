@@ -7,17 +7,13 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.TipoParametro;
-import br.gafs.file.Attachment;
-import br.gafs.file.EntityFileManager;
-
-import javax.persistence.*;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -28,20 +24,20 @@ import lombok.Setter;
 @Table(name = "tb_parametro")
 public class Parametro implements IEntity {
     public static final String GLOBAL = "_GLOBAL_";
-    
+
     @Id
     @Column(name = "grupo")
     private String grupo;
-    
+
     @Id
     @Column(name = "chave")
     @Enumerated(EnumType.STRING)
     private TipoParametro chave;
-    
+
     @Setter
     @Column(name = "valor")
     private String valor;
-    
+
     @Lob
     @Setter
     @Column(name = "anexo")
@@ -56,12 +52,12 @@ public class Parametro implements IEntity {
         this.grupo = grupo;
         this.chave = chave;
     }
-    
-    public <T> T get(){
+
+    public <T> T get() {
         return chave.get(this);
     }
-    
-    public <T> void set(T valor){
+
+    public <T> void set(T valor) {
         chave.set(this, valor);
     }
 }

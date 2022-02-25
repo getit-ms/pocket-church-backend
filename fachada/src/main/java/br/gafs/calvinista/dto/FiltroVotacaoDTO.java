@@ -21,6 +21,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class FiltroVotacaoDTO implements DTO {
     private Date data;
+    private String nome;
     private Integer pagina = 1;
     private Integer total = 10;
 }

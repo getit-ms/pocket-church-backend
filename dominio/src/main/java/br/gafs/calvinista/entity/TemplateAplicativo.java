@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,9 +122,9 @@ public class TemplateAplicativo implements IEntity {
     @ElementCollection
     @Column(name = "cor")
     @View.MergeViews(View.Resumido.class)
-    @MapKeyColumn (name = "chave")
+    @MapKeyColumn(name = "chave")
     @CollectionTable(name = "tb_cores_aplicativo",
-            joinColumns = @JoinColumn(name="chave_igreja"))
+            joinColumns = @JoinColumn(name = "chave_igreja"))
     private Map<String, String> cores = new HashMap<String, String>();
 
     public TemplateAplicativo(Igreja igreja) {

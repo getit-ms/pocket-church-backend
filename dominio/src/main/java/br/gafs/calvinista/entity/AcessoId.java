@@ -5,17 +5,13 @@
  */
 package br.gafs.calvinista.entity;
 
-import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+
+import java.io.Serializable;
 
 /**
- *
  * @author Gabriel
  */
 @Data
@@ -24,8 +20,8 @@ import lombok.ToString;
 public class AcessoId implements Serializable {
     private Long idMembro;
     private String chaveIgreja;
-    
-    public AcessoId(RegistroIgrejaId membro){
+
+    public AcessoId(RegistroIgrejaId membro) {
         this(membro.getId(), membro.getChaveIgreja());
     }
 }

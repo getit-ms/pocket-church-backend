@@ -143,10 +143,10 @@ public class ArquivoController {
 
             if (validRangeHeader) {
                 String[] fromTo = range.split("=")[1].split("-");
-                from = Integer.parseInt( fromTo[0] );
+                from = Integer.parseInt(fromTo[0]);
 
                 if (fromTo.length > 1) {
-                    to = Math.min(Integer.parseInt( fromTo[1] ), file.length() - 1);
+                    to = Math.min(Integer.parseInt(fromTo[1]), file.length() - 1);
                 } else {
                     to = Math.min((from + chunkSize), file.length()) - 1;
                 }

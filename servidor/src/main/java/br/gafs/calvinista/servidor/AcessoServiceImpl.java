@@ -15,6 +15,7 @@ import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.security.AllowMembro;
+import br.gafs.calvinista.security.Audit;
 import br.gafs.calvinista.security.AuditoriaInterceptor;
 import br.gafs.calvinista.service.AcessoService;
 import br.gafs.calvinista.service.ArquivoService;
@@ -205,6 +206,7 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
 
+    @Audit
     @Override
     public Preferencias salva(Preferencias preferencias) {
         if (sessaoBean.getIdMembro() != null){
@@ -291,6 +293,7 @@ public class AcessoServiceImpl implements AcessoService {
                 create(sessaoBean.getChaveIgreja()));
     }
 
+    @Audit
     @Override
     public void alteraSenha(Membro entidade) {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));

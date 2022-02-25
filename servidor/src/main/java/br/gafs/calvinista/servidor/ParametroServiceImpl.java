@@ -6,35 +6,27 @@
 package br.gafs.calvinista.servidor;
 
 import br.gafs.calvinista.dto.*;
-import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.Parametro;
 import br.gafs.calvinista.entity.ParametroId;
-import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.entity.domain.TipoParametro.ParametroHandler;
 import br.gafs.calvinista.entity.domain.TipoParametro.ParametroSupplier;
-import br.gafs.calvinista.security.AllowAdmin;
-import br.gafs.calvinista.security.AllowMembro;
 import br.gafs.calvinista.security.AllowUsuario;
 import br.gafs.calvinista.security.Audit;
-import br.gafs.calvinista.security.AuditoriaInterceptor;
-import br.gafs.calvinista.security.SecurityInterceptor;
 import br.gafs.calvinista.service.ParametroService;
 import br.gafs.dao.DAOService;
-import br.gafs.logger.ServiceLoggerInterceptor;
+
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
 @Local(ParametroService.class)
 public class ParametroServiceImpl implements ParametroService {
-    
+
     @EJB
     private DAOService daoService;
 
@@ -99,31 +91,31 @@ public class ParametroServiceImpl implements ParametroService {
     public void salvaConfiguracao(ConfiguracaoIgrejaDTO params, String igreja) {
         extract(params, igreja);
     }
-    
-    private void extract(Object obj, final String grupo){
-        TipoParametro.extract(obj, new ParametroSupplier(){
+
+    private void extract(Object obj, final String grupo) {
+        TipoParametro.extract(obj, new ParametroSupplier() {
             @Override
             public Parametro get(TipoParametro tipo) {
                 Parametro param = daoService.find(Parametro.class, new ParametroId(grupo, tipo));
-                if (param == null){
+                if (param == null) {
                     return new Parametro(grupo, tipo);
                 }
                 return param;
             }
-        }, new ParametroHandler(){
+        }, new ParametroHandler() {
             @Override
             public void handle(Parametro param) {
                 daoService.update(param);
             }
         });
     }
-    
-    private <T> T build(Class<T> type, final String grupo){
-        return TipoParametro.build(type, new ParametroSupplier(){
+
+    private <T> T build(Class<T> type, final String grupo) {
+        return TipoParametro.build(type, new ParametroSupplier() {
             @Override
             public Parametro get(TipoParametro tipo) {
                 Parametro param = daoService.find(Parametro.class, new ParametroId(grupo, tipo));
-                if (param == null){
+                if (param == null) {
                     return new Parametro(grupo, tipo);
                 }
                 return param;
@@ -134,15 +126,15 @@ public class ParametroServiceImpl implements ParametroService {
     @Override
     public <T> T get(String grupo, TipoParametro param) {
         Parametro p = daoService.find(Parametro.class, new ParametroId(grupo, param));
-        
-        if (p == null){
+
+        if (p == null) {
             if (!Parametro.GLOBAL.equals(grupo)) {
                 return get(Parametro.GLOBAL, param);
             }
 
             p = new Parametro(grupo, param);
         }
-        
+
         return p.get();
     }
 
@@ -156,5 +148,5 @@ public class ParametroServiceImpl implements ParametroService {
             daoService.update(p);
         }
     }
-    
+
 }

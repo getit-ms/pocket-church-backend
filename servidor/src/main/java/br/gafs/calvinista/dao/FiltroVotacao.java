@@ -12,6 +12,7 @@ import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,12 @@ public class FiltroVotacao extends AbstractPaginatedFiltro<FiltroVotacaoDTO> {
             query.append(" and v.dataInicio <= :data and v.dataTermino >= :data");
             args.put("data", filtro.getData());
         }
-        
+
+        if (!StringUtil.isEmpty(filtro.getNome())) {
+            query.append(" and lower(v.nome) like :nome");
+            args.put("nome", "%" + filtro.getNome().toLowerCase() + "%");
+        }
+
         setPage(filtro.getPagina());
         setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(v) ").append(query).toString(), args));

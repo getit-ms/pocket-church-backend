@@ -6,7 +6,6 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
 import br.gafs.file.Attachment;
 import br.gafs.file.EntityFileManager;
@@ -14,13 +13,12 @@ import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import java.util.Date;
-import javax.persistence.*;
-
 import lombok.*;
 
+import javax.persistence.*;
+import java.util.Date;
+
 /**
- *
  * @author Gabriel
  */
 @Entity
@@ -76,18 +74,18 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
         this.dados = dados;
     }
 
-    public String getFilename(){
+    public String getFilename() {
         return StringUtil.formataValor(nome, true, false)
                 .replaceAll("[^a-zA-Z0-9_\\.]", "_")
                 .replace(" ", "_");
     }
 
-    public void used(){
+    public void used() {
         timeout = null;
     }
 
-    private static String format(String nome){
-        if (nome.length() > 150){
+    private static String format(String nome) {
+        if (nome.length() > 150) {
             String extension = nome.substring(nome.lastIndexOf("."));
             nome = nome.substring(0, 150 - extension.length()) + extension;
         }
@@ -99,7 +97,7 @@ public class Arquivo implements IEntity, Comparable<Arquivo> {
         return timeout == null;
     }
 
-    public void clearDados(){
+    public void clearDados() {
         this.dados = null;
     }
 

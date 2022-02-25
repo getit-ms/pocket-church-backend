@@ -7,7 +7,9 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusEstudo;
+import br.gafs.calvinista.entity.domain.StatusItemEvento;
 import br.gafs.calvinista.entity.domain.TipoEstudo;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -41,7 +43,7 @@ import java.util.*;
     @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
     @NamedQuery(name = "Estudo.updateStatus", query = "update Estudo e set e.status = :status where e.id = :estudo and e.igreja.chave = :igreja")
 })
-public class Estudo implements IEntity, ArquivoPDF {
+public class Estudo implements IEntity, ArquivoPDF, IItemEvento {
 
     @Id
     @JsonView(Resumido.class)
@@ -233,5 +235,25 @@ public class Estudo implements IEntity, ArquivoPDF {
         } else {
             return TipoEstudo.PDF;
         }
+    }
+
+    @Override
+    @JsonIgnore
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .igreja(getIgreja())
+                .tipo(TipoItemEvento.ESTUDO)
+                .titulo(getTitulo())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
+                .ilustracao(getThumbnail())
+                .autor(getMembro())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

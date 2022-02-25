@@ -1,8 +1,8 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.servidor.mensagem;
 
 import br.gafs.calvinista.dto.MensagemPushDTO;
@@ -12,24 +12,19 @@ import br.gafs.calvinista.service.ParametroService;
 import br.gafs.dto.DTO;
 import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-
 import lombok.*;
 
 import javax.ejb.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -54,12 +49,12 @@ public class AndroidNotificationService implements Serializable {
     }
 
     private boolean doSendNotification(PushAndroidDTO notification, String chave) {
-        try{
+        try {
             HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://fcm.googleapis.com/fcm/send").openConnection();
 
             urlConnection.setRequestMethod("POST");
             urlConnection.addRequestProperty("Content-Type", "application/json");
-            urlConnection.addRequestProperty("Authorization", "key="+chave);
+            urlConnection.addRequestProperty("Authorization", "key=" + chave);
             urlConnection.setDoOutput(true);
 
             urlConnection.connect();
@@ -78,7 +73,7 @@ public class AndroidNotificationService implements Serializable {
             urlConnection.disconnect();
 
             return "0".equals(response.get("failure").toString());
-        }catch(Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao enviar push para " + notification.getTo(), e);
 
             return false;
@@ -118,13 +113,13 @@ public class AndroidNotificationService implements Serializable {
         }
 
         private NotificationDTO(String message, String title, String icon, Map<String, Object> customData) {
-            if (!StringUtil.isEmpty(title)){
+            if (!StringUtil.isEmpty(title)) {
                 put("title", title);
             }
-            if (!StringUtil.isEmpty(message)){
+            if (!StringUtil.isEmpty(message)) {
                 put("body", message);
             }
-            if (!StringUtil.isEmpty(icon)){
+            if (!StringUtil.isEmpty(icon)) {
                 put("icon", icon);
             }
             put("style", "inbox");

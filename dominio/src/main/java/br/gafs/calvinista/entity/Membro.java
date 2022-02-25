@@ -14,52 +14,20 @@ import br.gafs.exceptions.ServiceException;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.senha.SenhaUtil;
 import br.gafs.util.string.StringUtil;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
  * @author Gabriel
  */
 @Data
@@ -70,11 +38,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 @IdClass(RegistroIgrejaId.class)
 @EqualsAndHashCode(of = {"id", "igreja"})
 @NamedQueries({
-    @NamedQuery(name = "Membro.autentica", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and upper(m.senha) = upper(:senha) and m.status in :status"),
-    @NamedQuery(name = "Membro.findPastor", query = "select m from Membro m where m.pastor = true and m.igreja.chave = :chaveIgreja and m.status in :status and m.id not in (select ca.pastor.id from CalendarioAtendimento ca where ca.igreja.chave = :chaveIgreja and ca.status = :statusCalendario) order by m.nome"),
-    @NamedQuery(name = "Membro.findByEmailIgreja", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and m.status in :status"),
-    @NamedQuery(name = "Membro.findFuncionalidadesAcessoApp", query = "select f from Membro m inner join m.igreja i inner join i.funcionalidadesAplicativo f where m.id = :membro and i.chave = :igreja group by f"),
-    @NamedQuery(name = "Membro.findFuncionalidadesAcessoAdmin", query = "select f from Membro m inner join m.igreja i inner join i.plano p inner join p.funcionalidades f inner join m.acesso a inner join a.perfis pr inner join pr.funcionalidades fu where fu = f and m.id = :membro and i.chave = :igreja group by f")
+        @NamedQuery(name = "Membro.autentica", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and upper(m.senha) = upper(:senha) and m.status in :status"),
+        @NamedQuery(name = "Membro.findPastor", query = "select m from Membro m where m.pastor = true and m.igreja.chave = :chaveIgreja and m.status in :status and m.id not in (select ca.pastor.id from CalendarioAtendimento ca where ca.igreja.chave = :chaveIgreja and ca.status = :statusCalendario) order by m.nome"),
+        @NamedQuery(name = "Membro.findByEmailIgreja", query = "select m from Membro m where upper(m.email) = upper(:email) and m.igreja.chave = :igreja and m.status in :status"),
+        @NamedQuery(name = "Membro.findFuncionalidadesAcessoApp", query = "select f from Membro m inner join m.igreja i inner join i.funcionalidadesAplicativo f where m.id = :membro and i.chave = :igreja group by f"),
+        @NamedQuery(name = "Membro.findFuncionalidadesAcessoAdmin", query = "select f from Membro m inner join m.igreja i inner join i.plano p inner join p.funcionalidades f inner join m.acesso a inner join a.perfis pr inner join pr.funcionalidades fu where fu = f and m.id = :membro and i.chave = :igreja group by f")
 })
 public class Membro implements IEntity {
     @Id
@@ -83,84 +51,84 @@ public class Membro implements IEntity {
     @SequenceGenerator(sequenceName = "seq_membro", name = "seq_membro")
     @GeneratedValue(generator = "seq_membro", strategy = GenerationType.SEQUENCE)
     private Long id;
-    
+
     @NotEmpty
     @Length(max = 150)
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "nome", length = 150, nullable = false)
     private String nome;
-    
+
     @NotEmpty
     @JsonIgnore
     @Length(max = 250)
     @Column(name = "senha", length = 250, nullable = false)
     private String senha = "undefined";
-    
+
     @Email
     @Length(max = 150)
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "email", length = 150, nullable = false)
     private String email;
-    
+
     @JsonView(Detalhado.class)
     @Setter(AccessLevel.NONE)
     @Column(name = "deve_alterar_senha", length = 150, nullable = false)
     private boolean deveAlterarSenha;
-    
+
     @JsonView(Detalhado.class)
     @Temporal(TemporalType.DATE)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "data_nascimento")
     private Date dataNascimento;
-    
+
     @ElementCollection
-    @JsonView({Detalhado.class,Aniversariante.class})
+    @JsonView({Detalhado.class, Aniversariante.class})
     @Column(name = "telefone")
     @View.MergeViews(View.Edicao.class)
     @CollectionTable(name = "rl_telefone_membro",
             joinColumns = {
-                @JoinColumn(name = "id_membro", referencedColumnName = "id_membro"),
-                @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
+                    @JoinColumn(name = "id_membro", referencedColumnName = "id_membro"),
+                    @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
             })
     private List<String> telefones = new ArrayList<String>();
-    
+
     @JsonIgnore
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusMembro status = StatusMembro.PENDENTE;
-    
+
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "pastor", nullable = false)
     private boolean pastor;
-    
+
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "visitante", nullable = false)
     private boolean visitante;
-    
+
     @JsonView(Detalhado.class)
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_endereco", nullable = false)
     private Endereco endereco = new Endereco();
-    
+
     @JsonView(Detalhado.class)
     @Column(name = "data_exclusao")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataExclusao;
-    
+
     @Id
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
-    
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
     private Igreja igreja;
-    
+
     @JsonIgnore
     @OneToOne(mappedBy = "membro", cascade = CascadeType.ALL, orphanRemoval = true)
     private Acesso acesso;
@@ -171,8 +139,8 @@ public class Membro implements IEntity {
     private boolean dadosDisponiveis = true;
 
     @Getter(onMethod = @_({
-        @JsonProperty,
-        @JsonView(Detalhado.class)
+            @JsonProperty,
+            @JsonView(Detalhado.class)
     }))
     @Column(name = "deseja_disponibilizar_dados", nullable = false)
     private boolean desejaDisponibilizarDados = true;
@@ -190,97 +158,97 @@ public class Membro implements IEntity {
     @Transient
     @View.MergeViews(View.AlterarSenha.class)
     private String novaSenha;
-    
+
     @Transient
     @View.MergeViews(View.AlterarSenha.class)
     private String confirmacaoSenha;
-    
+
     public Membro(Igreja igreja) {
         this.igreja = igreja;
     }
-    
+
     @JsonIgnore
-    public void setDesejaDisponibilizarDados(boolean deseja){
-        if (deseja != isDadosDisponiveis()){
+    public void setDesejaDisponibilizarDados(boolean deseja) {
+        if (deseja != isDadosDisponiveis()) {
             this.desejaDisponibilizarDados = this.dadosDisponiveis = deseja;
         }
     }
-    
-    public void setDadosDisponiveis(boolean dadosDisponiveis){
-        if (this.dadosDisponiveis != dadosDisponiveis){
-            if (dadosDisponiveis && !desejaDisponibilizarDados){
+
+    public void setDadosDisponiveis(boolean dadosDisponiveis) {
+        if (this.dadosDisponiveis != dadosDisponiveis) {
+            if (dadosDisponiveis && !desejaDisponibilizarDados) {
                 throw new ServiceException("mensagens.MSG-044");
             }
-        
+
             this.dadosDisponiveis = dadosDisponiveis;
         }
     }
-    
-    public boolean isDadosDisponiveis(){
+
+    public boolean isDadosDisponiveis() {
         return isDesejaDisponibilizarDados() && dadosDisponiveis;
     }
-    
+
     @JsonIgnore
-    public boolean isSenhaUndefined(){
+    public boolean isSenhaUndefined() {
         return "undefined".equals(senha);
     }
-    
-    public boolean isTemAcesso(){
+
+    public boolean isTemAcesso() {
         return acesso != null;
     }
-    
-    public void addTelefone(String telefone){
+
+    public void addTelefone(String telefone) {
         telefones.add(telefone);
     }
-    
-    public void removeTelefone(String telefone){
+
+    public void removeTelefone(String telefone) {
         telefones.remove(telefone);
     }
-    
-    public boolean isMembro(){
+
+    public boolean isMembro() {
         return StatusMembro.MEMBRO.equals(status);
     }
-    
-    public boolean isAdmin(){
+
+    public boolean isAdmin() {
         return isMembro() && acesso != null;
     }
-    
-    public void exclui(){
+
+    public void exclui() {
         status = StatusMembro.EXCLUIDO;
         dataExclusao = new Date();
     }
-    
-    public boolean isContato(){
+
+    public boolean isContato() {
         return StatusMembro.CONTATO.equals(status);
     }
-    
-    public void contato(){
-        if (isMembro()){
+
+    public void contato() {
+        if (isMembro()) {
             status = StatusMembro.CONTATO;
             acesso = null;
         }
     }
-    
-    public void retiraAdmin(){
+
+    public void retiraAdmin() {
         acesso = null;
     }
-    
-    public void alteraSenha(){
+
+    public void alteraSenha() {
         if (!StringUtil.isEmpty(novaSenha) &&
-                novaSenha.equals(confirmacaoSenha)){
+                novaSenha.equals(confirmacaoSenha)) {
             senha = SenhaUtil.encryptSHA256(novaSenha);
             deveAlterarSenha = false;
-        }else{
+        } else {
             throw new ServiceException("mensagens.MSG-030");
         }
     }
-    
-    public boolean membro(){
-        if (!isMembro()){
+
+    public boolean membro() {
+        if (!isMembro()) {
             visitante = false;
             status = StatusMembro.MEMBRO;
-            
-            if ("undefined".equals(senha)){
+
+            if ("undefined".equals(senha)) {
                 senha = SenhaUtil.geraSenha(8);
                 deveAlterarSenha = true;
                 return true;
@@ -302,5 +270,6 @@ public class Membro implements IEntity {
         status = StatusMembro.CONTATO;
     }
 
-    public interface Aniversariante extends Resumido {}
+    public interface Aniversariante extends Resumido {
+    }
 }

@@ -7,7 +7,9 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusEvento;
+import br.gafs.calvinista.entity.domain.StatusItemEvento;
 import br.gafs.calvinista.entity.domain.TipoEvento;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
@@ -38,7 +40,7 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "Evento.findCamposByEvento", query = "select c from Evento e inner join e.campos c where e.id = :evento")
 })
-public class Evento implements IEntity {
+public class Evento implements IEntity, IItemEvento {
     @Id
     @Column(name = "id_evento")
     @SequenceGenerator(name = "seq_evento", sequenceName = "seq_evento")
@@ -187,5 +189,24 @@ public class Evento implements IEntity {
     public List<CampoEvento> getCampos() {
         Collections.sort(campos);
         return campos;
+    }
+
+    @Override
+    @JsonIgnore
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .igreja(getIgreja())
+                .tipo(getTipo() == TipoEvento.EBD ? TipoItemEvento.EBD : getTipo() == TipoEvento.CULTO ? TipoItemEvento.CULTO : TipoItemEvento.EVENTO_INSCRICAO)
+                .titulo(getNome())
+                .dataHoraPublicacao(getDataInicioInscricao())
+                .dataHoraReferencia(getDataHoraInicio())
+                .ilustracao(getBanner())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

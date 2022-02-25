@@ -21,34 +21,33 @@ import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 
 /**
- *
  * @author Gabriel
  */
 @RequestScoped
 @Path("termo-aceite")
 public class TermoAceiteController {
-    
+
     @EJB
     private AppService appService;
 
     @GET
     @JsonView(Detalhado.class)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response detalha(){
+    public Response detalha() {
         return Response.status(Status.OK).entity(appService.buscaUltimoTermo()).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response cadastra(final TermoAceite termoAceite) throws IOException{
+    public Response cadastra(final TermoAceite termoAceite) throws IOException {
         return Response.status(Status.OK).entity(appService.cadastra(termoAceite)).build();
     }
-    
+
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response atualiza(final TermoAceite termoAceite) throws IOException{
+    public Response atualiza(final TermoAceite termoAceite) throws IOException {
         TermoAceite entidade = appService.buscaUltimoTermo();
         MergeUtil.merge(termoAceite, View.Edicao.class).into(entidade);
         return Response.status(Status.OK).entity(appService.atualiza(entidade)).build();
@@ -58,7 +57,7 @@ public class TermoAceiteController {
     @Path("aceite")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response aceitaTermo() throws IOException{
+    public Response aceitaTermo() throws IOException {
         appService.aceitaTermo();
         return Response.status(Status.OK).build();
     }

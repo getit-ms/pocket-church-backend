@@ -61,9 +61,10 @@ public class EventoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(
             @QueryParam("tipo") @DefaultValue("EVENTO") TipoEvento tipo,
+            @QueryParam("filtro") String filtro,
             @QueryParam("pagina") @DefaultValue("1") Integer pagina,
             @QueryParam("total") @DefaultValue("10") Integer total){
-        return Response.status(Response.Status.OK).entity(appService.buscaTodos(new FiltroEventoDTO(null, null, tipo, pagina, total))).build();
+        return Response.status(Response.Status.OK).entity(appService.buscaTodos(new FiltroEventoDTO(null, null, tipo, filtro, pagina, total))).build();
     }
     
     @GET

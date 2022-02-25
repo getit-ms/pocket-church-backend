@@ -22,6 +22,8 @@ import br.gafs.calvinista.servidor.flickr.FlickrService;
 import br.gafs.calvinista.servidor.google.GoogleService;
 import br.gafs.calvinista.servidor.pagseguro.PagSeguroService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoSincronizacaoFlickr;
+import br.gafs.calvinista.servidor.processamento.ProcessamentoSincronizacaoYouTube;
 import br.gafs.calvinista.servidor.relatorio.RelatorioEstudo;
 import br.gafs.calvinista.servidor.relatorio.RelatorioInscritos;
 import br.gafs.calvinista.util.MensagemBuilder;
@@ -844,7 +846,11 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin({Funcionalidade.MANTER_PUBLICACOES, Funcionalidade.MANTER_BOLETINS})
     public Boletim cadastra(Boletim boletim) throws IOException {
         boletim.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        boletim.setAutor(daoService.find(Membro.class, new RegistroIgrejaId(
+                sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()
+        )));
         boletim.setBoletim(arquivoService.buscaArquivo(boletim.getBoletim().getId()));
+        boletim.setUltimaAlteracao(DateUtil.getDataAtual());
 
         boolean trataPDF = trataTrocaPDF(boletim);
         if (trataPDF) {
@@ -1849,6 +1855,179 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
+    public BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro) {
+        BuscaPaginadaDTO<Object[]> tuplas = daoService.findWith(new FiltroTimeline(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), filtro));
+
+        return new BuscaPaginadaDTO<>(
+                mapItensEvento(tuplas.getResultados()),
+                tuplas.getTotalResultados(),
+                tuplas.getPagina(),
+                filtro.getTotal()
+        );
+    }
+
+    private List<ItemEvento> mapItensEvento(List<Object[]> tuplas) {
+        List<ItemEvento> itens = new ArrayList<>();
+
+        for (Object[] tupla : tuplas) {
+            ItemEvento item = (ItemEvento) tupla[0];
+            item.setCurtido(tupla[1] != null);
+            item.setQuantidadeCurtidas(((Number) tupla[2]).intValue());
+            item.setQuantidadeComentarios(((Number) tupla[3]).intValue());
+            itens.add(item);
+        }
+
+        return itens;
+    }
+
+    @Override
+    public List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino) {
+        if (sessaoBean.getIdMembro() == null) {
+            return mapItensEvento(daoService.findWith(QueryAdmin.ITENS_PERIODO_CALENDARIO_PUBLICOS.create(
+                    sessaoBean.getChaveIgreja(), dataInicio, dataTermino
+            )));
+        }
+
+        return mapItensEvento(daoService.findWith(QueryAdmin.ITENS_PERIODO_CALENDARIO.create(
+                sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro(), dataInicio, dataTermino
+        )));
+    }
+
+    @Override
+    @AllowMembro
+    public void curteItemEvento(String id, TipoItemEvento tipo) {
+        ItemEvento itemEvento = daoService.find(ItemEvento.class,
+                new ItemEventoId(id, sessaoBean.getChaveIgreja(), tipo));
+
+        Membro membro = daoService.find(Membro.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        daoService.create(new CurtidaItemEvento(
+                membro, itemEvento
+        ));
+    }
+
+    @Override
+    @AllowMembro
+    public void descurteItemEvento(String id, TipoItemEvento tipo) {
+        daoService.delete(ItemEvento.class,
+                new ItemEventoId(id, sessaoBean.getChaveIgreja(), tipo));
+    }
+
+    @Override
+    @AllowMembro
+    public ComentarioItemEvento comenta(String id, TipoItemEvento tipo, ComentarioItemEvento comentario) {
+        comentario.setMembro(
+                daoService.find(Membro.class,
+                        new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))
+        );
+
+        comentario.setItemEvento(
+                daoService.find(ItemEvento.class,
+                        new ItemEventoId(id, sessaoBean.getChaveIgreja(), tipo))
+        );
+
+        comentario.setIgreja(
+                daoService.find(Igreja.class, sessaoBean.getChaveIgreja())
+        );
+
+        return daoService.create(comentario);
+    }
+
+    @Override
+    @AllowMembro
+    public void removeComentario(Long id) {
+        ComentarioItemEvento comentario = daoService.find(ComentarioItemEvento.class, new RegistroIgrejaId(
+                sessaoBean.getChaveIgreja(), id
+        ));
+
+        if (comentario != null &&
+                (sessaoBean.isAdmin() || sessaoBean.getIdUsuario().equals(comentario.getMembro().getId()))) {
+            daoService.delete(ComentarioItemEvento.class, new RegistroIgrejaId(
+                    sessaoBean.getChaveIgreja(), id
+            ));
+        }
+    }
+
+    @Override
+    @AllowMembro
+    public DenunciaComentarioItemEvento denunciaComentario(Long id, DenunciaComentarioItemEvento denuncia) {
+        denuncia.setDenunciante(
+                daoService.find(Membro.class,
+                        new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()))
+        );
+
+        denuncia.setIgreja(
+                daoService.find(Igreja.class, sessaoBean.getChaveIgreja())
+        );
+
+        denuncia.setComentario(
+                daoService.find(ComentarioItemEvento.class,
+                        new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id))
+        );
+
+        return daoService.create(denuncia);
+    }
+
+    @Override
+    @AllowMembro
+    public BuscaPaginadaDTO<ComentarioItemEvento> buscaComentarios(FiltroComentarioDTO filtro) {
+        return daoService.findWith(new FiltroComentario(sessaoBean.getChaveIgreja(), filtro));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public List<ComentarioItemEvento> buscaComentarioDenunciados() {
+        List<Object[]> tuplas = daoService.findWith(QueryAdmin.COMENTARIOS_DENUNCIADOS.create(sessaoBean.getChaveIgreja()));
+
+        List<ComentarioItemEvento> comentarios = new ArrayList<>();
+        for (Object[] tupla : tuplas) {
+            ComentarioItemEvento comentario = (ComentarioItemEvento) tupla[0];
+            Integer quantidade = ((Number) tupla[1]).intValue();
+            comentario.setQuantidadeDenuncias(quantidade);
+            comentarios.add(comentario);
+        }
+
+        return comentarios;
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public List<DenunciaComentarioItemEvento> buscaDenunciasComentario(Long id) {
+        return daoService.findWith(QueryAdmin.DENUNCIADOS_COMENTARIO.create(
+                sessaoBean.getChaveIgreja(), id
+        ));
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public void atendeDenuncia(Long id) {
+        DenunciaComentarioItemEvento denuncia = daoService.find(DenunciaComentarioItemEvento.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+
+        Membro analista = daoService.find(Membro.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        denuncia.atende(analista);
+
+        daoService.update(denuncia);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.ANALISA_DENUNCIAS_COMENTARIO)
+    public void rejeitaDenuncia(Long id) {
+        DenunciaComentarioItemEvento denuncia = daoService.find(DenunciaComentarioItemEvento.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+
+        Membro analista = daoService.find(Membro.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        denuncia.rejeita(analista);
+
+        daoService.update(denuncia);
+    }
+
+    @Override
     public BuscaPaginadaDTO<Evento> buscaFuturos(FiltroEventoFuturoDTO filtro) {
         return buscaTodos(filtro);
     }
@@ -2295,12 +2474,7 @@ public class AppServiceImpl implements AppService {
     @Override
     @AcessoMarker(Funcionalidade.YOUTUBE)
     public List<VideoDTO> buscaVideosYouTube() {
-        try {
-            return googleService.buscaVideosYouTube(sessaoBean.getChaveIgreja());
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-            return Collections.emptyList();
-        }
+        return daoService.findWith(QueryAdmin.VIDEOS_IGREJA.create(sessaoBean.getChaveIgreja()));
     }
 
     @Override
@@ -2410,7 +2584,7 @@ public class AppServiceImpl implements AppService {
 
         BuscaPaginadaDTO<LeituraBibliaDTO> busca = daoService.findWith(QueryAdmin.
                 LEITURA_SELECIONADA.createPaginada(pagina, sessaoBean.getChaveIgreja(),
-                sessaoBean.getIdMembro(), new Date(ultimaAlteracao.getTime() + 1), total));
+                        sessaoBean.getIdMembro(), new Date(ultimaAlteracao.getTime() + 1), total));
 
         for (LeituraBibliaDTO leitura : busca.getResultados()) {
             leitura.setLido((MarcacaoLeituraBiblica) daoService.findWith(QueryAdmin.MARCACAO_LEITURA_DIA.
@@ -2550,6 +2724,9 @@ public class AppServiceImpl implements AppService {
     @AllowAdmin(Funcionalidade.MANTER_AUDIOS)
     public Audio cadastra(Audio audio) {
         audio.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+        audio.setAutor(daoService.find(Membro.class, new RegistroIgrejaId(
+                sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()
+        )));
 
         audio.setTipo(TipoAudio.LOCAL);
 
@@ -2667,13 +2844,50 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina) {
+    public Banner buscaBanner(Long id) {
+        return daoService.find(Banner.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+    }
+
+    @Override
+    public List<Banner> buscaBanners() {
+        return daoService.findAll(Banner.class);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner cadastra(Banner banner) {
+        banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
+        arquivoService.registraUso(banner.getBanner().getId());
+
+        banner.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
+        return daoService.create(banner);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner atualiza(Banner banner) {
+        banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
+        arquivoService.registraUso(banner.getBanner().getId());
+
+        return daoService.update(banner);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public void removeBanner(Long id) {
+        daoService.delete(Banner.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+    }
+
+    @Override
+    public BuscaPaginadaDTO<GaleriaFotos> buscaGaleriasFotos(Integer pagina) {
         return flickrService.buscaGaleriaFotos(sessaoBean.getChaveIgreja(), pagina);
     }
 
     @Override
     @AcessoMarker(Funcionalidade.GALERIA_FOTOS)
-    public BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro) {
+    public BuscaPaginadaDTO<GaleriaFotos.Foto> buscaFotos(FiltroFotoDTO filtro) {
         return flickrService.buscaFotos(sessaoBean.getChaveIgreja(), filtro);
     }
 
@@ -3136,33 +3350,90 @@ public class AppServiceImpl implements AppService {
     }
 
     @Schedule(hour = "*", minute = "*/5", persistent = false)
+    public void sincronizaVideosYouTube() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
+
+                if (config.isConfigurado()) {
+                    try {
+                        List<Video> videos = googleService.buscaVideosYouTube(igreja.getChave());
+
+                        processamentoService.execute(
+                                new ProcessamentoSincronizacaoYouTube(igreja, videos)
+                        );
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + igreja.getChave(), e);
+                    }
+                }
+            } else {
+                LOGGER.info(igreja.getChave() + " fora do horário para sincronizção de vídeos.");
+            }
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/20", persistent = false)
+    public void sincronizaFotosFlickr() {
+        List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
+        for (Igreja igreja : igrejas) {
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
+
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                try {
+                    processamentoService.execute(
+                            new ProcessamentoSincronizacaoFlickr(igreja)
+                    );
+                } catch (InterruptedException e) {
+                    LOGGER.log(Level.SEVERE, igreja.getChave() + " falha ao sincronizar fotos do flickr.");
+                }
+            } else {
+                LOGGER.info(igreja.getChave() + " fora do horário para sincronizção de fotos do flickr.");
+            }
+        }
+    }
+
+    @Schedule(hour = "*", minute = "*/5", persistent = false)
     public void enviaNotificacoesYouTubeAoVivo() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());
         for (Igreja igreja : igrejas) {
-            ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
-            if (config.isConfigurado()) {
-                try {
-                    List<VideoDTO> streamings = googleService.buscaStreamsAtivosYouTube(igreja.getChave());
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(igreja.getTimezone()));
+            Integer horaAtual = cal.get(Calendar.HOUR_OF_DAY);
 
-                    for (VideoDTO video : streamings) {
-                        if (!Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()) {
-                            Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
+            if (horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
+                ConfiguracaoYouTubeIgrejaDTO config = paramService.buscaConfiguracaoYouTube(igreja.getChave());
 
-                            try {
-                                String titulo = config.getTituloAoVivo();
+                if (config.isConfigurado()) {
+                    try {
+                        List<Video> videos = daoService.findWith(QueryAdmin.VIDEOS_IGREJA.create(igreja.getChave()));
 
-                                String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
+                        for (Video video : videos) {
+                            if (video.isAoVivo() && !video.isAgendado() &&
+                                    !Persister.file(NotificacaoYouTubeAoVivo.class, video.getId()).exists()) {
+                                Persister.save(new NotificacaoYouTubeAoVivo(video), video.getId());
 
-                                enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
-                            } catch (Exception e) {
-                                Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
-                                throw e;
+                                try {
+                                    String titulo = config.getTituloAoVivo();
+
+                                    String texto = MessageFormat.format(config.getTextoAoVivo(), video.getTitulo());
+
+                                    enviaPush(new FiltroDispositivoNotificacaoDTO(igreja, true), titulo, texto, TipoNotificacao.YOUTUBE, false);
+                                } catch (Exception e) {
+                                    Persister.remove(NotificacaoYouTubeAgendado.class, video.getId());
+                                    throw e;
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + igreja.getChave(), e);
                     }
-                } catch (Exception e) {
-                    Logger.getLogger(AppServiceImpl.class.getName()).log(Level.SEVERE, "Erro ao verificar vídeos ao vivo para " + igreja.getChave(), e);
                 }
+            } else {
+                LOGGER.info(igreja.getChave() + " fora do horário para notificação de vídeos on-line.");
             }
         }
     }
@@ -3178,10 +3449,10 @@ public class AppServiceImpl implements AppService {
 
             if (config.isConfigurado()) {
                 try {
-                    List<VideoDTO> streamings = googleService.buscaStreamsAgendadosYouTube(igreja.getChave());
+                    List<Video> streamings = daoService.findWith(QueryAdmin.VIDEOS_IGREJA.create(igreja.getChave()));
 
-                    for (VideoDTO video : streamings) {
-                        if (!Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
+                    for (Video video : streamings) {
+                        if (video.isAgendado() && !Persister.file(NotificacaoYouTubeAgendado.class, video.getId()).exists() &&
                                 DateUtil.equalsSemHoras(DateUtil.getDataAtual(), video.getAgendamento()) &&
                                 // Verifica se está em horário útil para fazer a notificação
                                 horaAtual >= HORA_MINIMA_NOTIFICACAO && horaAtual <= HORA_MAXIMA_NOTIFICACAO) {
@@ -3214,14 +3485,14 @@ public class AppServiceImpl implements AppService {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificacaoYouTubeAoVivo {
-        private VideoDTO video;
+        private Video video;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificacaoYouTubeAgendado {
-        private VideoDTO video;
+        private Video video;
     }
 
     private void enviaPush(FiltroDispositivoNotificacaoDTO filtro, String titulo, String mensagem, TipoNotificacao tipo, boolean compartilhavel) {

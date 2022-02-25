@@ -6,7 +6,9 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.calvinista.entity.domain.StatusBoletim;
+import br.gafs.calvinista.entity.domain.StatusItemEvento;
 import br.gafs.calvinista.entity.domain.TipoBoletim;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -21,9 +23,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -43,7 +43,7 @@ import java.util.Map;
     @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
     @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.igreja.chave = :igreja")
 })
-public class Boletim implements ArquivoPDF {
+public class Boletim implements ArquivoPDF, IItemEvento {
 
     @Id
     @JsonView(Resumido.class)
@@ -90,6 +90,14 @@ public class Boletim implements ArquivoPDF {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusBoletim status = StatusBoletim.PROCESSANDO;
+
+    @ManyToOne
+    @JsonView(View.Resumido.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_autor", referencedColumnName = "id_membro"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false),
+    })
+    private Membro autor;
 
     @NotNull
     @OneToOne
@@ -180,5 +188,25 @@ public class Boletim implements ArquivoPDF {
     @JsonIgnore
     public Arquivo getPDF() {
         return boletim;
+    }
+
+    @Override
+    @JsonIgnore
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .igreja(getIgreja())
+                .tipo(getTipo() == TipoBoletim.PUBLICACAO ? TipoItemEvento.PUBLICACAO : TipoItemEvento.BOLETIM)
+                .titulo(getTitulo())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
+                .ilustracao(getThumbnail())
+                .autor(getAutor())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

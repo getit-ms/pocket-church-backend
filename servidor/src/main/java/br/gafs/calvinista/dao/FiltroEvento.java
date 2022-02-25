@@ -14,6 +14,7 @@ import br.gafs.dao.QueryUtil;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,7 +51,12 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
             where.append(" and e.tipo = #tipo");
             argsCount.put("tipo", filtro.getTipo().ordinal());
         }
-        
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
+            where.append(" and lower(e.nome) like :filtro");
+            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
+        }
+
         if (admin){
             if (filtro.getDataInicio() != null){
                 where.append(" and e.data_hora_inicio >= #dataHoraInicio");

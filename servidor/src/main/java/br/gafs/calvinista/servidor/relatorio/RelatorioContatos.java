@@ -1,12 +1,9 @@
 package br.gafs.calvinista.servidor.relatorio;
 
 import br.gafs.calvinista.dao.FiltroMembro;
-import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.dto.FiltroMembroDTO;
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.InscricaoEvento;
 import br.gafs.calvinista.entity.Membro;
-import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.util.ReportUtil;
@@ -37,7 +34,7 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
 
     private Igreja igreja;
 
-    public RelatorioContatos(Igreja igreja){
+    public RelatorioContatos(Igreja igreja) {
         this.igreja = igreja;
     }
 
@@ -58,7 +55,7 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
 
     @Override
     public ReportUtil.Reporter generate(final ProcessamentoService.ProcessamentoTool tool) {
-        return new ReportUtil.Reporter(){
+        return new ReportUtil.Reporter() {
 
             @Override
             public void export(String tipo, OutputStream os) {
@@ -74,7 +71,7 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
 
                     workbook.write();
                     workbook.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -120,7 +117,7 @@ public class RelatorioContatos implements ProcessamentoRelatorioCache.Relatorio 
             }
 
             filtro.setPagina(filtro.getPagina() + 1);
-        }while(resultado.isHasProxima());
+        } while (resultado.isHasProxima());
 
     }
 

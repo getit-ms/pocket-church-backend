@@ -8,6 +8,7 @@ package br.gafs.calvinista.service;
 import br.gafs.calvinista.dto.*;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.entity.domain.TipoVersao;
 import br.gafs.dao.BuscaPaginadaDTO;
 
@@ -94,8 +95,8 @@ public interface AppService extends Serializable {
     BuscaPaginadaAudioDTO buscaTodos(FiltroAudioDTO filtro);
     Audio buscaAudio(Long audio);
 
-    BuscaPaginadaDTO<GaleriaDTO> buscaGaleriasFotos(Integer pagina);
-    BuscaPaginadaDTO<FotoDTO> buscaFotos(FiltroFotoDTO filtro);
+    BuscaPaginadaDTO<GaleriaFotos> buscaGaleriasFotos(Integer pagina);
+    BuscaPaginadaDTO<GaleriaFotos.Foto> buscaFotos(FiltroFotoDTO filtro);
     ConfiguracaoFlickrIgrejaDTO buscaConfiguracaoFlickr();
     String buscaURLAutenticacaoFlickr() throws IOException;
     void iniciaConfiguracaoFlickr(String token, String verifier);
@@ -256,4 +257,23 @@ public interface AppService extends Serializable {
     TermoAceite cadastra(TermoAceite termoAceite);
     TermoAceite atualiza(TermoAceite entidade);
     void aceitaTermo();
+
+    BuscaPaginadaDTO<ItemEvento> buscaTimeline(FiltroTimelineDTO filtro);
+    List<ItemEvento> buscaPeriodoCalendario(Date dataInicio, Date dataTermino);
+    void curteItemEvento(String id, TipoItemEvento tipo);
+    void descurteItemEvento(String id, TipoItemEvento tipo);
+    ComentarioItemEvento comenta(String id, TipoItemEvento tipo, ComentarioItemEvento comentario);
+    void removeComentario(Long id);
+    DenunciaComentarioItemEvento denunciaComentario(Long id, DenunciaComentarioItemEvento denuncia);
+    BuscaPaginadaDTO<ComentarioItemEvento> buscaComentarios(FiltroComentarioDTO filtro);
+    List<ComentarioItemEvento> buscaComentarioDenunciados();
+    List<DenunciaComentarioItemEvento> buscaDenunciasComentario(Long id);
+    void atendeDenuncia(Long id);
+    void rejeitaDenuncia(Long id);
+
+    List<Banner> buscaBanners();
+    Banner buscaBanner(Long id);
+    Banner cadastra(Banner banner);
+    Banner atualiza(Banner banner);
+    void removeBanner(Long id);
 }
