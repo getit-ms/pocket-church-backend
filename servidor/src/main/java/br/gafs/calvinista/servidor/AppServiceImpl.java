@@ -2850,7 +2850,7 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public List<Banner> buscaBanners() {
-        return daoService.findAll(Banner.class);
+        return daoService.findWith(QueryAdmin.BANNERS_IGREJA.create(sessaoBean.getChaveIgreja()));
     }
 
     @Override
@@ -2881,7 +2881,7 @@ public class AppServiceImpl implements AppService {
 
     @Override
     public BuscaPaginadaDTO<GaleriaFotos> buscaGaleriasFotos(Integer pagina) {
-        return flickrService.buscaGaleriaFotos(sessaoBean.getChaveIgreja(), pagina);
+        return daoService.findWith(QueryAdmin.GALERIA_FOTOS_IGREJA.createPaginada(pagina, sessaoBean.getChaveIgreja()));
     }
 
     @Override
@@ -3107,7 +3107,11 @@ public class AppServiceImpl implements AppService {
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.PUBLICACAO, false);
 
-                daoService.execute(QueryAdmin.UPDATE_PUBLICACOES_NAO_DIVULGADOS.create(igreja.getChave()));
+                List<Boletim> publicacoes = daoService.findWith(QueryAdmin.PUBLICACOES_NAO_DIVULGADOS.create(igreja.getChave()));
+                for(Boletim pub : publicacoes) {
+                    pub.setDivulgado(true);
+                    daoService.update(pub);
+                }
             } else {
                 LOGGER.info("Hora fora do limite de envio de notificações de publicações para " + igreja.getChave());
             }
@@ -3173,7 +3177,11 @@ public class AppServiceImpl implements AppService {
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.BOLETIM, false);
 
-                daoService.execute(QueryAdmin.UPDATE_BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
+                List<Boletim> boletins = daoService.findWith(QueryAdmin.BOLETINS_NAO_DIVULGADOS.create(igreja.getChave()));
+                for(Boletim bol : boletins) {
+                    bol.setDivulgado(true);
+                    daoService.update(bol);
+                }
             } else {
                 LOGGER.info("Hora fora do limite de envio de notificações de boletins para " + igreja.getChave());
             }
@@ -3308,7 +3316,11 @@ public class AppServiceImpl implements AppService {
 
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.ESTUDO, false);
 
-                daoService.execute(QueryAdmin.UPDATE_ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
+                List<Estudo> estudos = daoService.findWith(QueryAdmin.ESTUDOS_NAO_DIVULGADOS.create(igreja.getChave()));
+                for (Estudo est : estudos) {
+                    est.divulgado();
+                    daoService.update(est);
+                }
             } else {
                 LOGGER.info(igreja.getChave() + " fora do horário para envio de notiicações de estudos.");
             }
@@ -3342,6 +3354,7 @@ public class AppServiceImpl implements AppService {
                 enviaPush(new FiltroDispositivoNotificacaoDTO(igreja), titulo, texto, TipoNotificacao.NOTICIA, false);
 
                 daoService.execute(QueryAdmin.UPDATE_NOTICIAS_NAO_DIVULGADAS.create(igreja.getChave()));
+                daoService.execute(QueryAdmin.UPDATE_ITENS_EVENTOS_NAO_PUBLICADOS.create(igreja.getChave(), TipoItemEvento.NOTICIA));
             } else {
                 LOGGER.info(igreja.getChave() + " fora do horário para envio de notiicações de notícias.");
             }

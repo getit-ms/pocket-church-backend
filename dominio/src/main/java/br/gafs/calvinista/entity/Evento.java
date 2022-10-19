@@ -202,11 +202,7 @@ public class Evento implements IEntity, IItemEvento {
                 .dataHoraPublicacao(getDataInicioInscricao())
                 .dataHoraReferencia(getDataHoraInicio())
                 .ilustracao(getBanner())
-                .status(
-                        isPublicado() ?
-                                StatusItemEvento.PUBLICADO :
-                                StatusItemEvento.NAO_PUBLICADO
-                )
+                .status(StatusItemEvento.PUBLICADO)
                 .build();
     }
 }

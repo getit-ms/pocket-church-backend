@@ -20,6 +20,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = "ItemEvento.findByPeriodoAndTipos", query = "select ie, null, 0, 0 from ItemEvento ie where ie.igreja.chave = :chaveIgreja and ie.status = :status and ie.dataHoraReferencia between :dataInicio and :dataTermino and ie.tipo in :tipos order by ie.dataHoraReferencia, ie.tipo, ie.id"),
         @NamedQuery(name = "ItemEvento.findByPeriodo", query = "select ie, (select c.dataHora from CurtidaItemEvento c where c.itemEvento = ie and c.membro.id = :membro), (select count(c) from CurtidaItemEvento c where c.itemEvento = ie), (select count(c) from ComentarioItemEvento c where c.itemEvento = ie and c.status = :statusComentario) from ItemEvento ie where ie.igreja.chave = :chaveIgreja and ie.status = :status and ie.dataHoraReferencia between :dataInicio and :dataTermino order by ie.dataHoraReferencia, ie.tipo, ie.id"),
+        @NamedQuery(name = "ItemEvento.updateNaoPublicadosByIgrejaAndTipo", query = "update ItemEvento ie set ie.status = :statusPublicado where ie.igreja.chave = :igreja and ie.tipo = :tipo and ie.status = :statusNaoPublicado and ie.dataHoraPublicacao <= :data"),
 })
 public class ItemEvento implements IEntity {
     @Id

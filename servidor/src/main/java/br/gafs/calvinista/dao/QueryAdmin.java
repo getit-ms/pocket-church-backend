@@ -170,7 +170,7 @@ public enum QueryAdmin {
             return 10;
         }
     },
-    UPDATE_BOLETINS_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja") {
+    BOLETINS_NAO_DIVULGADOS("Boletim.findNaoDivulgadosByIgreja", "igreja") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
@@ -179,7 +179,17 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_PUBLICACOES_NAO_DIVULGADOS("Boletim.updateNaoDivulgadosByIgreja", "igreja") {
+    UPDATE_ITENS_EVENTOS_NAO_PUBLICADOS("ItemEvento.updateNaoPublicadosByIgrejaAndTipo", "igreja", "tipo") {
+        @Override
+        protected QueryParameters extractArguments(Object... args) {
+            return super.extractArguments(args)
+                    .set("data", DateUtil.getDataAtual())
+                    .set("statusPublicado", StatusItemEvento.PUBLICADO)
+                    .set("statusNaoPublicado", StatusItemEvento.NAO_PUBLICADO);
+        }
+
+    },
+    PUBLICACOES_NAO_DIVULGADOS("Boletim.findNaoDivulgadosByIgreja", "igreja") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args)
@@ -188,7 +198,7 @@ public enum QueryAdmin {
         }
 
     },
-    UPDATE_ESTUDOS_NAO_DIVULGADOS("Estudo.updateNaoDivulgadosByIgreja", "igreja") {
+    ESTUDOS_NAO_DIVULGADOS("Estudo.findNaoDivulgadosByIgreja", "igreja") {
         @Override
         protected QueryParameters extractArguments(Object... args) {
             return super.extractArguments(args).
@@ -487,7 +497,8 @@ public enum QueryAdmin {
             return super.extractArguments(args)
                     .set("statusDenuncia", StatusDenunciaComentarioItemEvento.PENDENTE);
         }
-    };
+    },
+    BANNERS_IGREJA("Banner.findByIgreja", "igreja");
 
     private final String query;
     private final String[] parameters;

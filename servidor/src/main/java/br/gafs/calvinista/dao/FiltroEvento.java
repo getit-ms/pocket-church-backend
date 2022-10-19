@@ -52,7 +52,7 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
         }
 
         if (!StringUtil.isEmpty(filtro.getFiltro())) {
-            where.append(" and lower(e.nome) like :filtro");
+            where.append(" and lower(e.nome) like #filtro");
             args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
         }
 

@@ -39,7 +39,7 @@ import java.util.List;
 @NamedQueries({
     @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :statusIgreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
     @NamedQuery(name = "Boletim.findUltimoADivulgar", query = "select b from Boletim b inner join b.igreja i where i.chave = :igreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false order by b.dataPublicacao desc"),
-    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja and b.tipo = :tipo"),
+    @NamedQuery(name = "Boletim.findNaoDivulgadosByIgreja", query = "select b from Boletim b where b.dataPublicacao <= :data and b.igreja.chave = :igreja and b.tipo = :tipo"),
     @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
     @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.igreja.chave = :igreja")
 })
@@ -199,7 +199,7 @@ public class Boletim implements ArquivoPDF, IItemEvento {
                 .tipo(getTipo() == TipoBoletim.PUBLICACAO ? TipoItemEvento.PUBLICACAO : TipoItemEvento.BOLETIM)
                 .titulo(getTitulo())
                 .dataHoraPublicacao(getDataPublicacao())
-                .dataHoraReferencia(getDataPublicacao())
+                .dataHoraReferencia(getData())
                 .ilustracao(getThumbnail())
                 .autor(getAutor())
                 .status(
