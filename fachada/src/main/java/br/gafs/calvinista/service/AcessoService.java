@@ -48,4 +48,6 @@ public interface AcessoService extends Serializable {
     void trocaFoto(Arquivo arquivo);
 
     boolean isExigeAceiteTermo();
+
+    void removeConta();
 }

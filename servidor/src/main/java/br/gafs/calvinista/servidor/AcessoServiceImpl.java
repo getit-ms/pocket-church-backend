@@ -236,6 +236,18 @@ public class AcessoServiceImpl implements AcessoService {
     }
 
     @Override
+    public void removeConta() {
+        Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean
+                .getChaveIgreja(), sessaoBean.getIdMembro()));
+
+        membro.exclui();
+
+        daoService.update(membro);
+
+        sessaoBean.logout();
+    }
+
+    @Override
     public Membro refreshLogin() {
         Membro membro = daoService.find(Membro.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), sessaoBean.getIdMembro()));
         if (membro != null && membro.isMembro()) {
