@@ -2689,6 +2689,46 @@ public class AppServiceImpl implements AppService {
         flickrService.devinculaFlickr(sessaoBean.getChaveIgreja());
     }
 
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner buscaBanner(Long id) {
+        return daoService.find(Banner.class,
+                new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+    }
+
+    @Override
+    @AllowMembro
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public List<Banner> buscaBanners() {
+        return daoService.findAll(Banner.class);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner cadastra(Banner banner) {
+        banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
+        arquivoService.registraUso(banner.getBanner().getId());
+
+        banner.setIgreja(daoService.find(Igreja.class, sessaoBean.getChaveIgreja()));
+
+        return daoService.create(banner);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public Banner atualiza(Banner banner) {
+        banner.setBanner(arquivoService.buscaArquivo(banner.getBanner().getId()));
+        arquivoService.registraUso(banner.getBanner().getId());
+
+        return daoService.update(banner);
+    }
+
+    @Override
+    @AllowAdmin(Funcionalidade.MANTER_BANNERS)
+    public void removeBanner(Long id) {
+        daoService.delete(Banner.class, new RegistroIgrejaId(sessaoBean.getChaveIgreja(), id));
+    }
+
     @Schedule(hour = "*", minute = "0/15", persistent = false)
     public void verificaPagSeguro() {
         List<Igreja> igrejas = daoService.findWith(QueryAdmin.IGREJAS_ATIVAS.create());

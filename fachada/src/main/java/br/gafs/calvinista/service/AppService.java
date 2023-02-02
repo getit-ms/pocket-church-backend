@@ -256,4 +256,11 @@ public interface AppService extends Serializable {
     TermoAceite cadastra(TermoAceite termoAceite);
     TermoAceite atualiza(TermoAceite entidade);
     void aceitaTermo();
+
+
+    List<Banner> buscaBanners();
+    Banner buscaBanner(Long id);
+    Banner cadastra(Banner banner);
+    Banner atualiza(Banner banner);
+    void removeBanner(Long id);
 }
