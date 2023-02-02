@@ -17,6 +17,9 @@ import javax.validation.constraints.NotNull;
 @Table(name = "tb_banner")
 @IdClass(RegistroIgrejaId.class)
 @EqualsAndHashCode(of = {"id", "igreja"})
+@NamedQueries({
+        @NamedQuery(name = "Bannder.findByIgreja", query = "select b from Banner b where b.igreja.chave = :igreja order by b.ordem, b.id")
+})
 public class Banner implements IEntity {
     @Id
     @Column(name = "id_banner")

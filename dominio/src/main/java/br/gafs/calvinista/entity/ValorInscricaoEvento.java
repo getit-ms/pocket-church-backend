@@ -3,6 +3,7 @@ package br.gafs.calvinista.entity;
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.FormatoCampoEvento;
 import br.gafs.calvinista.view.View;
+import br.gafs.util.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,7 +12,9 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Date;
+import java.util.Locale;
 
 @Getter
 @Entity
@@ -20,6 +23,7 @@ import java.util.Date;
 @IdClass(ValorInscricaoEventoId.class)
 @Table(name = "tb_valores_inscricao_evento")
 public class ValorInscricaoEvento implements IEntity {
+    public static final NumberFormat CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
     @Id
     @Column(name = "nome")
     private String nome;
@@ -75,5 +79,25 @@ public class ValorInscricaoEvento implements IEntity {
         } else {
             this.idValorAnexo = null;
         }
+    }
+
+    public String getValorFormatado() {
+        if (valorData != null) {
+            return DateUtil.formataData(valorData);
+        }
+
+        if (valorNumero != null) {
+            if (formato == FormatoCampoEvento.MONETARIO) {
+                return CURRENCY_FORMATTER.format(valorNumero);
+            }
+
+            return valorNumero.toString();
+        }
+
+        if (valorAnexo != null) {
+            return valorAnexo.getFilename();
+        }
+
+        return valorTexto;
     }
 }

@@ -6,7 +6,6 @@
 package br.gafs.calvinista.entity.domain;
 
 /**
- *
  * @author Gabriel
  */
 public enum TipoNotificacao {
@@ -17,7 +16,7 @@ public enum TipoNotificacao {
     NOTICIA,
     VERSICULO,
     ACONSELHAMENTO,
-    ANIVERSARIO, 
+    ANIVERSARIO,
     PEDIDO_ORACAO,
     PLANO_LEITURA,
     YOUTUBE,

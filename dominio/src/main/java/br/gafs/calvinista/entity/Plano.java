@@ -8,26 +8,6 @@ package br.gafs.calvinista.entity;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.StatusPlano;
 import br.gafs.util.date.DateUtil;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,8 +15,15 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -50,34 +37,34 @@ public class Plano {
     @SequenceGenerator(name = "seq_plano", sequenceName = "seq_plano")
     @GeneratedValue(generator = "seq_plano", strategy = GenerationType.SEQUENCE)
     private Long id;
-    
+
     @Setter
     @NotEmpty
     @Length(max = 150)
     @Column(name = "nome", length = 150, nullable = false)
     private String nome;
-    
+
     @Past
     @Column(name = "data_inicio")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataInicio = DateUtil.getDataAtual();
-    
+
     @Column(name = "data_termino")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataTermino;
 
     @Column(name = "limite_audios")
     private long limiteAudios;
-    
+
     @Setter
     @NotNull
     @Column(name = "valor", nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
-    
+
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = true)
     private StatusPlano status = StatusPlano.ATIVO;
-    
+
     @Setter
     @ElementCollection
     @Enumerated(EnumType.STRING)
@@ -85,43 +72,43 @@ public class Plano {
     @CollectionTable(name = "rl_plano_funcionalidade",
             joinColumns = @JoinColumn(name = "id_plano"))
     private List<Funcionalidade> funcionalidades = new ArrayList<Funcionalidade>();
-    
-    public void desliga(){
-        if (isAtivo()){
+
+    public void desliga() {
+        if (isAtivo()) {
             status = StatusPlano.INATIVO;
             dataTermino = DateUtil.getDataAtual();
         }
     }
-    
-    public boolean isAtivo(){
+
+    public boolean isAtivo() {
         return StatusPlano.ATIVO.equals(status);
     }
-    
-    public boolean isInativo(){
+
+    public boolean isInativo() {
         return StatusPlano.INATIVO.equals(status);
     }
 
     public List<Funcionalidade> getFuncionalidadesAdmin() {
         List<Funcionalidade> admin = new ArrayList<Funcionalidade>();
-        
-        for (Funcionalidade func : funcionalidades){
-            if (func.isAdmin()){
+
+        for (Funcionalidade func : funcionalidades) {
+            if (func.isAdmin()) {
                 admin.add(func);
             }
         }
-        
+
         return admin;
     }
 
     public List<Funcionalidade> getFuncionalidadesMembro() {
         List<Funcionalidade> admin = new ArrayList<Funcionalidade>();
-        
-        for (Funcionalidade func : funcionalidades){
-            if (func.isMembro() || func.isPublica()){
+
+        for (Funcionalidade func : funcionalidades) {
+            if (func.isMembro() || func.isPublica()) {
                 admin.add(func);
             }
         }
-        
+
         return admin;
     }
 }

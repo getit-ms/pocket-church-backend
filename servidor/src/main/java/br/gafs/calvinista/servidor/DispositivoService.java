@@ -1,9 +1,9 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.QueryAcesso;
 import br.gafs.calvinista.entity.*;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
-import br.gafs.dao.DAOService;
 import br.gafs.util.string.StringUtil;
 
 import javax.annotation.Resource;
@@ -37,7 +37,7 @@ public class DispositivoService {
     private static final String BIBLIA_RESET = "bible_reset_{0}";
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Resource
     private UserTransaction userTransaction;
@@ -89,7 +89,7 @@ public class DispositivoService {
 
         List<List<String>> paginas = new ArrayList<>();
 
-        for (int i=0;i<dispositivos.size();i+=500) {
+        for (int i = 0; i < dispositivos.size(); i += 500) {
             paginas.add(dispositivos.subList(i, Math.min(i + 500, dispositivos.size())));
         }
 
@@ -103,7 +103,8 @@ public class DispositivoService {
             } catch (Exception ex) {
                 try {
                     userTransaction.rollback();
-                } catch (SystemException e) {}
+                } catch (SystemException e) {
+                }
 
                 LOGGER.log(Level.SEVERE, "Falha ao registrar o acesso de " + pag.size() + " dispositivos.", ex);
             }
@@ -123,7 +124,7 @@ public class DispositivoService {
         }
     }
 
-    public static  TipoAcaoContigencia verificaContingencia(String chaveDispositivo) {
+    public static TipoAcaoContigencia verificaContingencia(String chaveDispositivo) {
         File fullReset = new File(CONTINGENCIA_DIR, MessageFormat.format(FULL_RESET_MASK, chaveDispositivo));
         if (fullReset.exists()) {
             fullReset.delete();
@@ -145,7 +146,7 @@ public class DispositivoService {
         return TipoAcaoContigencia.NENHUMA;
     }
 
-    private synchronized Dispositivo createDispositivo(String chaveDispositivo){
+    private synchronized Dispositivo createDispositivo(String chaveDispositivo) {
         String parts[] = chaveDispositivo.split("@");
 
         String uuid = parts[0];
@@ -166,7 +167,8 @@ public class DispositivoService {
         } catch (Exception ex) {
             try {
                 userTransaction.rollback();
-            } catch (Exception ex0){}
+            } catch (Exception ex0) {
+            }
 
             throw new RuntimeException(ex);
         }
@@ -211,7 +213,8 @@ public class DispositivoService {
         } catch (Exception ex) {
             try {
                 userTransaction.rollback();
-            } catch (Exception ex0) {}
+            } catch (Exception ex0) {
+            }
 
             LOGGER.log(Level.SEVERE, "Falha ao registrar o login do membro", ex);
         }
@@ -231,7 +234,8 @@ public class DispositivoService {
         } catch (Exception ex) {
             try {
                 userTransaction.rollback();
-            } catch (Exception ex0) {}
+            } catch (Exception ex0) {
+            }
 
             LOGGER.log(Level.SEVERE, "Falha ao registrar o logout do membro", ex);
         }

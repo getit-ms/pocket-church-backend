@@ -6,11 +6,6 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +13,12 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -34,7 +33,7 @@ public class Administrador implements IEntity {
     @Length(max = 150)
     @Column(name = "login", nullable = false, length = 150)
     private String login;
-    
+
     @Setter
     @NotEmpty
     @Length(max = 250)
@@ -45,6 +44,6 @@ public class Administrador implements IEntity {
     public String getId() {
         return login;
     }
-    
-    
+
+
 }

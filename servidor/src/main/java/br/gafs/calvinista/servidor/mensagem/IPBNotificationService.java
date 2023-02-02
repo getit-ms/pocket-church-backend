@@ -1,8 +1,8 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.servidor.mensagem;
 
 import br.gafs.calvinista.dto.MensagemPushDTO;
@@ -27,7 +27,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -55,12 +54,12 @@ public class IPBNotificationService implements Serializable {
     }
 
     private boolean doSendNotification(PushIPBDTO notification, String chave) {
-        try{
+        try {
             HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://localhost:8080/ipb/app/notificacao/push").openConnection();
 
             urlConnection.setRequestMethod("POST");
             urlConnection.addRequestProperty("Content-Type", "application/json");
-            urlConnection.addRequestProperty("Authorization", "App "+chave);
+            urlConnection.addRequestProperty("Authorization", "App " + chave);
             urlConnection.setDoOutput(true);
 
             urlConnection.connect();
@@ -79,7 +78,7 @@ public class IPBNotificationService implements Serializable {
             urlConnection.disconnect();
 
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao enviar push para " + notification.getTo(), e);
             return false;
         }

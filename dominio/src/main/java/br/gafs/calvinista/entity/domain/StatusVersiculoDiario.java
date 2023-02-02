@@ -6,7 +6,6 @@
 package br.gafs.calvinista.entity.domain;
 
 /**
- *
  * @author Gabriel
  */
 public enum StatusVersiculoDiario {

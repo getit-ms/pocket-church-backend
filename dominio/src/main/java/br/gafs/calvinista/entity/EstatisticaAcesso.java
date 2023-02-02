@@ -1,10 +1,8 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

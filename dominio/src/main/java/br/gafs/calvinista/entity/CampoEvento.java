@@ -24,7 +24,7 @@ import java.util.Map;
 @ToString(of = "id")
 @EqualsAndHashCode(of = "id")
 @Table(name = "tb_campo_evento")
-public class CampoEvento implements IEntity {
+public class CampoEvento implements IEntity, Comparable<CampoEvento> {
 
     @Id
     @Column(name = "id_campo_evento")
@@ -74,4 +74,19 @@ public class CampoEvento implements IEntity {
             joinColumns = @JoinColumn(name = "id_campo_evento", referencedColumnName = "id_campo_evento")
     )
     private Map<TipoValidacaoCampo, String> validacao = new HashMap<>();
+
+    @Override
+    public int compareTo(CampoEvento o) {
+        if (getId() == null) {
+            if (o.getId() == null) {
+                return 0;
+            }
+
+            return -1;
+        } else if (o.getId() == null) {
+            return 1;
+        }
+
+        return getId().compareTo(o.getId());
+    }
 }

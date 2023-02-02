@@ -14,13 +14,13 @@ import br.gafs.dao.QueryUtil;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.query.Queries;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -46,22 +46,27 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
             throw new ServiceException("mensagens.MSG-403");
         }
 
-        if (filtro.getTipo() != null){
+        if (filtro.getTipo() != null) {
             where.append(" and e.tipo = #tipo");
             argsCount.put("tipo", filtro.getTipo().ordinal());
         }
-        
-        if (admin){
-            if (filtro.getDataInicio() != null){
+
+        if (!StringUtil.isEmpty(filtro.getFiltro())) {
+            where.append(" and lower(e.nome) like :filtro");
+            args.put("filtro", "%" + filtro.getFiltro().toLowerCase() + "%");
+        }
+
+        if (admin) {
+            if (filtro.getDataInicio() != null) {
                 where.append(" and e.data_hora_inicio >= #dataHoraInicio");
                 argsCount.put("dataHoraInicio", filtro.getDataInicio());
             }
 
-            if (filtro.getDataTermino()!= null){
+            if (filtro.getDataTermino() != null) {
                 where.append(" and e.data_hora_termino >= #dataHoraTermino");
                 argsCount.put("dataHoraTermino", filtro.getDataTermino());
             }
-        }else{
+        } else {
             where.append(" and e.data_hora_termino >= #dataHoraTermino");
             argsCount.put("dataHoraTermino", DateUtil.getDataAtual());
         }
@@ -71,11 +76,18 @@ public class FiltroEvento implements Queries.PaginatedNativeQuery {
         StringBuilder select = new StringBuilder("select e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_fim_inscricao, e.limite_inscricoes, count(ie.id_inscricao) ");
         String groupBy = " group by e.id_evento, e.nome, e.data_hora_inicio, e.data_hora_termino, e.data_inicio_inscricao, e.data_fim_inscricao, e.limite_inscricoes";
 
+        String orderBy;
+        if (admin) {
+            orderBy = " order by e.data_hora_inicio desc, e.nome";
+        } else {
+            orderBy = " order by e.data_hora_inicio, e.nome";
+        }
+
         setArguments(args);
         setPage(filtro.getPagina());
-        setQuery(select.append(from).append(where).append(groupBy).append(" order by e.data_hora_inicio desc, e.nome").toString());
+        setQuery(select.append(from).append(where).append(groupBy).append(orderBy).toString());
         setCountQuery(QueryUtil.create(Queries.SingleNativeQuery.class, new StringBuilder("select count(*) ").append(fromCount).append(where).toString(), argsCount));
         setResultLimit(filtro.getTotal());
     }
-    
+
 }

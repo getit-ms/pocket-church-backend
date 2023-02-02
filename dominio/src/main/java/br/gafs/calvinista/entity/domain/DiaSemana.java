@@ -5,14 +5,14 @@
  */
 package br.gafs.calvinista.entity.domain;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 /**
- *
  * @author Gabriel
  */
 @RequiredArgsConstructor
@@ -24,50 +24,50 @@ public enum DiaSemana {
     QUINTA(Calendar.THURSDAY, 16),
     SEXTA(Calendar.FRIDAY, 32),
     SABADO(Calendar.SATURDAY, 64);
-    
+
     private static final int MASK = 127;
-    
+
     private final int dia;
     @Getter
     private final Integer value;
-    
-    public int dia(){
+
+    public int dia() {
         return dia;
     }
-    
-    public static DiaSemana get(int cal){
-        for (DiaSemana ds : values()){
-            if (ds.dia() == cal){
+
+    public static DiaSemana get(int cal) {
+        for (DiaSemana ds : values()) {
+            if (ds.dia() == cal) {
                 return ds;
             }
         }
         return null;
     }
-    
-    public boolean is(int value){
+
+    public boolean is(int value) {
         return (value & this.value) != 0;
     }
-    
-    public int set(int into){
+
+    public int set(int into) {
         return into | value;
     }
-    
-    public int unset(int into){
+
+    public int unset(int into) {
         return (value ^ MASK) & into;
     }
-    
-    public static int valueOf(List<DiaSemana> diasSemana){
+
+    public static int valueOf(List<DiaSemana> diasSemana) {
         int value = 0;
-        for (DiaSemana dia : diasSemana){
+        for (DiaSemana dia : diasSemana) {
             value = dia.set(value);
         }
         return value;
     }
-    
-    public static List<DiaSemana> values(int value){
+
+    public static List<DiaSemana> values(int value) {
         List<DiaSemana> dias = new ArrayList<DiaSemana>();
-        for (DiaSemana dia : values()){
-            if (dia.is(value)){
+        for (DiaSemana dia : values()) {
+            if (dia.is(value)) {
                 dias.add(dia);
             }
         }

@@ -42,23 +42,23 @@ public final class Persister {
         MAPPER.setTimeZone(TimeZone.getDefault());
     }
 
-    public static File file(Class<?> type, Serializable id){
+    public static File file(Class<?> type, Serializable id) {
         return new File(new File(dir, type.getSimpleName()), id.toString());
     }
 
     public static void save(Object entity, String id) throws IOException {
         File file = file(entity.getClass(), id);
 
-        if (!file.getParentFile().exists()){
+        if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
 
         MAPPER.writeValue(new FileOutputStream(file), new Storage(entity));
     }
 
-    public static void remove(Class<?> type, String id){
+    public static void remove(Class<?> type, String id) {
         File processamento = file(type, id);
-        if (processamento.exists()){
+        if (processamento.exists()) {
             processamento.delete();
         }
     }
@@ -68,7 +68,7 @@ public final class Persister {
     }
 
     public static <T> List<T> load(final Class<T> type) throws IOException, ClassNotFoundException {
-        Set<File> files = new TreeSet<File>(new Comparator<File>(){
+        Set<File> files = new TreeSet<File>(new Comparator<File>() {
             @Override
             public int compare(File o1, File o2) {
                 return (int) (o1.lastModified() - o2.lastModified());
@@ -77,13 +77,13 @@ public final class Persister {
 
         File typeDir = new File(dir, type.getSimpleName());
 
-        if (typeDir.exists()){
+        if (typeDir.exists()) {
             files.addAll(Arrays.asList(typeDir.listFiles()));
         }
 
         List<T> entities = new ArrayList<T>();
 
-        for (File file : files){
+        for (File file : files) {
             Storage storage = MAPPER.readValue(file, Storage.class);
             entities.add((T) storage.get());
         }

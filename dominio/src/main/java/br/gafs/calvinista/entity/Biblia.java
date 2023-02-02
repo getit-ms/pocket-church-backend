@@ -6,19 +6,13 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.persistence.*;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -32,7 +26,7 @@ public class Biblia implements IEntity {
     @SequenceGenerator(name = "seq_biblia", sequenceName = "seq_biblia")
     @GeneratedValue(generator = "seq_biblia", strategy = GenerationType.SEQUENCE)
     private Long id;
-    
+
     @Column(name = "descricao", length = 150)
     private String descricao;
 }

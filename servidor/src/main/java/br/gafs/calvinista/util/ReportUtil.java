@@ -21,19 +21,19 @@ public class ReportUtil {
     private final Map<String, Object> args = new HashMap<String, Object>();
     private JRDataSource ds;
 
-    private ReportUtil(String path){
+    private ReportUtil(String path) {
         this.path = path;
     }
 
-    public static ReportUtil basic(String path){
+    public static ReportUtil basic(String path) {
         return new ReportUtil(path);
     }
 
     public static ReportUtil igreja(String path,
                                     final String titulo,
                                     final Igreja igreja,
-                                    final Template template){
-        return new ReportUtil(path){
+                                    final Template template) {
+        return new ReportUtil(path) {
             @Override
             public ExporterImpl build() {
                 return basic("report/relatorio_igreja.jasper")
@@ -47,30 +47,30 @@ public class ReportUtil {
         };
     }
 
-    public ReportUtil arg(String key, Object value){
+    public ReportUtil arg(String key, Object value) {
         this.args.put(key, value);
         return this;
     }
 
-    public ReportUtil args(Map<String, Object> args){
+    public ReportUtil args(Map<String, Object> args) {
         this.args.putAll(args);
         return this;
     }
 
-    public ReportUtil dataSource(JRDataSource ds){
+    public ReportUtil dataSource(JRDataSource ds) {
         this.ds = ds;
         return this;
     }
 
-    public ReportUtil collection(Collection<?> col){
+    public ReportUtil collection(Collection<?> col) {
         return dataSource(new JRBeanCollectionDataSource(col));
     }
 
-    public ReportUtil bean(Object obj){
+    public ReportUtil bean(Object obj) {
         return collection(Arrays.asList(new Object[]{obj}));
     }
 
-    public ExporterImpl build(){
+    public ExporterImpl build() {
         try {
             return new ExporterImpl(JasperFillManager.fillReport(ReportUtil.
                     class.getClassLoader().getResourceAsStream(path), args, ds));
@@ -81,15 +81,15 @@ public class ReportUtil {
         }
     }
 
-    public String getReportPath(){
+    public String getReportPath() {
         return path;
     }
 
-    public Map<String, Object> getArguments(){
+    public Map<String, Object> getArguments() {
         return args;
     }
 
-    public JRDataSource getDataSource(){
+    public JRDataSource getDataSource() {
         return ds;
     }
 
@@ -100,7 +100,7 @@ public class ReportUtil {
     public class ExporterImpl implements Reporter {
         private JasperPrint print;
 
-        public ExporterImpl(JasperPrint print){
+        public ExporterImpl(JasperPrint print) {
             this.print = print;
         }
 
@@ -123,8 +123,8 @@ public class ReportUtil {
         }
 
         public void export(String tipo, OutputStream os) throws JRException {
-            if (tipo.matches("pdf|docx|xls")){
-                switch (tipo){
+            if (tipo.matches("pdf|docx|xls")) {
+                switch (tipo) {
                     case "pdf":
                         pdf(os);
                     case "docx":

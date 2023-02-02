@@ -5,13 +5,13 @@
  */
 package br.gafs.calvinista.entity;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
- *
  * @author Gabriel
  */
 @Data
@@ -21,8 +21,8 @@ public class RespostaVotacaoId implements Serializable {
     private Long id;
     private Long idVotacao;
     private String chaveIgreja;
-    
-    public RespostaVotacaoId(Long id, RegistroIgrejaId votacao){
+
+    public RespostaVotacaoId(Long id, RegistroIgrejaId votacao) {
         this(id, votacao.getId(), votacao.getChaveIgreja());
     }
 }

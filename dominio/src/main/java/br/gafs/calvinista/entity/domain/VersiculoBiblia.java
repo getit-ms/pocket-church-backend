@@ -6,22 +6,13 @@
 package br.gafs.calvinista.entity.domain;
 
 import br.gafs.bean.IEntity;
-import br.gafs.calvinista.entity.LivroBiblia;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.persistence.*;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -35,13 +26,13 @@ public class VersiculoBiblia implements IEntity {
     @GeneratedValue(generator = "seq_versiculo_biblia", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "seq_versiculo_biblia", sequenceName = "seq_versiculo_biblia")
     private Long id;
-    
+
     @Column(name = "capitulo")
     private Integer capitulo;
-    
+
     @Column(name = "versiculo")
     private Integer versiculo;
-    
+
     @Column(name = "texto", length = 150)
     private String texto;
 }

@@ -14,18 +14,17 @@ import br.gafs.util.date.DateUtil;
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
-public class FiltroNoticia extends AbstractPaginatedFiltro<FiltroNoticiaDTO>{
+public class FiltroNoticia extends AbstractPaginatedFiltro<FiltroNoticiaDTO> {
 
     public FiltroNoticia(String igreja, boolean admin, FiltroNoticiaDTO filtro) {
         super(filtro);
-        
+
         StringBuilder query = new StringBuilder("from Noticia n where n.igreja.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
-        
-        if (!admin){
+
+        if (!admin) {
             query.append(" and n.dataPublicacao <= :dataCorte");
             args.put("dataCorte", DateUtil.getDataAtual());
         }
@@ -33,9 +32,9 @@ public class FiltroNoticia extends AbstractPaginatedFiltro<FiltroNoticiaDTO>{
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select n ").append(query).append(" order by n.dataPublicacao desc, n.titulo").toString());
-        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
+        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(n) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
     }
-    
+
 }

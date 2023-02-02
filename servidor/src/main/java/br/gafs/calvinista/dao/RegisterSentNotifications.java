@@ -11,7 +11,6 @@ import br.gafs.query.Queries.NativeQuery;
 import java.util.List;
 
 /**
- *
  * @author Gabriel
  */
 public class RegisterSentNotifications extends AbstractQuery implements NativeQuery {
@@ -37,5 +36,5 @@ public class RegisterSentNotifications extends AbstractQuery implements NativeQu
         setQuery(new StringBuilder(" insert into tb_sent_notification(chave_dispositivo, id_membro, chave_igreja, id_notificacao_schedule, lido) select d.chave, d.id_membro, d.chave_igreja, ").
                 append(notification).append(", false ").append(from).append(where).append(" group by d.chave, d.id_membro, d.chave_igreja").toString());
     }
-    
+
 }

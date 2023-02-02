@@ -1,6 +1,6 @@
 package br.gafs.calvinista.servidor;
 
-import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.entity.Estudo;
 import br.gafs.calvinista.entity.Hino;
 import br.gafs.calvinista.entity.Igreja;
@@ -14,7 +14,6 @@ import br.gafs.calvinista.service.AppService;
 import br.gafs.calvinista.service.RelatorioService;
 import br.gafs.calvinista.servidor.processamento.ProcessamentoRelatorioCache;
 import br.gafs.calvinista.servidor.relatorio.*;
-import br.gafs.dao.DAOService;
 import br.gafs.logger.ServiceLoggerInterceptor;
 
 import javax.ejb.EJB;
@@ -33,8 +32,6 @@ import java.io.IOException;
 @Interceptors({ServiceLoggerInterceptor.class, AuditoriaInterceptor.class, SecurityInterceptor.class})
 public class RelatorioServiceImpl implements RelatorioService {
 
-    private static final long LIMITE_CACHE = ResourceBundleUtil._default().getPropriedadesAsLong("LIMITE_TIMEOUT_CACHE_REPORT");
-
     @EJB
     private ProcessamentoService processamentoService;
 
@@ -42,19 +39,15 @@ public class RelatorioServiceImpl implements RelatorioService {
     private AppService appService;
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Inject
     private SessaoBean sessaoBean;
 
     private File export(ProcessamentoRelatorioCache.Relatorio relatorio, String type) throws IOException, InterruptedException {
-        File file = ProcessamentoRelatorioCache.file(relatorio, type);
+        processamentoService.execute(new ProcessamentoRelatorioCache(relatorio, type));
 
-        if (!file.exists() || System.currentTimeMillis() - file.lastModified() > LIMITE_CACHE) {
-            processamentoService.execute(new ProcessamentoRelatorioCache(relatorio, type));
-        }
-
-        return file;
+        return ProcessamentoRelatorioCache.file(relatorio, type);
     }
 
     @Override

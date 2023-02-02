@@ -1,120 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
 <!-- 2017-02-02T05:23:30 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" resourceBundle="report-bundle" uuid="3c5720e8-10e2-420b-9096-933acc72c361">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
-	<property name="com.jaspersoft.studio.unit." value="pixel"/>
-	<style name="linha">
-		<conditionalStyle>
-			<conditionExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></conditionExpression>
-			<style mode="Opaque" backcolor="#969696"/>
-		</conditionalStyle>
-	</style>
-	<parameter name="EVENTO" class="java.lang.Object"/>
-	<queryString>
-		<![CDATA[]]>
-	</queryString>
-	<field name="nomeInscrito" class="java.lang.String"/>
-	<field name="emailInscrito" class="java.lang.String"/>
-	<field name="telefoneInscrito" class="java.lang.String"/>
-	<field name="data" class="java.util.Date"/>
-	<field name="confirmada" class="java.lang.Boolean"/>
-	<field name="pendente" class="java.lang.Boolean"/>
-	<background>
-		<band splitType="Stretch"/>
-	</background>
-	<columnHeader>
-		<band height="30">
-			<textField>
-				<reportElement x="0" y="0" width="70" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
-				<box padding="5">
-					<topPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$R{evento.inscricao.numero}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="70" y="0" width="300" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
-				<box padding="5">
-					<topPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$R{evento.inscricao.inscrito}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="370" y="0" width="100" height="30" uuid="bf9210f2-2ff2-46e7-99ea-84eb7e1db18e"/>
-				<box padding="5">
-					<topPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$R{evento.inscricao.data_hora}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="470" y="0" width="86" height="30" uuid="7e3f3c33-8c4d-465d-a2f9-1d28fd129281"/>
-				<box padding="5">
-					<topPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$R{evento.inscricao.situacao}]]></textFieldExpression>
-			</textField>
-		</band>
-	</columnHeader>
-	<detail>
-		<band height="50" splitType="Stretch">
-			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="50" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				</reportElement>
-				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font size="10"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="70" y="0" width="300" height="25" uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				</reportElement>
-				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
-				<textElement verticalAlignment="Bottom"/>
-				<textFieldExpression><![CDATA[$F{nomeInscrito}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="70" y="25" width="300" height="25" uuid="fa4b6218-d94e-42b1-b490-a0706800dc79">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				</reportElement>
-				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
-				<textElement verticalAlignment="Top">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{emailInscrito} + " - " + $F{telefoneInscrito}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="370" y="0" width="100" height="50" uuid="c4c71c40-ed2c-4ab8-9a0f-af01e33f0f79"/>
-				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{data}]]></textFieldExpression>
-				<patternExpression><![CDATA[$R{format.data_hora}]]></patternExpression>
-			</textField>
-			<textField>
-				<reportElement style="linha" stretchType="RelativeToBandHeight" x="470" y="0" width="86" height="50" uuid="9491a3e6-fdd5-40a7-a356-7c4783151398"/>
-				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{confirmada} ? $R{evento.inscricao.situacao.confirmada} : $R{evento.inscricao.situacao.pendente}]]></textFieldExpression>
-				<patternExpression><![CDATA[$R{format.data_hora}]]></patternExpression>
-			</textField>
-		</band>
-	</detail>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="relatorio_igreja" language="javascript" pageWidth="555" pageHeight="842" columnWidth="555"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" resourceBundle="report-bundle"
+              uuid="3c5720e8-10e2-420b-9096-933acc72c361">
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+    <property name="com.jaspersoft.studio.unit." value="pixel"/>
+    <style name="linha">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></conditionExpression>
+            <style mode="Opaque" backcolor="#969696"/>
+        </conditionalStyle>
+    </style>
+    <parameter name="EVENTO" class="java.lang.Object"/>
+    <queryString>
+        <![CDATA[]]>
+    </queryString>
+    <field name="nomeInscrito" class="java.lang.String"/>
+    <field name="emailInscrito" class="java.lang.String"/>
+    <field name="telefoneInscrito" class="java.lang.String"/>
+    <field name="data" class="java.util.Date"/>
+    <field name="confirmada" class="java.lang.Boolean"/>
+    <field name="pendente" class="java.lang.Boolean"/>
+    <field name="valoresAdicionaisString" class="java.lang.String"/>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <columnHeader>
+        <band height="30">
+            <textField>
+                <reportElement x="0" y="0" width="70" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
+                <box padding="5">
+                    <topPen lineWidth="1.0"/>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$R{evento.inscricao.numero}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="70" y="0" width="300" height="30" uuid="b18fd571-0a48-4ceb-94fc-fdaee5fe2148"/>
+                <box padding="5">
+                    <topPen lineWidth="1.0"/>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$R{evento.inscricao.inscrito}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="370" y="0" width="100" height="30" uuid="bf9210f2-2ff2-46e7-99ea-84eb7e1db18e"/>
+                <box padding="5">
+                    <topPen lineWidth="1.0"/>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$R{evento.inscricao.data_hora}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="470" y="0" width="86" height="30" uuid="7e3f3c33-8c4d-465d-a2f9-1d28fd129281"/>
+                <box padding="5">
+                    <topPen lineWidth="1.0"/>
+                    <bottomPen lineWidth="1.0"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$R{evento.inscricao.situacao}]]></textFieldExpression>
+            </textField>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="50" splitType="Stretch">
+            <textField>
+                <reportElement style="linha" stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="50"
+                               uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
+                    <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+                </reportElement>
+                <box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="linha" x="70" y="0" width="300" height="25"
+                               uuid="18fea2ca-8b7c-4a4d-ac64-ea7e40d32574">
+                    <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+                </reportElement>
+                <box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+                <textElement verticalAlignment="Bottom"/>
+                <textFieldExpression><![CDATA[$F{nomeInscrito}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true">
+                <reportElement style="linha" x="70" y="25" width="300" height="25"
+                               uuid="fa4b6218-d94e-42b1-b490-a0706800dc79">
+                    <property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+                </reportElement>
+                <box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+                <textElement verticalAlignment="Top">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression>
+                    <![CDATA[$F{emailInscrito} + " - " + $F{telefoneInscrito} + "\n" + $F{valoresAdicionaisString}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="linha" stretchType="RelativeToBandHeight" x="370" y="0" width="100" height="50"
+                               uuid="c4c71c40-ed2c-4ab8-9a0f-af01e33f0f79"/>
+                <box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{data}]]></textFieldExpression>
+                <patternExpression><![CDATA[$R{format.data_hora}]]></patternExpression>
+            </textField>
+            <textField>
+                <reportElement style="linha" stretchType="RelativeToBandHeight" x="470" y="0" width="86" height="50"
+                               uuid="9491a3e6-fdd5-40a7-a356-7c4783151398"/>
+                <box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression>
+                    <![CDATA[$F{confirmada} ? $R{evento.inscricao.situacao.confirmada} : $R{evento.inscricao.situacao.pendente}]]></textFieldExpression>
+                <patternExpression><![CDATA[$R{format.data_hora}]]></patternExpression>
+            </textField>
+        </band>
+    </detail>
 </jasperReport>

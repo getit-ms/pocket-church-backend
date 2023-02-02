@@ -10,20 +10,20 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
 import br.gafs.query.Queries;
+
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 public class FiltroFolga extends AbstractPaginatedFiltro<FiltroFolgaDTO> {
 
     public FiltroFolga(Igreja igreja, Long calendario, FiltroFolgaDTO filtro) {
         super(filtro);
-        
+
         StringBuilder query = new StringBuilder("from FolgaAtendimento fa inner join fa.calendario c inner join c.igreja i where c.id = :idCalendario and i.chave = :chaveIgreja");
         Map<String, Object> args = new QueryParameters("idCalendario", calendario).set("chaveIgreja", igreja.getChave());
-        
+
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select fa ").append(query).toString());
@@ -31,5 +31,5 @@ public class FiltroFolga extends AbstractPaginatedFiltro<FiltroFolgaDTO> {
                 append(query).toString(), args));
         setResultLimit(12);
     }
-    
+
 }

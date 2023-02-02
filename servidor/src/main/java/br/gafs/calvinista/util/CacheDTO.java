@@ -1,10 +1,7 @@
 package br.gafs.calvinista.util;
 
-import br.gafs.calvinista.dto.VideoDTO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 /**
  * Created by Gabriel on 23/07/2018.

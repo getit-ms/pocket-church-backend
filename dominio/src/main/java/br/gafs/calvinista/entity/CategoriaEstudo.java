@@ -25,7 +25,7 @@ import javax.persistence.*;
         @NamedQuery(name = "CategoriaEstudo.findUsadasByIgreja", query = "select ce from Estudo e inner join e.categoria ce where e.igreja.chave = :igreja group by ce order by ce.nome"),
         @NamedQuery(name = "CategoriaEstudo.findByIgrejaAndNome", query = "select ce from CategoriaEstudo ce where ce.igreja.chave = :igreja and lower(ce.nome) = :nome")
 })
-public class CategoriaEstudo implements IEntity  {
+public class CategoriaEstudo implements IEntity {
 
     @Id
     @JsonView(View.Resumido.class)

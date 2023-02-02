@@ -7,27 +7,23 @@ package br.gafs.calvinista.dao;
 
 import br.gafs.calvinista.dto.FiltroInscricaoDTO;
 import br.gafs.calvinista.dto.FiltroMinhasInscricoesDTO;
-import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Membro;
 import br.gafs.calvinista.entity.domain.StatusEvento;
 import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
-import br.gafs.calvinista.entity.domain.TipoEvento;
 import br.gafs.dao.QueryParameters;
 import br.gafs.dao.QueryUtil;
-import br.gafs.exceptions.ServiceException;
 import br.gafs.query.Queries;
+
 import java.util.Arrays;
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO> {
 
     public FiltroInscricao(Long evento, String igreja, Long membro, String dispositivo, FiltroInscricaoDTO filtro) {
         super(filtro);
-        
+
         StringBuilder query = new StringBuilder("from InscricaoEvento ie left join ie.membro m where ie.evento.igreja.chave = :chaveIgreja and ie.status in :status");
         Map<String, Object> args = new QueryParameters("chaveIgreja", igreja);
 
@@ -42,7 +38,7 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
 
         if (filtro.getStatus() != null) {
             args.put("status", filtro.getStatus());
-        } else if (filtro instanceof FiltroMinhasInscricoesDTO){
+        } else if (filtro instanceof FiltroMinhasInscricoesDTO) {
             if (membro != null) {
                 query.append(" and m.id = :membro");
                 args.put("membro", membro);
@@ -51,14 +47,14 @@ public class FiltroInscricao extends AbstractPaginatedFiltro<FiltroInscricaoDTO>
                 args.put("dispositivo", dispositivo);
             }
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE, StatusInscricaoEvento.CANCELADA));
-        }else{
+        } else {
             args.put("status", Arrays.asList(StatusInscricaoEvento.CONFIRMADA, StatusInscricaoEvento.PENDENTE));
         }
-        
+
         setArguments(args);
         setPage(filtro.getPagina());
         setQuery(new StringBuilder("select ie ").append(query).append(" order by lower(ie.nomeInscrito), ie.data").toString());
-        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class, 
+        setCountQuery(QueryUtil.create(Queries.SingleCustomQuery.class,
                 new StringBuilder("select count(ie) ").append(query).toString(), args));
         setResultLimit(filtro.getTotal());
     }

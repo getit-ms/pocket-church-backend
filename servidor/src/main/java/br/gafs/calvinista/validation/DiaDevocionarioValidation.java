@@ -5,9 +5,9 @@
  */
 package br.gafs.calvinista.validation;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.QueryAdmin;
 import br.gafs.calvinista.entity.DiaDevocionario;
-import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.exceptions.ServiceExceptionList;
 import br.gafs.validation.ValidadorNegocial;
@@ -17,15 +17,14 @@ import javax.ejb.EJB;
 import javax.inject.Named;
 
 /**
- *
  * @author Gabriel
  */
 @Named
 @ValidadorNegocial(DiaDevocionario.class)
 public class DiaDevocionarioValidation implements ValidadorServico<DiaDevocionario> {
-    
+
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Override
     public void valida(DiaDevocionario entidade) throws ServiceException, ServiceExceptionList {
@@ -36,5 +35,5 @@ public class DiaDevocionarioValidation implements ValidadorServico<DiaDevocionar
         }
     }
 
-    
+
 }

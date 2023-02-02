@@ -10,7 +10,6 @@ import lombok.*;
 import java.io.Serializable;
 
 /**
- *
  * @author Gabriel
  */
 @Data

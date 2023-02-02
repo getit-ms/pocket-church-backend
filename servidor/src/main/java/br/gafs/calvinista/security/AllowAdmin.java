@@ -6,13 +6,13 @@
 package br.gafs.calvinista.security;
 
 import br.gafs.calvinista.entity.domain.Funcionalidade;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
  * @author Gabriel
  */
 @Target(ElementType.METHOD)

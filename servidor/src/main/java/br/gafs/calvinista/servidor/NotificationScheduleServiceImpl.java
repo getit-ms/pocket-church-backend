@@ -1,5 +1,6 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dto.FiltroDispositivoNotificacaoDTO;
 import br.gafs.calvinista.dto.FiltroEmailDTO;
 import br.gafs.calvinista.dto.MensagemEmailDTO;
@@ -7,7 +8,6 @@ import br.gafs.calvinista.dto.MensagemPushDTO;
 import br.gafs.calvinista.entity.NotificationSchedule;
 import br.gafs.calvinista.entity.domain.NotificationType;
 import br.gafs.calvinista.view.View;
-import br.gafs.dao.DAOService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class NotificationScheduleServiceImpl {
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     private ObjectMapper om = new ObjectMapper();
 

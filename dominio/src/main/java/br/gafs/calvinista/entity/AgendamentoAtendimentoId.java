@@ -5,17 +5,13 @@
  */
 package br.gafs.calvinista.entity;
 
-import java.io.Serializable;
+import lombok.*;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.io.Serializable;
 
 /**
- *
  * @author Gabriel
  */
 @Data

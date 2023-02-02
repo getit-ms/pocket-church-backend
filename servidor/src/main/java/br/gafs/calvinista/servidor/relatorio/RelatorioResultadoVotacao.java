@@ -25,7 +25,7 @@ public class RelatorioResultadoVotacao implements ProcessamentoRelatorioCache.Re
     private Template template;
     private ResultadoVotacaoDTO resultado;
 
-    public RelatorioResultadoVotacao(ResultadoVotacaoDTO resultado, Template template){
+    public RelatorioResultadoVotacao(ResultadoVotacaoDTO resultado, Template template) {
         this.igreja = resultado.getIgreja();
         this.template = template;
         this.resultado = resultado;
@@ -50,8 +50,8 @@ public class RelatorioResultadoVotacao implements ProcessamentoRelatorioCache.Re
     public ReportUtil.ExporterImpl generate(final ProcessamentoService.ProcessamentoTool tool) {
         try {
             return ReportUtil.igreja(
-                    "report/resultado_votacao.jasper",
-                    resultado.getNome(), igreja, template)
+                            "report/resultado_votacao.jasper",
+                            resultado.getNome(), igreja, template)
                     .arg("REPORT_CHART", new File(RelatorioResultadoVotacao.class.getResource("/report/resultado_votacao_grafico.jasper").toURI()).getAbsoluteFile())
                     .arg("REPORT_LOCALE", new Locale(igreja.getLocale()))
                     .arg("REPORT_TIME_ZONE", TimeZone.getTimeZone(igreja.getTimezone()))

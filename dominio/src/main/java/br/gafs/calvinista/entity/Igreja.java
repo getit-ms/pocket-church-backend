@@ -7,11 +7,7 @@ import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Resumido;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -26,7 +22,6 @@ import java.util.List;
  */
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -37,10 +32,10 @@ import java.util.List;
 @Table(name = "tb_igreja")
 @EqualsAndHashCode(of = "chave")
 @NamedQueries({
-    @NamedQuery(name = "Igreja.findAtivas", query = "select i from Igreja i where i.status in :status"),
-    @NamedQuery(name = "Igreja.findFuncionalidadesInList", query = "select f from Igreja i inner join i.plano p inner join p.funcionalidades f where i.chave = :igreja and f in :list group by f"),
-    @NamedQuery(name = "Igreja.findFuncionalidadesAplicativoInList", query = "select f from Igreja i inner join i.funcionalidadesAplicativo f where i.chave = :igreja and f in :list group by f"),
-    @NamedQuery(name = "Igreja.findByEmailAcesso", query = "select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, i.nomeAplicativo, temp.logoPequena) from Template temp, Membro m inner join m.acesso a inner join m.igreja i where i = temp.igreja and i.status = :statusIgreja and m.status = :statusMembro and lower(m.email) = :email")
+        @NamedQuery(name = "Igreja.findAtivas", query = "select i from Igreja i where i.status in :status"),
+        @NamedQuery(name = "Igreja.findFuncionalidadesInList", query = "select f from Igreja i inner join i.plano p inner join p.funcionalidades f where i.chave = :igreja and f in :list group by f"),
+        @NamedQuery(name = "Igreja.findFuncionalidadesAplicativoInList", query = "select f from Igreja i inner join i.funcionalidadesAplicativo f where i.chave = :igreja and f in :list group by f"),
+        @NamedQuery(name = "Igreja.findByEmailAcesso", query = "select new br.gafs.calvinista.dto.ResumoIgrejaDTO(i.chave, i.nome, i.nomeAplicativo, temp.logoPequena) from Template temp, Membro m inner join m.acesso a inner join m.igreja i where i = temp.igreja and i.status = :statusIgreja and m.status = :statusMembro and lower(m.email) = :email")
 })
 public class Igreja implements IEntity {
     @Id
@@ -48,7 +43,7 @@ public class Igreja implements IEntity {
     @JsonView(Resumido.class)
     @Column(name = "chave_igreja")
     private String chave;
-    
+
     @Setter
     @NotEmpty
     @Length(max = 150)
@@ -59,7 +54,7 @@ public class Igreja implements IEntity {
     @Setter
     @NotEmpty
     @Length(max = 30)
-    @JsonView(View.Resumido.class)
+    @JsonView(Resumido.class)
     @Column(name = "nome_aplicativo", length = 30, nullable = false)
     private String nomeAplicativo;
 
@@ -69,13 +64,13 @@ public class Igreja implements IEntity {
     @JsonView(View.Detalhado.class)
     @Column(name = "status", nullable = false)
     private StatusIgreja status = StatusIgreja.ATIVO;
-    
+
     @Setter
     @ManyToOne
     @JsonView(View.Detalhado.class)
     @JoinColumn(name = "id_plano", nullable = false)
     private Plano plano;
-    
+
     @Column(name = "locale")
     @JsonView(View.Detalhado.class)
     private String locale;
@@ -89,11 +84,11 @@ public class Igreja implements IEntity {
     @JsonIgnore
     @Column(name = "agrupamento")
     private String agrupamento;
-    
+
     @ManyToOne
     @JoinColumn(name = "id_biblia")
     private Biblia biblia;
-    
+
     @Setter
     @ElementCollection
     @Enumerated(EnumType.STRING)
@@ -102,7 +97,7 @@ public class Igreja implements IEntity {
     @CollectionTable(name = "rl_igreja_funcionalidade_aplicativo",
             joinColumns = @JoinColumn(name = "chave_igreja"))
     private List<Funcionalidade> funcionalidadesAplicativo = new ArrayList<Funcionalidade>();
-    
+
     @Transient
     @JsonView(View.Detalhado.class)
     private Membro primeiroMembro;
@@ -116,39 +111,39 @@ public class Igreja implements IEntity {
     public Igreja(String chave) {
         this.chave = chave;
     }
-    
-    public void ativa(){
+
+    public void ativa() {
         status = StatusIgreja.ATIVO;
     }
-    
-    public void inativa(){
+
+    public void inativa() {
         status = StatusIgreja.INATIVO;
     }
-    
-    public void bloqueia(){
+
+    public void bloqueia() {
         status = StatusIgreja.BLOQUEADO;
     }
-    
+
     @JsonView(View.Detalhado.class)
-    public boolean isAtiva(){
+    public boolean isAtiva() {
         return StatusIgreja.ATIVO.equals(status);
     }
-    
+
     @JsonView(View.Detalhado.class)
-    public boolean isBloqueada(){
+    public boolean isBloqueada() {
         return StatusIgreja.BLOQUEADO.equals(status);
     }
-    
+
     @JsonView(View.Detalhado.class)
-    public boolean isInativa(){
+    public boolean isInativa() {
         return StatusIgreja.INATIVO.equals(status);
     }
 
     public boolean possuiPermissao(Funcionalidade func) {
-        if (func.isMembro()){
+        if (func.isMembro()) {
             return funcionalidadesAplicativo.contains(func);
         }
-        
+
         return plano.getFuncionalidades().contains(func);
     }
 }

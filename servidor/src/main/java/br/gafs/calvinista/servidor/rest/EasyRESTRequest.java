@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -72,7 +72,7 @@ public class EasyRESTRequest {
     }
 
     protected <T> EasyRESTREsponse<T> connect(String method, Object payload, Class<T> responseType) {
-        try{
+        try {
             HttpURLConnection urlConnection = (HttpURLConnection) new URL(
                     client.getBasePath() + "/" + getPath() + getQueryParams()).openConnection();
 
@@ -105,7 +105,7 @@ public class EasyRESTRequest {
             } finally {
                 urlConnection.disconnect();
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Erro ao fazer a requisição " + method + " " + getPath(), e);
         }
     }

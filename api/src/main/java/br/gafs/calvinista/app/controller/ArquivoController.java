@@ -108,7 +108,7 @@ public class ArquivoController {
             File file = EntityFileManager.get(arquivo, "dados");
 
             return Response.ok()
-                    .status(Response.Status.PARTIAL_CONTENT)
+                    .status(Status.PARTIAL_CONTENT)
                     .header(HttpHeaders.CONTENT_LENGTH, file.length())
                     .header("Cache-Control", "public, max-age=3600000, post-check=3600000, pre-check=3600000")
                     .header("Last-Modified", "Sun, 06 Nov 2005 15:32:08 GMT")
@@ -143,10 +143,10 @@ public class ArquivoController {
 
             if (validRangeHeader) {
                 String[] fromTo = range.split("=")[1].split("-");
-                from = Integer.parseInt( fromTo[0] );
+                from = Integer.parseInt(fromTo[0]);
 
                 if (fromTo.length > 1) {
-                    to = Math.min(Integer.parseInt( fromTo[1] ), file.length() - 1);
+                    to = Math.min(Integer.parseInt(fromTo[1]), file.length() - 1);
                 } else {
                     to = Math.min((from + chunkSize), file.length()) - 1;
                 }

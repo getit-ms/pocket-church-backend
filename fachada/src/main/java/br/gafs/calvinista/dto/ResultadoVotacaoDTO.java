@@ -6,22 +6,17 @@
 package br.gafs.calvinista.dto;
 
 import br.gafs.calvinista.entity.Igreja;
-import br.gafs.calvinista.entity.Opcao;
 import br.gafs.calvinista.entity.Questao;
 import br.gafs.calvinista.entity.Votacao;
 import br.gafs.dto.DTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -40,8 +35,8 @@ public class ResultadoVotacaoDTO implements DTO {
         this.nome = votacao.getNome();
         this.descricao = votacao.getDescricao();
     }
-    
-    public ResultadoQuestaoDTO init(Questao questao){
+
+    public ResultadoQuestaoDTO init(Questao questao) {
         ResultadoQuestaoDTO dto = new ResultadoQuestaoDTO(questao);
         questoes.add(dto);
         return dto;

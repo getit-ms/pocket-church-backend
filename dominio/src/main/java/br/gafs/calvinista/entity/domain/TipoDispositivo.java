@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -22,12 +21,12 @@ public enum TipoDispositivo {
     IPB("IPB"),
     ANDROID_FIREBASE("AF"),
     IPHONE_FIREBASE("IF");
-    
+
     private final String codigo;
-    
-    public static TipoDispositivo get(String codigo){
-        for (TipoDispositivo tipo : values()){
-            if (tipo.getCodigo().equals(codigo)){
+
+    public static TipoDispositivo get(String codigo) {
+        for (TipoDispositivo tipo : values()) {
+            if (tipo.getCodigo().equals(codigo)) {
                 return tipo;
             }
         }

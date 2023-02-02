@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
  * @author Gabriel
  */
 @Data
@@ -36,7 +35,7 @@ public class Notificacao implements IEntity {
     @SequenceGenerator(sequenceName = "seq_notificacao", name = "seq_notificacao")
     @GeneratedValue(generator = "seq_notificacao", strategy = GenerationType.SEQUENCE)
     private Long id;
-    
+
     @NotEmpty
     @Length(max = 30)
     @Column(name = "titulo", length = 30, nullable = false, updatable = false)
@@ -49,29 +48,29 @@ public class Notificacao implements IEntity {
 
     @Column(name = "apenas_membros", nullable = false, updatable = false)
     private boolean apenasMembros;
-    
+
     @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data", nullable = false, updatable = false)
     private Date data = new Date();
-    
+
     @ManyToMany
     @JoinTable(name = "rl_notificacao_ministerio_alvo",
             joinColumns = {
-                @JoinColumn(name = "id_notificacao", referencedColumnName = "id_notificacao"),
-                @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
+                    @JoinColumn(name = "id_notificacao", referencedColumnName = "id_notificacao"),
+                    @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
             },
             inverseJoinColumns = {
-                @JoinColumn(name = "id_ministerio", referencedColumnName = "id_ministerio"),
-                @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+                    @JoinColumn(name = "id_ministerio", referencedColumnName = "id_ministerio"),
+                    @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
             })
     private List<Ministerio> ministeriosAlvo = new ArrayList<Ministerio>();
-    
+
     @Id
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
-    
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "chave_igreja", nullable = false)
@@ -80,13 +79,13 @@ public class Notificacao implements IEntity {
     public Notificacao(Igreja igreja) {
         this.igreja = igreja;
     }
-    
-    public void addAlvo(Ministerio grupo){
+
+    public void addAlvo(Ministerio grupo) {
         ministeriosAlvo.add(grupo);
     }
-    
-    public void addAlvos(List<Ministerio> grupos){
+
+    public void addAlvos(List<Ministerio> grupos) {
         ministeriosAlvo.addAll(grupos);
     }
-    
+
 }

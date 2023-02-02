@@ -6,11 +6,11 @@
 package br.gafs.calvinista.entity.domain;
 
 import br.gafs.util.date.DateUtil;
-import java.util.Date;
 import lombok.Getter;
 
+import java.util.Date;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -18,11 +18,11 @@ public enum HorasEnvioNotificacao {
     _08_00("08:00"),
     _14_00("14:00"),
     _20_00("20:00");
-    
+
     private final Date hora;
     private final Integer horaInt;
-    
-    public Integer getHoraInt(){
+
+    public Integer getHoraInt() {
         return horaInt;
     }
 
@@ -30,5 +30,5 @@ public enum HorasEnvioNotificacao {
         this.hora = DateUtil.parseData(hora, "HH:mm");
         this.horaInt = Integer.parseInt(DateUtil.formataData(this.hora, "HH"));
     }
-    
+
 }

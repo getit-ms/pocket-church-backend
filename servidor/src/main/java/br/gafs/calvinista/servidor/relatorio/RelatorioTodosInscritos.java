@@ -33,7 +33,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
     private Igreja igreja;
     private TipoEvento tipo;
 
-    public RelatorioTodosInscritos(Igreja igreja, TipoEvento tipo){
+    public RelatorioTodosInscritos(Igreja igreja, TipoEvento tipo) {
         this.igreja = igreja;
         this.tipo = tipo;
     }
@@ -63,7 +63,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
             }
         });
 
-        return new ReportUtil.Reporter(){
+        return new ReportUtil.Reporter() {
 
             @Override
             public void export(String tipo, OutputStream os) {
@@ -79,7 +79,7 @@ public class RelatorioTodosInscritos implements ProcessamentoRelatorioCache.Rela
 
                     workbook.write();
                     workbook.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

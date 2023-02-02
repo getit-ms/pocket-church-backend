@@ -1,9 +1,9 @@
 package br.gafs.calvinista.servidor.mensagem;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.entity.TokenFirebase;
 import br.gafs.calvinista.entity.domain.TipoParametro;
 import br.gafs.calvinista.service.ParametroService;
-import br.gafs.dao.DAOService;
 import br.gafs.util.string.StringUtil;
 import lombok.Getter;
 
@@ -11,17 +11,13 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Singleton
 public class FirebaseTokenProvider {
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @EJB
     private ParametroService parametroService;

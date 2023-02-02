@@ -32,11 +32,11 @@ public class Chamado implements IEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_solicitacao", nullable = false)
     private Date dataSolicitacao = new Date();
-    
+
     @Setter
     @Column(name = "nome_solicitante", nullable = false)
     private String nomeSolicitante;
-    
+
     @Setter
     @Column(name = "email_solicitante", nullable = false)
     private String emailSolicitante;
@@ -48,8 +48,8 @@ public class Chamado implements IEntity {
 
     @ManyToOne
     @JoinColumns({
-        @JoinColumn(name = "id_membro_solicitante", referencedColumnName = "id_membro"),
-        @JoinColumn(name = "chave_igreja_solicitante", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+            @JoinColumn(name = "id_membro_solicitante", referencedColumnName = "id_membro"),
+            @JoinColumn(name = "chave_igreja_solicitante", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Membro membroSolicitante;
 
@@ -75,32 +75,32 @@ public class Chamado implements IEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataConclusao;
 
-    public void aceita(){
+    public void aceita() {
         status = StatusChamado.ACEITO;
         dataResposta = new Date();
     }
 
-    public void conclui(){
+    public void conclui() {
         status = StatusChamado.CONCLUIDO;
         dataConclusao = new Date();
     }
 
-    public void rejeita(){
+    public void rejeita() {
         status = StatusChamado.REJEITADO;
         dataResposta = new Date();
         dataConclusao = new Date();
     }
 
-    public boolean isSuporte(){
+    public boolean isSuporte() {
         return TipoChamado.SUPORTE.equals(tipo);
     }
-    
-    public String getCodigo(){
-        return Long.toString(id, 36).toUpperCase() + 
+
+    public String getCodigo() {
+        return Long.toString(id, 36).toUpperCase() +
                 DateUtil.formataData(dataSolicitacao, "/MMYY");
     }
 
-    public boolean isConcluido(){
+    public boolean isConcluido() {
         return dataConclusao != null;
     }
 
@@ -108,7 +108,7 @@ public class Chamado implements IEntity {
         this.dispositivoSolicitante = dispositivoSolicitante;
         this.igrejaSolicitante = dispositivoSolicitante.getIgreja();
         this.membroSolicitante = dispositivoSolicitante.getMembro();
-        if (this.membroSolicitante != null){
+        if (this.membroSolicitante != null) {
             this.nomeSolicitante = membroSolicitante.getNome();
             this.emailSolicitante = membroSolicitante.getEmail();
         }

@@ -59,14 +59,14 @@ public class FotoController {
     public Response buscaURL() throws IOException {
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("url", appService.buscaURLAutenticacaoFlickr());
-        return Response.status(Response.Status.OK).entity(args).build();
+        return Response.status(Status.OK).entity(args).build();
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     public Response desativa() throws IOException{
         appService.desvinculaFlickr();
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Status.OK).build();
     }
 
     @GET
@@ -76,14 +76,14 @@ public class FotoController {
                                          @PathParam("igreja") String igreja) throws IOException{
         response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default()
                 .getPropriedade("USER_FLICKR_REDIRECT_URL"), igreja, token, verifier));
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Status.OK).build();
     }
 
     @GET
     @Path("configuracao")
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaConfiguracao(){
-        return Response.status(Response.Status.OK).entity(appService.buscaConfiguracaoFlickr()).build();
+        return Response.status(Status.OK).entity(appService.buscaConfiguracaoFlickr()).build();
     }
 
     @PUT
@@ -91,7 +91,7 @@ public class FotoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response iniciaConfiguracao(Map<String, String> body){
         appService.iniciaConfiguracaoFlickr(body.get("token"), body.get("verifier"));
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Status.OK).build();
     }
 
 }

@@ -5,24 +5,24 @@
  */
 package br.gafs.calvinista.entity;
 
-import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
- *
  * @author Gabriel
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InscricaoEventoId implements Serializable{
+public class InscricaoEventoId implements Serializable {
     private Long id;
     private Long idEvento;
     private String chaveIgreja;
-    
-    public InscricaoEventoId(Long id, RegistroIgrejaId evento){
+
+    public InscricaoEventoId(Long id, RegistroIgrejaId evento) {
         this(id, evento.getId(), evento.getChaveIgreja());
     }
 }

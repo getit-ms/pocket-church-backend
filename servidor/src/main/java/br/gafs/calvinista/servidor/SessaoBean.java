@@ -1,17 +1,16 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.dao.QueryAcesso;
-import br.gafs.calvinista.entity.Dispositivo;
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.TipoDispositivo;
 import br.gafs.calvinista.sessao.SessionDataManager;
 import br.gafs.calvinista.util.JWTManager;
-import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 import br.gafs.util.date.DateUtil;
 import br.gafs.util.string.StringUtil;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- *
  * @author Gabriel
  */
 @Named
@@ -45,7 +43,7 @@ public class SessaoBean implements Serializable {
     private IgrejaService igrejaService;
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Inject
     private SessionDataManager manager;
@@ -59,14 +57,14 @@ public class SessaoBean implements Serializable {
 
     private boolean loaded;
 
-    public void load(){
-        if (!loaded){
+    public void load() {
+        if (!loaded) {
             loaded = true;
 
             Number creation = null;
             String authorization = get("Authorization");
-            if (!StringUtil.isEmpty(authorization)){
-                try{
+            if (!StringUtil.isEmpty(authorization)) {
+                try {
                     JWTManager.JWTReader reader = jwtManager.reader(authorization);
                     chaveIgreja = (String) reader.get("igreja");
                     chaveDispositivo = (String) reader.get("dispositivo");
@@ -75,7 +73,7 @@ public class SessaoBean implements Serializable {
                     idUsuario = toLong("usuario");
                     funcionalidades = (List<Integer>) reader.get("funcionalidades");
                     creation = (Number) reader.get("creation");
-                }catch(Exception e){
+                } catch (Exception e) {
                     throw new ServiceException("mensagens.MSG-403", e);
                 }
             } else {
@@ -125,36 +123,36 @@ public class SessaoBean implements Serializable {
     }
 
 
-    private static Long toLong(Object value){
-        if (value instanceof Number){
+    private static Long toLong(Object value) {
+        if (value instanceof Number) {
             return ((Number) value).longValue();
         }
 
         return null;
     }
 
-    public void refreshFuncionalidades(){
+    public void refreshFuncionalidades() {
         funcionalidades = new ArrayList<Integer>();
-        if (idMembro != null){
+        if (idMembro != null) {
             List<Funcionalidade> funcs;
-            if (admin){
+            if (admin) {
                 funcs = daoService.
                         findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO_ADMIN.create(idMembro, chaveIgreja));
-            }else{
+            } else {
                 funcs = daoService.
                         findWith(QueryAcesso.FUNCIONALIDADES_MEMBRO_APP.create(idMembro, chaveIgreja));
             }
 
-            for (Funcionalidade funcionalidade : funcs){
+            for (Funcionalidade funcionalidade : funcs) {
                 funcionalidades.add(funcionalidade.getCodigo());
             }
         }
     }
 
-    private void set(){
+    private void set() {
         load();
 
-        if (idUsuario != null || idMembro != null){
+        if (idUsuario != null || idMembro != null) {
             manager.header("Set-Authorization", jwtManager.writer().
                     map("igreja", chaveIgreja).
                     map("dispositivo", chaveDispositivo).
@@ -166,9 +164,9 @@ public class SessaoBean implements Serializable {
         }
     }
 
-    private String get(String key){
+    private String get(String key) {
         String head = manager.header(key);
-        if (StringUtil.isEmpty(head)){
+        if (StringUtil.isEmpty(head)) {
             return manager.parameter(key);
         }
         return head;
@@ -184,16 +182,16 @@ public class SessaoBean implements Serializable {
         return chaveIgreja;
     }
 
-    public boolean temPermissao(Funcionalidade func){
+    public boolean temPermissao(Funcionalidade func) {
         load();
 
         return funcionalidades.contains(func.getCodigo());
     }
 
-    public List<Funcionalidade> getFuncionalidades(){
+    public List<Funcionalidade> getFuncionalidades() {
         List<Funcionalidade> funcs = new ArrayList<Funcionalidade>();
-        for (Funcionalidade func : Funcionalidade.values()){
-            if (temPermissao(func)){
+        for (Funcionalidade func : Funcionalidade.values()) {
+            if (temPermissao(func)) {
                 funcs.add(func);
             }
         }
@@ -215,13 +213,13 @@ public class SessaoBean implements Serializable {
         return admin;
     }
 
-    public void dispositivo(boolean admin){
+    public void dispositivo(boolean admin) {
         this.admin = admin;
 
         set();
     }
 
-    public void login(Long idMembro, TipoDispositivo tipoDispositivo, String version){
+    public void login(Long idMembro, TipoDispositivo tipoDispositivo, String version) {
         this.idMembro = idMembro;
         this.admin = TipoDispositivo.PC.equals(tipoDispositivo);
 
@@ -232,13 +230,13 @@ public class SessaoBean implements Serializable {
         set();
     }
 
-    public void admin(Long idUsuario){
+    public void admin(Long idUsuario) {
         this.idUsuario = idUsuario;
 
         set();
     }
 
-    public void logout(){
+    public void logout() {
         this.idUsuario = null;
         this.idMembro = null;
         this.funcionalidades.clear();

@@ -4,34 +4,35 @@
  * and open the template in the editor.
  */
 package br.gafs.calvinista.security;
+
 import br.gafs.calvinista.entity.domain.Funcionalidade;
 import br.gafs.calvinista.entity.domain.StatusRegistroAcesso;
 import br.gafs.calvinista.servidor.EstatisticaService;
 import br.gafs.calvinista.servidor.SessaoBean;
-import java.lang.reflect.Method;
+
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
+import java.lang.reflect.Method;
 
 /**
- *
  * @author Gabriel
  */
 public class SecurityInterceptor {
-    
+
     @Inject
     private SessaoBean sessaoBean;
 
     @EJB
     private EstatisticaService estatisticaService;
-    
+
     @AroundInvoke
-    public Object intercept(InvocationContext context) throws Exception{
-        if (!hasSeguranca(context.getMethod()) || 
-                isMembroAutorizado(context.getMethod()) || 
-                    isAdminAutorizado(context.getMethod()) ||
-                        isUsuarioAutorizado(context.getMethod())){
+    public Object intercept(InvocationContext context) throws Exception {
+        if (!hasSeguranca(context.getMethod()) ||
+                isMembroAutorizado(context.getMethod()) ||
+                isAdminAutorizado(context.getMethod()) ||
+                isUsuarioAutorizado(context.getMethod())) {
 
             try {
                 preparaRegistroAcesso(context);
@@ -46,7 +47,7 @@ public class SecurityInterceptor {
 
                 throw ex;
             }
-        }else{
+        } else {
             throw new SecurityException();
         }
     }
@@ -70,48 +71,48 @@ public class SecurityInterceptor {
         }
     }
 
-    private boolean hasSeguranca(Method method){
+    private boolean hasSeguranca(Method method) {
         return method.isAnnotationPresent(AllowMembro.class) ||
                 method.isAnnotationPresent(AllowAdmin.class) ||
                 method.isAnnotationPresent(AllowUsuario.class);
     }
-    
+
     private boolean isUsuarioAutorizado(Method method) {
-        if (method.isAnnotationPresent(AllowUsuario.class)){
+        if (method.isAnnotationPresent(AllowUsuario.class)) {
             return sessaoBean.getIdUsuario() != null;
         }
-        
+
         return false;
     }
-    
+
     private boolean isMembroAutorizado(Method method) {
-        if (method.isAnnotationPresent(AllowMembro.class)){
-            if (sessaoBean.getIdMembro() != null){
+        if (method.isAnnotationPresent(AllowMembro.class)) {
+            if (sessaoBean.getIdMembro() != null) {
                 if (method.getAnnotation(AllowMembro.class).value().length == 0) return true;
-                for (Funcionalidade func : method.getAnnotation(AllowMembro.class).value()){
-                    if (sessaoBean.temPermissao(func)){
+                for (Funcionalidade func : method.getAnnotation(AllowMembro.class).value()) {
+                    if (sessaoBean.temPermissao(func)) {
                         return true;
                     }
                 }
             }
         }
-        
+
         return false;
     }
 
     private boolean isAdminAutorizado(Method method) {
-        if (method.isAnnotationPresent(AllowAdmin.class)){
-            if (sessaoBean.isAdmin()){
+        if (method.isAnnotationPresent(AllowAdmin.class)) {
+            if (sessaoBean.isAdmin()) {
                 if (method.getAnnotation(AllowAdmin.class).value().length == 0) return true;
-                for (Funcionalidade func : method.getAnnotation(AllowAdmin.class).value()){
-                    if (sessaoBean.temPermissao(func)){
+                for (Funcionalidade func : method.getAnnotation(AllowAdmin.class).value()) {
+                    if (sessaoBean.temPermissao(func)) {
                         return true;
                     }
                 }
             }
-            
+
         }
-        
+
         return false;
     }
 }

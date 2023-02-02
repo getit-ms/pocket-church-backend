@@ -9,9 +9,9 @@ import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusInscricaoEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.util.date.DateUtil;
+import br.gafs.util.string.StringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -138,6 +138,22 @@ public class InscricaoEvento implements IEntity {
         } else {
             this.emailInscrito = null;
         }
+    }
+
+    public String getValoresAdicionaisString() {
+        StringBuilder valores = new StringBuilder();
+
+        for (ValorInscricaoEvento val : this.valores) {
+            if (!StringUtil.isEmpty(val.getValorFormatado())) {
+                if (valores.length() > 0) {
+                    valores.append("\n");
+                }
+
+                valores.append(val.getNome()).append(": ").append(val.getValorFormatado());
+            }
+        }
+
+        return valores.toString();
     }
 
     public void confirmada() {

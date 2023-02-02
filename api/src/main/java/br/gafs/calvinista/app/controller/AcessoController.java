@@ -24,37 +24,35 @@ import br.gafs.util.string.StringUtil;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
 
 /**
- *
  * @author Gabriel
  */
 @Path("acesso")
 @RequestScoped
 public class AcessoController {
-    
+
     @EJB
     private AcessoService acessoService;
-    
+
     @EJB
     private AppService appService;
-    
+
     @Context
     private HttpServletResponse response;
-    
+
     @GET
     @Path("login/{email}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response iniciaLogin(final @PathParam("email") String email){
+    public Response iniciaLogin(final @PathParam("email") String email) {
         return Response.status(Response.Status.OK).entity(acessoService.inciaLogin(email.trim())).build();
     }
 
@@ -62,7 +60,7 @@ public class AcessoController {
     @Path("login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response realizaLogin(final RequisicaoLoginDTO req){
+    public Response realizaLogin(final RequisicaoLoginDTO req) {
         Membro membro = acessoService.login(req.getUsername().trim(),
                 SenhaUtil.encryptSHA256(req.getPassword()), req.getTipoDispositivo(), req.getVersion());
         return Response.status(Response.Status.OK).entity(acesso(membro, req.getTipoDispositivo(), req.getVersion())).build();
@@ -70,36 +68,36 @@ public class AcessoController {
 
     @PUT
     @Path("logout")
-    public Response realizaLogout(){
+    public Response realizaLogout() {
         acessoService.logout();
         return Response.ok().build();
     }
-    
+
     @GET
     @Path("funcionalidades/publicas")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaFuncionalidadesPublicas(){
+    public Response buscaFuncionalidadesPublicas() {
         return Response.status(Response.Status.OK).entity(acessoService.buscaFuncionalidadesPublicas()).build();
     }
-    
+
     @GET
     @Path("preferencias")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaPreferencias(){
+    public Response buscaPreferencias() {
         return Response.status(Response.Status.OK).entity(acessoService.buscaPreferencis()).build();
     }
-    
+
     @GET
     @Path("status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaStatus(){
+    public Response buscaStatus() {
         return Response.status(Response.Status.OK).entity(appService.buscaStatus()).build();
     }
 
     @GET
     @Path("releaseNotes/{tipoVersao}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaReleaseNotes(@PathParam("tipoVersao") TipoVersao tipoVersao){
+    public Response buscaReleaseNotes(@PathParam("tipoVersao") TipoVersao tipoVersao) {
         return Response.status(Response.Status.OK).entity(appService.buscaReleaseNotes(tipoVersao)).build();
     }
 
@@ -107,15 +105,15 @@ public class AcessoController {
     @Path("preferencias")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response salvaPreferencias(Preferencias preferencias){
+    public Response salvaPreferencias(Preferencias preferencias) {
         Preferencias entidade = acessoService.buscaPreferencis();
         MergeUtil.merge(preferencias, View.Edicao.class).into(entidade);
-        
+
         entidade.getMinisteriosInteresse().clear();
-        for (Ministerio ministerio : preferencias.getMinisteriosInteresse()){
+        for (Ministerio ministerio : preferencias.getMinisteriosInteresse()) {
             entidade.getMinisteriosInteresse().add(appService.buscaMinisterio(ministerio.getId()));
         }
-        
+
         return Response.status(Response.Status.OK).entity(acessoService.salva(entidade)).build();
     }
 
@@ -123,7 +121,7 @@ public class AcessoController {
     @Path("foto")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response trocaFoto(Arquivo arquivo){
+    public Response trocaFoto(Arquivo arquivo) {
         acessoService.trocaFoto(arquivo);
         return Response.status(Response.Status.OK).build();
     }
@@ -132,23 +130,23 @@ public class AcessoController {
     @Path("registerPush")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerPushToken(AcessoDTO dto){
+    public Response registerPushToken(AcessoDTO dto) {
         if (dto != null && dto.getTipoDispositivo() != null && !StringUtil.isEmpty(dto.getToken())) {
             acessoService.registerPush(TipoDispositivo.values()[dto.getTipoDispositivo()], dto.getToken(), dto.getVersion());
         }
 
         return Response.ok().build();
     }
-    
+
     @PUT
     @Path("senha/altera")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response atualizaSenha(Membro membro){
+    public Response atualizaSenha(Membro membro) {
         acessoService.alteraSenha(membro);
         return Response.ok().build();
     }
-    
+
     @PUT
     @Path("senha/redefinir/{email}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -157,36 +155,36 @@ public class AcessoController {
         acessoService.solicitaRedefinicaoSenha(email.trim());
         return Response.ok().build();
     }
-    
+
     @GET
     @Path("senha/redefinir")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response redefinirSenha(@QueryParam("chave") String jwt){
+    public Response redefinirSenha(@QueryParam("chave") String jwt) {
         return Response.ok().entity(acessoService.redefineSenha(jwt)).build();
     }
-    
+
     @GET
     @Path("ministerios")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaMinisterios(){
+    public Response buscaMinisterios() {
         return Response.status(Response.Status.OK).entity(acessoService.buscaMinisterios()).build();
     }
-    
+
     @GET
     @Path("horariosVersiculoDiario")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaHorariosVersiculosDiarios(){
+    public Response buscaHorariosVersiculosDiarios() {
         return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
     }
-    
+
     @GET
     @Path("horariosLembretesLeitura")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaHorariosLembretesLeitura(){
+    public Response buscaHorariosLembretesLeitura() {
         return Response.status(Response.Status.OK).entity(Arrays.asList(HorasEnvioNotificacao.values())).build();
     }
 
@@ -196,21 +194,21 @@ public class AcessoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscaMenu(
             @QueryParam("versao") String versao
-    ){
+    ) {
         return Response.status(Response.Status.OK)
                 .entity(getMenu(versao)).build();
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response renovaAcesso(
             @QueryParam("versao") String versao
-    ){
+    ) {
         return Response.status(Response.Status.OK)
                 .entity(acesso(acessoService.refreshLogin(), null, versao)).build();
     }
 
-    private AcessoDTO acesso(Membro membro, TipoDispositivo tipoDispositivo, String versao){
+    private AcessoDTO acesso(Membro membro, TipoDispositivo tipoDispositivo, String versao) {
         return new AcessoDTO(membro, acessoService.getFuncionalidadesMembro(),
                 response.getHeader("Set-Authorization"),
                 TipoDispositivo.PC.equals(tipoDispositivo) ? null : getMenu(versao),

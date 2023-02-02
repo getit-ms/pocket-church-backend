@@ -6,15 +6,11 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.calvinista.entity.domain.TipoParametro;
+import lombok.*;
+
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
- *
  * @author Gabriel
  */
 @Data

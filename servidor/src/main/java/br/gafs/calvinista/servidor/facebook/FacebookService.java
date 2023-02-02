@@ -76,7 +76,7 @@ public class FacebookService {
         String code = paramService.get(chave, TipoParametro.FACEBOOK_APP_CODE);
         String pageId = paramService.get(chave, TipoParametro.FACEBOOK_PAGE_ID);
 
-        if (StringUtil.isEmpty(code) || StringUtil.isEmpty(pageId)){
+        if (StringUtil.isEmpty(code) || StringUtil.isEmpty(pageId)) {
             return Collections.emptyList();
         }
 
@@ -89,26 +89,26 @@ public class FacebookService {
             try {
                 Connection<JsonObject> connection = new DefaultFacebookClient(code, Version.VERSION_2_12)
                         .fetchConnection("/" + pageId + "/live_videos", JsonObject.class,
-                        Parameter.with("fields", "dash_preview_url,creation_time,broadcast_start_time,secure_stream_url,status,title"));
-                for (JsonObject result : connection.getData()){
+                                Parameter.with("fields", "dash_preview_url,creation_time,broadcast_start_time,secure_stream_url,status,title"));
+                for (JsonObject result : connection.getData()) {
                     VideoDTO video = new VideoDTO(
                             result.getString("id", null),
                             result.getString("title", null),
                             null,
                             DateUtil.parseData(result.getString("creation_time",
                                     DateUtil.formataData(new Date(), FORMAT_TIME)), FORMAT_TIME)
-                            );
+                    );
 
                     video.setThumbnail(result.getString("dash_preview_url", null));
                     video.setStreamUrl(result.getString("secure_stream_url", null));
 
-                    switch (result.getString("status", "")){
+                    switch (result.getString("status", "")) {
                         case "LIVE_NOW":
                             video.setAoVivo(true);
                             break;
                         case "SCHEDULED_LIVE":
                         case "SCHEDULED_UNPUBLISHED":
-                            if (result.get("broadcast_start_time").asString() != null){
+                            if (result.get("broadcast_start_time").asString() != null) {
                                 video.setAgendamento(
                                         DateUtil.parseData(result.getString("broadcast_start_time",
                                                 DateUtil.formataData(new Date(), FORMAT_TIME)), FORMAT_TIME)
@@ -120,7 +120,7 @@ public class FacebookService {
 
                     videos.add(video);
                 }
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Erro ao recuperar streamings do Facebook", ex);
             }
 
@@ -135,8 +135,8 @@ public class FacebookService {
     public List<VideoDTO> buscaStreamsAtivos(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
 
-        for (VideoDTO video : buscaVideos(chave, true)){
-            if (video.isAoVivo()){
+        for (VideoDTO video : buscaVideos(chave, true)) {
+            if (video.isAoVivo()) {
                 videos.add(video);
             }
         }
@@ -147,8 +147,8 @@ public class FacebookService {
     public List<VideoDTO> buscaStreamsAgendados(String chave) throws IOException {
         List<VideoDTO> videos = new ArrayList<VideoDTO>();
 
-        for (VideoDTO video : buscaVideos(chave)){
-            if (video.isAgendado()){
+        for (VideoDTO video : buscaVideos(chave)) {
+            if (video.isAgendado()) {
                 videos.add(video);
             }
         }

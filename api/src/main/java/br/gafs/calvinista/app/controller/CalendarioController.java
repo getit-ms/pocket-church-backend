@@ -7,7 +7,6 @@ package br.gafs.calvinista.app.controller;
 
 import br.gafs.bundle.ResourceBundleUtil;
 import br.gafs.calvinista.dto.ConfiguracaoCalendarIgrejaDTO;
-import br.gafs.calvinista.dto.ConfiguracaoYouTubeIgrejaDTO;
 import br.gafs.calvinista.service.AppService;
 
 import javax.ejb.EJB;
@@ -23,16 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 @RequestScoped
 @Path("calendario")
 public class CalendarioController {
-    
+
     @EJB
     private AppService appService;
-    
+
     @Context
     private HttpServletResponse response;
 
@@ -40,15 +38,15 @@ public class CalendarioController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response busca(
             @QueryParam("pagina") @DefaultValue("1") final Integer pagina,
-            @QueryParam("total") @DefaultValue("10") final Integer total){
+            @QueryParam("total") @DefaultValue("10") final Integer total) {
         return Response.status(Response.Status.OK)
                 .entity(appService.buscaEventos(pagina, total)).build();
     }
-    
+
     @GET
     @Path("configuracao")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaConfiguracao(){
+    public Response buscaConfiguracao() {
         return Response.status(Response.Status.OK).entity(appService.buscaConfiguracaoCalendar()).build();
     }
 
@@ -62,7 +60,7 @@ public class CalendarioController {
     @GET
     @Path("url")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response buscaURL() throws IOException{
+    public Response buscaURL() throws IOException {
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("url", appService.buscaURLAutenticacaoCalendar());
         return Response.status(Response.Status.OK).entity(args).build();
@@ -70,31 +68,31 @@ public class CalendarioController {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response desativa() throws IOException{
+    public Response desativa() throws IOException {
         appService.desvinculaCalendar();
         return Response.status(Response.Status.OK).build();
     }
 
     @GET
     @Path("integracao")
-    public Response redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException{
+    public Response redirectConfiguracao(@QueryParam("code") String code, @QueryParam("state") String state) throws IOException {
         response.sendRedirect(MessageFormat.format(ResourceBundleUtil._default().getPropriedade("USER_CALENDAR_REDIRECT_URL"), state, code));
         return Response.status(Response.Status.OK).build();
     }
-    
+
     @PUT
     @Path("configuracao")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response iniciaConfiguracao(Map<String, String> body){
+    public Response iniciaConfiguracao(Map<String, String> body) {
         appService.iniciaConfiguracaoCalendar(body.get("code"));
         return Response.status(Response.Status.OK).build();
     }
-    
+
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    public Response salva(ConfiguracaoCalendarIgrejaDTO configuracao){
+    public Response salva(ConfiguracaoCalendarIgrejaDTO configuracao) {
         appService.atualiza(configuracao);
         return Response.status(Response.Status.OK).build();
     }
-    
+
 }

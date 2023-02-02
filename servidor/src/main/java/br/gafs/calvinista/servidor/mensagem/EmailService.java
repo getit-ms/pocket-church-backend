@@ -21,7 +21,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @Stateless
@@ -32,7 +31,7 @@ public class EmailService {
 
     public void sendEmails(final Igreja igreja, MensagemEmailDTO t, List to) {
         EmailSender sender = new EmailSender(new ConfiguradorIgreja(igreja));
-        
+
         try {
             sender.sendMailWithDataSources(t.getMessage(), t.getSubject(),
                     to, t.getDataSources(), t.getAttachmentsNames());

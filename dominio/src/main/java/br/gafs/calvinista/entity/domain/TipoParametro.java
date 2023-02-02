@@ -1,8 +1,8 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.entity.domain;
 
 import br.gafs.calvinista.entity.Parametro;
@@ -21,7 +21,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Gabriel
  */
 @RequiredArgsConstructor
@@ -170,13 +169,13 @@ public enum TipoParametro {
     private final TipoValor tipoValor;
     private final Class<?> runtimeType;
     private final Object defaultValue;
-    
-    private static final Map<Class<?>, Map<Class<?>, Converter<?,?>>> converters = new HashMap();
-    
+
+    private static final Map<Class<?>, Map<Class<?>, Converter<?, ?>>> converters = new HashMap();
+
     static {
         converters.put(String.class, new HashMap());
 
-        converters.get(String.class).put(Long.class, new Converter<String, Long>(){
+        converters.get(String.class).put(Long.class, new Converter<String, Long>() {
 
             @Override
             public Long sourceToTarget(String source) {
@@ -189,49 +188,49 @@ public enum TipoParametro {
             }
 
         });
-        converters.get(String.class).put(Integer.class, new Converter<String, Integer>(){
-            
+        converters.get(String.class).put(Integer.class, new Converter<String, Integer>() {
+
             @Override
             public Integer sourceToTarget(String source) {
                 return Integer.parseInt(source);
             }
-            
+
             @Override
             public String targetToSource(Integer target) {
                 return target.toString();
             }
-            
+
         });
-        converters.get(String.class).put(boolean.class, new Converter<String, Boolean>(){
-            
+        converters.get(String.class).put(boolean.class, new Converter<String, Boolean>() {
+
             @Override
             public Boolean sourceToTarget(String source) {
                 return Boolean.parseBoolean(source);
             }
-            
+
             @Override
             public String targetToSource(Boolean target) {
                 return target.toString();
             }
-            
+
         });
-        converters.get(String.class).put(Boolean.class, new Converter<String, Boolean>(){
-            
+        converters.get(String.class).put(Boolean.class, new Converter<String, Boolean>() {
+
             @Override
             public Boolean sourceToTarget(String source) {
                 return Boolean.parseBoolean(source);
             }
-            
+
             @Override
             public String targetToSource(Boolean target) {
                 return target.toString();
             }
-            
+
         });
-        
+
         converters.put(byte[].class, new HashMap());
-        
-        converters.get(byte[].class).put(byte[].class, new Converter<byte[], byte[]>(){
+
+        converters.get(byte[].class).put(byte[].class, new Converter<byte[], byte[]>() {
 
             @Override
             public byte[] sourceToTarget(byte[] source) {
@@ -242,9 +241,9 @@ public enum TipoParametro {
             public byte[] targetToSource(byte[] target) {
                 return target;
             }
-            
+
         });
-        converters.get(byte[].class).put(String.class, new Converter<byte[], String>(){
+        converters.get(byte[].class).put(String.class, new Converter<byte[], String>() {
 
             @Override
             public String sourceToTarget(byte[] source) {
@@ -258,7 +257,7 @@ public enum TipoParametro {
 
         });
     }
-    
+
     public <T> T get(Parametro param) {
         Object valor = tipoValor.get(param);
 
@@ -272,7 +271,7 @@ public enum TipoParametro {
 
         return null;
     }
-    
+
     public <T> void set(Parametro param, T valor) {
         if (valor == null) {
             tipoValor.set(param, null);
@@ -280,29 +279,30 @@ public enum TipoParametro {
             tipoValor.set(param, converter().targetToSource(valor));
         }
     }
-    
-    private Converter converter(){
+
+    private Converter converter() {
         Converter converter = null;
         if (converters.containsKey(tipoValor.getDbType()) &&
-                converters.get(tipoValor.getDbType()).containsKey(runtimeType)){
+                converters.get(tipoValor.getDbType()).containsKey(runtimeType)) {
             converter = converters.get(tipoValor.getDbType()).get(runtimeType);
         }
-        
+
         return converter == null ? tipoValor.defaultConverter() : converter;
     }
-    
+
     interface Converter<SRC, TGT> {
         TGT sourceToTarget(SRC source);
+
         SRC targetToSource(TGT target);
     }
-    
-    public static <T> T build(Class<T> type, ParametroSupplier supplier){
+
+    public static <T> T build(Class<T> type, ParametroSupplier supplier) {
         try {
             T t = type.newInstance();
-            
-            for (Field field : type.getDeclaredFields()){
+
+            for (Field field : type.getDeclaredFields()) {
                 try {
-                    if (field.isAnnotationPresent(Mapping.class)){
+                    if (field.isAnnotationPresent(Mapping.class)) {
                         boolean accessible = field.isAccessible();
                         field.setAccessible(true);
                         field.set(t, supplier.get(field.getAnnotation(Mapping.class).value()).get());
@@ -312,18 +312,18 @@ public enum TipoParametro {
                     Logger.getLogger(TipoParametro.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            
+
             return t;
         } catch (Exception ex) {
             Logger.getLogger(TipoParametro.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-    
-    public static <T> T extract(Object t, ParametroSupplier supplier, ParametroHandler handler){
-        for (Field field : t.getClass().getDeclaredFields()){
+
+    public static <T> T extract(Object t, ParametroSupplier supplier, ParametroHandler handler) {
+        for (Field field : t.getClass().getDeclaredFields()) {
             try {
-                if (field.isAnnotationPresent(Mapping.class)){
+                if (field.isAnnotationPresent(Mapping.class)) {
                     boolean accessible = field.isAccessible();
                     field.setAccessible(true);
                     Parametro param = supplier.get(field.getAnnotation(Mapping.class).value());
@@ -337,37 +337,36 @@ public enum TipoParametro {
         }
         return null;
     }
-    
+
     public interface ParametroSupplier {
         Parametro get(TipoParametro tipo);
     }
-    
+
     public interface ParametroHandler {
         void handle(Parametro param);
     }
-    
+
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Mapping {
         TipoParametro value();
     }
-    
+
     @Getter
     @RequiredArgsConstructor
     enum TipoValor {
         VALOR(String.class, new Converter<String, Object>() {
-            
+
             @Override
             public Object sourceToTarget(String source) {
                 return source;
             }
-            
+
             @Override
             public String targetToSource(Object target) {
                 return target.toString();
             }
-        }){
-            
+        }) {
             @Override
             Object get(Parametro param) {
                 return param.getValor();
@@ -377,19 +376,19 @@ public enum TipoParametro {
             void set(Parametro param, Object val) {
                 param.setValor((String) val);
             }
-                        
+
         },
         ANEXO(byte[].class, new Converter<byte[], Object>() {
             private ObjectMapper om = new ObjectMapper();
 
             @Override
             public Object sourceToTarget(byte[] source) {
-                try{
+                try {
                     if (source != null) {
                         Writable writable = om.readValue(source, Writable.class);
                         return om.readValue(writable.content, Class.forName(writable.classname));
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
@@ -397,15 +396,14 @@ public enum TipoParametro {
 
             @Override
             public byte[] targetToSource(Object target) {
-                try{
+                try {
                     return om.writeValueAsBytes(new Writable(target.getClass().getName(), om.writeValueAsString(target)));
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
             }
-        }){
-            
+        }) {
             @Override
             Object get(Parametro param) {
                 return param.getAnexo();
@@ -415,19 +413,20 @@ public enum TipoParametro {
             void set(Parametro param, Object val) {
                 param.setAnexo((byte[]) val);
             }
-                        
+
         };
-        
+
         private final Class<?> dbType;
         private final Converter cvrt;
-        
+
         abstract Object get(Parametro param);
+
         abstract void set(Parametro param, Object val);
-        
-        public Converter defaultConverter(){
+
+        public Converter defaultConverter() {
             return cvrt;
         }
-        
+
     }
 
     @Data

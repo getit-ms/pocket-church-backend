@@ -18,7 +18,7 @@ import java.util.Date;
 @EqualsAndHashCode(of = "versao")
 @Table(name = "tb_release_notes")
 @NamedQueries({
-    @NamedQuery(name = "ReleaseNotes.findByTipo", query = "select rn from ReleaseNotes rn where rn.tipo = :tipo order by rn.data desc")
+        @NamedQuery(name = "ReleaseNotes.findByTipo", query = "select rn from ReleaseNotes rn where rn.tipo = :tipo order by rn.data desc")
 })
 public class ReleaseNotes implements IEntity {
     @Id

@@ -7,7 +7,9 @@ package br.gafs.calvinista.entity;
 
 import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.StatusEstudo;
+import br.gafs.calvinista.entity.domain.StatusItemEvento;
 import br.gafs.calvinista.entity.domain.TipoEstudo;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -21,10 +23,12 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -35,13 +39,13 @@ import java.util.*;
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
-    @NamedQuery(name = "Estudo.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Estudo e inner join e.igreja i where i.status = :statusIgreja and e.divulgado = false and e.dataPublicacao <= :data group by i"),
-    @NamedQuery(name = "Estudo.findUltimoADivulgar", query = "select e from Estudo e inner join e.igreja i where i.chave = :igreja and e.divulgado = false and e.dataPublicacao <= :data order by e.dataPublicacao desc"),
-    @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divulgado = true where e.igreja.chave = :igreja and e.dataPublicacao <= :data "),
-    @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
-    @NamedQuery(name = "Estudo.updateStatus", query = "update Estudo e set e.status = :status where e.id = :estudo and e.igreja.chave = :igreja")
+        @NamedQuery(name = "Estudo.findIgrejaNaoDivultadosByDataPublicacao", query = "select i from Estudo e inner join e.igreja i where i.status = :statusIgreja and e.divulgado = false and e.dataPublicacao <= :data group by i"),
+        @NamedQuery(name = "Estudo.findUltimoADivulgar", query = "select e from Estudo e inner join e.igreja i where i.chave = :igreja and e.divulgado = false and e.dataPublicacao <= :data order by e.dataPublicacao desc"),
+        @NamedQuery(name = "Estudo.updateNaoDivulgadosByIgreja", query = "update Estudo e set e.divulgado = true where e.igreja.chave = :igreja and e.dataPublicacao <= :data "),
+        @NamedQuery(name = "Estudo.findPDFByStatus", query = "select e from Estudo e where e.pdf is not null and e.status = :status order by e.dataPublicacao"),
+        @NamedQuery(name = "Estudo.updateStatus", query = "update Estudo e set e.status = :status where e.id = :estudo and e.igreja.chave = :igreja")
 })
-public class Estudo implements IEntity, ArquivoPDF {
+public class Estudo implements IEntity, ArquivoPDF, IItemEvento {
 
     @Id
     @JsonView(Resumido.class)
@@ -49,7 +53,7 @@ public class Estudo implements IEntity, ArquivoPDF {
     @SequenceGenerator(sequenceName = "seq_estudo", name = "seq_estudo")
     @GeneratedValue(generator = "seq_estudo", strategy = GenerationType.SEQUENCE)
     private Long id;
-    
+
     @Setter
     @NotEmpty
     @Length(max = 250)
@@ -57,18 +61,18 @@ public class Estudo implements IEntity, ArquivoPDF {
     @View.MergeViews(View.Edicao.class)
     @Column(name = "titulo", length = 250, nullable = false)
     private String titulo;
-    
+
     @Setter
     @JsonView(Detalhado.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "texto", columnDefinition = "TEXT")
     private String texto;
-    
+
     @JsonView(Resumido.class)
     @Temporal(TemporalType.DATE)
     @Column(name = "data", nullable = false)
     private Date data = new Date();
-    
+
     @Setter
     @JsonView(Resumido.class)
     @Temporal(TemporalType.TIMESTAMP)
@@ -121,7 +125,7 @@ public class Estudo implements IEntity, ArquivoPDF {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status", nullable = false)
     private StatusEstudo status = StatusEstudo.PROCESSANDO;
-    
+
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @Column(name = "autor", nullable = false)
@@ -134,21 +138,21 @@ public class Estudo implements IEntity, ArquivoPDF {
     @JsonView(Detalhado.class)
     @Column(name = "divulgado", nullable = false)
     private boolean divulgado;
-    
+
     @ManyToOne
     @Setter(onMethod = @_(@JsonIgnore))
     @Getter(onMethod = @_(@JsonProperty))
     @JoinColumns({
-        @JoinColumn(name = "id_membro", referencedColumnName = "id_membro", nullable = false),
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", nullable = false, insertable = false, updatable = false)
+            @JoinColumn(name = "id_membro", referencedColumnName = "id_membro", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", nullable = false, insertable = false, updatable = false)
     })
     private Membro membro;
-    
+
     @Id
     @JsonIgnore
     @Column(name = "chave_igreja", insertable = false, updatable = false)
     private String chaveIgreja;
-    
+
     @Setter
     @ManyToOne
     @JsonIgnore
@@ -159,21 +163,21 @@ public class Estudo implements IEntity, ArquivoPDF {
         this.membro = membro;
         this.igreja = membro.getIgreja();
     }
-    
-    public boolean isEmEdicao(){
+
+    public boolean isEmEdicao() {
         return dataPublicacao == null;
     }
-    
-    public String getFilename(){
+
+    public String getFilename() {
         return StringUtil.formataValor(titulo, true, false)
                 .replace(" ", "_").replace("/", "-");
     }
 
-    public void notificado(){
+    public void notificado() {
         divulgado = true;
     }
 
-    public void alterado(){
+    public void alterado() {
         ultimaAlteracao = new Date();
     }
 
@@ -203,12 +207,12 @@ public class Estudo implements IEntity, ArquivoPDF {
         return !isEmEdicao() && StatusEstudo.REJEITADO == status;
     }
 
-    public double getPorcentagemProcessamento(){
+    public double getPorcentagemProcessamento() {
         if (isProcessando()) {
             return getPaginas().size();
         }
 
-        if (isPublicado() || isAgendado()){
+        if (isPublicado() || isAgendado()) {
             return 1d;
         }
 
@@ -233,5 +237,25 @@ public class Estudo implements IEntity, ArquivoPDF {
         } else {
             return TipoEstudo.PDF;
         }
+    }
+
+    @Override
+    @JsonIgnore
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .igreja(getIgreja())
+                .tipo(TipoItemEvento.ESTUDO)
+                .titulo(getTitulo())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
+                .ilustracao(getThumbnail())
+                .autor(getMembro())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

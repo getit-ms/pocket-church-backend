@@ -8,5 +8,6 @@ import java.io.OutputStream;
  */
 public interface StreamProvider {
     void write(Object o, OutputStream os) throws IOException;
+
     String getContentType();
 }

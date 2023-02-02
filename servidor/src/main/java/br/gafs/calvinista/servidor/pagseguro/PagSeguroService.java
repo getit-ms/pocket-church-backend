@@ -40,14 +40,14 @@ public class PagSeguroService {
 
             Date data = null;
             int status = 0;
-            for (TransactionSummary transaction : searchByReference.getTransactionSummaries()){
-                if (transaction.getReference().equals(referencia)){
+            for (TransactionSummary transaction : searchByReference.getTransactionSummaries()) {
+                if (transaction.getReference().equals(referencia)) {
                     if (data == null || (transaction.getLastEvent() != null &&
-                            transaction.getLastEvent().after(data))){
+                            transaction.getLastEvent().after(data))) {
                         data = transaction.getLastEvent();
                     }
 
-                    switch (transaction.getStatus()){
+                    switch (transaction.getStatus()) {
                         case INITIATED:
                         case IN_ANALYSIS:
                             status = status | 1;
@@ -62,15 +62,15 @@ public class PagSeguroService {
                 }
             }
 
-            if ((status & 4) != 0){
+            if ((status & 4) != 0) {
                 Logger.getLogger(PagSeguroService.class.
-                        getName()).log(Level.INFO, "Pagamento "+referencia+" marcado como PAGO pelo PagSeguro.");
+                        getName()).log(Level.INFO, "Pagamento " + referencia + " marcado como PAGO pelo PagSeguro.");
                 return StatusPagamento.PAGO;
-            }else if ((status & 1) != 0){
+            } else if ((status & 1) != 0) {
                 return StatusPagamento.AGUARDANDO_PAGAMENTO;
-            }else if ((status & 2) != 0){
+            } else if ((status & 2) != 0) {
                 Logger.getLogger(PagSeguroService.class.
-                        getName()).log(Level.INFO, "Pagamento "+referencia+" marcado como CANCELADO pelo PagSeguro.");
+                        getName()).log(Level.INFO, "Pagamento " + referencia + " marcado como CANCELADO pelo PagSeguro.");
                 return StatusPagamento.CANCELADO;
             }
 
@@ -106,8 +106,8 @@ public class PagSeguroService {
         }
     }
 
-    private String limit(String nome){
-        if (nome.length() > 100){
+    private String limit(String nome) {
+        if (nome.length() > 100) {
             return nome.substring(0, 97) + "...";
         }
 
@@ -131,17 +131,17 @@ public class PagSeguroService {
         @Setter
         private BigDecimal frete;
 
-        public void add(ItemPedido item){
+        public void add(ItemPedido item) {
             itens.add(item);
         }
-        
-        public BigDecimal getTotal(){
+
+        public BigDecimal getTotal() {
             BigDecimal total = BigDecimal.ZERO;
-            
-            for (ItemPedido item : itens){
+
+            for (ItemPedido item : itens) {
                 total = total.add(item.getValor());
             }
-            
+
             return total;
         }
     }
@@ -162,9 +162,9 @@ public class PagSeguroService {
         private BigDecimal valor;
     }
 
-    public String realizaCheckout(Pedido pedido, ConfiguracaoIgrejaDTO credenciais){
+    public String realizaCheckout(Pedido pedido, ConfiguracaoIgrejaDTO credenciais) {
         Checkout checkout = new Checkout();
-        for (ItemPedido item : pedido.getItens()){
+        for (ItemPedido item : pedido.getItens()) {
             checkout.addItem(
                     item.getCodigo(),
                     limit(item.getNome()),
@@ -173,7 +173,7 @@ public class PagSeguroService {
                     0l, new BigDecimal("0.00")
             );
         }
-        if (pedido.getDesconto() != null){
+        if (pedido.getDesconto() != null) {
             checkout.setExtraAmount(pedido.getDesconto().negate());
         }
         checkout.setShippingCost(pedido.getFrete());

@@ -9,17 +9,16 @@ import br.gafs.bean.IEntity;
 import br.gafs.calvinista.entity.domain.TestamentoBiblia;
 import br.gafs.calvinista.entity.domain.VersiculoBiblia;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.*;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
- *
  * @author Gabriel
  */
 @Getter
@@ -39,29 +38,29 @@ public class LivroBiblia implements IEntity {
     @JsonIgnore
     @Column(name = "id_biblia", insertable = false, updatable = false)
     private Long idBiblia;
-    
+
     @Column(name = "nome", length = 50)
     private String nome;
-    
+
     @Column(name = "ordem")
     private Integer ordem;
-    
+
     @Column(name = "abreviacao", length = 5)
     private String abreviacao;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "ultima_atualizacao")
     private Date ultimaAtualizacao = new Date();
-    
+
     @Column(name = "testamento")
     @Enumerated(EnumType.ORDINAL)
     private TestamentoBiblia testamento;
-    
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "id_biblia")
     private Biblia biblia;
-    
+
     @OneToMany
     @OrderBy("capitulo, versiculo")
     @JoinColumns({

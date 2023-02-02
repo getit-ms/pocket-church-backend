@@ -6,7 +6,9 @@
 package br.gafs.calvinista.entity;
 
 import br.gafs.calvinista.entity.domain.StatusBoletim;
+import br.gafs.calvinista.entity.domain.StatusItemEvento;
 import br.gafs.calvinista.entity.domain.TipoBoletim;
+import br.gafs.calvinista.entity.domain.TipoItemEvento;
 import br.gafs.calvinista.view.View;
 import br.gafs.calvinista.view.View.Detalhado;
 import br.gafs.calvinista.view.View.Resumido;
@@ -21,12 +23,9 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- *
  * @author Gabriel
  */
 @Data
@@ -37,13 +36,13 @@ import java.util.Map;
 @EqualsAndHashCode(of = "id")
 @IdClass(RegistroIgrejaId.class)
 @NamedQueries({
-    @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :statusIgreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
-    @NamedQuery(name = "Boletim.findUltimoADivulgar", query = "select b from Boletim b inner join b.igreja i where i.chave = :igreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false order by b.dataPublicacao desc"),
-    @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja and b.tipo = :tipo"),
-    @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
-    @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.igreja.chave = :igreja")
+        @NamedQuery(name = "Boletim.findIgrejaByStatusAndDataPublicacao", query = "select i from Boletim b inner join b.igreja i where i.status = :statusIgreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false group by i"),
+        @NamedQuery(name = "Boletim.findUltimoADivulgar", query = "select b from Boletim b inner join b.igreja i where i.chave = :igreja and b.status = :statusBoletim and b.dataPublicacao <= :data and b.tipo = :tipo and b.divulgado = false order by b.dataPublicacao desc"),
+        @NamedQuery(name = "Boletim.updateNaoDivulgadosByIgreja", query = "update Boletim b set b.divulgado = true where b.dataPublicacao <= :data and b.igreja.chave = :igreja and b.tipo = :tipo"),
+        @NamedQuery(name = "Boletim.findByStatus", query = "select b from Boletim b where b.status = :status order by b.dataPublicacao"),
+        @NamedQuery(name = "Boletim.updateStatus", query = "update Boletim b set b.status = :status where b.id = :boletim and b.igreja.chave = :igreja")
 })
-public class Boletim implements ArquivoPDF {
+public class Boletim implements ArquivoPDF, IItemEvento {
 
     @Id
     @JsonView(Resumido.class)
@@ -91,13 +90,21 @@ public class Boletim implements ArquivoPDF {
     @Column(name = "status", nullable = false)
     private StatusBoletim status = StatusBoletim.PROCESSANDO;
 
+    @ManyToOne
+    @JsonView(Resumido.class)
+    @JoinColumns({
+            @JoinColumn(name = "id_autor", referencedColumnName = "id_membro"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false),
+    })
+    private Membro autor;
+
     @NotNull
     @OneToOne
     @JsonView(Resumido.class)
     @View.MergeViews(View.Edicao.class)
     @JoinColumns({
-        @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+            @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Arquivo boletim;
 
@@ -105,19 +112,19 @@ public class Boletim implements ArquivoPDF {
     @OneToOne
     @JsonView(Resumido.class)
     @JoinColumns({
-        @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo"),
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+            @JoinColumn(name = "id_thumbnail", referencedColumnName = "id_arquivo"),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private Arquivo thumbnail;
 
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "rl_boletim_paginas", joinColumns = {
-        @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
+            @JoinColumn(name = "id_boletim", referencedColumnName = "id_boletim", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja")
     }, inverseJoinColumns = {
-        @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
-        @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
+            @JoinColumn(name = "id_arquivo", referencedColumnName = "id_arquivo", nullable = false),
+            @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false)
     })
     private List<Arquivo> paginas = new ArrayList<Arquivo>();
 
@@ -156,16 +163,16 @@ public class Boletim implements ArquivoPDF {
     public boolean isRejeitado() {
         return StatusBoletim.REJEITADO.equals(status);
     }
-    
-    public double getPorcentagemProcessamento(){
-        if (isProcessando()){
+
+    public double getPorcentagemProcessamento() {
+        if (isProcessando()) {
             return getPaginas().size();
         }
-        
-        if (isPublicado() || isAgendado()){
+
+        if (isPublicado() || isAgendado()) {
             return 1d;
         }
-        
+
         return 0d;
     }
 
@@ -180,5 +187,25 @@ public class Boletim implements ArquivoPDF {
     @JsonIgnore
     public Arquivo getPDF() {
         return boletim;
+    }
+
+    @Override
+    @JsonIgnore
+    public ItemEvento getItemEvento() {
+        return ItemEvento.builder()
+                .id(getId().toString())
+                .igreja(getIgreja())
+                .tipo(getTipo() == TipoBoletim.PUBLICACAO ? TipoItemEvento.PUBLICACAO : TipoItemEvento.BOLETIM)
+                .titulo(getTitulo())
+                .dataHoraPublicacao(getDataPublicacao())
+                .dataHoraReferencia(getDataPublicacao())
+                .ilustracao(getThumbnail())
+                .autor(getAutor())
+                .status(
+                        isPublicado() ?
+                                StatusItemEvento.PUBLICADO :
+                                StatusItemEvento.NAO_PUBLICADO
+                )
+                .build();
     }
 }

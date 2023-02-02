@@ -1,21 +1,24 @@
 package br.gafs.calvinista.servidor;
 
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.entity.domain.StatusIgreja;
-import br.gafs.dao.DAOService;
 import br.gafs.exceptions.ServiceException;
 
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class IgrejaService {
     private final Map<String, StatusIgreja> status = new HashMap<>();
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Schedule(hour = "*", persistent = false)
     public void refreshStatus() {

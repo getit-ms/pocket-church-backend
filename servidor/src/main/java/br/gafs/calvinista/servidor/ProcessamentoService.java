@@ -1,12 +1,13 @@
 /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package br.gafs.calvinista.servidor;
 
 import br.gafs.bean.IEntity;
 import br.gafs.bundle.ResourceBundleUtil;
+import br.gafs.calvinista.dao.CustomDAOService;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.dao.DAOService;
 import lombok.AllArgsConstructor;
@@ -17,14 +18,13 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.transaction.UserTransaction;
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 /**
- *
  * @author Gabriel
  */
 @Startup
@@ -37,7 +37,7 @@ public class ProcessamentoService {
     private final Pool pool = new Pool();
 
     @EJB
-    private DAOService daoService;
+    private CustomDAOService daoService;
 
     @Resource
     private SessionContext sctx;
@@ -47,13 +47,13 @@ public class ProcessamentoService {
 
     @PostConstruct
     public void prepara() {
-        for (int i=0;i<PROCESSMENTO_POOL_SIZE;i++){
+        for (int i = 0; i < PROCESSMENTO_POOL_SIZE; i++) {
             new Thread(new ProcessamentoRunnable()).start();
         }
 
-        synchronized(this){
+        synchronized (this) {
             try {
-                for (Processamento processamento : Persister.load(Processamento.class)){
+                for (Processamento processamento : Persister.load(Processamento.class)) {
                     pool.add(processamento);
                 }
             } catch (Exception ex) {
@@ -64,7 +64,7 @@ public class ProcessamentoService {
     }
 
     @Asynchronous
-    public void schedule(Processamento processamento){
+    public void schedule(Processamento processamento) {
         try {
             Persister.save(processamento, processamento.getId());
             pool.add(processamento);
@@ -75,7 +75,7 @@ public class ProcessamentoService {
     }
 
     public void execute(final Processamento processamento) throws InterruptedException {
-        synchronized (processamento){
+        synchronized (processamento) {
             pool.priority(processamento, new ProcessamentoWatcher() {
                 @Override
                 public void started() {
@@ -84,7 +84,7 @@ public class ProcessamentoService {
 
                 @Override
                 public void ended() {
-                    synchronized(processamento){
+                    synchronized (processamento) {
                         processamento.notify();
                     }
                 }
@@ -96,8 +96,11 @@ public class ProcessamentoService {
 
     public interface Processamento extends IEntity {
         String getId();
+
         int step(ProcessamentoTool tool) throws Exception;
+
         void finished(ProcessamentoTool tool) throws Exception;
+
         void dropped(ProcessamentoTool tool);
     }
 
@@ -123,14 +126,15 @@ public class ProcessamentoService {
 
                     try {
                         ut.rollback();
-                    } catch(Exception ex0){}
+                    } catch (Exception ex0) {
+                    }
 
                     throw new RuntimeException(ex);
                 }
             }
         }
 
-        protected boolean next(int total){
+        protected boolean next(int total) {
             return ++step <= total;
         }
     }
@@ -146,7 +150,7 @@ public class ProcessamentoService {
         @Override
         public void run() {
             try {
-                while (true){
+                while (true) {
                     Pool.Element element = pool.next();
 
                     element.getWatcher().started();
@@ -165,10 +169,10 @@ public class ProcessamentoService {
             ProcessamentoTool tool = new ProcessamentoTool(sctx);
 
             boolean fail;
-            do{
+            do {
                 fail = false;
                 try {
-                    LOGGER.log(Level.INFO, "Iniciando step "+ tool.step +" do processamento: " + processamento.getClass() + " - " + processamento.getId());
+                    LOGGER.log(Level.INFO, "Iniciando step " + tool.step + " do processamento: " + processamento.getClass() + " - " + processamento.getId());
 
                     total = processamento.step(tool);
                 } catch (Exception e) {
@@ -176,14 +180,14 @@ public class ProcessamentoService {
 
                     try {
                         fails++;
-                        if (fails >= LIMITE_FALHAS){
+                        if (fails >= LIMITE_FALHAS) {
                             LOGGER.log(Level.SEVERE, "Processamento descartado por falhas: " + processamento.getClass() + " - " + processamento.getId(), e);
 
                             processamento.dropped(tool);
 
                             Persister.remove(processamento.getClass(), processamento.getId());
                             return;
-                        }else{
+                        } else {
                             LOGGER.log(Level.SEVERE, "Processamento com erro: " + processamento.getClass() + " - " + processamento.getId(), e);
                             continue;
                         }
@@ -192,11 +196,11 @@ public class ProcessamentoService {
                         continue;
                     }
                 }
-            }while(fail || tool.next(total));
+            } while (fail || tool.next(total));
 
-            try{
+            try {
                 processamento.finished(tool);
-            }catch(Exception e){
+            } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Erro ao finalizar entity: " + processamento.getId(), e);
             }
 
@@ -207,6 +211,7 @@ public class ProcessamentoService {
 
     interface ProcessamentoWatcher {
         void started();
+
         void ended();
     }
 
@@ -215,15 +220,17 @@ public class ProcessamentoService {
 
         private static final ProcessamentoWatcher EMPTY_WATCHER = new ProcessamentoWatcher() {
             @Override
-            public void started() {}
+            public void started() {
+            }
 
             @Override
-            public void ended() {}
+            public void ended() {
+            }
         };
 
         private final List<Element> pool = new ArrayList<Element>();
 
-        public synchronized void add(Processamento processamento){
+        public synchronized void add(Processamento processamento) {
             Element element = new Element(processamento, new WatcherPool(processamento, EMPTY_WATCHER));
 
             synchronized (running) {
@@ -245,7 +252,7 @@ public class ProcessamentoService {
         }
 
         public synchronized Element next() throws InterruptedException {
-            while (pool.isEmpty()){
+            while (pool.isEmpty()) {
                 wait();
             }
 

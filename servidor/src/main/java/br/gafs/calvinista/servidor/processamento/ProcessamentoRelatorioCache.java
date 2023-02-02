@@ -6,7 +6,6 @@ import br.gafs.calvinista.entity.Igreja;
 import br.gafs.calvinista.servidor.ProcessamentoService;
 import br.gafs.calvinista.util.Persister;
 import br.gafs.calvinista.util.ReportUtil;
-import br.gafs.dao.DAOService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -43,7 +42,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
         Persister.save(relatorio, getId());
     }
 
-    public static File file(Relatorio relatorio, String type){
+    public static File file(Relatorio relatorio, String type) {
         return new File(new File(new File(new File(dir, relatorio.getIgreja().getChave()),
                 relatorio.getClass().getSimpleName()),
                 relatorio.getId()), relatorio.getFilename() + "." + type);
@@ -55,7 +54,7 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
 
         File file = file(report, type);
 
-        if (!file.getParentFile().exists()){
+        if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
 
@@ -76,9 +75,13 @@ public class ProcessamentoRelatorioCache implements ProcessamentoService.Process
 
     public interface Relatorio extends IEntity {
         String getId();
+
         Igreja getIgreja();
+
         String getTitulo();
+
         String getFilename();
+
         ReportUtil.Reporter generate(ProcessamentoService.ProcessamentoTool tool);
     }
 
