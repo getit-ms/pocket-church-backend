@@ -91,7 +91,7 @@ public class Boletim implements ArquivoPDF, IItemEvento {
     private StatusBoletim status = StatusBoletim.PROCESSANDO;
 
     @ManyToOne
-    @JsonView(Resumido.class)
+    @JsonView(View.Resumido.class)
     @JoinColumns({
             @JoinColumn(name = "id_autor", referencedColumnName = "id_membro"),
             @JoinColumn(name = "chave_igreja", referencedColumnName = "chave_igreja", insertable = false, updatable = false),
@@ -198,7 +198,7 @@ public class Boletim implements ArquivoPDF, IItemEvento {
                 .tipo(getTipo() == TipoBoletim.PUBLICACAO ? TipoItemEvento.PUBLICACAO : TipoItemEvento.BOLETIM)
                 .titulo(getTitulo())
                 .dataHoraPublicacao(getDataPublicacao())
-                .dataHoraReferencia(getDataPublicacao())
+                .dataHoraReferencia(getData())
                 .ilustracao(getThumbnail())
                 .autor(getAutor())
                 .status(

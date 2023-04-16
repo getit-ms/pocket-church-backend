@@ -73,6 +73,13 @@ public class AcessoController {
         return Response.ok().build();
     }
 
+    @DELETE
+    @Path("conta")
+    public Response removeConta() {
+        acessoService.removeConta();
+        return Response.ok().build();
+    }
+
     @GET
     @Path("funcionalidades/publicas")
     @Produces(MediaType.APPLICATION_JSON)

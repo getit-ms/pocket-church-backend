@@ -248,7 +248,7 @@ public class Estudo implements IEntity, ArquivoPDF, IItemEvento {
                 .tipo(TipoItemEvento.ESTUDO)
                 .titulo(getTitulo())
                 .dataHoraPublicacao(getDataPublicacao())
-                .dataHoraReferencia(getDataPublicacao())
+                .dataHoraReferencia(getData())
                 .ilustracao(getThumbnail())
                 .autor(getMembro())
                 .status(
@@ -257,5 +257,9 @@ public class Estudo implements IEntity, ArquivoPDF, IItemEvento {
                                 StatusItemEvento.NAO_PUBLICADO
                 )
                 .build();
+    }
+
+    public void divulgado() {
+        this.divulgado = true;
     }
 }
